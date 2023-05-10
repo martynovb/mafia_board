@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build-and-deploy:
@@ -13,6 +13,11 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 14
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.3.4
 
       - name: Checkout repository
         uses: actions/checkout@v2
