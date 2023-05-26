@@ -19,27 +19,27 @@ class _TableState extends State<TablePage> {
         centerTitle: true,
         title: const Text('mafia board'),
       ),
-      body:  Container(
-          margin: EdgeInsets.only(left: 16),
-          padding: EdgeInsets.all(elevation * 3),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: elevation,
-              ),
-            ],
-          ),
-          child: CustomPaint(
-            painter: CircleTablePainter(
-                tableColor: Colors.red.shade700,
-                dividerColor: Colors.black.withOpacity(0.5)),
-            child: Container(
-              width: MediaQuery.of(context).size.height - 120 - (elevation * 2),
+      body: Container(
+        margin: EdgeInsets.only(left: 16),
+        padding: EdgeInsets.all(elevation * 3),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: elevation,
             ),
+          ],
+        ),
+        child: CustomPaint(
+          painter: CircleTablePainter(
+              tableColor: Colors.red.shade700,
+              dividerColor: Colors.black.withOpacity(0.5)),
+          child: Container(
+            width: MediaQuery.of(context).size.height - 120 - (elevation * 2),
           ),
         ),
+      ),
     );
   }
 }
@@ -49,12 +49,14 @@ class CircleTablePainter extends CustomPainter {
   final Color dividerColor;
   final Color textColor;
   final int dividerCount;
+  final int startAngle;
 
   CircleTablePainter({
     this.tableColor = Colors.red,
     this.dividerColor = Colors.black,
     this.textColor = Colors.white,
     this.dividerCount = 11,
+    this.startAngle = 90,
   });
 
   @override
@@ -85,13 +87,14 @@ class CircleTablePainter extends CustomPainter {
       fontWeight: FontWeight.bold,
     );
 
-    final startingNumber = 1; // Replace with your desired starting number
-    final startingAngle = 90; // Replace with your desired starting angle
+    final startingAngle = startAngle + (360 / dividerCount / 2);
     final adjustedStartingAngle = startingAngle * (math.pi / 180.0);
 
     for (int i = 0; i < dividerCount; i++) {
-      final adjustedNumber = (i + startingNumber - 1) % dividerCount;
       final currentAngle = adjustedStartingAngle + i * angle;
+
+      final startAngle = currentAngle;
+      final endAngle = currentAngle + angle;
 
       _drawDivider(
         canvas: canvas,
@@ -99,7 +102,9 @@ class CircleTablePainter extends CustomPainter {
         radius: radius,
         dividerPaint: dividerPaint,
         angle: angle,
-        number: adjustedNumber,
+        number: i,
+        startAngle: currentAngle,
+        endAngle: endAngle,
       );
 
       _drawNumber(
@@ -109,7 +114,9 @@ class CircleTablePainter extends CustomPainter {
         center: center,
         radius: radius,
         angle: angle,
-        number: adjustedNumber,
+        number: i,
+        startAngle: startAngle,
+        endAngle: endAngle,
       );
     }
   }
@@ -121,12 +128,14 @@ class CircleTablePainter extends CustomPainter {
     required Paint dividerPaint,
     required double angle,
     required int number,
+    required double startAngle,
+    required double endAngle,
   }) {
     final start = center;
 
     final end = Offset(
-      center.dx + radius * math.cos(number * angle),
-      center.dy + radius * math.sin(number * angle),
+      center.dx + radius * math.cos(endAngle + (number + 1) * angle),
+      center.dy + radius * math.sin(endAngle + (number + 1) * angle),
     );
 
     canvas.drawLine(start, end, dividerPaint);
@@ -140,10 +149,11 @@ class CircleTablePainter extends CustomPainter {
     required double radius,
     required double angle,
     required int number,
+    required double startAngle,
+    required double endAngle,
     double offsetFactor = 0.9,
   }) {
-    final halfPieceAngle = angle / 2;
-    final textAngle = number * angle + halfPieceAngle;
+    final textAngle = (startAngle + endAngle) / 2;
 
     final textRadius = radius * offsetFactor;
     final textOffset = Offset(
