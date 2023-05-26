@@ -34,7 +34,8 @@ class _TableState extends State<TablePage> {
         child: CustomPaint(
           painter: CircleTablePainter(
               tableColor: Colors.red.shade700,
-              dividerColor: Colors.black.withOpacity(0.5)),
+              dividerColor: Colors.black.withOpacity(0.5),
+              judgeCornerColor: Colors.black.withOpacity(0.5)),
           child: Container(
             width: MediaQuery.of(context).size.height - 120 - (elevation * 2),
           ),
@@ -48,6 +49,7 @@ class CircleTablePainter extends CustomPainter {
   final Color tableColor;
   final Color dividerColor;
   final Color textColor;
+  final Color judgeCornerColor;
   final int dividerCount;
   final int startAngle;
 
@@ -55,6 +57,7 @@ class CircleTablePainter extends CustomPainter {
     this.tableColor = Colors.red,
     this.dividerColor = Colors.black,
     this.textColor = Colors.white,
+    this.judgeCornerColor = Colors.black,
     this.dividerCount = 11,
     this.startAngle = 90,
   });
@@ -119,6 +122,14 @@ class CircleTablePainter extends CustomPainter {
         endAngle: endAngle,
       );
     }
+
+    _changePieceColorBackground(
+        canvas: canvas,
+        index: 10,
+        adjustedStartingAngle: adjustedStartingAngle,
+        angle: angle,
+        center: center,
+        radius: radius);
   }
 
   void _drawDivider({
@@ -153,6 +164,10 @@ class CircleTablePainter extends CustomPainter {
     required double endAngle,
     double offsetFactor = 0.9,
   }) {
+    if (number == dividerCount - 1) {
+      return;
+    }
+
     final textAngle = (startAngle + endAngle) / 2;
 
     final textRadius = radius * offsetFactor;
@@ -175,6 +190,25 @@ class CircleTablePainter extends CustomPainter {
     );
 
     textPainter.paint(canvas, textOffsetCentered);
+  }
+
+  void _changePieceColorBackground({
+    required Canvas canvas,
+    required index,
+    required adjustedStartingAngle,
+    required angle,
+    required Offset center,
+    required double radius,
+  }) {
+    final startAngle = adjustedStartingAngle + index * angle;
+
+    final backgroundPaint = Paint()
+      ..color = judgeCornerColor
+      ..style = PaintingStyle.fill;
+
+    final rect = Rect.fromCircle(center: center, radius: radius);
+
+    canvas.drawArc(rect, startAngle, angle, true, backgroundPaint);
   }
 
   @override
