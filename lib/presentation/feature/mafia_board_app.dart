@@ -5,6 +5,7 @@ import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_blo
 import 'package:mafia_board/presentation/feature/home/home_page.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/role_bloc/role_bloc.dart';
+import 'package:mafia_board/presentation/feature/table/table_page.dart';
 
 class MafiaBoardApp extends StatelessWidget {
   const MafiaBoardApp({super.key});
@@ -33,7 +34,7 @@ class MafiaBoardApp extends StatelessWidget {
         child: MaterialApp(
           title: 'Mafia board',
           theme: ThemeData(brightness: Brightness.dark),
-          home: const HomePage(),
+          home: const TablePage(),
         ));
   }
 }
