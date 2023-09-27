@@ -7,6 +7,8 @@ class PlayerModel {
   final Role role;
   double score;
   bool isRemoved;
+  bool isKilled;
+  bool isMuted;
 
   PlayerModel(
     this.id,
@@ -15,14 +17,20 @@ class PlayerModel {
     this.role,
     this.score, {
     this.isRemoved = false,
+    this.isKilled = false,
+    this.isMuted = false,
   });
+
+  bool isAvailable() => !isRemoved && !isKilled;
 
   PlayerModel.empty({this.id = 0})
       : nickname = '',
         role = Role.NONE,
         fouls = 0,
         score = 0,
-        isRemoved = false;
+        isRemoved = false,
+        isMuted = false,
+        isKilled = false;
 
   @override
   String toString() {

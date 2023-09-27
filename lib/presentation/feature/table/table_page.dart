@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_page.dart';
 import 'package:mafia_board/presentation/feature/table/table_painter.dart';
 import 'dart:math' as math;
 import 'package:fluttertoast/fluttertoast.dart';
@@ -42,52 +43,8 @@ class _TableState extends State<TablePage> {
             ),
           ],
         ),
-        child: GestureDetector(
-          onTapUp: _onTableTapUp,
-          child: CustomPaint(
-            painter: TablePainter(
-              dividerCount: dividerCount,
-              tableColor: Colors.red.shade700,
-              dividerColor: Colors.black.withOpacity(0.5),
-              judgeCornerColor: Colors.black.withOpacity(0.5),
-              startAngle: startAngle,
-            ),
-            child: Container(
-              width: MediaQuery.of(context).size.height - 120 - (elevation * 2),
-            ),
-          ),
-        ),
+        child: PlayersSheetPage(),
       ),
     );
-  }
-
-  void _onTableTapUp(details) {
-    final RenderBox renderBox = context.findRenderObject() as RenderBox;
-    final localPosition = renderBox.globalToLocal(details.globalPosition);
-
-    final double centerX = renderBox.size.width / 2;
-    final double centerY = renderBox.size.height / 2;
-
-    final center = Offset(centerX, centerY);
-    final radius = renderBox.size.width / 2;
-
-    final double tapX = localPosition.dx;
-    final double tapY = localPosition.dy;
-
-    final double distance = calculateDistance(centerX, centerY, tapX, tapY);
-
-    if (distance <= radius) {
-      fToast.showToast(
-        child: Text('CIRCLE'),
-        gravity: ToastGravity.BOTTOM,
-        toastDuration: Duration(milliseconds: 500),
-      );
-    }
-  }
-
-  double calculateDistance(double x1, double y1, double x2, double y2) {
-    final double dx = x2 - x1;
-    final double dy = y2 - y1;
-    return math.sqrt(dx * dx + dy * dy);
   }
 }

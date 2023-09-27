@@ -173,4 +173,36 @@ class TablePainter extends CustomPainter {
         oldDelegate.dividerColor != dividerColor ||
         oldDelegate.dividerCount != dividerCount;
   }
+
+  /*
+  *   void _onTableTapUp(details) {
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final localPosition = renderBox.globalToLocal(details.globalPosition);
+
+    final double centerX = renderBox.size.width / 2;
+    final double centerY = renderBox.size.height / 2;
+
+    final center = Offset(centerX, centerY);
+    final radius = renderBox.size.width / 2;
+
+    final double tapX = localPosition.dx;
+    final double tapY = localPosition.dy;
+
+    final double distance = calculateDistance(centerX, centerY, tapX, tapY);
+
+    if (distance <= radius) {
+      fToast.showToast(
+        child: Text('CIRCLE'),
+        gravity: ToastGravity.BOTTOM,
+        toastDuration: Duration(milliseconds: 500),
+      );
+    }
+  }
+
+  double calculateDistance(double x1, double y1, double x2, double y2) {
+    final double dx = x2 - x1;
+    final double dy = y2 - y1;
+    return math.sqrt(dx * dx + dy * dy);
+  }
+  * */
 }

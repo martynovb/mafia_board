@@ -13,6 +13,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     on<AddFoulEvent>(_addFoulHandler);
     on<ChangeRoleEvent>(_changeRoleHandler);
     on<ChangeNicknameEvent>(_changeNicknameHandler);
+    on<KillPlayerHandler>(_killPlayerHandler);
   }
 
   void _addFoulHandler(AddFoulEvent event, emit) async {
@@ -38,6 +39,14 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     boardRepository.updatePlayer(
       event.playerId,
       nickname: event.newNickname,
+    );
+    emit(ShowSheetState(boardRepository.getAllPlayers()));
+  }
+
+  void _killPlayerHandler(KillPlayerHandler event, emit) async {
+    boardRepository.updatePlayer(
+      event.playerId,
+      isKilled: true,
     );
     emit(ShowSheetState(boardRepository.getAllPlayers()));
   }

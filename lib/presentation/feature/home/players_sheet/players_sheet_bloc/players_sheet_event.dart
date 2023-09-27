@@ -29,3 +29,9 @@ class ChangeNicknameEvent extends SheetEvent {
     required this.newNickname,
   });
 }
+
+class KillPlayerHandler extends SheetEvent {
+  final int playerId;
+
+  KillPlayerHandler({required this.playerId});
+}

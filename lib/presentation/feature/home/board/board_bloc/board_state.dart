@@ -1,3 +1,5 @@
+import 'package:mafia_board/data/model/game_phase_model.dart';
+
 abstract class BoardState {}
 
 class InitialBoardState extends BoardState {}
@@ -8,4 +10,9 @@ class ErrorBoardState extends BoardState {
   ErrorBoardState(this.errorMessage);
 }
 
-class StartGameState extends BoardState {}
+class GamePhaseState extends BoardState {
+  String currentGamePhaseName = '';
+  GamePhaseModel phase;
+
+  GamePhaseState(this.phase, this.currentGamePhaseName);
+}

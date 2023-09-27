@@ -5,6 +5,7 @@ class BoardRepository {
   final List<PlayerModel> _players = [];
 
   List<PlayerModel> createPlayers(int count) {
+    _players.clear();
     for (int i = 0; i < count; i++) {
       _players.add(PlayerModel.empty(id: i));
     }
@@ -12,6 +13,10 @@ class BoardRepository {
   }
 
   List<PlayerModel> getAllPlayers() => _players;
+
+  List<PlayerModel> getAllAvailablePlayers() => _players
+      .where((player) => !player.isKilled && !player.isRemoved)
+      .toList();
 
   Future<PlayerModel?> getPlayerByIndex(int index) async => _players[index];
 
@@ -26,6 +31,7 @@ class BoardRepository {
     Role? role,
     double? score,
     bool? isRemoved,
+    bool? isKilled,
   }) async {
     int playerIndex = _players.indexWhere((player) => player.id == id);
     PlayerModel player = _players[playerIndex];
@@ -36,6 +42,7 @@ class BoardRepository {
       role ?? player.role,
       score ?? player.score,
       isRemoved: isRemoved ?? player.isRemoved,
+      isKilled: isKilled ?? player.isKilled,
     );
 
     _players[playerIndex] = newPlayerData;

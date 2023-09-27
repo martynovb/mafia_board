@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:mafia_board/data/model/game_phase_model.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_event.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_state.dart';
@@ -14,12 +16,11 @@ class BoardPage extends StatefulWidget {
 
 class _BoardPageState extends State<BoardPage> {
   late BoardBloc boardBloc;
-  var isGameStarted = false;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    boardBloc = BlocProvider.of<BoardBloc>(context);
+  void initState() {
+    boardBloc = GetIt.instance<BoardBloc>();
+    super.initState();
   }
 
   @override
@@ -27,15 +28,10 @@ class _BoardPageState extends State<BoardPage> {
     return BlocBuilder(
         bloc: boardBloc,
         builder: (BuildContext context, BoardState state) {
-          if (state is StartGameState) {
-            isGameStarted = true;
-          }
           return Column(
             children: [
-              _stageBoard(),
-              state is ErrorBoardState
-                  ? _errorView(state.errorMessage)
-                  : Container()
+              _startGameButton(),
+              _stageBoard(state),
             ],
           );
         });
@@ -49,9 +45,57 @@ class _BoardPageState extends State<BoardPage> {
     );
   }
 
-  Widget _stageBoard() {
-    return Center(
-      child: _startGameButton(),
+  Widget _stageBoard(BoardState state) {
+    if (state is GamePhaseState) {
+      return Center(child: _gamePhaseView(state));
+    } else if (state is ErrorBoardState) {
+      return _errorView(state.errorMessage);
+    } else {
+      return const Center(
+        child: Text(
+          'Empty',
+        ),
+      );
+    }
+  }
+
+  Widget _gamePhaseView(GamePhaseState gamePhaseState) {
+    return Column(
+      children: [
+        Text('DAY #${gamePhaseState.phase.currentDay}'),
+        Text('Title: ${gamePhaseState.currentGamePhaseName}'),
+        if (!gamePhaseState.phase.isSpeakPhaseFinished())
+          _speakingPhaseView(gamePhaseState.phase)
+        else if (!gamePhaseState.phase.isVotingPhaseFinished())
+          _votingPhaseView(gamePhaseState.phase)
+        else if (!gamePhaseState.phase.isNightPhaseFinished())
+          _nightPhaseView(gamePhaseState.phase)
+      ],
+    );
+  }
+
+  Widget _speakingPhaseView(GamePhaseModel phase) {
+    return Column(
+      children: [
+        Text(
+          'Speaking player: ${phase.getCurrentSpeakPhase().player?.nickname}',
+        ),
+        IconButton(onPressed: () {
+          boardBloc.add(NextPhaseEvent());
+        }, icon: const Icon(Icons.play_arrow))
+      ],
+    );
+  }
+
+  Widget _votingPhaseView(GamePhaseModel phase) {
+    return Container(
+      child: Text('Voting phase'),
+    );
+  }
+
+  Widget _nightPhaseView(GamePhaseModel phase) {
+    return Container(
+      child: Text('Night phase'),
     );
   }
 
@@ -59,8 +103,8 @@ class _BoardPageState extends State<BoardPage> {
       onTap: () {
         boardBloc.add(StartGameEvent());
       },
-      child: Text(
-        isGameStarted ? 'GAME STARTED' : 'Start Game',
+      child: const Text(
+        'Start Game',
         style: TextStyle(fontSize: 32),
       ));
 }
