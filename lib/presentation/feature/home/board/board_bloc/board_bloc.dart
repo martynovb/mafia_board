@@ -8,8 +8,10 @@ import 'package:mafia_board/domain/game_phase_manager.dart';
 import 'package:mafia_board/domain/player_validator.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_event.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_state.dart';
+import 'package:mafia_board/presentation/maf_logger.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
+  static const String _tag = 'BoardBloc';
   final BoardRepository boardRepository;
   final PlayerValidator playerValidator;
   final GamePhaseManager gamePhaseManager;
@@ -53,10 +55,29 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   void _putOnVoteEventHandler(PutOnVoteEvent event, emit) async {
+    MafLogger.d(_tag, '_putOnVoteEventHandler');
     try {
-      gamePhaseManager.putOnVote(event.whoPutOnVote, event.playerOnVote);
+      final phase = await gamePhaseManager.gamePhase;
+      MafLogger.d(_tag, '$phase');
+       if (!phase.isSpeakPhaseFinished()) {
+        final currentSpeaker = phase.getCurrentSpeakPhase()?.player;
+        if (currentSpeaker != null) {
+          MafLogger.d(_tag, 'Current speaker: ${currentSpeaker.nickname}');
+          MafLogger.d(_tag, 'Put on vote: ${event.playerOnVote.nickname}');
+          gamePhaseManager.putOnVote(currentSpeaker, event.playerOnVote);
+          return;
+        } else {
+          emit(ErrorBoardState("Can't put on vote: Not found current speaker"));
+        }
+      } else {
+        emit(ErrorBoardState("Can't put on vote: it's not speaking phase"));
+      }
     } on InvalidPlayerDataException catch (ex) {
+      MafLogger.e(_tag, 'InvalidPlayerDataException');
       emit(ErrorBoardState(ex.errorMessage));
+    } catch(ex){
+      MafLogger.e(_tag, 'Unexpected error');
+      emit(ErrorBoardState('Unexpected error'));
     }
   }
 

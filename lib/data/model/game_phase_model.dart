@@ -2,7 +2,10 @@ import 'package:mafia_board/data/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/model/player_model.dart';
-import 'package:mafia_board/data/model/role.dart';
+import 'package:mafia_board/presentation/maf_logger.dart';
+import 'package:collection/collection.dart';
+
+const _tag = 'GamePhaseModel';
 
 class GamePhaseModel {
   PlayerModel? readyToSpeakPlayer;
@@ -10,88 +13,138 @@ class GamePhaseModel {
   int currentDay = 0;
   bool isStarted = false;
 
-  List<MapEntry<int, SpeakPhaseAction>> speakPhasesByDays = [];
-  List<MapEntry<int, VotePhaseAction>> votePhasesByDays = [];
-  List<MapEntry<int, NightPhaseAction>> nightPhasesByDays = [];
+  Map<int, List<SpeakPhaseAction>> speakPhasesByDays = {};
+  Map<int, List<VotePhaseAction>> votePhasesByDays = {};
+  Map<int, List<NightPhaseAction>> nightPhasesByDays = {};
 
   bool isNightPhaseFinished() {
-    bool isFinished = true;
-    for (var mapEntry in nightPhasesByDays) {
-      if (mapEntry.key == currentDay) {
-        isFinished = mapEntry.value.isFinished;
-      }
+    MafLogger.d(_tag, 'isNightPhaseFinished');
+    NightPhaseAction? phase;
+    if (nightPhasesByDays.containsKey(currentDay)) {
+      phase = nightPhasesByDays[currentDay]
+          ?.firstWhereOrNull((element) => !element.isFinished);
     }
-    return isFinished;
+    MafLogger.d(_tag, 'isNightPhaseFinished: ${phase == null}');
+    return phase == null;
   }
 
   bool isVotingPhaseFinished() {
-    bool isFinished = true;
-    for (var mapEntry in votePhasesByDays) {
-      if (mapEntry.key == currentDay) {
-        isFinished = mapEntry.value.isVoted;
-      }
+    MafLogger.d(_tag, 'isVotingPhaseFinished');
+    VotePhaseAction? phase;
+    if (votePhasesByDays.containsKey(currentDay)) {
+      phase = votePhasesByDays[currentDay]
+          ?.firstWhereOrNull((element) => !element.isVoted);
     }
-    return isFinished;
+    MafLogger.d(_tag, 'isVotingPhaseFinished: ${phase == null}');
+    return phase == null;
   }
 
   bool isSpeakPhaseFinished() {
-    bool isFinished = true;
-    for (var mapEntry in speakPhasesByDays) {
-      if (mapEntry.key == currentDay) {
-        isFinished = mapEntry.value.isFinished;
-      }
+    MafLogger.d(_tag, 'isSpeakPhaseFinished');
+    SpeakPhaseAction? phase;
+    if (speakPhasesByDays.containsKey(currentDay)) {
+      phase = speakPhasesByDays[currentDay]
+          ?.firstWhereOrNull((element) => !element.isFinished);
     }
-    return isFinished;
+    MafLogger.d(_tag, 'isSpeakPhaseFinished: ${phase == null}');
+    return phase == null;
   }
 
   void addVotePhase(VotePhaseAction votePhaseAction) {
-    votePhasesByDays.add(MapEntry(currentDay, votePhaseAction));
+    MafLogger.d(_tag, 'addVotePhase: ${votePhaseAction.toString()}');
+    if (votePhasesByDays.containsKey(currentDay)) {
+      final phaseList = votePhasesByDays[currentDay]!;
+      phaseList.add(votePhaseAction);
+      MafLogger.d(
+          _tag, 'votePhaseAction success, phaseList: ${phaseList.length}');
+    } else {
+      MafLogger.d(_tag, 'votePhaseAction success, created new phase list');
+      votePhasesByDays[currentDay] = [votePhaseAction];
+    }
   }
 
   void addNightPhase(NightPhaseAction nightPhaseAction) {
-    nightPhasesByDays.add(MapEntry(currentDay, nightPhaseAction));
+    MafLogger.d(_tag, 'addNightPhase: ${nightPhaseAction.toString()}');
+    if (nightPhasesByDays.containsKey(currentDay)) {
+      final phaseList = nightPhasesByDays[currentDay]!;
+      phaseList.add(nightPhaseAction);
+      MafLogger.d(
+          _tag, 'addNightPhase success, phaseList: ${phaseList.length}');
+    } else {
+      MafLogger.d(_tag, 'addNightPhase success, created new phase list');
+      nightPhasesByDays[currentDay] = [nightPhaseAction];
+    }
   }
 
   void addSpeakPhase(SpeakPhaseAction speakPhaseAction) {
-    speakPhasesByDays.add(MapEntry(currentDay, speakPhaseAction));
+    MafLogger.d(_tag, 'addSpeakPhase: ${speakPhaseAction.toString()}');
+    if (speakPhasesByDays.containsKey(currentDay)) {
+      final phaseList = speakPhasesByDays[currentDay]!;
+      phaseList.add(speakPhaseAction);
+      MafLogger.d(
+          _tag, 'addSpeakPhase success, phaseList: ${phaseList.length}');
+    } else {
+      MafLogger.d(_tag, 'addSpeakPhase success, created new phase list');
+      speakPhasesByDays[currentDay] = [speakPhaseAction];
+    }
   }
 
-  SpeakPhaseAction getCurrentSpeakPhase() => speakPhasesByDays
-      .where(
-        (mapEntry) => mapEntry.key == currentDay && !mapEntry.value.isFinished,
-      )
-      .map((mapEntry) => mapEntry.value)
-      .first;
+  SpeakPhaseAction? getCurrentSpeakPhase() => speakPhasesByDays[currentDay]
+      ?.firstWhereOrNull((phase) => !phase.isFinished);
 
-  VotePhaseAction getCurrentVotePhase() => votePhasesByDays
-      .where(
-        (mapEntry) => mapEntry.key == currentDay && !mapEntry.value.isVoted,
-      )
-      .map((mapEntry) => mapEntry.value)
-      .first;
+  VotePhaseAction? getCurrentVotePhase() =>
+      votePhasesByDays[currentDay]?.firstWhereOrNull((phase) => !phase.isVoted);
 
-  NightPhaseAction getCurrentNightPhase() => nightPhasesByDays
-      .where(
-        (mapEntry) => mapEntry.key == currentDay && !mapEntry.value.isFinished,
-      )
-      .map((mapEntry) => mapEntry.value)
-      .first;
+  NightPhaseAction? getCurrentNightPhase() => nightPhasesByDays[currentDay]
+      ?.firstWhereOrNull((phase) => !phase.isFinished);
 
-  void updateSpeakPhase(SpeakPhaseAction speakPhaseAction) {
-    final speakPhaseIndex = speakPhasesByDays.indexWhere((mapEntry) =>
-        mapEntry.key == currentDay && mapEntry.value == speakPhaseAction);
-    speakPhasesByDays[speakPhaseIndex] = MapEntry(currentDay, speakPhaseAction);
+  List<VotePhaseAction> getUniqueTodaysVotePhases() {
+    List<VotePhaseAction> todaysPhases = votePhasesByDays[currentDay] ?? [];
+
+    final seenIds = <int>{};
+    return todaysPhases.where((phase) {
+      final id = phase.playerOnVote.id;
+
+      if (seenIds.add(id)) {
+        return true;
+      }
+      return false;
+    }).toList();
   }
 
-  void updateVotePhase(VotePhaseAction votePhaseAction) {
-    final votePhaseIndex = votePhasesByDays.indexWhere((mapEntry) =>
-        mapEntry.key == currentDay && mapEntry.value == votePhaseAction);
-    votePhasesByDays[votePhaseIndex] = MapEntry(currentDay, votePhaseAction);
+  List<VotePhaseAction> getAllTodaysVotePhases() =>
+      votePhasesByDays[currentDay] ?? [];
+
+  bool updateSpeakPhase(SpeakPhaseAction speakPhaseAction) {
+    MafLogger.d(_tag, 'updateSpeakPhase: $speakPhaseAction');
+    if (speakPhasesByDays.containsKey(currentDay)) {
+      final phaseList = speakPhasesByDays[currentDay]!;
+      final index = phaseList.indexOf(speakPhaseAction);
+      phaseList[index] = speakPhaseAction;
+      return true;
+    }
+    return false;
   }
 
-  void updateNightPhase(NightPhaseAction nightPhaseAction) {
-    final nightPhaseIndex = nightPhasesByDays.indexWhere((mapEntry) =>
-        mapEntry.key == currentDay && mapEntry.value == nightPhaseAction);
-    nightPhasesByDays[nightPhaseIndex] = MapEntry(currentDay, nightPhaseAction);
+  bool updateVotePhase(VotePhaseAction votePhaseAction) {
+    MafLogger.d(_tag, 'updateVotePhase: $votePhaseAction');
+    if (votePhasesByDays.containsKey(currentDay)) {
+      final phaseList = votePhasesByDays[currentDay]!;
+      final index = phaseList.indexOf(votePhaseAction);
+      phaseList[index] = votePhaseAction;
+      return true;
+    }
+    return false;
+  }
+
+  bool updateNightPhase(NightPhaseAction nightPhaseAction) {
+    MafLogger.d(_tag, 'updateNightPhase: $nightPhaseAction');
+    if (nightPhasesByDays.containsKey(currentDay)) {
+      final phaseList = nightPhasesByDays[currentDay]!;
+      final index = phaseList.indexOf(nightPhaseAction);
+      phaseList[index] = nightPhaseAction;
+      return true;
+    }
+    return false;
   }
 }

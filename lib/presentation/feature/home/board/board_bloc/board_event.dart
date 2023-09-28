@@ -8,10 +8,8 @@ class NextPhaseEvent extends BoardEvent {}
 
 class PutOnVoteEvent extends BoardEvent {
   final PlayerModel playerOnVote;
-  final PlayerModel whoPutOnVote;
 
   PutOnVoteEvent({
     required this.playerOnVote,
-    required this.whoPutOnVote,
   });
 }

@@ -4,6 +4,8 @@ import 'package:get_it/get_it.dart';
 import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
+import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
+import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_event.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_event.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_state.dart';
@@ -13,7 +15,9 @@ import 'package:mafia_board/presentation/feature/home/players_sheet/role_bloc/ro
 import 'package:mafia_board/presentation/feature/home/players_sheet/widgets/nickname_widget.dart';
 
 class PlayersSheetPage extends StatefulWidget {
-  const PlayersSheetPage({super.key});
+  const PlayersSheetPage({
+    super.key,
+  });
 
   @override
   State<PlayersSheetPage> createState() => _PlayersSheetPageState();
@@ -22,11 +26,13 @@ class PlayersSheetPage extends StatefulWidget {
 class _PlayersSheetPageState extends State<PlayersSheetPage> {
   late PlayersSheetBloc _playersSheetBloc;
   late RoleBloc _roleBloc;
+  late BoardBloc _boardBloc;
 
   @override
   void initState() {
     _playersSheetBloc = GetIt.instance<PlayersSheetBloc>();
     _roleBloc = GetIt.instance<RoleBloc>();
+    _boardBloc = GetIt.instance<BoardBloc>();
     super.initState();
   }
 
@@ -109,46 +115,51 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
       );
 
   Widget _playerItem(int index, PlayerModel playerModel) {
-    return Container(
-        height: Dimensions.playerItemHeight,
-        color: playerModel.isRemoved
-            ? Colors.red.withOpacity(0.5)
-            : Colors.transparent,
-        child: Row(
-          children: [
-            SizedBox(
-              width: 24,
-              child: Center(
-                child: Text((index + 1).toString()),
+    return GestureDetector(
+      onTap: () {
+        _boardBloc.add(PutOnVoteEvent(playerOnVote: playerModel));
+      },
+      child: Container(
+          height: Dimensions.playerItemHeight,
+          color: playerModel.isRemoved
+              ? Colors.red.withOpacity(0.5)
+              : Colors.transparent,
+          child: Row(
+            children: [
+              SizedBox(
+                width: 24,
+                child: Center(
+                  child: Text((index + 1).toString()),
+                ),
               ),
-            ),
-            const VerticalDivider(
-              color: Colors.white,
-            ),
-            Expanded(
-              flex: 5,
-              child: NicknameWidget(
-                nickname: playerModel.nickname,
-                onChanged: (nickname) =>
-                    _playersSheetBloc.add(ChangeNicknameEvent(
-                  playerId: index,
-                  newNickname: nickname,
-                )),
+              const VerticalDivider(
+                color: Colors.white,
               ),
-            ),
-            const VerticalDivider(
-              color: Colors.white,
-            ),
-            _foulsBuilder(playerModel.id, playerModel.fouls),
-            const VerticalDivider(
-              color: Colors.white,
-            ),
-            SizedBox(
-              width: Dimensions.roleViewWidth,
-              child: _roleDropdown(playerModel.id, playerModel.role),
-            ),
-          ],
-        ));
+              Expanded(
+                flex: 5,
+                child: NicknameWidget(
+                  nickname: playerModel.nickname,
+                  onChanged: (nickname) =>
+                      _playersSheetBloc.add(ChangeNicknameEvent(
+                    playerId: index,
+                    newNickname: nickname,
+                  )),
+                ),
+              ),
+              const VerticalDivider(
+                color: Colors.white,
+              ),
+              _foulsBuilder(playerModel.id, playerModel.fouls),
+              const VerticalDivider(
+                color: Colors.white,
+              ),
+              SizedBox(
+                width: Dimensions.roleViewWidth,
+                child: _roleDropdown(playerModel.id, playerModel.role),
+              ),
+            ],
+          )),
+    );
   }
 
   Widget _foulsBuilder(int playerId, int fouls) => InkWell(

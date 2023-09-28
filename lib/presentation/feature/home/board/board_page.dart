@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase_model.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_event.dart';
@@ -78,19 +79,36 @@ class _BoardPageState extends State<BoardPage> {
     return Column(
       children: [
         Text(
-          'Speaking player: ${phase.getCurrentSpeakPhase().player?.nickname}',
+          'Speaking player: ${phase.getCurrentSpeakPhase()?.player?.nickname}',
         ),
-        IconButton(onPressed: () {
-          boardBloc.add(NextPhaseEvent());
-        }, icon: const Icon(Icons.play_arrow))
+        IconButton(
+            onPressed: () {
+              boardBloc.add(NextPhaseEvent());
+            },
+            icon: const Icon(Icons.play_arrow))
       ],
     );
   }
 
   Widget _votingPhaseView(GamePhaseModel phase) {
-    return Container(
-      child: Text('Voting phase'),
-    );
+    return Column(children: [
+      Text(
+        'Vote against player: ${phase.getCurrentVotePhase()?.playerOnVote.nickname}',
+      ),
+      SizedBox(
+        height: 16,
+      ),
+      Divider(),
+      const Text('All players on voting:'),
+      ListView.separated(
+        shrinkWrap: true,
+        separatorBuilder: (context, index) => const Divider(),
+        itemBuilder: (context, index) {
+          return _voteItem(index, phase.getUniqueTodaysVotePhases()[index]);
+        },
+        itemCount: phase.getUniqueTodaysVotePhases().length,
+      )
+    ]);
   }
 
   Widget _nightPhaseView(GamePhaseModel phase) {
@@ -107,4 +125,18 @@ class _BoardPageState extends State<BoardPage> {
         'Start Game',
         style: TextStyle(fontSize: 32),
       ));
+
+  Widget _voteItem(int index, VotePhaseAction votePhaseAction) {
+    return Container(
+        child: Row(
+      children: [
+        Text('${index + 1}'),
+        Divider(),
+        SizedBox(
+          width: 8,
+        ),
+        Text(votePhaseAction.playerOnVote.nickname),
+      ],
+    ));
+  }
 }

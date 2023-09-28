@@ -10,5 +10,19 @@ class SpeakPhaseAction extends GamePhaseAction {
     required int currentDay,
     required this.player,
     this.timeForSpeakInSec = 60,
-  }): super(currentDay);
+  }) : super(currentDay);
+
+  SpeakPhaseAction.empty()
+      : player = null,
+        timeForSpeakInSec = -1,
+        isFinished = false,
+        super(-1);
+
+  @override
+  String toString() {
+    return 'SpeakPhaseAction:'
+        '\nplayer: $player'
+        '\ntimeForSpeakInSec: $timeForSpeakInSec'
+        '\nisFinished: $isFinished';
+  }
 }

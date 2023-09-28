@@ -13,7 +13,15 @@ class VotePhaseAction extends GamePhaseAction {
     required this.whoPutOnVote,
   }) : super(currentDay);
 
-  void vote(PlayerModel playerModel){
+  void vote(PlayerModel playerModel) {
     votedPlayers.add(playerModel);
+  }
+
+  @override
+  String toString() {
+    return 'VotePhaseAction: '
+        '\nplayerOnVote: ${playerOnVote.toString()}'
+        '\nwhoPutOnVote: ${whoPutOnVote.toString()}'
+        '\nisVoted: $isVoted';
   }
 }

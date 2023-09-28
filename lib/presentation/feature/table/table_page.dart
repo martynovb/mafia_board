@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_page.dart';
-import 'package:mafia_board/presentation/feature/table/table_painter.dart';
-import 'dart:math' as math;
-import 'package:fluttertoast/fluttertoast.dart';
 
 class TablePage extends StatefulWidget {
   const TablePage({super.key});
@@ -12,7 +9,6 @@ class TablePage extends StatefulWidget {
 }
 
 class _TableState extends State<TablePage> {
-  late FToast fToast;
   final elevation = 8.0;
   final dividerCount = 11;
   final startAngle = 90;
@@ -20,8 +16,6 @@ class _TableState extends State<TablePage> {
   @override
   void initState() {
     super.initState();
-    fToast = FToast();
-    fToast.init(context);
   }
 
   @override
