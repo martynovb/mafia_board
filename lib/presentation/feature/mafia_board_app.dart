@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/home_page.dart';
+import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_bloc/vote_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/role_bloc/role_bloc.dart';
 
@@ -16,6 +17,7 @@ class MafiaBoardApp extends StatelessWidget {
           BlocProvider(create: (context) => GetIt.instance<PlayersSheetBloc>()),
           BlocProvider(create: (context) => GetIt.instance<RoleBloc>()),
           BlocProvider(create: (context) => GetIt.instance<BoardBloc>()),
+          BlocProvider(create: (context) => GetIt.instance<VotePhaseBloc>()),
         ],
         child: MaterialApp(
           title: 'Mafia board',

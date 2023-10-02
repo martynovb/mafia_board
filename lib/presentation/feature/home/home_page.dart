@@ -15,18 +15,17 @@ class HomePage extends StatelessWidget {
         body: Container(
             margin: const EdgeInsets.only(left: 16.0, right: 16.0),
             child: Center(
-              child: Row(children: [
-                const Expanded(
-                  flex: 1,
+              child: Row(children: const [
+                Expanded(
+                  flex: 2,
                   child: BoardPage(),
                 ),
-                const VerticalDivider(
+                VerticalDivider(
                   color: Colors.white12,
                 ),
                 Expanded(
                   flex: 1,
-                  child: PlayersSheetPage(
-                  ),
+                  child: PlayersSheetPage(),
                 ),
               ]),
             )));

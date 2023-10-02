@@ -59,12 +59,15 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     try {
       final phase = await gamePhaseManager.gamePhase;
       MafLogger.d(_tag, '$phase');
-       if (!phase.isSpeakPhaseFinished()) {
+      if (!phase.isSpeakPhaseFinished()) {
         final currentSpeaker = phase.getCurrentSpeakPhase()?.player;
         if (currentSpeaker != null) {
           MafLogger.d(_tag, 'Current speaker: ${currentSpeaker.nickname}');
           MafLogger.d(_tag, 'Put on vote: ${event.playerOnVote.nickname}');
-          gamePhaseManager.putOnVote(currentSpeaker, event.playerOnVote);
+          if (gamePhaseManager.putOnVote(currentSpeaker, event.playerOnVote)) {
+            emit(GamePhaseState(
+                await gamePhaseManager.gamePhase, mapGamePhaseName(phase)));
+          }
           return;
         } else {
           emit(ErrorBoardState("Can't put on vote: Not found current speaker"));
@@ -75,7 +78,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     } on InvalidPlayerDataException catch (ex) {
       MafLogger.e(_tag, 'InvalidPlayerDataException');
       emit(ErrorBoardState(ex.errorMessage));
-    } catch(ex){
+    } catch (ex) {
       MafLogger.e(_tag, 'Unexpected error');
       emit(ErrorBoardState('Unexpected error'));
     }

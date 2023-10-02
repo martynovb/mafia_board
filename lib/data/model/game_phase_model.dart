@@ -147,4 +147,28 @@ class GamePhaseModel {
     }
     return false;
   }
+
+  bool voteAgainst({
+    required PlayerModel currentPlayer,
+    required PlayerModel voteAgainstPlayer,
+  }) {
+    return getAllTodaysVotePhases()
+            .firstWhereOrNull(
+              (phase) => phase.playerOnVote.id == voteAgainstPlayer.id,
+            )
+            ?.vote(currentPlayer) ??
+        false;
+  }
+
+  bool cancelVoteAgainst({
+    required PlayerModel currentPlayer,
+    required PlayerModel voteAgainstPlayer,
+  }) {
+    return getAllTodaysVotePhases()
+            .firstWhereOrNull(
+              (phase) => phase.playerOnVote.id == voteAgainstPlayer.id,
+            )
+            ?.removeVote(currentPlayer) ??
+        false;
+  }
 }

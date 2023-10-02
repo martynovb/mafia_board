@@ -13,9 +13,11 @@ class VotePhaseAction extends GamePhaseAction {
     required this.whoPutOnVote,
   }) : super(currentDay);
 
-  void vote(PlayerModel playerModel) {
-    votedPlayers.add(playerModel);
-  }
+  bool vote(PlayerModel playerModel) => votedPlayers.add(playerModel);
+
+  bool removeVote(PlayerModel playerModel) => votedPlayers.remove(playerModel);
+
+
 
   @override
   String toString() {

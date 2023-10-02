@@ -84,6 +84,15 @@ class GamePhaseManager {
     _updateGamePhase(phase);
   }
 
+  void finishCurrentVotePhase() {
+    final phase = gamePhaseRepository.getCurrentGamePhase();
+    final currentVotePhase = phase.getCurrentVotePhase();
+    if (currentVotePhase != null) {
+      currentVotePhase.isVoted = true;
+      _updateGamePhase(phase);
+    }
+  }
+
   void _prepareSpeakPhases(GamePhaseModel phase) {
     boardRepository.getAllPlayers().forEach((player) {
       if (!player.isRemoved && !player.isKilled) {
@@ -108,13 +117,57 @@ class GamePhaseManager {
     return true;
   }
 
-  void putOnVote(PlayerModel currentPlayer, PlayerModel playerToVote) {
+  bool putOnVote(PlayerModel currentPlayer, PlayerModel playerToVote) {
     final phase = gamePhaseRepository.getCurrentGamePhase();
-    phase.addVotePhase(VotePhaseAction(
-      currentDay: phase.currentDay,
-      playerOnVote: playerToVote,
-      whoPutOnVote: currentPlayer,
-    ));
+    if (_isPlayerAlreadyPutOnVote(
+        currentPlayer, phase.getUniqueTodaysVotePhases())) {
+      phase.addVotePhase(VotePhaseAction(
+        currentDay: phase.currentDay,
+        playerOnVote: playerToVote,
+        whoPutOnVote: currentPlayer,
+      ));
+      return true;
+    }
+    return false;
+  }
+
+  bool voteAgainst({
+    required PlayerModel currentPlayer,
+    required PlayerModel voteAgainstPlayer,
+  }) {
+    final phase = gamePhaseRepository.getCurrentGamePhase();
+    final result = phase.voteAgainst(
+      currentPlayer: currentPlayer,
+      voteAgainstPlayer: voteAgainstPlayer,
+    );
+    _updateGamePhase(phase);
+    return result;
+  }
+
+  bool cancelVoteAgainst({
+    required PlayerModel currentPlayer,
+    required PlayerModel voteAgainstPlayer,
+  }) {
+    final phase = gamePhaseRepository.getCurrentGamePhase();
+    final result = phase.cancelVoteAgainst(
+      currentPlayer: currentPlayer,
+      voteAgainstPlayer: voteAgainstPlayer,
+    );
+    _updateGamePhase(phase);
+    return result;
+  }
+
+  bool _isPlayerAlreadyPutOnVote(
+    PlayerModel playerModel,
+    List<VotePhaseAction> allUniqueTodayVotePhases,
+  ) {
+    bool isVoted = true;
+
+    for (var phase in allUniqueTodayVotePhases) {
+      isVoted = phase.whoPutOnVote.id != playerModel.id;
+    }
+
+    return isVoted;
   }
 
   void addFoul(PlayerModel player) {}
