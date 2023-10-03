@@ -51,7 +51,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
                     onPressed: () => setTestData(),
                     child: Text('Set Test Data')),
                 _sheetHeader(),
-                _playersSheet(state.players),
+                 _playersSheet(state.players),
               ],
             )),
           );
@@ -105,6 +105,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
             borderRadius: const BorderRadius.all(Radius.circular(4))),
         child: ListView.separated(
           shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
           itemCount: players.length,
           separatorBuilder: (context, index) => const Divider(),
           itemBuilder: (__, index) => _playerItem(

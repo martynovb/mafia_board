@@ -23,6 +23,8 @@ class PlayerModel {
 
   bool isAvailable() => !isRemoved && !isKilled;
 
+  int get playerNumber => id + 1;
+
   PlayerModel.empty({this.id = 0})
       : nickname = '',
         role = Role.NONE,

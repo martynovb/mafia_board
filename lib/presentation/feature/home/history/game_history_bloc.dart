@@ -17,7 +17,7 @@ class GameHistoryBloc
       SubscribeToGameHistoryEvent event, emit) {
     gameHistoryManager.gameHistoryStream.listen((records) {
       //todo: handle emit correctly
-      this.emit(GameHistoryState(records: records));
+      this.emit(GameHistoryState(records: records.reversed.toList()));
     });
   }
 }

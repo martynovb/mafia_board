@@ -63,12 +63,12 @@ class _BoardPageState extends State<BoardPage> {
 
   Widget _gamePhaseView(GamePhaseState gamePhaseState) {
     return Column(
-          children: [
-            Text('DAY #${gamePhaseState.phase.currentDay}'),
-            Text('Title: ${gamePhaseState.currentGamePhaseName}'),
-            _getPhaseView(gamePhaseState),
-          ],
-        );
+      children: [
+        Text('DAY #${gamePhaseState.phase.currentDay}'),
+        Text('Title: ${gamePhaseState.currentGamePhaseName}'),
+        _getPhaseView(gamePhaseState),
+      ],
+    );
   }
 
   Widget _getPhaseView(GamePhaseState gamePhaseState) {
@@ -80,7 +80,7 @@ class _BoardPageState extends State<BoardPage> {
         ),
       );
     } else if (!gamePhaseState.phase.isVotingPhaseFinished()) {
-      return const SingleChildScrollView(child: VotePhaseView());
+      return const VotePhaseView();
     } else if (!gamePhaseState.phase.isNightPhaseFinished()) {
       return const NightPhaseView();
     } else {

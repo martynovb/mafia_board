@@ -21,11 +21,11 @@ class HomePage extends StatelessWidget {
                     child: Column(
                   children: const [
                     Expanded(
-                      flex: 6,
+                      flex: 1,
                       child: BoardPage(),
                     ),
                     Expanded(
-                      flex: 2,
+                      flex: 1,
                       child: GameHistoryView(),
                     ),
                   ],

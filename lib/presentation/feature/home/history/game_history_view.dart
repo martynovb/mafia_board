@@ -14,10 +14,12 @@ class GameHistoryView extends StatefulWidget {
 
 class _GameHistoryViewState extends State<GameHistoryView> {
   late GameHistoryBloc gameHistoryBloc;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     gameHistoryBloc = GetIt.instance<GameHistoryBloc>();
+    _scrollController = ScrollController();
     super.initState();
   }
 
@@ -29,6 +31,14 @@ class _GameHistoryViewState extends State<GameHistoryView> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.animateTo(
+        0.0,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
+
     return BlocBuilder(
         bloc: gameHistoryBloc,
         builder: (context, GameHistoryState state) {
@@ -43,7 +53,8 @@ class _GameHistoryViewState extends State<GameHistoryView> {
         });
   }
 
-  Widget _voteList(List<GameHistoryModel> history) => ListView.builder(
+  Widget _voteList(List<GameHistoryModel> history) => ListView.separated(
+        separatorBuilder: (context, index) => const Divider(),
         itemBuilder: (context, index) {
           return _voteItem(index, history[index]);
         },
@@ -65,9 +76,31 @@ class _GameHistoryViewState extends State<GameHistoryView> {
         break;
     }
 
+    if (record.subText.isNotEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            record.text,
+            style: style,
+          ),
+          Text(
+            record.subText,
+            style: const TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+          ),
+        ],
+      );
+    }
+
     return Text(
       record.text,
       style: style,
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 }

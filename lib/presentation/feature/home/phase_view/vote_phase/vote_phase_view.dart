@@ -64,50 +64,48 @@ class _VotePhaseViewState extends State<VotePhaseView> {
   }
 
   Widget _playerForVoteList(VotePhaseState state) {
-    return SizedBox(
-        height: _boxNumberSize,
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: state.allAvailablePlayersToVote.entries.map((entry) {
-            final player = entry.key;
-            bool playerHasAlreadyVoted = entry.value;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: state.allAvailablePlayersToVote.entries.map((entry) {
+        final player = entry.key;
+        bool playerHasAlreadyVoted = entry.value;
 
-            return SizedBox(
-              height: _boxNumberSize,
-              width: _boxNumberSize,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.all(3),
-                    backgroundColor: playerHasAlreadyVoted
-                        ? Colors.grey
-                        : null // Use the default value
-                    ),
-                icon: const Icon(
-                  Icons.thumb_up,
-                  size: 16,
+        return SizedBox(
+          height: _boxNumberSize,
+          width: _boxNumberSize,
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.all(3),
+                backgroundColor: playerHasAlreadyVoted
+                    ? Colors.grey
+                    : null // Use the default value
                 ),
-                label: Text(
-                    '${state.allAvailablePlayersToVote.keys.toList().indexOf(player) + 1}'),
-                onLongPress: () {
-                  if (state.playerOnVote != null) {
-                    votePhaseBloc.add(CancelVoteAgainstEvent(
-                      currentPlayer: player,
-                      voteAgainstPlayer: state.playerOnVote!,
-                    ));
-                  }
-                },
-                onPressed: () {
-                  if (state.playerOnVote != null && !playerHasAlreadyVoted) {
-                    votePhaseBloc.add(VoteAgainstEvent(
-                      currentPlayer: player,
-                      voteAgainstPlayer: state.playerOnVote!,
-                    ));
-                  }
-                },
-              ),
-            );
-          }).toList(),
-        ));
+            icon: const Icon(
+              Icons.thumb_up,
+              size: 16,
+            ),
+            label: Text(
+                '${state.allAvailablePlayersToVote.keys.toList().indexOf(player) + 1}'),
+            onLongPress: () {
+              if (state.playerOnVote != null) {
+                votePhaseBloc.add(CancelVoteAgainstEvent(
+                  currentPlayer: player,
+                  voteAgainstPlayer: state.playerOnVote!,
+                ));
+              }
+            },
+            onPressed: () {
+              if (state.playerOnVote != null && !playerHasAlreadyVoted) {
+                votePhaseBloc.add(VoteAgainstEvent(
+                  currentPlayer: player,
+                  voteAgainstPlayer: state.playerOnVote!,
+                ));
+              }
+            },
+          ),
+        );
+      }).toList(),
+    );
   }
 }

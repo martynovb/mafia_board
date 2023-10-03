@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:mafia_board/data/board_repository.dart';
 import 'package:mafia_board/data/game_phase_repository.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
@@ -60,7 +61,8 @@ class GamePhaseManager {
         if (!phase.isSpeakPhaseFinished()) {
           phase.updateSpeakPhase(currentSpeakPhase);
           _updateGamePhase(phase);
-          gameHistoryManager.logPlayerSpeech(speakPhaseAction: currentSpeakPhase);
+          gameHistoryManager.logPlayerSpeech(
+              speakPhaseAction: currentSpeakPhase);
           return;
         }
       }
@@ -95,31 +97,11 @@ class GamePhaseManager {
     final currentVotePhase = phase.getCurrentVotePhase();
     if (currentVotePhase != null) {
       currentVotePhase.isVoted = true;
+      phase.updateVotePhase(currentVotePhase);
       _updateGamePhase(phase);
       gameHistoryManager.logVoteFinish(votePhaseAction: currentVotePhase);
+      _recalculateVotePhases(phase);
     }
-  }
-
-  void _prepareSpeakPhases(GamePhaseModel phase) {
-    boardRepository.getAllPlayers().forEach((player) {
-      if (!player.isRemoved && !player.isKilled) {
-        phase.addSpeakPhase(
-          SpeakPhaseAction(currentDay: phase.currentDay, player: player),
-        );
-      }
-    });
-  }
-
-  bool _handleVotePhase(GamePhaseModel phase) {
-    final currentVotePhase = phase.getCurrentVotePhase();
-    final allVotePhases = phase.getUniqueTodaysVotePhases();
-    if (currentVotePhase == null ||
-        phase.currentDay == 0 && allVotePhases.length <= 1) {
-      return false;
-    }
-
-    _updateGamePhase(phase);
-    return true;
   }
 
   bool putOnVote(PlayerModel currentPlayer, PlayerModel playerToVote) {
@@ -164,6 +146,72 @@ class GamePhaseManager {
     return result;
   }
 
+  void _recalculateVotePhases(GamePhaseModel phase) {
+    final unvotedPlayers = calculatePlayerVotingStatusMap(phase)
+        .entries
+        .where((entry) => !entry.value)
+        .map((entry) => entry.key)
+        .toList();
+
+    //when all players voted even if some vote phases are left
+    if (unvotedPlayers.isEmpty) {
+      _handlePlayerToKick(phase);
+      return;
+    }
+
+    var unvotedPhases = phase
+        .getUniqueTodaysVotePhases()
+        .where((votePhase) => !votePhase.isVoted)
+        .toList();
+
+    //when only 1 vote phase is left add all left players to voted
+    if (unvotedPhases.length == 1) {
+      final unvotedPhase = unvotedPhases.firstOrNull;
+      if (unvotedPhase != null) {
+        unvotedPhase.isVoted = true;
+        unvotedPhase.voteList(unvotedPlayers);
+        phase.updateVotePhase(unvotedPhase);
+        gameHistoryManager.logVoteFinish(votePhaseAction: unvotedPhase);
+        _updateGamePhase(phase);
+        _handlePlayerToKick(phase);
+        return;
+      }
+    }
+  }
+
+  void _handlePlayerToKick(GamePhaseModel phase){
+    final playerToKick = _findPlayerToKick(phase.getUniqueTodaysVotePhases());
+    final speakPhase = SpeakPhaseAction(
+      currentDay: phase.currentDay,
+      player: playerToKick,
+      isLastWord: true,
+    );
+    phase.addSpeakPhase(speakPhase);
+    gameHistoryManager.logPlayerSpeech(speakPhaseAction: speakPhase);
+    _updateGamePhase(phase);
+  }
+
+  Map<PlayerModel, bool> calculatePlayerVotingStatusMap(GamePhaseModel phase) {
+    final allTodayVotePhases = phase.getUniqueTodaysVotePhases();
+    final allAvailablePlayers = boardRepository.getAllAvailablePlayers();
+    final Map<PlayerModel, bool> playerVotingStatusMap = {};
+
+    for (var player in allAvailablePlayers) {
+      bool playerHasAlreadyVoted = allTodayVotePhases
+          .any((votePhase) => votePhase.votedPlayers.contains(player));
+      playerVotingStatusMap[player] = playerHasAlreadyVoted;
+    }
+
+    return playerVotingStatusMap;
+  }
+
+  PlayerModel? _findPlayerToKick(List<VotePhaseAction> allVotePhases) =>
+      allVotePhases
+          .sorted(
+              (a, b) => a.votedPlayers.length.compareTo(b.votedPlayers.length))
+          .lastOrNull
+          ?.playerOnVote;
+
   bool _isPlayerAlreadyPutOnVote(
     PlayerModel playerModel,
     List<VotePhaseAction> allUniqueTodayVotePhases,
@@ -176,8 +224,6 @@ class GamePhaseManager {
 
     return isVoted;
   }
-
-  void addFoul(PlayerModel player) {}
 
   bool _isGameFinished() {
     final allPlayers = boardRepository.getAllAvailablePlayers();
@@ -205,5 +251,27 @@ class GamePhaseManager {
     }
 
     return false;
+  }
+
+  void _prepareSpeakPhases(GamePhaseModel phase) {
+    boardRepository.getAllPlayers().forEach((player) {
+      if (!player.isRemoved && !player.isKilled) {
+        phase.addSpeakPhase(
+          SpeakPhaseAction(currentDay: phase.currentDay, player: player),
+        );
+      }
+    });
+  }
+
+  bool _handleVotePhase(GamePhaseModel phase) {
+    final currentVotePhase = phase.getCurrentVotePhase();
+    final allVotePhases = phase.getUniqueTodaysVotePhases();
+    if (currentVotePhase == null ||
+        phase.currentDay == 0 && allVotePhases.length <= 1) {
+      return false;
+    }
+
+    _updateGamePhase(phase);
+    return true;
   }
 }

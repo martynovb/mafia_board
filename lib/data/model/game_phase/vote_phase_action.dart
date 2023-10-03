@@ -15,6 +15,8 @@ class VotePhaseAction extends GamePhaseAction {
 
   bool vote(PlayerModel playerModel) => votedPlayers.add(playerModel);
 
+  void voteList(List<PlayerModel> list) => votedPlayers.addAll(list);
+
   bool removeVote(PlayerModel playerModel) => votedPlayers.remove(playerModel);
 
 

@@ -5,11 +5,13 @@ class SpeakPhaseAction extends GamePhaseAction {
   final PlayerModel? player;
   final double timeForSpeakInSec;
   bool isFinished = false;
+  bool isLastWord = false;
 
   SpeakPhaseAction({
     required int currentDay,
     required this.player,
     this.timeForSpeakInSec = 60,
+    this.isLastWord = false,
   }) : super(currentDay);
 
   SpeakPhaseAction.empty()

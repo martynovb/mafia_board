@@ -55,6 +55,7 @@ class Injector {
     _getIt.registerSingleton(
       PlayersSheetBloc(
         boardRepository: _getIt.get(),
+        gameHistoryManager: _getIt.get(),
       ),
     );
 
