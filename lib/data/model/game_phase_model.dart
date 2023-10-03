@@ -17,6 +17,11 @@ class GamePhaseModel {
   Map<int, List<VotePhaseAction>> votePhasesByDays = {};
   Map<int, List<NightPhaseAction>> nightPhasesByDays = {};
 
+  final DateTime _createdAt = DateTime.now();
+
+
+  DateTime get createdAt => _createdAt;
+
   bool isNightPhaseFinished() {
     MafLogger.d(_tag, 'isNightPhaseFinished');
     NightPhaseAction? phase;

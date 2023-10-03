@@ -7,6 +7,7 @@ import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase_model.dart';
 import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/role.dart';
+import 'package:mafia_board/domain/game_history_manager.dart';
 import 'package:rxdart/rxdart.dart';
 
 class GamePhaseManager {
@@ -14,12 +15,14 @@ class GamePhaseManager {
 
   final GamePhaseRepository gamePhaseRepository;
   final BoardRepository boardRepository;
+  final GameHistoryManager gameHistoryManager;
   final BehaviorSubject<GamePhaseModel> _gamePhaseStreamController =
       BehaviorSubject();
 
   GamePhaseManager({
     required this.boardRepository,
     required this.gamePhaseRepository,
+    required this.gameHistoryManager,
   });
 
   Stream<GamePhaseModel> get gamePhaseStream =>
@@ -38,6 +41,7 @@ class GamePhaseManager {
     final phase = gamePhaseRepository.getCurrentGamePhase();
     _prepareSpeakPhases(phase);
     _updateGamePhase(phase);
+    gameHistoryManager.logGameStart(gamePhaseModel: phase);
   }
 
   void nextGamePhase() {
@@ -56,6 +60,7 @@ class GamePhaseManager {
         if (!phase.isSpeakPhaseFinished()) {
           phase.updateSpeakPhase(currentSpeakPhase);
           _updateGamePhase(phase);
+          gameHistoryManager.logPlayerSpeech(speakPhaseAction: currentSpeakPhase);
           return;
         }
       }
@@ -82,6 +87,7 @@ class GamePhaseManager {
     final phase = gamePhaseRepository.getCurrentGamePhase();
     phase.isStarted = false;
     _updateGamePhase(phase);
+    gameHistoryManager.logGameFinish(gamePhaseModel: phase);
   }
 
   void finishCurrentVotePhase() {
@@ -90,6 +96,7 @@ class GamePhaseManager {
     if (currentVotePhase != null) {
       currentVotePhase.isVoted = true;
       _updateGamePhase(phase);
+      gameHistoryManager.logVoteFinish(votePhaseAction: currentVotePhase);
     }
   }
 
@@ -102,8 +109,6 @@ class GamePhaseManager {
       }
     });
   }
-
-  void _prepareNightPhases(GamePhaseModel phase) {}
 
   bool _handleVotePhase(GamePhaseModel phase) {
     final currentVotePhase = phase.getCurrentVotePhase();
@@ -121,11 +126,13 @@ class GamePhaseManager {
     final phase = gamePhaseRepository.getCurrentGamePhase();
     if (_isPlayerAlreadyPutOnVote(
         currentPlayer, phase.getUniqueTodaysVotePhases())) {
-      phase.addVotePhase(VotePhaseAction(
+      final votePhase = VotePhaseAction(
         currentDay: phase.currentDay,
         playerOnVote: playerToVote,
         whoPutOnVote: currentPlayer,
-      ));
+      );
+      phase.addVotePhase(votePhase);
+      gameHistoryManager.logPutOnVote(votePhaseAction: votePhase);
       return true;
     }
     return false;

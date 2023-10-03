@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
-import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_event.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_state.dart';
@@ -64,18 +62,13 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   Widget _gamePhaseView(GamePhaseState gamePhaseState) {
-    return SizedBox(
-        height: MediaQuery.of(context).size.height - 100,
-        child: Column(
+    return Column(
           children: [
             Text('DAY #${gamePhaseState.phase.currentDay}'),
             Text('Title: ${gamePhaseState.currentGamePhaseName}'),
             _getPhaseView(gamePhaseState),
-            Spacer(),
-            _allPlayersOnVoting(
-                gamePhaseState.phase.getUniqueTodaysVotePhases()),
           ],
-        ));
+        );
   }
 
   Widget _getPhaseView(GamePhaseState gamePhaseState) {
@@ -93,46 +86,6 @@ class _BoardPageState extends State<BoardPage> {
     } else {
       return Container();
     }
-  }
-
-  Widget _allPlayersOnVoting(List<VotePhaseAction> uniqueTodayVotePhases) {
-    return SingleChildScrollView(
-      child: SizedBox(
-          height: 200,
-          child: Column(
-            children: [
-              const Divider(),
-              const Text('All players on voting:'),
-              _voteList(uniqueTodayVotePhases),
-            ],
-          )),
-    );
-  }
-
-  Widget _voteList(List<VotePhaseAction> allUniqueTodayVotePhases) =>
-      ListView.builder(
-        shrinkWrap: true,
-        itemBuilder: (context, index) {
-          return _voteItem(index, allUniqueTodayVotePhases[index]);
-        },
-        itemCount: allUniqueTodayVotePhases.length,
-      );
-
-  Widget _voteItem(int index, VotePhaseAction votePhaseAction) {
-    return Row(
-      children: [
-        Text('${index + 1}'),
-        const Divider(),
-        const SizedBox(
-          width: 8,
-        ),
-        Text(votePhaseAction.playerOnVote.nickname),
-        const SizedBox(
-          width: 8,
-        ),
-        Text(' <- (${votePhaseAction.whoPutOnVote.nickname})'),
-      ],
-    );
   }
 
   Widget _startGameButton() => GestureDetector(

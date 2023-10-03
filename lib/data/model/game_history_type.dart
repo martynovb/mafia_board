@@ -1,8 +1,11 @@
 enum GameHistoryType {
+  startGame,
+  finishGame,
   newDay,
-  speakingPhase,
+  playerSpeech,
   nightPhase,
-  votePhase,
+  putOnVote,
+  voteFinish,
   gunfight,
   lastWord,
   remove,

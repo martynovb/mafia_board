@@ -1,33 +1,33 @@
 import 'package:bloc/bloc.dart';
-import 'package:mafia_board/data/board_repository.dart';
-import 'package:mafia_board/domain/game_phase_manager.dart';
+import 'package:mafia_board/data/model/game_history_model.dart';
+import 'package:mafia_board/domain/game_history_manager.dart';
 
-class GameHistoryBloc extends Bloc<LoadGameHistoryEvent, GameHistoryState> {
+class GameHistoryBloc
+    extends Bloc<SubscribeToGameHistoryEvent, GameHistoryState> {
   static const String _tag = 'GameHistoryBloc';
-  final BoardRepository boardRepository;
-  final GamePhaseManager gamePhaseManager;
+  final GameHistoryManager gameHistoryManager;
 
   GameHistoryBloc({
-    required this.gamePhaseManager,
-    required this.boardRepository,
+    required this.gameHistoryManager,
   }) : super(GameHistoryState()) {
-    on<LoadGameHistoryEvent>(_loadGameHistoryEventHandler);
+    on<SubscribeToGameHistoryEvent>(_subscribeToGameHistoryEventHandler);
   }
 
-  void _loadGameHistoryEventHandler(LoadGameHistoryEvent event, emit){
-
+  void _subscribeToGameHistoryEventHandler(
+      SubscribeToGameHistoryEvent event, emit) {
+    gameHistoryManager.gameHistoryStream.listen((records) {
+      //todo: handle emit correctly
+      this.emit(GameHistoryState(records: records));
+    });
   }
-
 }
 
 class GameHistoryState {
-  final List<String> records;
+  final List<GameHistoryModel> records;
 
-  GameHistoryState({this.records = const [],});
+  GameHistoryState({
+    this.records = const [],
+  });
 }
 
-class LoadGameHistoryEvent {
-
-
-
-}
+class SubscribeToGameHistoryEvent {}
