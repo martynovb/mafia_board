@@ -9,6 +9,7 @@ class PlayerModel {
   bool isRemoved;
   bool isKilled;
   bool isMuted;
+  bool isKicked;
 
   PlayerModel(
     this.id,
@@ -19,6 +20,7 @@ class PlayerModel {
     this.isRemoved = false,
     this.isKilled = false,
     this.isMuted = false,
+    this.isKicked = false,
   });
 
   bool isAvailable() => !isRemoved && !isKilled;
@@ -32,6 +34,7 @@ class PlayerModel {
         score = 0,
         isRemoved = false,
         isMuted = false,
+        isKicked = false,
         isKilled = false;
 
   @override

@@ -51,7 +51,7 @@ class GameHistoryManager {
   }) {
     _addRecord(GameHistoryModel(
       text:
-          'Player ${votePhaseAction.whoPutOnVote.nickname} has put player ${votePhaseAction.playerOnVote.nickname} on the vote',
+          'Player ${votePhaseAction.whoPutOnVote?.nickname} has put player ${votePhaseAction.playerOnVote.nickname} on the vote',
       type: GameHistoryType.putOnVote,
       gamePhaseAction: votePhaseAction,
       createdAt: votePhaseAction.createdAt,
@@ -96,12 +96,11 @@ class GameHistoryManager {
   }) {
     String votedPlayers;
     if (votePhaseAction.votedPlayers.isNotEmpty) {
-      final votedPlayersList = votePhaseAction.votedPlayers.toList();
-      final sortedVotedPlayersList =
-          votedPlayersList.sorted((a, b) => a.id.compareTo(b.id));
-      final mappedSortedVotedPlayersList =
-          sortedVotedPlayersList.map((player) => player.nickname);
-      votedPlayers = mappedSortedVotedPlayersList.join(', ');
+      votedPlayers = votePhaseAction.votedPlayers
+          .toList()
+          .sorted((a, b) => a.id.compareTo(b.id))
+          .map((player) => player.nickname)
+          .join(', ');
     } else {
       votedPlayers = 'No players voted';
     }
@@ -120,6 +119,21 @@ class GameHistoryManager {
       text:
           'FOUL (${player.fouls}/${Constants.maxFouls}) for player #${player.playerNumber}: ${player.nickname}',
       type: GameHistoryType.playerSpeech,
+      createdAt: DateTime.now(),
+    ));
+  }
+
+  void logGunfight({required List<PlayerModel> players}) {
+    String gunfightInfo;
+    if (players.isNotEmpty) {
+      gunfightInfo = players.map((player) => player.nickname).join(' - ');
+    } else {
+      gunfightInfo = 'No players on gunfight';
+    }
+    _addRecord(GameHistoryModel(
+      text: 'GUNFIGHT',
+      subText: gunfightInfo,
+      type: GameHistoryType.voteFinish,
       createdAt: DateTime.now(),
     ));
   }

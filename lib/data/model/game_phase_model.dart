@@ -34,7 +34,6 @@ class GamePhaseModel {
   }
 
   bool isVotingPhaseFinished() {
-    MafLogger.d(_tag, 'isVotingPhaseFinished');
     VotePhaseAction? phase;
     if (votePhasesByDays.containsKey(currentDay)) {
       phase = votePhasesByDays[currentDay]
@@ -45,7 +44,6 @@ class GamePhaseModel {
   }
 
   bool isSpeakPhaseFinished() {
-    MafLogger.d(_tag, 'isSpeakPhaseFinished');
     SpeakPhaseAction? phase;
     if (speakPhasesByDays.containsKey(currentDay)) {
       phase = speakPhasesByDays[currentDay]?.firstWhereOrNull(
@@ -122,16 +120,20 @@ class GamePhaseModel {
 
   List<VotePhaseAction> getUniqueTodaysVotePhases() {
     List<VotePhaseAction> todaysPhases = votePhasesByDays[currentDay] ?? [];
-
+    List<VotePhaseAction> votePhases = [];
+    List<VotePhaseAction> gunfightVotePhases = [];
     final seenIds = <int>{};
-    return todaysPhases.where((phase) {
-      final id = phase.playerOnVote.id;
-
-      if (seenIds.add(id)) {
-        return true;
+    for (var votePhase in todaysPhases) {
+      final hashCode = votePhase.hashCode;
+      if (seenIds.add(hashCode)) {
+        if (votePhase.isGunfight) {
+          gunfightVotePhases.add(votePhase);
+        } else {
+          votePhases.add(votePhase);
+        }
       }
-      return false;
-    }).toList();
+    }
+    return gunfightVotePhases.isNotEmpty ? gunfightVotePhases : votePhases;
   }
 
   List<VotePhaseAction> getAllTodaysVotePhases() =>
@@ -175,7 +177,7 @@ class GamePhaseModel {
     required PlayerModel voteAgainstPlayer,
   }) {
     return getAllTodaysVotePhases()
-            .firstWhereOrNull(
+            .lastWhereOrNull(
               (phase) => phase.playerOnVote.id == voteAgainstPlayer.id,
             )
             ?.vote(currentPlayer) ??
@@ -187,7 +189,7 @@ class GamePhaseModel {
     required PlayerModel voteAgainstPlayer,
   }) {
     return getAllTodaysVotePhases()
-            .firstWhereOrNull(
+            .lastWhereOrNull(
               (phase) => phase.playerOnVote.id == voteAgainstPlayer.id,
             )
             ?.removeVote(currentPlayer) ??

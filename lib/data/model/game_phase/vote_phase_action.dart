@@ -3,14 +3,17 @@ import 'package:mafia_board/data/model/player_model.dart';
 
 class VotePhaseAction extends GamePhaseAction {
   final PlayerModel playerOnVote;
-  final PlayerModel whoPutOnVote;
+  final PlayerModel? whoPutOnVote;
   Set<PlayerModel> votedPlayers = {};
-  bool isVoted = false;
+  bool isVoted;
+  bool isGunfight;
 
   VotePhaseAction({
     required int currentDay,
     required this.playerOnVote,
-    required this.whoPutOnVote,
+    this.whoPutOnVote,
+    this.isVoted = false,
+    this.isGunfight = false,
   }) : super(currentDay);
 
   bool vote(PlayerModel playerModel) => votedPlayers.add(playerModel);

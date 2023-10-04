@@ -6,7 +6,7 @@ class SpeakPhaseAction extends GamePhaseAction {
   final PlayerModel? player;
   Duration timeForSpeakInSec;
 
-  SpeakPhaseStatus status = SpeakPhaseStatus.notStarted;
+  SpeakPhaseStatus status;
   bool isLastWord = false;
 
   SpeakPhaseAction({
@@ -14,6 +14,7 @@ class SpeakPhaseAction extends GamePhaseAction {
     required this.player,
     this.timeForSpeakInSec = const Duration(seconds: 59),
     this.isLastWord = false,
+    this.status = SpeakPhaseStatus.notStarted,
   }) : super(currentDay);
 
   set updateStatus(SpeakPhaseStatus status) => this.status = status;

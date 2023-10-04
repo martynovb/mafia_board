@@ -15,7 +15,7 @@ class BoardRepository {
   List<PlayerModel> getAllPlayers() => _players;
 
   List<PlayerModel> getAllAvailablePlayers() => _players
-      .where((player) => !player.isKilled && !player.isRemoved)
+      .where((player) => !player.isKilled && !player.isRemoved && !player.isKicked)
       .toList();
 
   Future<PlayerModel?> getPlayerByIndex(int index) async => _players[index];

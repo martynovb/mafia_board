@@ -64,17 +64,7 @@ class GamePhaseManager {
     final phase = gamePhaseRepository.getCurrentGamePhase();
 
     if (!phase.isSpeakPhaseFinished()) {
-      final currentSpeakPhase = phase.getCurrentSpeakPhase();
-      if (currentSpeakPhase != null) {
-        // check in case current speaker was the last speaker
-        if (!phase.isSpeakPhaseFinished()) {
-          phase.updateSpeakPhase(currentSpeakPhase);
-          _updateGamePhase(phase);
-          gameHistoryManager.logPlayerSpeech(
-              speakPhaseAction: currentSpeakPhase);
-          return;
-        }
-      }
+      return;
     }
 
     if (!phase.isVotingPhaseFinished() &&
