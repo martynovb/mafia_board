@@ -4,6 +4,8 @@ abstract class BoardEvent {}
 
 class StartGameEvent extends BoardEvent {}
 
+class FinishGameEvent extends BoardEvent {}
+
 class NextPhaseEvent extends BoardEvent {}
 
 class PutOnVoteEvent extends BoardEvent {

@@ -14,12 +14,10 @@ class GameHistoryView extends StatefulWidget {
 
 class _GameHistoryViewState extends State<GameHistoryView> {
   late GameHistoryBloc gameHistoryBloc;
-  late ScrollController _scrollController;
 
   @override
   void initState() {
     gameHistoryBloc = GetIt.instance<GameHistoryBloc>();
-    _scrollController = ScrollController();
     super.initState();
   }
 
@@ -31,13 +29,6 @@ class _GameHistoryViewState extends State<GameHistoryView> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.animateTo(
-        0.0,
-        duration: Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    });
 
     return BlocBuilder(
         bloc: gameHistoryBloc,
@@ -100,7 +91,6 @@ class _GameHistoryViewState extends State<GameHistoryView> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
     super.dispose();
   }
 }

@@ -2,11 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/presentation/feature/game_timer_view.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_event.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_state.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/night_phase_view.dart';
-import 'package:mafia_board/presentation/feature/home/phase_view/speaking_phase_view.dart';
+import 'package:mafia_board/presentation/feature/home/phase_view/speaking_phase/speaking_phase_view.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_view.dart';
 
 class BoardPage extends StatefulWidget {
@@ -32,7 +33,8 @@ class _BoardPageState extends State<BoardPage> {
         builder: (BuildContext context, BoardState state) {
           return Column(
             children: [
-              _startGameButton(),
+              _header(state),
+              const Divider(),
               _stageBoard(state),
             ],
           );
@@ -53,11 +55,7 @@ class _BoardPageState extends State<BoardPage> {
     } else if (state is ErrorBoardState) {
       return _errorView(state.errorMessage);
     } else {
-      return const Center(
-        child: Text(
-          'Empty',
-        ),
-      );
+      return Container();
     }
   }
 
@@ -75,14 +73,35 @@ class _BoardPageState extends State<BoardPage> {
     if (!gamePhaseState.phase.isSpeakPhaseFinished()) {
       return SpeakingPhaseView(
         currentPhase: gamePhaseState.phase.getCurrentSpeakPhase(),
-        onNextPressed: () => boardBloc.add(
-          NextPhaseEvent(),
-        ),
+        onSpeechFinished: () => boardBloc.add(NextPhaseEvent()),
       );
     } else if (!gamePhaseState.phase.isVotingPhaseFinished()) {
       return const VotePhaseView();
     } else if (!gamePhaseState.phase.isNightPhaseFinished()) {
       return const NightPhaseView();
+    } else {
+      return Container();
+    }
+  }
+
+  Widget _header(BoardState state) {
+    if (state is InitialBoardState ||
+        state is ErrorBoardState ||
+        (state is GamePhaseState && !state.phase.isStarted)) {
+      return Row(
+        children: [
+          _startGameButton(),
+          const Spacer(),
+        ],
+      );
+    } else if (state is GamePhaseState && state.phase.isStarted) {
+      return Row(
+        children: [
+          const GameTimerView(),
+          const Spacer(),
+          _finishGameButton(),
+        ],
+      );
     } else {
       return Container();
     }
@@ -94,6 +113,15 @@ class _BoardPageState extends State<BoardPage> {
       },
       child: const Text(
         'Start Game',
+        style: TextStyle(fontSize: 32),
+      ));
+
+  Widget _finishGameButton() => GestureDetector(
+      onTap: () {
+        boardBloc.add(FinishGameEvent());
+      },
+      child: const Text(
+        'Finish Game',
         style: TextStyle(fontSize: 32),
       ));
 }

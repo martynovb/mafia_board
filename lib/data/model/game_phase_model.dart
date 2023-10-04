@@ -2,6 +2,7 @@ import 'package:mafia_board/data/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/model/player_model.dart';
+import 'package:mafia_board/data/model/speak_phase_status.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
 import 'package:collection/collection.dart';
 
@@ -18,7 +19,6 @@ class GamePhaseModel {
   Map<int, List<NightPhaseAction>> nightPhasesByDays = {};
 
   final DateTime _createdAt = DateTime.now();
-
 
   DateTime get createdAt => _createdAt;
 
@@ -48,8 +48,8 @@ class GamePhaseModel {
     MafLogger.d(_tag, 'isSpeakPhaseFinished');
     SpeakPhaseAction? phase;
     if (speakPhasesByDays.containsKey(currentDay)) {
-      phase = speakPhasesByDays[currentDay]
-          ?.firstWhereOrNull((element) => !element.isFinished);
+      phase = speakPhasesByDays[currentDay]?.firstWhereOrNull(
+          (element) => element.status != SpeakPhaseStatus.finished);
     }
     MafLogger.d(_tag, 'isSpeakPhaseFinished: ${phase == null}');
     return phase == null;
@@ -94,8 +94,25 @@ class GamePhaseModel {
     }
   }
 
-  SpeakPhaseAction? getCurrentSpeakPhase() => speakPhasesByDays[currentDay]
-      ?.firstWhereOrNull((phase) => !phase.isFinished);
+  void addAllSpeakPhases(List<SpeakPhaseAction> phases) {
+    MafLogger.d(_tag, 'addAllSpeakPhases: ${phases.toString()}');
+    if (speakPhasesByDays.containsKey(currentDay)) {
+      final phaseList = speakPhasesByDays[currentDay]!;
+      phaseList.addAll(phases);
+      MafLogger.d(
+          _tag, 'addSpeakPhase success, phaseList: ${phaseList.length}');
+    } else {
+      MafLogger.d(_tag, 'addSpeakPhase success, created new phase list');
+      speakPhasesByDays[currentDay] = phases;
+    }
+  }
+
+  SpeakPhaseAction? getCurrentSpeakPhase() =>
+      speakPhasesByDays[currentDay]?.firstWhereOrNull(
+        (phase) =>
+            phase.status == SpeakPhaseStatus.speaking ||
+            phase.status == SpeakPhaseStatus.notStarted,
+      );
 
   VotePhaseAction? getCurrentVotePhase() =>
       votePhasesByDays[currentDay]?.firstWhereOrNull((phase) => !phase.isVoted);

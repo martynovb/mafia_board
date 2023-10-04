@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/data/board_repository.dart';
-import 'package:mafia_board/domain/game_phase_manager.dart';
+import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_bloc/vote_phase_event.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_bloc/vote_phase_state.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';

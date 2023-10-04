@@ -1,23 +1,27 @@
 import 'package:mafia_board/data/model/game_phase/game_phase_action.dart';
 import 'package:mafia_board/data/model/player_model.dart';
+import 'package:mafia_board/data/model/speak_phase_status.dart';
 
 class SpeakPhaseAction extends GamePhaseAction {
   final PlayerModel? player;
-  final double timeForSpeakInSec;
-  bool isFinished = false;
+  Duration timeForSpeakInSec;
+
+  SpeakPhaseStatus status = SpeakPhaseStatus.notStarted;
   bool isLastWord = false;
 
   SpeakPhaseAction({
     required int currentDay,
     required this.player,
-    this.timeForSpeakInSec = 60,
+    this.timeForSpeakInSec = const Duration(seconds: 59),
     this.isLastWord = false,
   }) : super(currentDay);
 
+  set updateStatus(SpeakPhaseStatus status) => this.status = status;
+
   SpeakPhaseAction.empty()
       : player = null,
-        timeForSpeakInSec = -1,
-        isFinished = false,
+        timeForSpeakInSec = const Duration(seconds: 60),
+        status = SpeakPhaseStatus.notStarted,
         super(-1);
 
   @override
@@ -25,6 +29,6 @@ class SpeakPhaseAction extends GamePhaseAction {
     return 'SpeakPhaseAction:'
         '\nplayer: $player'
         '\ntimeForSpeakInSec: $timeForSpeakInSec'
-        '\nisFinished: $isFinished';
+        '\status: ${status.name}';
   }
 }

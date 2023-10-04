@@ -4,7 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:mafia_board/data/board_repository.dart';
 import 'package:mafia_board/data/model/game_phase_model.dart';
 import 'package:mafia_board/domain/exceptions/invalid_player_data_exception.dart';
-import 'package:mafia_board/domain/game_phase_manager.dart';
+import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
 import 'package:mafia_board/domain/player_validator.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_event.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_state.dart';
@@ -23,15 +23,21 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     required this.playerValidator,
   }) : super(InitialBoardState()) {
     on<StartGameEvent>(_startGameEventHandler);
+    on<FinishGameEvent>(_finishGameEventHandler);
     on<NextPhaseEvent>(_nextPhaseEventHandler);
     on<PutOnVoteEvent>(_putOnVoteEventHandler);
   }
 
-  void _listenToGamePhase() {
+  void _subscribeToGamePhase() {
     _gamePhaseSubscription = gamePhaseManager.gamePhaseStream.listen((phase) {
       // todo: change emit
       emit(GamePhaseState(phase, mapGamePhaseName(phase)));
     });
+  }
+
+  void _unsubscribeFromGamePhase() {
+    _gamePhaseSubscription?.cancel();
+    _gamePhaseSubscription = null;
   }
 
   void _startGameEventHandler(event, emit) async {
@@ -39,8 +45,18 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       boardRepository.getAllPlayers().forEach(
             (player) => playerValidator.validate(player),
           );
-      _listenToGamePhase();
+      _subscribeToGamePhase();
       gamePhaseManager.startGame();
+    } on InvalidPlayerDataException catch (ex) {
+      emit(ErrorBoardState(ex.errorMessage));
+    }
+  }
+
+  void _finishGameEventHandler(event, emit) async {
+    try {
+      gamePhaseManager.finishGame();
+      _unsubscribeFromGamePhase();
+      emit(InitialBoardState());
     } on InvalidPlayerDataException catch (ex) {
       emit(ErrorBoardState(ex.errorMessage));
     }
@@ -64,7 +80,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         if (currentSpeaker != null) {
           MafLogger.d(_tag, 'Current speaker: ${currentSpeaker.nickname}');
           MafLogger.d(_tag, 'Put on vote: ${event.playerOnVote.nickname}');
-          if (gamePhaseManager.putOnVote(currentSpeaker, event.playerOnVote)) {
+          if (gamePhaseManager.putOnVote(
+            currentPlayer: currentSpeaker,
+            playerToVote: event.playerOnVote,
+          )) {
             emit(GamePhaseState(
                 await gamePhaseManager.gamePhase, mapGamePhaseName(phase)));
           }
