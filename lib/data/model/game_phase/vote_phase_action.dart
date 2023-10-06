@@ -4,9 +4,11 @@ import 'package:mafia_board/data/model/player_model.dart';
 class VotePhaseAction extends GamePhaseAction {
   final PlayerModel playerOnVote;
   final PlayerModel? whoPutOnVote;
+  final List<PlayerModel> playersToKick;
   Set<PlayerModel> votedPlayers = {};
   bool isVoted;
   bool isGunfight;
+  bool shouldKickAllPlayers;
 
   VotePhaseAction({
     required int currentDay,
@@ -14,15 +16,15 @@ class VotePhaseAction extends GamePhaseAction {
     this.whoPutOnVote,
     this.isVoted = false,
     this.isGunfight = false,
+    this.shouldKickAllPlayers = false,
+    this.playersToKick = const [],
   }) : super(currentDay);
 
   bool vote(PlayerModel playerModel) => votedPlayers.add(playerModel);
 
-  void voteList(List<PlayerModel> list) => votedPlayers.addAll(list);
+  void addVoteList(List<PlayerModel> list) => votedPlayers.addAll(list);
 
   bool removeVote(PlayerModel playerModel) => votedPlayers.remove(playerModel);
-
-
 
   @override
   String toString() {

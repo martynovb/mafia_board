@@ -122,10 +122,14 @@ class GamePhaseModel {
     List<VotePhaseAction> todaysPhases = votePhasesByDays[currentDay] ?? [];
     List<VotePhaseAction> votePhases = [];
     List<VotePhaseAction> gunfightVotePhases = [];
+    VotePhaseAction? askToKickAllPlayers;
     final seenIds = <int>{};
     for (var votePhase in todaysPhases) {
       final hashCode = votePhase.hashCode;
       if (seenIds.add(hashCode)) {
+        if (votePhase.shouldKickAllPlayers) {
+          askToKickAllPlayers = votePhase;
+        }
         if (votePhase.isGunfight) {
           gunfightVotePhases.add(votePhase);
         } else {
@@ -133,7 +137,14 @@ class GamePhaseModel {
         }
       }
     }
-    return gunfightVotePhases.isNotEmpty ? gunfightVotePhases : votePhases;
+
+    if (askToKickAllPlayers != null) {
+      return [askToKickAllPlayers];
+    } else if (gunfightVotePhases.isNotEmpty) {
+      return gunfightVotePhases;
+    }
+
+    return votePhases;
   }
 
   List<VotePhaseAction> getAllTodaysVotePhases() =>
@@ -178,7 +189,7 @@ class GamePhaseModel {
   }) {
     return getAllTodaysVotePhases()
             .lastWhereOrNull(
-              (phase) => phase.playerOnVote.id == voteAgainstPlayer.id,
+              (phase) => phase.playerOnVote?.id == voteAgainstPlayer.id,
             )
             ?.vote(currentPlayer) ??
         false;
@@ -190,7 +201,7 @@ class GamePhaseModel {
   }) {
     return getAllTodaysVotePhases()
             .lastWhereOrNull(
-              (phase) => phase.playerOnVote.id == voteAgainstPlayer.id,
+              (phase) => phase.playerOnVote?.id == voteAgainstPlayer.id,
             )
             ?.removeVote(currentPlayer) ??
         false;

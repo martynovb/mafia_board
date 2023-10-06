@@ -95,6 +95,7 @@ class GameHistoryManager {
     required VotePhaseAction votePhaseAction,
   }) {
     String votedPlayers;
+    String playersToKick = '';
     if (votePhaseAction.votedPlayers.isNotEmpty) {
       votedPlayers = votePhaseAction.votedPlayers
           .toList()
@@ -104,9 +105,16 @@ class GameHistoryManager {
     } else {
       votedPlayers = 'No players voted';
     }
+
+    if (votePhaseAction.shouldKickAllPlayers) {
+      playersToKick = votePhaseAction.playersToKick
+          .map((player) => player.nickname)
+          .join(', ');
+    }
+
     _addRecord(GameHistoryModel(
       text:
-          'VOTE against #${votePhaseAction.playerOnVote.playerNumber} ${votePhaseAction.playerOnVote.nickname} has finished.',
+          'VOTE against #${playersToKick.isEmpty ? ('${votePhaseAction.playerOnVote.playerNumber} ${votePhaseAction.playerOnVote.nickname}') : playersToKick} has finished.', // todo: blood from my eyes
       subText: 'Voted ($votedPlayers)',
       type: GameHistoryType.voteFinish,
       gamePhaseAction: votePhaseAction,
@@ -123,17 +131,33 @@ class GameHistoryManager {
     ));
   }
 
-  void logGunfight({required List<PlayerModel> players}) {
+  void logGunfight(
+      {required List<PlayerModel> players, bool shouldKickAll = false}) {
     String gunfightInfo;
     if (players.isNotEmpty) {
-      gunfightInfo = players.map((player) => player.nickname).join(' - ');
+      gunfightInfo = players.map((player) => player.nickname).join(', ');
     } else {
       gunfightInfo = 'No players on gunfight';
     }
     _addRecord(GameHistoryModel(
-      text: 'GUNFIGHT',
+      text: shouldKickAll ? 'SHOULD KICK ALL?' : 'GUNFIGHT',
       subText: gunfightInfo,
       type: GameHistoryType.voteFinish,
+      createdAt: DateTime.now(),
+    ));
+  }
+
+  void logKickPlayers({required List<PlayerModel> players}) {
+    String gunfightInfo;
+    if (players.isNotEmpty) {
+      gunfightInfo = players.map((player) => player.nickname).join(', ');
+    } else {
+      gunfightInfo = 'No players on gunfight';
+    }
+    _addRecord(GameHistoryModel(
+      text: 'KICK PLAYER${players.length <= 1 ? '' : 'S'} FROM THE GAME',
+      subText: gunfightInfo,
+      type: GameHistoryType.kick,
       createdAt: DateTime.now(),
     ));
   }

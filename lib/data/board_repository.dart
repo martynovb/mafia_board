@@ -32,6 +32,7 @@ class BoardRepository {
     double? score,
     bool? isRemoved,
     bool? isKilled,
+    bool? isKicked,
   }) async {
     int playerIndex = _players.indexWhere((player) => player.id == id);
     PlayerModel player = _players[playerIndex];

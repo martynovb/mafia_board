@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:mafia_board/data/board_repository.dart';
 import 'package:mafia_board/data/game_phase_repository.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
@@ -27,8 +26,11 @@ class VotePhaseManager {
   bool canSkipVotePhase(GamePhaseModel phase) {
     final currentVotePhase = phase.getCurrentVotePhase();
     final allVotePhases = phase.getUniqueTodaysVotePhases();
+    final shouldKickAllVotePhase = checkVotePhasesShouldKickAll(allVotePhases);
     if (currentVotePhase == null ||
-        phase.currentDay == 0 && allVotePhases.length <= 1) {
+        phase.currentDay == 0 &&
+            allVotePhases.length <= 1 &&
+            !shouldKickAllVotePhase) {
       return true;
     }
 
@@ -39,7 +41,9 @@ class VotePhaseManager {
     final phase = gamePhaseRepository.getCurrentGamePhase();
     final currentVotePhase = phase.getCurrentVotePhase();
     if (currentVotePhase != null) {
-      currentVotePhase.isVoted = true;
+      // workaround to handle last step in gunfight
+      currentVotePhase.isVoted =
+          currentVotePhase.shouldKickAllPlayers ? false : true;
       phase.updateVotePhase(currentVotePhase);
       updateGamePhase!(phase);
       gameHistoryManager.logVoteFinish(votePhaseAction: currentVotePhase);
@@ -96,15 +100,17 @@ class VotePhaseManager {
   }
 
   void _finishVotePhaseIfPossible(GamePhaseModel phase) {
-    final unvotedPlayers = calculatePlayerVotingStatusMap(phase)
-        .entries
-        .where((entry) => !entry.value)
-        .map((entry) => entry.key)
-        .toList();
+    final List<PlayerModel> unvotedPlayers =
+        calculatePlayerVotingStatusMap(phase)
+            .entries
+            .where((entry) => !entry.value)
+            .map((entry) => entry.key)
+            .toList();
 
-    //when all players voted even if some vote phases are left
+    // when all players voted
+    // even if some vote phases are left
     if (unvotedPlayers.isEmpty) {
-      _handlePlayersToKick(phase);
+      _handlePlayersToKick(phase, unvotedPlayers.length);
       return;
     }
 
@@ -113,8 +119,7 @@ class VotePhaseManager {
         .where((votePhase) => !votePhase.isVoted)
         .toList();
 
-    var allVotePhases = phase.getAllTodaysVotePhases();
-
+    var allVotePhases = phase.getUniqueTodaysVotePhases();
     var availablePlayers = boardRepository.getAllAvailablePlayers();
 
     // when two players on voting and half of players already voted against first
@@ -124,11 +129,11 @@ class VotePhaseManager {
         unvotedPlayers.length == availablePlayers.length / 2) {
       final unvotedPhase = unvotedPhases.first;
       unvotedPhase.isVoted = true;
-      unvotedPhase.voteList(unvotedPlayers);
+      unvotedPhase.addVoteList(unvotedPlayers);
       phase.updateVotePhase(unvotedPhase);
       gameHistoryManager.logVoteFinish(votePhaseAction: unvotedPhase);
       updateGamePhase!(phase);
-      _handlePlayersToKick(phase);
+      _handlePlayersToKick(phase, unvotedPlayers.length);
       return;
     }
 
@@ -136,11 +141,11 @@ class VotePhaseManager {
     if (unvotedPhases.length == 1) {
       final unvotedPhase = unvotedPhases.first;
       unvotedPhase.isVoted = true;
-      unvotedPhase.voteList(unvotedPlayers);
+      unvotedPhase.addVoteList(unvotedPlayers);
       phase.updateVotePhase(unvotedPhase);
       gameHistoryManager.logVoteFinish(votePhaseAction: unvotedPhase);
       updateGamePhase!(phase);
-      _handlePlayersToKick(phase);
+      _handlePlayersToKick(phase, unvotedPlayers.length);
       return;
     }
   }
@@ -169,60 +174,50 @@ class VotePhaseManager {
     return false;
   }
 
-  void _handlePlayersToKick(GamePhaseModel phase) {
-    final allGunfightTodayVotePhases = phase.getUniqueTodaysVotePhases();
-    // check gunfight vote phases first of all
-    final playersToKick = _findPlayersToKick(
-      allGunfightTodayVotePhases.isEmpty
-          ? phase.getUniqueTodaysVotePhases()
-          : allGunfightTodayVotePhases,
-    );
-    if (playersToKick.isEmpty) {
+  void _handlePlayersToKick(GamePhaseModel phase, int unvotedPlayersCount) {
+    final votePhases = phase.getUniqueTodaysVotePhases();
+    final votesWithMaxVotes = _findVotePhasesWithMaxVotes(votePhases);
+    final playersToKick =
+        votesWithMaxVotes.map((votePhase) => votePhase.playerOnVote).toList();
+
+    // no one voted yet
+    if (votesWithMaxVotes.isEmpty) {
       return;
     }
 
     // kick player from the game
-    if (playersToKick.length == 1) {
-      final speakPhase = SpeakPhaseAction(
-        currentDay: phase.currentDay,
-        player: playersToKick[0],
-        isLastWord: true,
+    //
+    if (votesWithMaxVotes.length == 1 &&
+        !votesWithMaxVotes.first.shouldKickAllPlayers) {
+      _kickPlayers(
+        phase: phase,
+        playersToKick: playersToKick,
       );
-      phase.addSpeakPhase(speakPhase);
-      updateGamePhase!(phase);
       return;
     }
 
-    // gunfight
-    if (playersToKick.length > 1) {
-      for (var player in playersToKick) {
-        phase.addSpeakPhase(SpeakPhaseAction(
-          currentDay: phase.currentDay,
-          player: player,
-          timeForSpeakInSec: const Duration(seconds: 30),
-        ));
-        phase.addVotePhase(VotePhaseAction(
-          currentDay: phase.currentDay,
-          playerOnVote: player,
-          isGunfight: true,
-        ));
-      }
-      gameHistoryManager.logGunfight(players: playersToKick);
-      updateGamePhase!(phase);
-    }
+    // more then one player with max votes
+    _handleGunfightFlow(
+      phase: phase,
+      votePhases: votePhases,
+      playersToKick: playersToKick,
+      unvotedPlayersCount: unvotedPlayersCount,
+    );
   }
 
-  List<PlayerModel> _findPlayersToKick(List<VotePhaseAction> allVotePhases) {
+  List<VotePhaseAction> _findVotePhasesWithMaxVotes(
+    List<VotePhaseAction> allVotePhases,
+  ) {
     // A Map to keep track of the vote count per player.
-    Map<PlayerModel, int> voteCounts = {};
+    Map<VotePhaseAction, int> voteCounts = {};
 
     // Populate the map with vote counts for each player.
     for (var votePhase in allVotePhases) {
-      final player = votePhase.playerOnVote;
-      if (!voteCounts.containsKey(player)) {
-        voteCounts[player] = 0;
+      if (!voteCounts.containsKey(votePhase)) {
+        voteCounts[votePhase] = 0;
       }
-      voteCounts[player] = voteCounts[player]! + votePhase.votedPlayers.length;
+      voteCounts[votePhase] =
+          voteCounts[votePhase]! + votePhase.votedPlayers.length;
     }
 
     // Determine the maximum vote count.
@@ -234,14 +229,14 @@ class VotePhaseManager {
     });
 
     // Find all players who have the maximum vote count.
-    List<PlayerModel> playersToKick = [];
+    List<VotePhaseAction> votesWithPlayersToKick = [];
     voteCounts.forEach((player, votes) {
       if (votes == maxVotes) {
-        playersToKick.add(player);
+        votesWithPlayersToKick.add(player);
       }
     });
 
-    return playersToKick;
+    return votesWithPlayersToKick;
   }
 
   Map<PlayerModel, bool> calculatePlayerVotingStatusMap(GamePhaseModel phase) {
@@ -258,5 +253,79 @@ class VotePhaseManager {
     }
 
     return playerVotingStatusMap;
+  }
+
+  void _kickPlayers({
+    required GamePhaseModel phase,
+    required List<PlayerModel> playersToKick,
+  }) {
+    for (var playerModel in playersToKick) {
+      final speakPhase = SpeakPhaseAction(
+        currentDay: phase.currentDay,
+        player: playerModel,
+        isLastWord: true,
+      );
+      boardRepository.updatePlayer(playerModel.id, isKicked: true);
+      phase.addSpeakPhase(speakPhase);
+    }
+    gameHistoryManager.logKickPlayers(players: playersToKick);
+    updateGamePhase!(phase);
+  }
+
+  void _handleGunfightFlow({
+    required GamePhaseModel phase,
+    required List<VotePhaseAction> votePhases,
+    required List<PlayerModel> playersToKick,
+    required int unvotedPlayersCount,
+  }) {
+    final areVotePhasesAlreadyGunfighted =
+        checkVotePhasesAlreadyGunfighted(votePhases);
+    final shouldKickAll = checkVotePhasesShouldKickAll(votePhases);
+    // gunfight
+    if (!areVotePhasesAlreadyGunfighted) {
+      for (var player in playersToKick) {
+        phase.addSpeakPhase(SpeakPhaseAction(
+          currentDay: phase.currentDay,
+          player: player,
+          timeForSpeakInSec: const Duration(seconds: 30),
+        ));
+        phase.addVotePhase(VotePhaseAction(
+          currentDay: phase.currentDay,
+          playerOnVote: player,
+          isGunfight: true,
+        ));
+      }
+      gameHistoryManager.logGunfight(players: playersToKick);
+      updateGamePhase!(phase);
+    } else if (areVotePhasesAlreadyGunfighted && !shouldKickAll) {
+      phase.addVotePhase(
+        VotePhaseAction(
+          playerOnVote: playersToKick.first,
+          currentDay: phase.currentDay,
+          isGunfight: true,
+          shouldKickAllPlayers: true,
+          playersToKick: playersToKick,
+        ),
+      );
+      gameHistoryManager.logGunfight(
+          players: playersToKick, shouldKickAll: true);
+    } else if (areVotePhasesAlreadyGunfighted &&
+        shouldKickAll &&
+        unvotedPlayersCount < boardRepository.getAllAvailablePlayers().length) {
+      // There were gunfight and vote about all players to kick and majority voted to kick
+      _kickPlayers(
+        phase: phase,
+        playersToKick: votePhases.first.playersToKick,
+      );
+    }
+    // otherwise players are left in the game
+  }
+
+  bool checkVotePhasesAlreadyGunfighted(List<VotePhaseAction> votePhases) {
+    return votePhases.any((votePhases) => votePhases.isGunfight);
+  }
+
+  bool checkVotePhasesShouldKickAll(List<VotePhaseAction> votePhases) {
+    return votePhases.any((votePhases) => votePhases.shouldKickAllPlayers);
   }
 }

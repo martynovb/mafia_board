@@ -9,5 +9,6 @@ enum GameHistoryType {
   gunfight,
   lastWord,
   remove,
+  kick,
   none,
 }
