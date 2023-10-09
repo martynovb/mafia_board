@@ -2,11 +2,12 @@ import 'dart:async';
 
 import 'package:mafia_board/data/board_repository.dart';
 import 'package:mafia_board/data/game_phase_repository.dart';
+import 'package:mafia_board/data/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase_model.dart';
 import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/role.dart';
-import 'package:mafia_board/data/model/speak_phase_status.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
+import 'package:mafia_board/domain/phase_manager/night_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/speaking_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/vote_phase_manager.dart';
 import 'package:rxdart/rxdart.dart';
@@ -19,6 +20,7 @@ class GamePhaseManager {
   final GameHistoryManager gameHistoryManager;
   final VotePhaseManager votePhaseGameManager;
   final SpeakingPhaseManager speakingPhaseManager;
+  final NightPhaseManager nightPhaseManager;
   final BehaviorSubject<GamePhaseModel> _gamePhaseStreamController =
       BehaviorSubject();
 
@@ -28,9 +30,11 @@ class GamePhaseManager {
     required this.gameHistoryManager,
     required this.votePhaseGameManager,
     required this.speakingPhaseManager,
+    required this.nightPhaseManager,
   }) {
     votePhaseGameManager.setUpdateGamePhase = _updateGamePhase;
     speakingPhaseManager.setUpdateGamePhase = _updateGamePhase;
+    nightPhaseManager.setUpdateGamePhase = _updateGamePhase;
   }
 
   Stream<GamePhaseModel> get gamePhaseStream =>
@@ -63,6 +67,13 @@ class GamePhaseManager {
 
     final phase = gamePhaseRepository.getCurrentGamePhase();
 
+    if (!phase.isSpeakingPhasesExist()) {
+      phase.addAllSpeakPhases(
+        speakingPhaseManager.getPreparedSpeakPhases(phase.currentDay),
+      );
+      _updateGamePhase(phase);
+    }
+
     if (!phase.isSpeakPhaseFinished()) {
       return;
     }
@@ -72,17 +83,19 @@ class GamePhaseManager {
       return;
     }
 
-    if (!phase.isNightPhaseFinished()) {
-      final currentNightPhase = phase.getCurrentNightPhase();
-      if (currentNightPhase != null) {
-        currentNightPhase.isFinished = true;
-        if (!phase.isNightPhaseFinished()) {
-          phase.updateNightPhase(currentNightPhase);
-          _updateGamePhase(phase);
-          return;
-        }
-      }
+    if (!phase.isNightPhasesExist()) {
+      phase.addAllNightPhases(
+        nightPhaseManager.getPreparedNightPhases(phase.currentDay),
+      );
+      _updateGamePhase(phase);
     }
+
+    if (!phase.isNightPhaseFinished()) {
+      return;
+    }
+
+    phase.increaseDay();
+    nextGamePhase();
   }
 
   void finishGame() {
@@ -163,4 +176,22 @@ class GamePhaseManager {
 
   Map<PlayerModel, bool> calculatePlayerVotingStatusMap(GamePhaseModel phase) =>
       votePhaseGameManager.calculatePlayerVotingStatusMap(phase);
+
+  // NIGHT PHASE
+
+  void startCurrentNightPhase() => nightPhaseManager.startCurrentNightPhase();
+
+  NightPhaseAction? getCurrentNightPhase() =>
+      gamePhaseRepository.getCurrentGamePhase().getCurrentNightPhase();
+
+  void finishCurrentNightPhase() => nightPhaseManager.finishCurrentNightPhase();
+
+  void killPlayer(PlayerModel playerModel, Role whoKilled) =>
+      nightPhaseManager.killPlayer(playerModel, whoKilled);
+
+  PlayerModel? checkPlayer(PlayerModel playerModel, Role whoIsChecking) =>
+      nightPhaseManager.checkPlayer(playerModel, whoIsChecking);
+
+  void visitPlayer(PlayerModel playerModel, Role whoIsVisiting) =>
+      nightPhaseManager.visitPlayer(playerModel, whoIsVisiting);
 }

@@ -1,7 +1,7 @@
 import 'package:mafia_board/data/board_repository.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase_model.dart';
-import 'package:mafia_board/data/model/speak_phase_status.dart';
+import 'package:mafia_board/data/model/phase_status.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
 
 class SpeakingPhaseManager {
@@ -21,26 +21,24 @@ class SpeakingPhaseManager {
 
   List<SpeakPhaseAction> getPreparedSpeakPhases(int currentDay) {
     final List<SpeakPhaseAction> phases = [];
-    boardRepository.getAllPlayers().forEach((player) {
-      if (!player.isRemoved && !player.isKilled) {
-        phases.add(
-          SpeakPhaseAction(currentDay: currentDay, player: player),
-        );
-      }
+    boardRepository.getAllAvailablePlayers().forEach((player) {
+      phases.add(
+        SpeakPhaseAction(currentDay: currentDay, player: player),
+      );
     });
     return phases;
   }
 
   void startSpeech(GamePhaseModel phase) {
     final currentSpeakPhase = phase.getCurrentSpeakPhase();
-    currentSpeakPhase?.updateStatus = SpeakPhaseStatus.speaking;
+    currentSpeakPhase?.updateStatus = PhaseStatus.inProgress;
     gameHistoryManager.logPlayerSpeech(speakPhaseAction: currentSpeakPhase);
     updateGamePhase!(phase);
   }
 
   void finishSpeech(GamePhaseModel phase) {
     final currentSpeakPhase = phase.getCurrentSpeakPhase();
-    currentSpeakPhase?.updateStatus = SpeakPhaseStatus.finished;
+    currentSpeakPhase?.updateStatus = PhaseStatus.finished;
     gameHistoryManager.logPlayerSpeech(speakPhaseAction: currentSpeakPhase);
     updateGamePhase!(phase);
   }

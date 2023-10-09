@@ -4,12 +4,14 @@ import 'package:mafia_board/data/game_history_repository.dart';
 import 'package:mafia_board/data/game_phase_repository.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
+import 'package:mafia_board/domain/phase_manager/night_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/speaking_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/vote_phase_manager.dart';
 import 'package:mafia_board/domain/player_validator.dart';
 import 'package:mafia_board/domain/role_manager.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/history/game_history_bloc.dart';
+import 'package:mafia_board/presentation/feature/home/phase_view/night_phase/night_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/speaking_phase/speaking_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_bloc/vote_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_bloc.dart';
@@ -39,6 +41,15 @@ class Injector {
       ),
     );
     _getIt.registerSingleton(
+      NightPhaseManager(
+        gamePhaseRepository: _getIt.get(),
+        gameHistoryManager: _getIt.get(),
+        boardRepository: _getIt.get(),
+        roleManager: _getIt.get(),
+      ),
+    );
+
+    _getIt.registerSingleton(
       VotePhaseManager(
         gamePhaseRepository: _getIt.get(),
         gameHistoryManager: _getIt.get(),
@@ -59,6 +70,7 @@ class Injector {
       gameHistoryManager: _getIt.get(),
       votePhaseGameManager: _getIt.get(),
       speakingPhaseManager: _getIt.get(),
+      nightPhaseManager: _getIt.get(),
     ));
   }
 
@@ -99,6 +111,13 @@ class Injector {
 
     _getIt.registerSingleton(
       SpeakingPhaseBloc(
+        gamePhaseManager: _getIt.get(),
+      ),
+    );
+
+    _getIt.registerSingleton(
+      NightPhaseBloc(
+        boardRepository: _getIt.get(),
         gamePhaseManager: _getIt.get(),
       ),
     );

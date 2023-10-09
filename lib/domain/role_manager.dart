@@ -4,17 +4,17 @@ import 'package:mafia_board/data/model/role_model.dart';
 
 class RoleManager {
   final BoardRepository _boardRepository;
-  List<RoleModel> _allRoles = [];
+  final List<RoleModel> _allRoles;
   List<Role> _selectedRoles = [];
   Map<Role, bool> _uniqueAvailableRoles = {};
 
   RoleManager.classic(this._boardRepository)
       : _allRoles = [
           RoleModel(role: Role.NONE, count: 10),
-          RoleModel(role: Role.DON, count: 1),
-          RoleModel(role: Role.MAFIA, count: 2),
+          RoleModel(role: Role.DON, count: 1, nightPriority: 2),
+          RoleModel(role: Role.MAFIA, count: 2, nightPriority: 1),
           RoleModel(role: Role.CIVILIAN, count: 6),
-          RoleModel(role: Role.SHERIFF, count: 1),
+          RoleModel(role: Role.SHERIFF, count: 1, nightPriority: 3),
         ] {
     _calculateAvailableRoles();
     _createPlayers();
@@ -67,4 +67,6 @@ class RoleManager {
     }
     _boardRepository.createPlayers(playersCount);
   }
+
+  List<RoleModel> get allRoles => _allRoles;
 }

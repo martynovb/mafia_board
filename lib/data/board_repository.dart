@@ -33,6 +33,7 @@ class BoardRepository {
     bool? isRemoved,
     bool? isKilled,
     bool? isKicked,
+    bool? isMuted,
   }) async {
     int playerIndex = _players.indexWhere((player) => player.id == id);
     PlayerModel player = _players[playerIndex];
@@ -44,6 +45,7 @@ class BoardRepository {
       score ?? player.score,
       isRemoved: isRemoved ?? player.isRemoved,
       isKilled: isKilled ?? player.isKilled,
+      isMuted: isMuted ?? player.isMuted,
     );
 
     _players[playerIndex] = newPlayerData;

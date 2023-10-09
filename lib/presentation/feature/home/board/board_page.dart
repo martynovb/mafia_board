@@ -6,7 +6,7 @@ import 'package:mafia_board/presentation/feature/game_timer_view.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_event.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_state.dart';
-import 'package:mafia_board/presentation/feature/home/phase_view/night_phase_view.dart';
+import 'package:mafia_board/presentation/feature/home/phase_view/night_phase/night_phase_view.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/speaking_phase/speaking_phase_view.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_view.dart';
 
@@ -72,13 +72,14 @@ class _BoardPageState extends State<BoardPage> {
   Widget _getPhaseView(GamePhaseState gamePhaseState) {
     if (!gamePhaseState.phase.isSpeakPhaseFinished()) {
       return SpeakingPhaseView(
-        currentPhase: gamePhaseState.phase.getCurrentSpeakPhase(),
         onSpeechFinished: () => boardBloc.add(NextPhaseEvent()),
       );
     } else if (!gamePhaseState.phase.isVotingPhaseFinished()) {
       return const VotePhaseView();
     } else if (!gamePhaseState.phase.isNightPhaseFinished()) {
-      return const NightPhaseView();
+      return NightPhaseView(
+        onNightPhaseFinished: () => boardBloc.add(NextPhaseEvent()),
+      );
     } else {
       return Container();
     }

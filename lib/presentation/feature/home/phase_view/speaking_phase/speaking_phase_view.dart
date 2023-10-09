@@ -2,18 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
-import 'package:mafia_board/data/model/speak_phase_status.dart';
+import 'package:mafia_board/data/model/phase_status.dart';
 import 'package:mafia_board/presentation/feature/game_timer_view.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/speaking_phase/speaking_phase_bloc.dart';
 
 class SpeakingPhaseView extends StatefulWidget {
   final void Function() onSpeechFinished;
-  final SpeakPhaseAction? currentPhase;
 
   const SpeakingPhaseView({
     Key? key,
     required this.onSpeechFinished,
-    required this.currentPhase,
   }) : super(key: key);
 
   @override
@@ -50,12 +48,12 @@ class _SpeakingPhaseViewState extends State<SpeakingPhaseView> {
           return Column(
             children: [
               Text(
-                'Speaking player: ${widget.currentPhase?.player?.nickname}',
+                'Speaking player: ${state.speakPhaseAction?.player?.nickname}',
               ),
               if (_isTimerFinished)
                 _goNextPlayer()
               else if (state.speakPhaseAction != null &&
-                  state.speakPhaseAction?.status == SpeakPhaseStatus.speaking)
+                  state.speakPhaseAction?.status == PhaseStatus.inProgress)
                 _finishSpeechBtn(state.speakPhaseAction?.timeForSpeakInSec)
               else
                 _startSpeechBtn()

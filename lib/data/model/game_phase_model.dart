@@ -2,7 +2,7 @@ import 'package:mafia_board/data/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/model/player_model.dart';
-import 'package:mafia_board/data/model/speak_phase_status.dart';
+import 'package:mafia_board/data/model/phase_status.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
 import 'package:collection/collection.dart';
 
@@ -22,12 +22,23 @@ class GamePhaseModel {
 
   DateTime get createdAt => _createdAt;
 
+  void increaseDay(){
+    currentDay++;
+  }
+
+  bool isSpeakingPhasesExist() {
+    return speakPhasesByDays[currentDay]?.where((phase) => !phase.isLastWord).isNotEmpty ?? false;
+  }
+
+  bool isNightPhasesExist() {
+    return nightPhasesByDays[currentDay]?.isNotEmpty ?? false;
+  }
+
   bool isNightPhaseFinished() {
-    MafLogger.d(_tag, 'isNightPhaseFinished');
     NightPhaseAction? phase;
     if (nightPhasesByDays.containsKey(currentDay)) {
-      phase = nightPhasesByDays[currentDay]
-          ?.firstWhereOrNull((element) => !element.isFinished);
+      phase = nightPhasesByDays[currentDay]?.firstWhereOrNull(
+          (element) => element.status != PhaseStatus.finished);
     }
     MafLogger.d(_tag, 'isNightPhaseFinished: ${phase == null}');
     return phase == null;
@@ -47,7 +58,7 @@ class GamePhaseModel {
     SpeakPhaseAction? phase;
     if (speakPhasesByDays.containsKey(currentDay)) {
       phase = speakPhasesByDays[currentDay]?.firstWhereOrNull(
-          (element) => element.status != SpeakPhaseStatus.finished);
+          (element) => element.status != PhaseStatus.finished);
     }
     MafLogger.d(_tag, 'isSpeakPhaseFinished: ${phase == null}');
     return phase == null;
@@ -79,16 +90,29 @@ class GamePhaseModel {
     }
   }
 
-  void addSpeakPhase(SpeakPhaseAction speakPhaseAction) {
+  void addAllNightPhases(List<NightPhaseAction> phases) {
+    MafLogger.d(_tag, 'addAllSpeakPhases: ${phases.toString()}');
+    if (nightPhasesByDays.containsKey(currentDay)) {
+      final phaseList = nightPhasesByDays[currentDay]!;
+      phaseList.addAll(phases);
+      MafLogger.d(
+          _tag, 'addSpeakPhase success, phaseList: ${phaseList.length}');
+    } else {
+      MafLogger.d(_tag, 'addSpeakPhase success, created new phase list');
+      nightPhasesByDays[currentDay] = phases;
+    }
+  }
+
+  void addSpeakPhase(SpeakPhaseAction speakPhaseAction, [int? day]) {
     MafLogger.d(_tag, 'addSpeakPhase: ${speakPhaseAction.toString()}');
-    if (speakPhasesByDays.containsKey(currentDay)) {
-      final phaseList = speakPhasesByDays[currentDay]!;
+    if (speakPhasesByDays.containsKey(day ?? currentDay)) {
+      final phaseList = speakPhasesByDays[day ?? currentDay]!;
       phaseList.add(speakPhaseAction);
       MafLogger.d(
           _tag, 'addSpeakPhase success, phaseList: ${phaseList.length}');
     } else {
       MafLogger.d(_tag, 'addSpeakPhase success, created new phase list');
-      speakPhasesByDays[currentDay] = [speakPhaseAction];
+      speakPhasesByDays[day ?? currentDay] = [speakPhaseAction];
     }
   }
 
@@ -105,21 +129,25 @@ class GamePhaseModel {
     }
   }
 
-  SpeakPhaseAction? getCurrentSpeakPhase() =>
-      speakPhasesByDays[currentDay]?.firstWhereOrNull(
+  SpeakPhaseAction? getCurrentSpeakPhase([int? day]) =>
+      speakPhasesByDays[day ?? currentDay]?.firstWhereOrNull(
         (phase) =>
-            phase.status == SpeakPhaseStatus.speaking ||
-            phase.status == SpeakPhaseStatus.notStarted,
+            phase.status == PhaseStatus.inProgress ||
+            phase.status == PhaseStatus.notStarted,
       );
+
+  bool? removeSpeakPhase(SpeakPhaseAction speakPhaseAction, [int? day]) =>
+      speakPhasesByDays[day ?? currentDay]?.remove(speakPhaseAction);
 
   VotePhaseAction? getCurrentVotePhase() =>
       votePhasesByDays[currentDay]?.firstWhereOrNull((phase) => !phase.isVoted);
 
   NightPhaseAction? getCurrentNightPhase() => nightPhasesByDays[currentDay]
-      ?.firstWhereOrNull((phase) => !phase.isFinished);
+      ?.firstWhereOrNull((phase) => phase.status != PhaseStatus.finished);
 
-  List<VotePhaseAction> getUniqueTodaysVotePhases() {
-    List<VotePhaseAction> todaysPhases = votePhasesByDays[currentDay] ?? [];
+  List<VotePhaseAction> getUniqueTodaysVotePhases([int? day]) {
+    List<VotePhaseAction> todaysPhases =
+        votePhasesByDays[day ?? currentDay] ?? [];
     List<VotePhaseAction> votePhases = [];
     List<VotePhaseAction> gunfightVotePhases = [];
     VotePhaseAction? askToKickAllPlayers;
@@ -189,7 +217,7 @@ class GamePhaseModel {
   }) {
     return getAllTodaysVotePhases()
             .lastWhereOrNull(
-              (phase) => phase.playerOnVote?.id == voteAgainstPlayer.id,
+              (phase) => phase.playerOnVote.id == voteAgainstPlayer.id,
             )
             ?.vote(currentPlayer) ??
         false;
@@ -201,7 +229,7 @@ class GamePhaseModel {
   }) {
     return getAllTodaysVotePhases()
             .lastWhereOrNull(
-              (phase) => phase.playerOnVote?.id == voteAgainstPlayer.id,
+              (phase) => phase.playerOnVote.id == voteAgainstPlayer.id,
             )
             ?.removeVote(currentPlayer) ??
         false;

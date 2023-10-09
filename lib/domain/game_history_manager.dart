@@ -7,7 +7,7 @@ import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase_model.dart';
 import 'package:mafia_board/data/model/player_model.dart';
-import 'package:mafia_board/data/model/speak_phase_status.dart';
+import 'package:mafia_board/data/model/phase_status.dart';
 import 'package:rxdart/subjects.dart';
 
 class GameHistoryManager {
@@ -64,17 +64,17 @@ class GameHistoryManager {
     }
     String text;
     if (speakPhaseAction.isLastWord &&
-        speakPhaseAction.status == SpeakPhaseStatus.speaking) {
+        speakPhaseAction.status == PhaseStatus.inProgress) {
       text =
           'LAST SPEECH STARTED of player #${speakPhaseAction.player?.playerNumber}: ${speakPhaseAction.player?.nickname}';
     } else if (speakPhaseAction.isLastWord &&
-        speakPhaseAction.status == SpeakPhaseStatus.finished) {
+        speakPhaseAction.status == PhaseStatus.finished) {
       text =
           'LAST SPEECH FINISHED of player #${speakPhaseAction.player?.playerNumber}: ${speakPhaseAction.player?.nickname}';
-    } else if (speakPhaseAction.status == SpeakPhaseStatus.speaking) {
+    } else if (speakPhaseAction.status == PhaseStatus.inProgress) {
       text =
           'SPEECH STARTED of player #${speakPhaseAction.player?.playerNumber}: ${speakPhaseAction.player?.nickname}';
-    } else if (speakPhaseAction.status == SpeakPhaseStatus.finished) {
+    } else if (speakPhaseAction.status == PhaseStatus.finished) {
       text =
           'SPEECH FINISHED of player #${speakPhaseAction.player?.playerNumber}: ${speakPhaseAction.player?.nickname}';
     } else {
