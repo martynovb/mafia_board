@@ -137,6 +137,13 @@ class VotePhaseManager {
       return;
     }
 
+    if (unvotedPhases.length == 1 && unvotedPhases.first.shouldKickAllPlayers) {
+      final unvotedPhase = unvotedPhases.first;
+      unvotedPhase.isVoted = true;
+      _handlePlayersToKick(phase, unvotedPlayers.length);
+      return;
+    }
+
     //when only 1 vote phase is left put all left votes against second player
     if (unvotedPhases.length == 1) {
       final unvotedPhase = unvotedPhases.first;
@@ -144,7 +151,7 @@ class VotePhaseManager {
       unvotedPhase.addVoteList(unvotedPlayers);
       phase.updateVotePhase(unvotedPhase);
       gameHistoryManager.logVoteFinish(votePhaseAction: unvotedPhase);
-      updateGamePhase!(phase);
+      updateGamePhase!(phase); // remove?
       _handlePlayersToKick(phase, unvotedPlayers.length);
       return;
     }
@@ -311,7 +318,8 @@ class VotePhaseManager {
           players: playersToKick, shouldKickAll: true);
     } else if (areVotePhasesAlreadyGunfighted &&
         shouldKickAll &&
-        unvotedPlayersCount < boardRepository.getAllAvailablePlayers().length) {
+        unvotedPlayersCount <
+            boardRepository.getAllAvailablePlayers().length / 2) {
       // There were gunfight and vote about all players to kick and majority voted to kick
       _kickPlayers(
         phase: phase,
