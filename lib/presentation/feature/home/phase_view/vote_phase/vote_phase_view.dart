@@ -35,15 +35,12 @@ class _VotePhaseViewState extends State<VotePhaseView> {
     return BlocBuilder(
         bloc: votePhaseBloc,
         builder: (BuildContext context, VotePhaseState state) {
-          String displayText =
-              state.playerOnVote?.nickname ?? "No player on vote";
-
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                'Vote against player: $displayText',
-              ),
+              Text(state.title),
+              if (state.playersToKickText.isNotEmpty)
+                Text(state.playersToKickText),
               ElevatedButton(
                 onPressed: () {
                   votePhaseBloc.add(
@@ -85,8 +82,7 @@ class _VotePhaseViewState extends State<VotePhaseView> {
               Icons.thumb_up,
               size: 16,
             ),
-            label: Text(
-                '${state.allAvailablePlayersToVote.keys.toList().indexOf(player) + 1}'),
+            label: Text('${player.playerNumber}'),
             onLongPress: () {
               if (state.playerOnVote != null) {
                 votePhaseBloc.add(CancelVoteAgainstEvent(

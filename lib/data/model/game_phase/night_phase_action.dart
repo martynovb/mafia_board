@@ -8,6 +8,8 @@ class NightPhaseAction extends GamePhaseAction {
   final Role role;
   final List<PlayerModel> playersForWakeUp;
   final Duration timeForNight;
+  PlayerModel? killedPlayer;
+  PlayerModel? checkedPlayer;
 
   NightPhaseAction({
     required int currentDay,
@@ -15,5 +17,7 @@ class NightPhaseAction extends GamePhaseAction {
     this.playersForWakeUp = const [],
     this.timeForNight = const Duration(seconds: 10),
     this.status = PhaseStatus.notStarted,
+    this.killedPlayer,
+    this.checkedPlayer,
   }) : super(currentDay);
 }

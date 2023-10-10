@@ -28,7 +28,8 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
 
   void _finishSpeechEventHandler(FinishSpeechEvent event, emit) async {
     gamePhaseManager.finishSpeech();
-    emit(SpeakingPhaseState(isFinished: true));
+    final phase = await gamePhaseManager.gamePhase;
+    emit(SpeakingPhaseState(speakPhaseAction: phase.getCurrentSpeakPhase(), isFinished: true));
   }
 }
 

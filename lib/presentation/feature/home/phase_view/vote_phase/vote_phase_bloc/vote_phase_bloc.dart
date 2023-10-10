@@ -1,5 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/data/board_repository.dart';
+import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
+import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_bloc/vote_phase_event.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_bloc/vote_phase_state.dart';
@@ -22,9 +24,14 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
 
   void _initializeDataEventHandler(GetVotingDataEvent event, emit) async {
     final phase = await gamePhaseManager.gamePhase;
+    final currentVotePhase = phase.getCurrentVotePhase();
     emit(VotePhaseState(
+      title: _mapVotePageTitle(currentVotePhase),
+      playersToKickText:
+          _parsePlayersToKickToString(currentVotePhase?.playersToKick),
       playerOnVote: phase.getCurrentVotePhase()?.playerOnVote,
-      allAvailablePlayersToVote: gamePhaseManager.calculatePlayerVotingStatusMap(phase),
+      allAvailablePlayersToVote:
+          gamePhaseManager.calculatePlayerVotingStatusMap(phase),
     ));
   }
 
@@ -33,9 +40,14 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
       gamePhaseManager.finishCurrentVotePhase();
       gamePhaseManager.nextGamePhase();
       final phase = await gamePhaseManager.gamePhase;
+      final currentVotePhase = phase.getCurrentVotePhase();
       emit(VotePhaseState(
+        title: _mapVotePageTitle(currentVotePhase),
+        playersToKickText:
+            _parsePlayersToKickToString(currentVotePhase?.playersToKick),
         playerOnVote: phase.getCurrentVotePhase()?.playerOnVote,
-        allAvailablePlayersToVote: gamePhaseManager.calculatePlayerVotingStatusMap(phase),
+        allAvailablePlayersToVote:
+            gamePhaseManager.calculatePlayerVotingStatusMap(phase),
       ));
     } on Exception catch (ex) {
       MafLogger.e(_tag, '_finishVotingEventHandler $ex');
@@ -49,9 +61,14 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
         voteAgainstPlayer: event.voteAgainstPlayer,
       );
       final phase = await gamePhaseManager.gamePhase;
+      final currentVotePhase = phase.getCurrentVotePhase();
       emit(VotePhaseState(
+        title: _mapVotePageTitle(currentVotePhase),
+        playersToKickText:
+            _parsePlayersToKickToString(currentVotePhase?.playersToKick),
         playerOnVote: phase.getCurrentVotePhase()?.playerOnVote,
-        allAvailablePlayersToVote: gamePhaseManager.calculatePlayerVotingStatusMap(phase),
+        allAvailablePlayersToVote:
+            gamePhaseManager.calculatePlayerVotingStatusMap(phase),
       ));
     } on Exception catch (ex) {
       MafLogger.e(_tag, 'error: _voteAgainstEventHandler $ex');
@@ -62,22 +79,44 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
       CancelVoteAgainstEvent event, emit) async {
     try {
       final phase = await gamePhaseManager.gamePhase;
-      if(phase.getCurrentVotePhase()?.playerOnVote.id == event.voteAgainstPlayer.id) {
+      if (phase.getCurrentVotePhase()?.playerOnVote.id ==
+          event.voteAgainstPlayer.id) {
         gamePhaseManager.cancelVoteAgainst(
           currentPlayer: event.currentPlayer,
           voteAgainstPlayer: event.voteAgainstPlayer,
         );
+        final currentVotePhase = phase.getCurrentVotePhase();
         emit(VotePhaseState(
-          playerOnVote: phase
-              .getCurrentVotePhase()
-              ?.playerOnVote,
-          allAvailablePlayersToVote: gamePhaseManager.calculatePlayerVotingStatusMap(phase),
+          title: _mapVotePageTitle(currentVotePhase),
+          playersToKickText:
+              _parsePlayersToKickToString(currentVotePhase?.playersToKick),
+          playerOnVote: phase.getCurrentVotePhase()?.playerOnVote,
+          allAvailablePlayersToVote:
+              gamePhaseManager.calculatePlayerVotingStatusMap(phase),
         ));
       } else {
-        MafLogger.d(_tag, "You can't cancel your vote for a user whose voting has already finished.");
+        MafLogger.d(_tag,
+            "You can't cancel your vote for a user whose voting has already finished.");
       }
     } on Exception catch (ex) {
       MafLogger.e(_tag, 'error: _voteAgainstEventHandler $ex');
     }
+  }
+
+  String _mapVotePageTitle(VotePhaseAction? votePhaseAction) {
+    if (votePhaseAction == null) {
+      return '';
+    } else if (votePhaseAction.shouldKickAllPlayers) {
+      return 'Kick all players?';
+    }
+    return 'Vote against ${votePhaseAction.playerOnVote.nickname}';
+  }
+
+  String _parsePlayersToKickToString(List<PlayerModel>? players) {
+    if (players == null || players.isEmpty) {
+      return '';
+    }
+
+    return players.map((player) => player.nickname).join(', ');
   }
 }

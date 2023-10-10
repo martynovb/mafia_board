@@ -10,5 +10,9 @@ enum GameHistoryType {
   lastWord,
   remove,
   kick,
+  kill,
+  miss,
+  donCheck,
+  sheriffCheck,
   none,
 }

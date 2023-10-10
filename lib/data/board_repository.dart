@@ -45,6 +45,7 @@ class BoardRepository {
       score ?? player.score,
       isRemoved: isRemoved ?? player.isRemoved,
       isKilled: isKilled ?? player.isKilled,
+      isKicked: isKicked ?? player.isKicked,
       isMuted: isMuted ?? player.isMuted,
     );
 

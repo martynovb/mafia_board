@@ -18,5 +18,7 @@ class GameHistoryRepository {
 
   void delete(GameHistoryModel model) => _gameHistory.remove(model);
 
+  void deleteWhere(bool Function(GameHistoryModel model) condition) => _gameHistory.removeWhere(condition);
+
   void deleteAll() => _gameHistory.clear();
 }

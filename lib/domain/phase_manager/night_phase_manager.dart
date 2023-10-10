@@ -71,42 +71,87 @@ class NightPhaseManager {
     gamePhaseRepository.setCurrentGamePhase(phase);
   }
 
-  void killPlayer(PlayerModel? playerModel, Role whoKilled) {
+  void killPlayer(PlayerModel? playerModel) {
+    if (playerModel == null) {
+      gameHistoryManager.logKillPlayer();
+      return;
+    }
+
+    cancelKillPlayer(playerModel);
+
+    final phase = gamePhaseRepository.getCurrentGamePhase();
+    final currentNightPhase = phase.getCurrentNightPhase();
+    boardRepository.updatePlayer(playerModel.id, isKilled: true);
+    final nextDay = phase.currentDay + 1;
+    phase.addSpeakPhase(
+      SpeakPhaseAction(
+          currentDay: nextDay, player: playerModel, isLastWord: true),
+      nextDay,
+    );
+    phase.getCurrentNightPhase()?.killedPlayer = playerModel;
+    gameHistoryManager.logKillPlayer(
+      player: playerModel,
+      nightPhaseAction: currentNightPhase,
+    );
+    gamePhaseRepository.setCurrentGamePhase(phase);
+  }
+
+  void cancelKillPlayer(PlayerModel? playerModel) {
     if (playerModel == null) {
       // miss
       return;
     }
 
     final phase = gamePhaseRepository.getCurrentGamePhase();
-    boardRepository.updatePlayer(playerModel.id, isKilled: true);
     final nextDay = phase.currentDay + 1;
-    phase.addSpeakPhase(
-      SpeakPhaseAction(
-          currentDay: nextDay,
-          player: playerModel,
-          isLastWord: true),
-      nextDay,
+    final speakPhase = phase.getCurrentSpeakPhase(nextDay);
+    final currentNightPhase = phase.getCurrentNightPhase();
+    final killedPlayer = currentNightPhase?.killedPlayer;
+    if (speakPhase == null ||
+        currentNightPhase == null ||
+        killedPlayer == null) {
+      return;
+    }
+
+    boardRepository.updatePlayer(killedPlayer.id, isKilled: false);
+    if (speakPhase.isLastWord && speakPhase.player?.id == playerModel.id) {
+      phase.removeSpeakPhase(speakPhase, nextDay);
+    }
+    gameHistoryManager.removeLogKillPlayer(
+      nightPhaseAction: currentNightPhase,
     );
+    currentNightPhase.killedPlayer = null;
+    gamePhaseRepository.setCurrentGamePhase(phase);
   }
 
-  PlayerModel? checkPlayer(PlayerModel? playerModel, Role whoIsChecking) {
-    if (playerModel == null) {
-      // didn't check OR no players with this role $whoIsChecking in game
-      return null;
+  void checkPlayer(PlayerModel? playerModel) {
+    cancelCheckPlayer(playerModel);
+    final phase = gamePhaseRepository.getCurrentGamePhase();
+    final currentNightPhase = phase.getCurrentNightPhase();
+    if (currentNightPhase == null) {
+      return;
     }
 
-    if (whoIsChecking == Role.DON && playerModel.role == Role.SHERIFF) {
-      return playerModel;
-    } else if (whoIsChecking == Role.SHERIFF &&
-            playerModel.role == Role.MAFIA ||
-        playerModel.role == Role.DON) {
-      return playerModel;
-    } else {
-      // this role can't check players role
-      return null;
+    if (playerModel != null) {
+      currentNightPhase.checkedPlayer = playerModel;
     }
+
+    gameHistoryManager.logCheckPlayer(nightPhaseAction: currentNightPhase);
+    gamePhaseRepository.setCurrentGamePhase(phase);
   }
 
+  void cancelCheckPlayer(PlayerModel? playerModel) {
+    final phase = gamePhaseRepository.getCurrentGamePhase();
+    final currentNightPhase = phase.getCurrentNightPhase();
+    if (currentNightPhase == null) {
+      return;
+    }
+    currentNightPhase.checkedPlayer = null;
+    gameHistoryManager.removeLogCheckPlayer(nightPhaseAction: currentNightPhase);
+    gamePhaseRepository.setCurrentGamePhase(phase);
+  }
+
+  //todo: in progress
   void visitPlayer(PlayerModel? playerModel, Role whoIsVisiting) {
     if (playerModel == null) {
       // didn't check OR no players with this role $whoIsChecking in game

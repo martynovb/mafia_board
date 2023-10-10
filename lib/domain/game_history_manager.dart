@@ -3,11 +3,13 @@ import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/game_history_repository.dart';
 import 'package:mafia_board/data/model/game_history_model.dart';
 import 'package:mafia_board/data/model/game_history_type.dart';
+import 'package:mafia_board/data/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase_model.dart';
 import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
+import 'package:mafia_board/data/model/role.dart';
 import 'package:rxdart/subjects.dart';
 
 class GameHistoryManager {
@@ -23,6 +25,10 @@ class GameHistoryManager {
 
   void _addRecord(GameHistoryModel model) {
     repository.add(model);
+    _gameHistorySubject.add(repository.getAll());
+  }
+
+  void _notifyListeners() {
     _gameHistorySubject.add(repository.getAll());
   }
 
@@ -114,7 +120,8 @@ class GameHistoryManager {
 
     _addRecord(GameHistoryModel(
       text:
-          'VOTE against #${playersToKick.isEmpty ? ('${votePhaseAction.playerOnVote.playerNumber} ${votePhaseAction.playerOnVote.nickname}') : playersToKick} has finished.', // todo: blood from my eyes
+          'VOTE against #${playersToKick.isEmpty ? ('${votePhaseAction.playerOnVote.playerNumber} ${votePhaseAction.playerOnVote.nickname}') : playersToKick} has finished.',
+      // todo: blood from my eyes
       subText: 'Voted ($votedPlayers)',
       type: GameHistoryType.voteFinish,
       gamePhaseAction: votePhaseAction,
@@ -160,6 +167,48 @@ class GameHistoryManager {
       type: GameHistoryType.kick,
       createdAt: DateTime.now(),
     ));
+  }
+
+  void logCheckPlayer({required NightPhaseAction nightPhaseAction}) {
+    final title = nightPhaseAction.checkedPlayer == null
+        ? 'No one has been checked'
+        : '${nightPhaseAction.role.name} (${nightPhaseAction.playersForWakeUp.firstOrNull?.nickname}) CHECKED ${nightPhaseAction.checkedPlayer?.nickname} - ${nightPhaseAction.checkedPlayer?.role.name}';
+    var type = GameHistoryType.none;
+    if (nightPhaseAction.role == Role.DON) {
+      type = GameHistoryType.donCheck;
+    } else if (nightPhaseAction.role == Role.SHERIFF) {
+      type = GameHistoryType.sheriffCheck;
+    }
+
+    _addRecord(GameHistoryModel(
+      text: title,
+      type: type,
+      gamePhaseAction: nightPhaseAction,
+      createdAt: DateTime.now(),
+    ));
+  }
+
+  void removeLogCheckPlayer({required NightPhaseAction nightPhaseAction}) {
+    repository
+        .deleteWhere((model) => model.gamePhaseAction == nightPhaseAction);
+    _notifyListeners();
+  }
+
+  void logKillPlayer(
+      {PlayerModel? player, NightPhaseAction? nightPhaseAction}) {
+    _addRecord(GameHistoryModel(
+      text: player == null ? 'MISS' : 'KILL ${player.nickname}',
+      subText: player?.role.name ?? '',
+      type: player == null ? GameHistoryType.miss : GameHistoryType.kill,
+      gamePhaseAction: nightPhaseAction,
+      createdAt: DateTime.now(),
+    ));
+  }
+
+  void removeLogKillPlayer({required NightPhaseAction nightPhaseAction}) {
+    repository
+        .deleteWhere((model) => model.gamePhaseAction == nightPhaseAction);
+    _notifyListeners();
   }
 
   void dispose() {

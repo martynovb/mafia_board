@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
+import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/presentation/feature/game_timer_view.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/night_phase/night_phase_bloc.dart';
@@ -51,26 +52,67 @@ class _NightPhaseViewState extends State<NightPhaseView> {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                '${state.nightPhaseAction?.role.name} is waking up',
-              ),
-              if (_isTimerFinished)
-                _goNextPlayer()
-              else if (state.nightPhaseAction != null &&
-                  state.nightPhaseAction?.status == PhaseStatus.inProgress)
-                _finishSpeechBtn(state.nightPhaseAction?.timeForNight)
-              else
-                _startSpeechBtn(),
-              _playersList(state)
+              Text('${state.nightPhaseAction?.role.name} is waking up'),
+              _nightViewMapper(state)
             ],
           );
         });
   }
 
-  Widget _goNextPlayer() {
+  Widget _nightViewMapper(NightPhaseState state) {
+    if (state.nightPhaseAction?.role == Role.MAFIA) {
+      return _mafiaView(state);
+    } else if (state.nightPhaseAction?.role == Role.DON) {
+      return _donView(state);
+    } else if (state.nightPhaseAction?.role == Role.SHERIFF) {
+      return _sheriffView(state);
+    } else {
+      return Container();
+    }
+  }
+
+  Widget _mafiaView(NightPhaseState state) {
     return Column(
       children: [
-        Text('Time for current role is finished'),
+        _goNextPhase(),
+        _playersListForMafia(state),
+      ],
+    );
+  }
+
+  Widget _donView(NightPhaseState state) {
+    return Column(
+      children: [
+        if (_isTimerFinished)
+          _goNextPhase()
+        else if (state.nightPhaseAction != null &&
+            state.nightPhaseAction?.status == PhaseStatus.inProgress)
+          _finishBtn(state.nightPhaseAction?.timeForNight)
+        else
+          _startBtn(),
+        _playersListForSheriffOrDon(state),
+      ],
+    );
+  }
+
+  Widget _sheriffView(NightPhaseState state) {
+    return Column(
+      children: [
+        if (_isTimerFinished)
+          _goNextPhase()
+        else if (state.nightPhaseAction != null &&
+            state.nightPhaseAction?.status == PhaseStatus.inProgress)
+          _finishBtn(state.nightPhaseAction?.timeForNight)
+        else
+          _startBtn(),
+        _playersListForSheriffOrDon(state),
+      ],
+    );
+  }
+
+  Widget _goNextPhase() {
+    return Column(
+      children: [
         ElevatedButton(
             onPressed: () {
               nightPhaseBloc.add(FinishCurrentNightPhaseEvent());
@@ -81,7 +123,7 @@ class _NightPhaseViewState extends State<NightPhaseView> {
     );
   }
 
-  Widget _startSpeechBtn() {
+  Widget _startBtn() {
     return IconButton(
       onPressed: () {
         nightPhaseBloc.add(StartCurrentNightPhaseEvent());
@@ -90,7 +132,7 @@ class _NightPhaseViewState extends State<NightPhaseView> {
     );
   }
 
-  Widget _finishSpeechBtn(
+  Widget _finishBtn(
       [Duration? countdownDuration = const Duration(seconds: 60)]) {
     return Row(
       children: [
@@ -129,7 +171,7 @@ class _NightPhaseViewState extends State<NightPhaseView> {
     );
   }
 
-  Widget _playersList(NightPhaseState state) {
+  Widget _playersListForSheriffOrDon(NightPhaseState state) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -139,34 +181,33 @@ class _NightPhaseViewState extends State<NightPhaseView> {
           width: _boxNumberSize + 10,
           child: ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.all(3),
-                backgroundColor: player.isKilled
-                    ? Colors.red
-                    : null
+                padding: const EdgeInsets.all(3),
+                backgroundColor: _mapBackgroundColor(state, player)),
+            icon: state.nightPhaseAction?.checkedPlayer == null ||
+                    state.nightPhaseAction?.checkedPlayer?.id != player.id
+                ? const Icon(
+                    Icons.search,
+                    size: 10,
+                  )
+                : Icon(
+                    _mapIconByRole(state.nightPhaseAction?.checkedPlayer?.role),
+                    size: 10,
+                  ),
+            label: Text(
+              '${state.allPlayers.indexOf(player) + 1}',
+              style: const TextStyle(fontSize: 10),
             ),
-            icon: _iconMapper(state.nightPhaseAction?.role),
-            label: Text('${state.allPlayers.indexOf(player) + 1}', style: TextStyle(fontSize: 10),),
+            onLongPress: () {
+              nightPhaseBloc.add(CancelCheckEvent(
+                role: state.nightPhaseAction?.role ?? Role.NONE,
+                playerToCheck: player,
+              ));
+            },
             onPressed: () {
-              if (state.nightPhaseAction?.role == Role.MAFIA) {
-                nightPhaseBloc.add(KillEvent(
-                  role: Role.MAFIA,
-                  killedPlayer: player,
-                ));
-              } else if (state.nightPhaseAction?.role == Role.DON ||
-                  state.nightPhaseAction?.role == Role.SHERIFF) {
-                nightPhaseBloc.add(CheckEvent(
-                  role: state.nightPhaseAction?.role ?? Role.NONE,
-                  playerToCheck: player,
-                ));
-              } else if (state.nightPhaseAction?.role == Role.DOCTOR ||
-                  state.nightPhaseAction?.role == Role.PUTANA) {
-                nightPhaseBloc.add(VisitEvent(
-                  role: state.nightPhaseAction?.role ?? Role.NONE,
-                  playerToVisit: player,
-                ));
-              } else {
-                // Impossible
-              }
+              nightPhaseBloc.add(CheckEvent(
+                role: state.nightPhaseAction?.role ?? Role.NONE,
+                playerToCheck: player,
+              ));
             },
           ),
         );
@@ -174,27 +215,86 @@ class _NightPhaseViewState extends State<NightPhaseView> {
     );
   }
 
-  Icon _iconMapper(Role? role) {
-    if (role == Role.MAFIA) {
-      return const Icon(
-        Icons.fiber_manual_record,
-        size: 10,
-      );
-    } else if (role == Role.DON || role == Role.SHERIFF) {
-      return const Icon(
-        Icons.search,
-        size: 10,
-      );
-    } else if (role == Role.DOCTOR || role == Role.PUTANA) {
-      return const Icon(
-        Icons.directions_walk,
-        size: 10,
-      );
-    } else {
-      return const Icon(
-        Icons.question_mark,
-        size: 10,
-      );
+  Widget _playersListForMafia(NightPhaseState state) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: state.allPlayers.map((player) {
+        return SizedBox(
+          height: _boxNumberSize,
+          width: _boxNumberSize + 10,
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.all(3),
+                backgroundColor: _mapBackgroundColor(state, player)),
+            icon: Icon(
+              player.isKilled ? Icons.close : Icons.fiber_manual_record,
+              size: 10,
+            ),
+            label: Text(
+              '${state.allPlayers.indexOf(player) + 1}',
+              style: const TextStyle(fontSize: 10),
+            ),
+            onLongPress: () {
+              nightPhaseBloc.add(CancelKillEvent(
+                role: Role.MAFIA,
+                killedPlayer: player,
+              ));
+            },
+            onPressed: () {
+              nightPhaseBloc.add(KillEvent(
+                role: Role.MAFIA,
+                killedPlayer: player,
+              ));
+            },
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  IconData _mapIconByRole(Role? role) {
+    if (role == Role.DON || role == Role.MAFIA) {
+      return Icons.thumb_down;
+    } else if (role == Role.CIVILIAN) {
+      return Icons.thumb_up;
+    } else if (role == Role.SHERIFF) {
+      return Icons.local_police_outlined;
     }
+
+    return Icons.question_mark;
+  }
+
+  Color? _mapBackgroundColor(
+      NightPhaseState nightPhaseState, PlayerModel currentPlayer) {
+    final currentNightPhaseRole =
+        nightPhaseState.nightPhaseAction?.role ?? Role.NONE;
+
+    if (currentPlayer.isKicked || currentPlayer.isRemoved) {
+      return Colors.grey;
+    } else if (currentNightPhaseRole == Role.MAFIA && currentPlayer.isKilled) {
+      return Colors.red;
+    } else if (currentNightPhaseRole == Role.MAFIA && !currentPlayer.isKilled) {
+      return Colors.blueAccent;
+    } else if ((currentNightPhaseRole == Role.DON ||
+        currentNightPhaseRole == Role.SHERIFF) &&
+            nightPhaseState.nightPhaseAction?.checkedPlayer?.id ==
+                currentPlayer.id) {
+      return _mapBackgroundColorByRole(currentPlayer.role);
+    }
+
+    return null;
+  }
+
+  Color? _mapBackgroundColorByRole(Role role) {
+    if (role == Role.DON || role == Role.MAFIA) {
+      return Colors.black;
+    } else if (role == Role.CIVILIAN) {
+      return Colors.red.shade300;
+    } else if (role == Role.SHERIFF) {
+      return Colors.green.withOpacity(0.3);
+    }
+
+    return null;
   }
 }

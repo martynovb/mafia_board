@@ -186,11 +186,19 @@ class GamePhaseManager {
 
   void finishCurrentNightPhase() => nightPhaseManager.finishCurrentNightPhase();
 
-  void killPlayer(PlayerModel playerModel, Role whoKilled) =>
-      nightPhaseManager.killPlayer(playerModel, whoKilled);
+  void killPlayer(PlayerModel playerModel) {
+    nightPhaseManager.killPlayer(playerModel);
+  }
 
-  PlayerModel? checkPlayer(PlayerModel playerModel, Role whoIsChecking) =>
-      nightPhaseManager.checkPlayer(playerModel, whoIsChecking);
+  void cancelKillPlayer(PlayerModel playerModel) {
+    nightPhaseManager.cancelKillPlayer(playerModel);
+  }
+
+  void checkPlayer(PlayerModel playerModel) =>
+      nightPhaseManager.checkPlayer(playerModel);
+
+  void cancelCheckPlayer(PlayerModel playerModel) =>
+      nightPhaseManager.cancelCheckPlayer(playerModel);
 
   void visitPlayer(PlayerModel playerModel, Role whoIsVisiting) =>
       nightPhaseManager.visitPlayer(playerModel, whoIsVisiting);

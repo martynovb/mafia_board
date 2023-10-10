@@ -23,10 +23,28 @@ class KillEvent extends NightPhaseEvent {
   }) : super(role: role);
 }
 
+class CancelKillEvent extends NightPhaseEvent {
+  final PlayerModel killedPlayer;
+
+  CancelKillEvent({
+    required Role role,
+    required this.killedPlayer,
+  }) : super(role: role);
+}
+
 class CheckEvent extends NightPhaseEvent {
   final PlayerModel playerToCheck;
 
   CheckEvent({
+    required Role role,
+    required this.playerToCheck,
+  }) : super(role: role);
+}
+
+class CancelCheckEvent extends NightPhaseEvent {
+  final PlayerModel playerToCheck;
+
+  CancelCheckEvent({
     required Role role,
     required this.playerToCheck,
   }) : super(role: role);

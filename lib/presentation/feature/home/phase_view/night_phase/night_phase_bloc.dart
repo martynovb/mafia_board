@@ -17,7 +17,9 @@ class NightPhaseBloc extends Bloc<NightPhaseEvent, NightPhaseState> {
     on<StartCurrentNightPhaseEvent>(_startCurrentNightPhaseEventHandler);
     on<FinishCurrentNightPhaseEvent>(_finishCurrentNightPhaseEventHandler);
     on<KillEvent>(_killEventHandler);
+    on<CancelKillEvent>(_cancelKillEventHandler);
     on<CheckEvent>(_checkEventHandler);
+    on<CancelCheckEvent>(_cancelCheckEventHandler);
     on<VisitEvent>(_visitEventHandler);
   }
 
@@ -54,7 +56,15 @@ class NightPhaseBloc extends Bloc<NightPhaseEvent, NightPhaseState> {
   }
 
   void _killEventHandler(KillEvent event, emit) {
-    gamePhaseManager.killPlayer(event.killedPlayer, event.role);
+    gamePhaseManager.killPlayer(event.killedPlayer);
+    emit(NightPhaseState(
+      nightPhaseAction: gamePhaseManager.getCurrentNightPhase(),
+      allPlayers: boardRepository.getAllPlayers(),
+    ));
+  }
+
+  void _cancelKillEventHandler(CancelKillEvent event, emit) {
+    gamePhaseManager.cancelKillPlayer(event.killedPlayer);
     emit(NightPhaseState(
       nightPhaseAction: gamePhaseManager.getCurrentNightPhase(),
       allPlayers: boardRepository.getAllPlayers(),
@@ -62,12 +72,19 @@ class NightPhaseBloc extends Bloc<NightPhaseEvent, NightPhaseState> {
   }
 
   void _checkEventHandler(CheckEvent event, emit) {
-    final checkedPlayer =
-        gamePhaseManager.checkPlayer(event.playerToCheck, event.role);
+    gamePhaseManager.checkPlayer(event.playerToCheck);
 
-    emit(CheckResultState(
+    emit(NightPhaseState(
       nightPhaseAction: gamePhaseManager.getCurrentNightPhase(),
-      playerModel: checkedPlayer,
+      allPlayers: boardRepository.getAllPlayers(),
+    ));
+  }
+
+  void _cancelCheckEventHandler(CancelCheckEvent event, emit) {
+    gamePhaseManager.cancelCheckPlayer(event.playerToCheck);
+
+    emit(NightPhaseState(
+      nightPhaseAction: gamePhaseManager.getCurrentNightPhase(),
       allPlayers: boardRepository.getAllPlayers(),
     ));
   }
