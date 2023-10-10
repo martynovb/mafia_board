@@ -77,10 +77,10 @@ class NightPhaseManager {
       return;
     }
 
-    cancelKillPlayer(playerModel);
-
     final phase = gamePhaseRepository.getCurrentGamePhase();
     final currentNightPhase = phase.getCurrentNightPhase();
+    cancelKillPlayer(currentNightPhase?.killedPlayer);
+
     boardRepository.updatePlayer(playerModel.id, isKilled: true);
     final nextDay = phase.currentDay + 1;
     phase.addSpeakPhase(
@@ -147,7 +147,8 @@ class NightPhaseManager {
       return;
     }
     currentNightPhase.checkedPlayer = null;
-    gameHistoryManager.removeLogCheckPlayer(nightPhaseAction: currentNightPhase);
+    gameHistoryManager.removeLogCheckPlayer(
+        nightPhaseAction: currentNightPhase);
     gamePhaseRepository.setCurrentGamePhase(phase);
   }
 

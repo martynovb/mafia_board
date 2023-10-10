@@ -24,12 +24,12 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
 
   void _initializeDataEventHandler(GetVotingDataEvent event, emit) async {
     final phase = await gamePhaseManager.gamePhase;
-    final currentVotePhase = phase.getCurrentVotePhase();
+    final currentVotePhase = phase?.getCurrentVotePhase();
     emit(VotePhaseState(
       title: _mapVotePageTitle(currentVotePhase),
       playersToKickText:
           _parsePlayersToKickToString(currentVotePhase?.playersToKick),
-      playerOnVote: phase.getCurrentVotePhase()?.playerOnVote,
+      playerOnVote: phase?.getCurrentVotePhase()?.playerOnVote,
       allAvailablePlayersToVote:
           gamePhaseManager.calculatePlayerVotingStatusMap(phase),
     ));
@@ -40,12 +40,12 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
       gamePhaseManager.finishCurrentVotePhase();
       gamePhaseManager.nextGamePhase();
       final phase = await gamePhaseManager.gamePhase;
-      final currentVotePhase = phase.getCurrentVotePhase();
+      final currentVotePhase = phase?.getCurrentVotePhase();
       emit(VotePhaseState(
         title: _mapVotePageTitle(currentVotePhase),
         playersToKickText:
             _parsePlayersToKickToString(currentVotePhase?.playersToKick),
-        playerOnVote: phase.getCurrentVotePhase()?.playerOnVote,
+        playerOnVote: phase?.getCurrentVotePhase()?.playerOnVote,
         allAvailablePlayersToVote:
             gamePhaseManager.calculatePlayerVotingStatusMap(phase),
       ));
@@ -61,12 +61,12 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
         voteAgainstPlayer: event.voteAgainstPlayer,
       );
       final phase = await gamePhaseManager.gamePhase;
-      final currentVotePhase = phase.getCurrentVotePhase();
+      final currentVotePhase = phase?.getCurrentVotePhase();
       emit(VotePhaseState(
         title: _mapVotePageTitle(currentVotePhase),
         playersToKickText:
             _parsePlayersToKickToString(currentVotePhase?.playersToKick),
-        playerOnVote: phase.getCurrentVotePhase()?.playerOnVote,
+        playerOnVote: phase?.getCurrentVotePhase()?.playerOnVote,
         allAvailablePlayersToVote:
             gamePhaseManager.calculatePlayerVotingStatusMap(phase),
       ));
@@ -79,18 +79,18 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
       CancelVoteAgainstEvent event, emit) async {
     try {
       final phase = await gamePhaseManager.gamePhase;
-      if (phase.getCurrentVotePhase()?.playerOnVote.id ==
+      if (phase?.getCurrentVotePhase()?.playerOnVote.id ==
           event.voteAgainstPlayer.id) {
         gamePhaseManager.cancelVoteAgainst(
           currentPlayer: event.currentPlayer,
           voteAgainstPlayer: event.voteAgainstPlayer,
         );
-        final currentVotePhase = phase.getCurrentVotePhase();
+        final currentVotePhase = phase?.getCurrentVotePhase();
         emit(VotePhaseState(
           title: _mapVotePageTitle(currentVotePhase),
           playersToKickText:
               _parsePlayersToKickToString(currentVotePhase?.playersToKick),
-          playerOnVote: phase.getCurrentVotePhase()?.playerOnVote,
+          playerOnVote: phase?.getCurrentVotePhase()?.playerOnVote,
           allAvailablePlayersToVote:
               gamePhaseManager.calculatePlayerVotingStatusMap(phase),
         ));

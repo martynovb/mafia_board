@@ -23,7 +23,7 @@ class PlayerModel {
     this.isKicked = false,
   });
 
-  bool isAvailable() => !isRemoved && !isKilled;
+  bool isAvailable() => !isRemoved && !isKilled && !isKicked;
 
   int get playerNumber => id + 1;
 

@@ -155,6 +155,7 @@ class VotePhaseManager {
       _handlePlayersToKick(phase, unvotedPlayers.length);
       return;
     }
+
   }
 
   bool _isPlayerAlreadyPutOnVote(
@@ -246,7 +247,10 @@ class VotePhaseManager {
     return votesWithPlayersToKick;
   }
 
-  Map<PlayerModel, bool> calculatePlayerVotingStatusMap(GamePhaseModel phase) {
+  Map<PlayerModel, bool> calculatePlayerVotingStatusMap(GamePhaseModel? phase) {
+    if(phase == null){
+      return {};
+    }
     List<VotePhaseAction> allTodayVotePhases =
         phase.getUniqueTodaysVotePhases();
 

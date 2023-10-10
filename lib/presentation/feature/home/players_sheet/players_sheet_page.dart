@@ -37,11 +37,17 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
   }
 
   @override
+  void dispose() {
+    _playersSheetBloc.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder(
       bloc: _playersSheetBloc,
       builder: (BuildContext context, SheetState state) {
-        if (state is ShowSheetState) {
+        if (state is InitialSheetState) {
           return Center(
             child: SingleChildScrollView(
                 child: Column(
@@ -51,7 +57,15 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
                     onPressed: () => setTestData(),
                     child: Text('Set Test Data')),
                 _sheetHeader(),
-                 _playersSheet(state.players),
+                StreamBuilder(
+                    stream: _playersSheetBloc.playersStream,
+                    builder: (context, AsyncSnapshot<SheetDataState> snapshot) {
+                      if (snapshot.hasData) {
+                        return _playersSheet(snapshot.data!);
+                      } else {
+                        return Container();
+                      }
+                    })
               ],
             )),
           );
@@ -98,31 +112,31 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
         ));
   }
 
-  Widget _playersSheet(List<PlayerModel> players) => Container(
+  Widget _playersSheet(SheetDataState sheetDataState) => Container(
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
             border: Border.all(width: 1, color: Colors.white60),
             borderRadius: const BorderRadius.all(Radius.circular(4))),
         child: ListView.separated(
           shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: players.length,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: sheetDataState.players.length,
           separatorBuilder: (context, index) => const Divider(),
           itemBuilder: (__, index) => _playerItem(
-            index,
-            players[index],
-          ),
+              index,
+              sheetDataState.players[index],
+              sheetDataState.gamePhaseModel?.isStarted ?? false),
         ),
       );
 
-  Widget _playerItem(int index, PlayerModel playerModel) {
+  Widget _playerItem(int index, PlayerModel playerModel, bool isGameStarted) {
     return GestureDetector(
       onTap: () {
         _boardBloc.add(PutOnVoteEvent(playerOnVote: playerModel));
       },
       child: Container(
           height: Dimensions.playerItemHeight,
-          color: playerModel.isRemoved
+          color: !playerModel.isAvailable()
               ? Colors.red.withOpacity(0.5)
               : Colors.transparent,
           child: Row(
@@ -137,8 +151,9 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
                 color: Colors.white,
               ),
               Expanded(
-                flex: 5,
+                flex: 1,
                 child: NicknameWidget(
+                  enabled: !isGameStarted,
                   nickname: playerModel.nickname,
                   onChanged: (nickname) =>
                       _playersSheetBloc.add(ChangeNicknameEvent(
@@ -150,7 +165,9 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
               const VerticalDivider(
                 color: Colors.white,
               ),
-              _foulsBuilder(playerModel.id, playerModel.fouls),
+              Expanded(
+                  flex: 1,
+                  child: _foulsBuilder(playerModel.id, playerModel.fouls)),
               const VerticalDivider(
                 color: Colors.white,
               ),

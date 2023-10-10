@@ -75,8 +75,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     try {
       final phase = await gamePhaseManager.gamePhase;
       MafLogger.d(_tag, '$phase');
-      if (!phase.isSpeakPhaseFinished()) {
-        final currentSpeaker = phase.getCurrentSpeakPhase()?.player;
+      if (phase?.isSpeakPhaseFinished() == false) {
+        final currentSpeaker = phase?.getCurrentSpeakPhase()?.player;
         if (currentSpeaker != null) {
           MafLogger.d(_tag, 'Current speaker: ${currentSpeaker.nickname}');
           MafLogger.d(_tag, 'Put on vote: ${event.playerOnVote.nickname}');
@@ -103,12 +103,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     }
   }
 
-  String mapGamePhaseName(GamePhaseModel phase) {
-    if (!phase.isSpeakPhaseFinished()) {
+  String mapGamePhaseName(GamePhaseModel? phase) {
+    if (phase?.isSpeakPhaseFinished() == false) {
       return 'Speaking';
-    } else if (!phase.isVotingPhaseFinished()) {
+    } else if (phase?.isVotingPhaseFinished() == false) {
       return 'Voting';
-    } else if (!phase.isNightPhaseFinished()) {
+    } else if (phase?.isNightPhaseFinished() == false) {
       return 'Night';
     } else {
       return 'Unknown';

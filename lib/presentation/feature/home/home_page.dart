@@ -18,6 +18,7 @@ class HomePage extends StatelessWidget {
             child: Center(
               child: Row(children: [
                 Expanded(
+                  flex: 3,
                     child: Column(
                   children: const [
                     Expanded(
@@ -34,7 +35,7 @@ class HomePage extends StatelessWidget {
                   color: Colors.white12,
                 ),
                 const Expanded(
-                  flex: 1,
+                  flex: 2,
                   child: PlayersSheetPage(),
                 ),
               ]),

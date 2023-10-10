@@ -1,24 +1,48 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/data/board_repository.dart';
 import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
+import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_event.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_state.dart';
+import 'package:rxdart/rxdart.dart';
 
 class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
   final BoardRepository boardRepository;
   final GameHistoryManager gameHistoryManager;
+  final GamePhaseManager gamePhaseManager;
+
+  StreamSubscription? _gamePhaseSubscription;
+  final BehaviorSubject<SheetDataState> _playersSubject = BehaviorSubject();
 
   PlayersSheetBloc({
     required this.boardRepository,
     required this.gameHistoryManager,
-  }) : super(ShowSheetState(boardRepository.getAllPlayers())) {
+    required this.gamePhaseManager,
+  }) : super(InitialSheetState()) {
     on<AddFoulEvent>(_addFoulHandler);
     on<ChangeRoleEvent>(_changeRoleHandler);
     on<ChangeNicknameEvent>(_changeNicknameHandler);
     on<KillPlayerHandler>(_killPlayerHandler);
+    _playersSubject
+        .add(SheetDataState(players: boardRepository.getAllPlayers()));
+    _listenToGamePhase();
   }
+
+  void _listenToGamePhase() {
+    _gamePhaseSubscription =
+        gamePhaseManager.gamePhaseStream.listen((gamePhaseModel) {
+      _playersSubject.add(SheetDataState(
+        players: boardRepository.getAllPlayers(),
+        gamePhaseModel: gamePhaseModel,
+      ));
+    });
+  }
+
+  Stream<SheetDataState> get playersStream => _playersSubject.stream;
 
   void _addFoulHandler(AddFoulEvent event, emit) async {
     if (event.newFoulsCount > Constants.maxFouls) return;
@@ -27,8 +51,10 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
       fouls: event.newFoulsCount,
       isRemoved: event.newFoulsCount >= Constants.maxFouls,
     );
-    emit(ShowSheetState(boardRepository.getAllPlayers()));
-
+    _playersSubject.add(SheetDataState(
+      players: boardRepository.getAllPlayers(),
+      gamePhaseModel: await gamePhaseManager.gamePhase,
+    ));
     final player = await boardRepository.getPlayerByIndex(event.playerId);
     if (player != null) {
       gameHistoryManager.logAddFoul(player: player);
@@ -40,7 +66,10 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
       event.playerId,
       role: roleMapper(event.newRole),
     );
-    emit(ShowSheetState(boardRepository.getAllPlayers()));
+    _playersSubject.add(SheetDataState(
+      players: boardRepository.getAllPlayers(),
+      gamePhaseModel: await gamePhaseManager.gamePhase,
+    ));
   }
 
   void _changeNicknameHandler(ChangeNicknameEvent event, emit) async {
@@ -48,7 +77,10 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
       event.playerId,
       nickname: event.newNickname,
     );
-    emit(ShowSheetState(boardRepository.getAllPlayers()));
+    _playersSubject.add(SheetDataState(
+      players: boardRepository.getAllPlayers(),
+      gamePhaseModel: await gamePhaseManager.gamePhase,
+    ));
   }
 
   void _killPlayerHandler(KillPlayerHandler event, emit) async {
@@ -56,6 +88,15 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
       event.playerId,
       isKilled: true,
     );
-    emit(ShowSheetState(boardRepository.getAllPlayers()));
+    _playersSubject.add(SheetDataState(
+      players: boardRepository.getAllPlayers(),
+      gamePhaseModel: await gamePhaseManager.gamePhase,
+    ));
+  }
+
+  void dispose() {
+    _gamePhaseSubscription?.cancel();
+    _gamePhaseSubscription = null;
+    _playersSubject.close();
   }
 }

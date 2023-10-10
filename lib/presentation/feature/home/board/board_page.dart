@@ -62,7 +62,7 @@ class _BoardPageState extends State<BoardPage> {
   Widget _gamePhaseView(GamePhaseState gamePhaseState) {
     return Column(
       children: [
-        Text('DAY #${gamePhaseState.phase.currentDay}'),
+        Text('DAY #${gamePhaseState.phase?.currentDay}'),
         Text('Title: ${gamePhaseState.currentGamePhaseName}'),
         _getPhaseView(gamePhaseState),
       ],
@@ -70,13 +70,13 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   Widget _getPhaseView(GamePhaseState gamePhaseState) {
-    if (!gamePhaseState.phase.isSpeakPhaseFinished()) {
+    if (gamePhaseState.phase?.isSpeakPhaseFinished() == false) {
       return SpeakingPhaseView(
         onSpeechFinished: () => boardBloc.add(NextPhaseEvent()),
       );
-    } else if (!gamePhaseState.phase.isVotingPhaseFinished()) {
+    } else if (gamePhaseState.phase?.isVotingPhaseFinished() == false) {
       return const VotePhaseView();
-    } else if (!gamePhaseState.phase.isNightPhaseFinished()) {
+    } else if (gamePhaseState.phase?.isNightPhaseFinished() == false) {
       return NightPhaseView(
         onNightPhaseFinished: () => boardBloc.add(NextPhaseEvent()),
       );
@@ -88,14 +88,14 @@ class _BoardPageState extends State<BoardPage> {
   Widget _header(BoardState state) {
     if (state is InitialBoardState ||
         state is ErrorBoardState ||
-        (state is GamePhaseState && !state.phase.isStarted)) {
+        (state is GamePhaseState && state.phase?.isStarted == true)) {
       return Row(
         children: [
           _startGameButton(),
           const Spacer(),
         ],
       );
-    } else if (state is GamePhaseState && state.phase.isStarted) {
+    } else if (state is GamePhaseState && state.phase?.isStarted == true) {
       return Row(
         children: [
           const GameTimerView(),

@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 class NicknameWidget extends StatelessWidget {
   final TextEditingController _textController;
   Timer? _timer;
+  bool enabled;
 
   NicknameWidget({
     super.key,
     String? nickname,
     required Function(String nickname) onChanged,
+    required this.enabled,
   }) : _textController = TextEditingController() {
     _textController.value = _textController.value.copyWith(
       text: nickname,
@@ -34,6 +36,7 @@ class NicknameWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       maxLines: 1,
+      enabled: enabled,
       controller: _textController,
       decoration: const InputDecoration(hintText: 'nickname'),
     );

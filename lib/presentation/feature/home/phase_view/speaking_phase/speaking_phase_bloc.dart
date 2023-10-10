@@ -17,19 +17,19 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
   void _getCurrentSpeakingPhaseEventHandler(
       GetCurrentSpeakPhaseEvent event, emit) async {
     final phase = await gamePhaseManager.gamePhase;
-    emit(SpeakingPhaseState(speakPhaseAction: phase.getCurrentSpeakPhase()));
+    emit(SpeakingPhaseState(speakPhaseAction: phase?.getCurrentSpeakPhase()));
   }
 
   void _startSpeechEventHandler(StartSpeechEvent event, emit) async {
     gamePhaseManager.startSpeech();
     final phase = await gamePhaseManager.gamePhase;
-    emit(SpeakingPhaseState(speakPhaseAction: phase.getCurrentSpeakPhase()));
+    emit(SpeakingPhaseState(speakPhaseAction: phase?.getCurrentSpeakPhase()));
   }
 
   void _finishSpeechEventHandler(FinishSpeechEvent event, emit) async {
     gamePhaseManager.finishSpeech();
     final phase = await gamePhaseManager.gamePhase;
-    emit(SpeakingPhaseState(speakPhaseAction: phase.getCurrentSpeakPhase(), isFinished: true));
+    emit(SpeakingPhaseState(speakPhaseAction: phase?.getCurrentSpeakPhase(), isFinished: true));
   }
 }
 

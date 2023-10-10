@@ -21,8 +21,7 @@ class GamePhaseManager {
   final VotePhaseManager votePhaseGameManager;
   final SpeakingPhaseManager speakingPhaseManager;
   final NightPhaseManager nightPhaseManager;
-  final BehaviorSubject<GamePhaseModel> _gamePhaseStreamController =
-      BehaviorSubject();
+  final BehaviorSubject<GamePhaseModel> _gamePhaseSubject = BehaviorSubject();
 
   GamePhaseManager({
     required this.boardRepository,
@@ -37,15 +36,15 @@ class GamePhaseManager {
     nightPhaseManager.setUpdateGamePhase = _updateGamePhase;
   }
 
-  Stream<GamePhaseModel> get gamePhaseStream =>
-      _gamePhaseStreamController.stream;
+  Stream<GamePhaseModel> get gamePhaseStream => _gamePhaseSubject.stream;
 
-  Future<GamePhaseModel> get gamePhase async =>
-      _gamePhaseStreamController.value;
+  Future<GamePhaseModel?> get gamePhase => _gamePhaseSubject.hasValue
+      ? Future.value(_gamePhaseSubject.value)
+      : Future.value(null);
 
   void _updateGamePhase(GamePhaseModel gamePhaseModel) {
     gamePhaseRepository.setCurrentGamePhase(gamePhaseModel);
-    _gamePhaseStreamController.add(gamePhaseModel);
+    _gamePhaseSubject.add(gamePhaseModel);
   }
 
   void startGame() {
@@ -174,7 +173,7 @@ class GamePhaseManager {
         voteAgainstPlayer: voteAgainstPlayer,
       );
 
-  Map<PlayerModel, bool> calculatePlayerVotingStatusMap(GamePhaseModel phase) =>
+  Map<PlayerModel, bool> calculatePlayerVotingStatusMap(GamePhaseModel? phase) =>
       votePhaseGameManager.calculatePlayerVotingStatusMap(phase);
 
   // NIGHT PHASE

@@ -12,7 +12,7 @@ class ErrorBoardState extends BoardState {
 
 class GamePhaseState extends BoardState {
   String currentGamePhaseName = '';
-  GamePhaseModel phase;
+  GamePhaseModel? phase;
 
   GamePhaseState(this.phase, this.currentGamePhaseName);
 }
