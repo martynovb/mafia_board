@@ -11,12 +11,12 @@ const _tag = 'GamePhaseModel';
 class GamePhaseModel {
   PlayerModel? readyToSpeakPlayer;
   List<PlayerModel> spokenPlayers = [];
-  int currentDay = 0;
+  int currentDay = 1;
   bool isStarted = false;
 
-  Map<int, List<SpeakPhaseAction>> speakPhasesByDays = {};
-  Map<int, List<VotePhaseAction>> votePhasesByDays = {};
-  Map<int, List<NightPhaseAction>> nightPhasesByDays = {};
+  final Map<int, List<SpeakPhaseAction>> _speakPhasesByDays = {};
+  final Map<int, List<VotePhaseAction>> _votePhasesByDays = {};
+  final Map<int, List<NightPhaseAction>> _nightPhasesByDays = {};
 
   final DateTime _createdAt = DateTime.now();
 
@@ -27,17 +27,17 @@ class GamePhaseModel {
   }
 
   bool isSpeakingPhasesExist() {
-    return speakPhasesByDays[currentDay]?.where((phase) => !phase.isLastWord).isNotEmpty ?? false;
+    return _speakPhasesByDays[currentDay]?.where((phase) => !phase.isLastWord).isNotEmpty ?? false;
   }
 
   bool isNightPhasesExist() {
-    return nightPhasesByDays[currentDay]?.isNotEmpty ?? false;
+    return _nightPhasesByDays[currentDay]?.isNotEmpty ?? false;
   }
 
   bool isNightPhaseFinished() {
     NightPhaseAction? phase;
-    if (nightPhasesByDays.containsKey(currentDay)) {
-      phase = nightPhasesByDays[currentDay]?.firstWhereOrNull(
+    if (_nightPhasesByDays.containsKey(currentDay)) {
+      phase = _nightPhasesByDays[currentDay]?.firstWhereOrNull(
           (element) => element.status != PhaseStatus.finished);
     }
     MafLogger.d(_tag, 'isNightPhaseFinished: ${phase == null}');
@@ -46,8 +46,8 @@ class GamePhaseModel {
 
   bool isVotingPhaseFinished() {
     VotePhaseAction? phase;
-    if (votePhasesByDays.containsKey(currentDay)) {
-      phase = votePhasesByDays[currentDay]
+    if (_votePhasesByDays.containsKey(currentDay)) {
+      phase = _votePhasesByDays[currentDay]
           ?.firstWhereOrNull((element) => !element.isVoted);
     }
     MafLogger.d(_tag, 'isVotingPhaseFinished: ${phase == null}');
@@ -56,8 +56,8 @@ class GamePhaseModel {
 
   bool isSpeakPhaseFinished() {
     SpeakPhaseAction? phase;
-    if (speakPhasesByDays.containsKey(currentDay)) {
-      phase = speakPhasesByDays[currentDay]?.firstWhereOrNull(
+    if (_speakPhasesByDays.containsKey(currentDay)) {
+      phase = _speakPhasesByDays[currentDay]?.firstWhereOrNull(
           (element) => element.status != PhaseStatus.finished);
     }
     MafLogger.d(_tag, 'isSpeakPhaseFinished: ${phase == null}');
@@ -66,88 +66,91 @@ class GamePhaseModel {
 
   void addVotePhase(VotePhaseAction votePhaseAction) {
     MafLogger.d(_tag, 'addVotePhase: ${votePhaseAction.toString()}');
-    if (votePhasesByDays.containsKey(currentDay)) {
-      final phaseList = votePhasesByDays[currentDay]!;
+    if (_votePhasesByDays.containsKey(currentDay)) {
+      final phaseList = _votePhasesByDays[currentDay]!;
       phaseList.add(votePhaseAction);
       MafLogger.d(
           _tag, 'votePhaseAction success, phaseList: ${phaseList.length}');
     } else {
       MafLogger.d(_tag, 'votePhaseAction success, created new phase list');
-      votePhasesByDays[currentDay] = [votePhaseAction];
+      _votePhasesByDays[currentDay] = [votePhaseAction];
     }
   }
 
   void addNightPhase(NightPhaseAction nightPhaseAction) {
     MafLogger.d(_tag, 'addNightPhase: ${nightPhaseAction.toString()}');
-    if (nightPhasesByDays.containsKey(currentDay)) {
-      final phaseList = nightPhasesByDays[currentDay]!;
+    if (_nightPhasesByDays.containsKey(currentDay)) {
+      final phaseList = _nightPhasesByDays[currentDay]!;
       phaseList.add(nightPhaseAction);
       MafLogger.d(
           _tag, 'addNightPhase success, phaseList: ${phaseList.length}');
     } else {
       MafLogger.d(_tag, 'addNightPhase success, created new phase list');
-      nightPhasesByDays[currentDay] = [nightPhaseAction];
+      _nightPhasesByDays[currentDay] = [nightPhaseAction];
     }
   }
 
   void addAllNightPhases(List<NightPhaseAction> phases) {
     MafLogger.d(_tag, 'addAllSpeakPhases: ${phases.toString()}');
-    if (nightPhasesByDays.containsKey(currentDay)) {
-      final phaseList = nightPhasesByDays[currentDay]!;
+    if (_nightPhasesByDays.containsKey(currentDay)) {
+      final phaseList = _nightPhasesByDays[currentDay]!;
       phaseList.addAll(phases);
       MafLogger.d(
           _tag, 'addSpeakPhase success, phaseList: ${phaseList.length}');
     } else {
       MafLogger.d(_tag, 'addSpeakPhase success, created new phase list');
-      nightPhasesByDays[currentDay] = phases;
+      _nightPhasesByDays[currentDay] = phases;
     }
   }
 
   void addSpeakPhase(SpeakPhaseAction speakPhaseAction, [int? day]) {
     MafLogger.d(_tag, 'addSpeakPhase: ${speakPhaseAction.toString()}');
-    if (speakPhasesByDays.containsKey(day ?? currentDay)) {
-      final phaseList = speakPhasesByDays[day ?? currentDay]!;
+    if (_speakPhasesByDays.containsKey(day ?? currentDay)) {
+      final phaseList = _speakPhasesByDays[day ?? currentDay]!;
       phaseList.add(speakPhaseAction);
       MafLogger.d(
           _tag, 'addSpeakPhase success, phaseList: ${phaseList.length}');
     } else {
       MafLogger.d(_tag, 'addSpeakPhase success, created new phase list');
-      speakPhasesByDays[day ?? currentDay] = [speakPhaseAction];
+      _speakPhasesByDays[day ?? currentDay] = [speakPhaseAction];
     }
   }
 
   void addAllSpeakPhases(List<SpeakPhaseAction> phases) {
     MafLogger.d(_tag, 'addAllSpeakPhases: ${phases.toString()}');
-    if (speakPhasesByDays.containsKey(currentDay)) {
-      final phaseList = speakPhasesByDays[currentDay]!;
+    if (_speakPhasesByDays.containsKey(currentDay)) {
+      final phaseList = _speakPhasesByDays[currentDay]!;
       phaseList.addAll(phases);
       MafLogger.d(
           _tag, 'addSpeakPhase success, phaseList: ${phaseList.length}');
     } else {
       MafLogger.d(_tag, 'addSpeakPhase success, created new phase list');
-      speakPhasesByDays[currentDay] = phases;
+      _speakPhasesByDays[currentDay] = phases;
     }
   }
 
   SpeakPhaseAction? getCurrentSpeakPhase([int? day]) =>
-      speakPhasesByDays[day ?? currentDay]?.firstWhereOrNull(
+      _speakPhasesByDays[day ?? currentDay]?.firstWhereOrNull(
         (phase) =>
             phase.status == PhaseStatus.inProgress ||
             phase.status == PhaseStatus.notStarted,
       );
 
   bool? removeSpeakPhase(SpeakPhaseAction speakPhaseAction, [int? day]) =>
-      speakPhasesByDays[day ?? currentDay]?.remove(speakPhaseAction);
+      _speakPhasesByDays[day ?? currentDay]?.remove(speakPhaseAction);
+
+  bool? removeVotePhase(VotePhaseAction votePhaseAction, [int? day]) =>
+      _votePhasesByDays[day ?? currentDay]?.remove(votePhaseAction);
 
   VotePhaseAction? getCurrentVotePhase() =>
-      votePhasesByDays[currentDay]?.firstWhereOrNull((phase) => !phase.isVoted);
+      _votePhasesByDays[currentDay]?.firstWhereOrNull((phase) => !phase.isVoted);
 
-  NightPhaseAction? getCurrentNightPhase() => nightPhasesByDays[currentDay]
+  NightPhaseAction? getCurrentNightPhase() => _nightPhasesByDays[currentDay]
       ?.firstWhereOrNull((phase) => phase.status != PhaseStatus.finished);
 
   List<VotePhaseAction> getUniqueTodaysVotePhases([int? day]) {
     List<VotePhaseAction> todaysPhases =
-        votePhasesByDays[day ?? currentDay] ?? [];
+        _votePhasesByDays[day ?? currentDay] ?? [];
     List<VotePhaseAction> votePhases = [];
     List<VotePhaseAction> gunfightVotePhases = [];
     VotePhaseAction? askToKickAllPlayers;
@@ -176,12 +179,15 @@ class GamePhaseModel {
   }
 
   List<VotePhaseAction> getAllTodaysVotePhases() =>
-      votePhasesByDays[currentDay] ?? [];
+      _votePhasesByDays[currentDay] ?? [];
+
+  Map<int, List<NightPhaseAction>> getAllNightPhases() =>
+      _nightPhasesByDays;
 
   bool updateSpeakPhase(SpeakPhaseAction speakPhaseAction) {
     MafLogger.d(_tag, 'updateSpeakPhase: $speakPhaseAction');
-    if (speakPhasesByDays.containsKey(currentDay)) {
-      final phaseList = speakPhasesByDays[currentDay]!;
+    if (_speakPhasesByDays.containsKey(currentDay)) {
+      final phaseList = _speakPhasesByDays[currentDay]!;
       final index = phaseList.indexOf(speakPhaseAction);
       phaseList[index] = speakPhaseAction;
       return true;
@@ -191,8 +197,8 @@ class GamePhaseModel {
 
   bool updateVotePhase(VotePhaseAction votePhaseAction) {
     MafLogger.d(_tag, 'updateVotePhase: $votePhaseAction');
-    if (votePhasesByDays.containsKey(currentDay)) {
-      final phaseList = votePhasesByDays[currentDay]!;
+    if (_votePhasesByDays.containsKey(currentDay)) {
+      final phaseList = _votePhasesByDays[currentDay]!;
       final index = phaseList.indexOf(votePhaseAction);
       phaseList[index] = votePhaseAction;
       return true;
@@ -202,8 +208,8 @@ class GamePhaseModel {
 
   bool updateNightPhase(NightPhaseAction nightPhaseAction) {
     MafLogger.d(_tag, 'updateNightPhase: $nightPhaseAction');
-    if (nightPhasesByDays.containsKey(currentDay)) {
-      final phaseList = nightPhasesByDays[currentDay]!;
+    if (_nightPhasesByDays.containsKey(currentDay)) {
+      final phaseList = _nightPhasesByDays[currentDay]!;
       final index = phaseList.indexOf(nightPhaseAction);
       phaseList[index] = nightPhaseAction;
       return true;

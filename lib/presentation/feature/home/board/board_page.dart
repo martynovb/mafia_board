@@ -19,6 +19,7 @@ class BoardPage extends StatefulWidget {
 
 class _BoardPageState extends State<BoardPage> {
   late BoardBloc boardBloc;
+  final double _headerHeight = 32;
 
   @override
   void initState() {
@@ -50,7 +51,13 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   Widget _stageBoard(BoardState state) {
-    if (state is GamePhaseState) {
+    if (state is InitialBoardState ||
+        state is ErrorBoardState ||
+        (state is GamePhaseState && state.phase?.isStarted == false)) {
+      return Center(
+        child: _startGameButton(),
+      );
+    } else if (state is GamePhaseState && state.phase?.isStarted == true) {
       return Center(child: _gamePhaseView(state));
     } else if (state is ErrorBoardState) {
       return _errorView(state.errorMessage);
@@ -86,25 +93,21 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   Widget _header(BoardState state) {
-    if (state is InitialBoardState ||
-        state is ErrorBoardState ||
-        (state is GamePhaseState && state.phase?.isStarted == true)) {
-      return Row(
-        children: [
-          _startGameButton(),
-          const Spacer(),
-        ],
-      );
-    } else if (state is GamePhaseState && state.phase?.isStarted == true) {
-      return Row(
-        children: [
-          const GameTimerView(),
-          const Spacer(),
-          _finishGameButton(),
-        ],
-      );
+    if (state is GamePhaseState && state.phase?.isStarted == true) {
+      return SizedBox(
+          height: _headerHeight,
+          child: Row(
+            children: [
+              const GameTimerView(),
+              const Spacer(),
+              _finishGameButton(),
+            ],
+          ));
     } else {
-      return Container();
+      return SizedBox(
+        height: _headerHeight,
+        child: state is ErrorBoardState ? _errorView(state.errorMessage) : null,
+      );
     }
   }
 

@@ -205,7 +205,7 @@ class GameHistoryManager {
     ));
   }
 
-  void removeLogKillPlayer({required NightPhaseAction nightPhaseAction}) {
+  void removeLogKillPlayer({required NightPhaseAction? nightPhaseAction}) {
     repository
         .deleteWhere((model) => model.gamePhaseAction == nightPhaseAction);
     _notifyListeners();
@@ -213,5 +213,14 @@ class GameHistoryManager {
 
   void dispose() {
     _gameHistorySubject.close();
+  }
+
+  void logNewDay(int day) {
+    _addRecord(GameHistoryModel(
+      text: 'NEW DAY #$day',
+      subText: '***************',
+      type: GameHistoryType.newDay,
+      createdAt: DateTime.now(),
+    ));
   }
 }

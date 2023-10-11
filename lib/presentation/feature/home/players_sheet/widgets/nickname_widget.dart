@@ -38,7 +38,10 @@ class NicknameWidget extends StatelessWidget {
       maxLines: 1,
       enabled: enabled,
       controller: _textController,
-      decoration: const InputDecoration(hintText: 'nickname'),
+      decoration: const InputDecoration(
+        hintText: 'nickname',
+        border: InputBorder.none,
+      ),
     );
   }
 }

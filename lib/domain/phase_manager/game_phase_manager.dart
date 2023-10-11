@@ -49,6 +49,7 @@ class GamePhaseManager {
 
   void startGame() {
     gamePhaseRepository.resetGamePhase();
+    boardRepository.resetData();
     final phase = gamePhaseRepository.getCurrentGamePhase();
     phase.isStarted = true;
     phase.addAllSpeakPhases(
@@ -56,6 +57,7 @@ class GamePhaseManager {
     );
     _updateGamePhase(phase);
     gameHistoryManager.logGameStart(gamePhaseModel: phase);
+    gameHistoryManager.logNewDay(phase.currentDay);
   }
 
   void nextGamePhase() {
@@ -77,8 +79,9 @@ class GamePhaseManager {
       return;
     }
 
-    if (!phase.isVotingPhaseFinished() &&
-        !votePhaseGameManager.canSkipVotePhase(phase)) {
+    votePhaseGameManager.skipVotePhasesIfPossible(phase);
+
+    if (!phase.isVotingPhaseFinished()) {
       return;
     }
 
@@ -94,6 +97,8 @@ class GamePhaseManager {
     }
 
     phase.increaseDay();
+    gameHistoryManager.logNewDay(phase.currentDay);
+
     nextGamePhase();
   }
 
@@ -105,6 +110,10 @@ class GamePhaseManager {
   }
 
   bool _isGameFinished() {
+    final phase = gamePhaseRepository.getCurrentGamePhase();
+    if (phase.isStarted == false) {
+      return true;
+    }
     final allPlayers = boardRepository.getAllAvailablePlayers();
     int mafsCount = allPlayers
         .where((player) => player.role == Role.MAFIA || player.role == Role.DON)
@@ -120,6 +129,10 @@ class GamePhaseManager {
               player.role == Role.MANIAC,
         )
         .length;
+
+    if(!phase.isSpeakPhaseFinished()){
+      return false;
+    }
 
     if (mafsCount >= civilianCount) {
       return true;
@@ -173,7 +186,8 @@ class GamePhaseManager {
         voteAgainstPlayer: voteAgainstPlayer,
       );
 
-  Map<PlayerModel, bool> calculatePlayerVotingStatusMap(GamePhaseModel? phase) =>
+  Map<PlayerModel, bool> calculatePlayerVotingStatusMap(
+          GamePhaseModel? phase) =>
       votePhaseGameManager.calculatePlayerVotingStatusMap(phase);
 
   // NIGHT PHASE

@@ -9,8 +9,10 @@ import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
 import 'package:mafia_board/domain/role_manager.dart';
+import 'package:mafia_board/presentation/maf_logger.dart';
 
 class NightPhaseManager {
+  static const _tag = 'NightPhaseManager';
   final GamePhaseRepository gamePhaseRepository;
   final BoardRepository boardRepository;
   final GameHistoryManager gameHistoryManager;
@@ -72,13 +74,17 @@ class NightPhaseManager {
   }
 
   void killPlayer(PlayerModel? playerModel) {
-    if (playerModel == null) {
-      gameHistoryManager.logKillPlayer();
+    final phase = gamePhaseRepository.getCurrentGamePhase();
+    final currentNightPhase = phase.getCurrentNightPhase();
+    if (playerModel == null ||
+        playerModel.isKilled ||
+        _isPlayerAlreadyKilledBefore(phase, playerModel) ||
+        playerModel.isKicked ||
+        playerModel.isRemoved) {
+      gameHistoryManager.logKillPlayer(nightPhaseAction: currentNightPhase);
       return;
     }
 
-    final phase = gamePhaseRepository.getCurrentGamePhase();
-    final currentNightPhase = phase.getCurrentNightPhase();
     cancelKillPlayer(currentNightPhase?.killedPlayer);
 
     boardRepository.updatePlayer(playerModel.id, isKilled: true);
@@ -97,15 +103,20 @@ class NightPhaseManager {
   }
 
   void cancelKillPlayer(PlayerModel? playerModel) {
-    if (playerModel == null) {
-      // miss
+    final phase = gamePhaseRepository.getCurrentGamePhase();
+    final currentNightPhase = phase.getCurrentNightPhase();
+    if (playerModel == null ||
+        !playerModel.isKilled ||
+        _isPlayerAlreadyKilledBefore(phase, playerModel)) {
+      MafLogger.d(_tag, "Can't cancel kill");
+      gameHistoryManager.removeLogKillPlayer(
+        nightPhaseAction: currentNightPhase,
+      );
       return;
     }
 
-    final phase = gamePhaseRepository.getCurrentGamePhase();
     final nextDay = phase.currentDay + 1;
     final speakPhase = phase.getCurrentSpeakPhase(nextDay);
-    final currentNightPhase = phase.getCurrentNightPhase();
     final killedPlayer = currentNightPhase?.killedPlayer;
     if (speakPhase == null ||
         currentNightPhase == null ||
@@ -173,5 +184,19 @@ class NightPhaseManager {
       // this role can't visit players
       return;
     }
+  }
+
+  bool _isPlayerAlreadyKilledBefore(
+      GamePhaseModel phase, PlayerModel playerModel) {
+    bool result = false;
+    phase.getAllNightPhases().forEach((day, value) {
+      if (day < phase.currentDay &&
+          value.any(
+              (nightPhase) => nightPhase.killedPlayer?.id == playerModel.id)) {
+        result = true;
+        return;
+      }
+    });
+    return result;
   }
 }

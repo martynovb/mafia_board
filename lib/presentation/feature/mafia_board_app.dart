@@ -6,6 +6,7 @@ import 'package:mafia_board/presentation/feature/home/history/game_history_bloc.
 import 'package:mafia_board/presentation/feature/home/home_page.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/night_phase/night_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/speaking_phase/speaking_phase_bloc.dart';
+import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_list/vote_phase_list_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_bloc/vote_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/role_bloc/role_bloc.dart';
@@ -24,6 +25,7 @@ class MafiaBoardApp extends StatelessWidget {
           BlocProvider(create: (context) => GetIt.instance<GameHistoryBloc>()),
           BlocProvider(create: (context) => GetIt.instance<SpeakingPhaseBloc>()),
           BlocProvider(create: (context) => GetIt.instance<NightPhaseBloc>()),
+          BlocProvider(create: (context) => GetIt.instance<VotePhaseListBloc>()),
         ],
         child: MaterialApp(
           title: 'Mafia board',

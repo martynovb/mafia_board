@@ -16,7 +16,8 @@ class BoardRepository {
   List<PlayerModel> getAllPlayers() => _players;
 
   List<PlayerModel> getAllAvailablePlayers() => _players
-      .where((player) => !player.isKilled && !player.isRemoved && !player.isKicked)
+      .where(
+          (player) => !player.isKilled && !player.isRemoved && !player.isKicked)
       .toList();
 
   Future<PlayerModel?> getPlayerByIndex(int index) async => _players[index];
@@ -53,5 +54,15 @@ class BoardRepository {
     _players[playerIndex] = newPlayerData;
 
     print(newPlayerData.toString());
+  }
+
+  void resetData() {
+    for (var element in _players) {
+      element.isRemoved = false;
+      element.isKilled = false;
+      element.isMuted = false;
+      element.isKicked = false;
+      element.fouls = 0;
+    }
   }
 }

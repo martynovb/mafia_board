@@ -12,6 +12,8 @@ import 'package:mafia_board/presentation/feature/home/players_sheet/players_shee
 import 'package:mafia_board/presentation/feature/home/players_sheet/role_bloc/role_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/role_bloc/role_event.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/role_bloc/role_state.dart';
+import 'package:mafia_board/presentation/feature/home/players_sheet/widgets/blur_widget.dart';
+import 'package:mafia_board/presentation/feature/home/players_sheet/widgets/hover_detector_widget.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/widgets/nickname_widget.dart';
 
 class PlayersSheetPage extends StatefulWidget {
@@ -80,12 +82,12 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
   Widget _sheetHeader() {
     return Container(
         padding: const EdgeInsets.all(8.0),
-        height: Dimensions.playerItemHeight,
+        height: Dimensions.playerSheetHeaderHeight,
         child: Row(
           children: const [
             SizedBox(
               width: 24,
-              child: Center(child: Text('#')),
+              child: Center(child: Icon(Icons.thumb_up)),
             ),
             VerticalDivider(
               color: Colors.transparent,
@@ -115,8 +117,8 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
   Widget _playersSheet(SheetDataState sheetDataState) => Container(
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-            border: Border.all(width: 1, color: Colors.white60),
-            borderRadius: const BorderRadius.all(Radius.circular(4))),
+            border: Border.all(width: 1, color: Colors.white30),
+            borderRadius: const BorderRadius.all(Radius.circular(0))),
         child: ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -130,65 +132,71 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
       );
 
   Widget _playerItem(int index, PlayerModel playerModel, bool isGameStarted) {
-    return GestureDetector(
-      onTap: () {
-        _boardBloc.add(PutOnVoteEvent(playerOnVote: playerModel));
-      },
-      child: Container(
-          height: Dimensions.playerItemHeight,
-          color: !playerModel.isAvailable()
-              ? Colors.red.withOpacity(0.5)
-              : Colors.transparent,
-          child: Row(
-            children: [
-              SizedBox(
-                width: 24,
-                child: Center(
-                  child: Text((index + 1).toString()),
-                ),
-              ),
-              const VerticalDivider(
-                color: Colors.white,
-              ),
-              Expanded(
-                flex: 1,
-                child: NicknameWidget(
-                  enabled: !isGameStarted,
-                  nickname: playerModel.nickname,
-                  onChanged: (nickname) =>
-                      _playersSheetBloc.add(ChangeNicknameEvent(
-                    playerId: index,
-                    newNickname: nickname,
-                  )),
-                ),
-              ),
-              const VerticalDivider(
-                color: Colors.white,
-              ),
-              Expanded(
-                  flex: 1,
-                  child: _foulsBuilder(playerModel.id, playerModel.fouls)),
-              const VerticalDivider(
-                color: Colors.white,
-              ),
-              SizedBox(
-                width: Dimensions.roleViewWidth,
-                child: _roleDropdown(playerModel.id, playerModel.role),
-              ),
-            ],
-          )),
+    return Container(
+      height: Dimensions.playerItemHeight,
+      color: !playerModel.isAvailable()
+          ? Colors.red.withOpacity(0.5)
+          : Colors.transparent,
+      child: Row(
+        children: [
+          HoverDetectorWidget(
+              enabled: isGameStarted,
+              child: InkWell(
+                  onTap: isGameStarted
+                      ? () {
+                          _boardBloc
+                              .add(PutOnVoteEvent(playerOnVote: playerModel));
+                        }
+                      : null,
+                  child: SizedBox(
+                    width: 32,
+                    child: Center(
+                      child: Text((index + 1).toString()),
+                    ),
+                  ))),
+          const VerticalDivider(
+            color: Colors.white,
+          ),
+          Expanded(
+            flex: 1,
+            child: NicknameWidget(
+              enabled: !isGameStarted,
+              nickname: playerModel.nickname,
+              onChanged: (nickname) =>
+                  _playersSheetBloc.add(ChangeNicknameEvent(
+                playerId: index,
+                newNickname: nickname,
+              )),
+            ),
+          ),
+          const VerticalDivider(
+            color: Colors.white,
+          ),
+          _foulsBuilder(playerModel.id, playerModel.fouls, isGameStarted),
+          const VerticalDivider(
+            color: Colors.white,
+          ),
+          SizedBox(
+            width: Dimensions.roleViewWidth,
+            child:
+                _roleDropdown(playerModel.id, playerModel.role, isGameStarted),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _foulsBuilder(int playerId, int fouls) => InkWell(
-      onTap: () {},
+  Widget _foulsBuilder(int playerId, int fouls, bool isGameStarted) => InkWell(
+      onTap: isGameStarted ? () {} : null,
       child: GestureDetector(
-        onTap: () => _playersSheetBloc.add(
-          AddFoulEvent(
-            playerId: playerId,
-            newFoulsCount: fouls + 1,
-          ),
-        ),
+        onTap: isGameStarted
+            ? () => _playersSheetBloc.add(
+                  AddFoulEvent(
+                    playerId: playerId,
+                    newFoulsCount: fouls + 1,
+                  ),
+                )
+            : null,
         onLongPress: () {
           _playersSheetBloc.add(
             AddFoulEvent(
@@ -204,7 +212,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
             shrinkWrap: true,
             itemCount: fouls,
             itemBuilder: (__, index) => const Icon(
-              size: 24,
+              size: Dimensions.foulItemWidth,
               Icons.close,
               color: Colors.red,
             ),
@@ -212,34 +220,44 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
         ),
       ));
 
-  Widget _roleDropdown(int playerId, Role playerRole) {
-    return BlocBuilder(
-        bloc: _roleBloc,
-        builder: (BuildContext context, ShowRolesState state) {
-          return DropdownButton<String>(
-            value: playerRole.name,
-            onChanged: (String? newRole) {
-              _playersSheetBloc.add(
-                ChangeRoleEvent(playerId: playerId, newRole: newRole),
+  Widget _roleDropdown(int playerId, Role playerRole, bool isGameStarted) {
+    return BlurWidget(
+        isBlured: isGameStarted,
+        placeholder: const Center(
+          child: Text('***'),
+        ),
+        child: BlocBuilder(
+            bloc: _roleBloc,
+            builder: (BuildContext context, ShowRolesState state) {
+              return DropdownButton<String>(
+                underline: const SizedBox(),
+                value: playerRole.name,
+                onChanged: isGameStarted
+                    ? null
+                    : (String? newRole) {
+                        _playersSheetBloc.add(
+                          ChangeRoleEvent(playerId: playerId, newRole: newRole),
+                        );
+                        _roleBloc.add(
+                          RecalculateRolesEvent(
+                              playerId, newRole ?? Role.NONE.name),
+                        );
+                      },
+                items: state.roles.entries.map((entry) {
+                  return DropdownMenuItem<String>(
+                    alignment: AlignmentDirectional.center,
+                    value: entry.key.name,
+                    enabled: entry.value,
+                    child: Text(
+                      entry.key.name,
+                      style: TextStyle(
+                        color: entry.value ? Colors.white : Colors.green,
+                      ),
+                    ),
+                  );
+                }).toList(),
               );
-              _roleBloc.add(
-                RecalculateRolesEvent(playerId, newRole ?? Role.NONE.name),
-              );
-            },
-            items: state.roles.entries.map((entry) {
-              return DropdownMenuItem<String>(
-                value: entry.key.name,
-                enabled: entry.value,
-                child: Text(
-                  entry.key.name,
-                  style: TextStyle(
-                    color: entry.value ? Colors.white : Colors.green,
-                  ),
-                ),
-              );
-            }).toList(),
-          );
-        });
+            }));
   }
 
   void setTestData() {
