@@ -26,6 +26,11 @@ class PlayersSheetPage extends StatefulWidget {
 }
 
 class _PlayersSheetPageState extends State<PlayersSheetPage> {
+  final int _voteColumnFlex = 0;
+  final int _nicknameColumnFlex = 5;
+  final int _foulsColumnFlex = 4;
+  final int _roleColumnFlex = 5;
+
   late PlayersSheetBloc _playersSheetBloc;
   late RoleBloc _roleBloc;
   late BoardBloc _boardBloc;
@@ -51,64 +56,75 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
       builder: (BuildContext context, SheetState state) {
         if (state is InitialSheetState) {
           return Center(
-            child: SingleChildScrollView(
-                child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                    onPressed: () => setTestData(),
-                    child: Text('Set Test Data')),
-                _sheetHeader(),
-                StreamBuilder(
-                    stream: _playersSheetBloc.playersStream,
-                    builder: (context, AsyncSnapshot<SheetDataState> snapshot) {
-                      if (snapshot.hasData) {
-                        return _playersSheet(snapshot.data!);
-                      } else {
-                        return Container();
-                      }
-                    })
-              ],
-            )),
-          );
+              child: SingleChildScrollView(
+                  child:  Column(
+                        children: [
+                          ElevatedButton(
+                              onPressed: () => setTestData(),
+                              child: Text('Set Test Data')),
+                          _sheetHeader(),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: Dimensions.smallSidePadding,
+                                right: Dimensions.smallSidePadding),
+                            child: StreamBuilder(
+                                stream: _playersSheetBloc.playersStream,
+                                builder: (context,
+                                    AsyncSnapshot<SheetDataState> snapshot) {
+                                  if (snapshot.hasData) {
+                                    return _playersSheet(snapshot.data!);
+                                  } else {
+                                    return Container();
+                                  }
+                                }),
+                          )
+                        ],
+                      )));
         }
         return const Center(
           child: Text('Something went wrong'),
         );
-      }, // This trailing comma makes auto-formatting nicer for build methods.
+      },
     );
   }
 
   Widget _sheetHeader() {
     return Container(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(Dimensions.smallSidePadding),
         height: Dimensions.playerSheetHeaderHeight,
         child: Row(
-          children: const [
-            SizedBox(
-              width: 24,
-              child: Center(child: Icon(Icons.thumb_up)),
+          children: [
+            Expanded(
+              flex: _voteColumnFlex,
+              child: const Padding(
+                  padding: EdgeInsets.only(
+                    left: Dimensions.smallSidePadding,
+                  ),
+                  child: Icon(
+                    Icons.thumb_up,
+                    size: Dimensions.defaultIconSize,
+                  )),
             ),
-            VerticalDivider(
+            const VerticalDivider(
               color: Colors.transparent,
             ),
             Expanded(
-              flex: 5,
-              child: Center(child: Text('nickname')),
+              flex: _nicknameColumnFlex,
+              child: const Center(child: Text('nickname')),
             ),
-            VerticalDivider(
+            const VerticalDivider(
               color: Colors.transparent,
             ),
-            SizedBox(
-              width: Dimensions.foulsViewWidth,
-              child: Center(child: Text('fouls')),
+            Expanded(
+              flex: _foulsColumnFlex,
+              child: const Center(child: Text('fouls')),
             ),
-            VerticalDivider(
+            const VerticalDivider(
               color: Colors.transparent,
             ),
-            SizedBox(
-              width: Dimensions.roleViewWidth,
-              child: Center(child: Text('role')),
+            Expanded(
+              flex: _roleColumnFlex,
+              child: const Center(child: Text('role')),
             ),
           ],
         ));
@@ -123,7 +139,9 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: sheetDataState.players.length,
-          separatorBuilder: (context, index) => const Divider(),
+          separatorBuilder: (context, index) => const Divider(
+            height: Dimensions.smallSidePadding,
+          ),
           itemBuilder: (__, index) => _playerItem(
               index,
               sheetDataState.players[index],
@@ -139,47 +157,69 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
           : Colors.transparent,
       child: Row(
         children: [
-          HoverDetectorWidget(
-              enabled: isGameStarted,
-              child: InkWell(
-                  onTap: isGameStarted
-                      ? () {
-                          _boardBloc
-                              .add(PutOnVoteEvent(playerOnVote: playerModel));
-                        }
-                      : null,
-                  child: SizedBox(
-                    width: 32,
-                    child: Center(
-                      child: Text((index + 1).toString()),
-                    ),
-                  ))),
-          const VerticalDivider(
-            color: Colors.white,
-          ),
           Expanded(
-            flex: 1,
-            child: NicknameWidget(
-              enabled: !isGameStarted,
-              nickname: playerModel.nickname,
-              onChanged: (nickname) =>
-                  _playersSheetBloc.add(ChangeNicknameEvent(
-                playerId: index,
-                newNickname: nickname,
-              )),
+            flex: _voteColumnFlex,
+            child: SizedBox(
+              width: Dimensions.defaultIconSize,
+              height: Dimensions.defaultIconSize,
+              child: InkWell(
+                onTap: isGameStarted
+                    ? () {
+                        _boardBloc
+                            .add(PutOnVoteEvent(playerOnVote: playerModel));
+                      }
+                    : null,
+                child: Center(
+                  child: HoverDetectorWidget(
+                    enabled: isGameStarted,
+                    child: Text((index + 1).toString()),
+                  ),
+                ),
+              ),
             ),
           ),
           const VerticalDivider(
             color: Colors.white,
           ),
-          _foulsBuilder(playerModel.id, playerModel.fouls, isGameStarted),
+          Expanded(
+            flex: _nicknameColumnFlex,
+            child: NicknameWidget(
+              enabled: !isGameStarted,
+              nickname: playerModel.nickname,
+              onChanged: (nickname) => _playersSheetBloc.add(
+                ChangeNicknameEvent(
+                  playerId: index,
+                  newNickname: nickname,
+                ),
+              ),
+            ),
+          ),
           const VerticalDivider(
             color: Colors.white,
           ),
-          SizedBox(
-            width: Dimensions.roleViewWidth,
-            child:
-                _roleDropdown(playerModel.id, playerModel.role, isGameStarted),
+          Expanded(
+            flex: _foulsColumnFlex,
+            child: Center(
+              child: SizedBox(
+                  width: Dimensions.foulsViewWidth,
+                  child: _foulsBuilder(
+                    playerModel.id,
+                    playerModel.fouls,
+                    isGameStarted,
+                  )),
+            ),
+          ),
+          const VerticalDivider(
+            color: Colors.white,
+          ),
+          Expanded(
+            flex: _roleColumnFlex,
+            child: Center(
+                child: _roleDropdown(
+              playerModel.id,
+              playerModel.role,
+              isGameStarted,
+            )),
           ),
         ],
       ),
@@ -205,17 +245,14 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
             ),
           );
         },
-        child: SizedBox(
-          width: Dimensions.foulsViewWidth,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            shrinkWrap: true,
-            itemCount: fouls,
-            itemBuilder: (__, index) => const Icon(
-              size: Dimensions.foulItemWidth,
-              Icons.close,
-              color: Colors.red,
-            ),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          shrinkWrap: true,
+          itemCount: fouls,
+          itemBuilder: (__, index) => const Icon(
+            size: Dimensions.foulItemWidth,
+            Icons.close,
+            color: Colors.red,
           ),
         ),
       ));

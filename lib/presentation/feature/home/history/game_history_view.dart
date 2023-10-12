@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/data/model/game_history_model.dart';
 import 'package:mafia_board/data/model/game_history_type.dart';
+import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/home/history/game_history_bloc.dart';
 
 class GameHistoryView extends StatefulWidget {
@@ -29,19 +30,19 @@ class _GameHistoryViewState extends State<GameHistoryView> {
 
   @override
   Widget build(BuildContext context) {
-
-    return BlocBuilder(
-        bloc: gameHistoryBloc,
-        builder: (context, GameHistoryState state) {
-          return Column(
-            children: [
-              const Divider(),
-              const Text('Game logs:'),
-              const SizedBox(height: 8),
-              Expanded(child: _voteList(state.records)),
-            ],
-          );
-        });
+    return Padding(
+        padding: EdgeInsets.all(Dimensions.smallSidePadding),
+        child: BlocBuilder(
+            bloc: gameHistoryBloc,
+            builder: (context, GameHistoryState state) {
+              return Column(
+                children: [
+                  const Text('Game logs:'),
+                  const SizedBox(height: 8),
+                  Expanded(child: _voteList(state.records)),
+                ],
+              );
+            }));
   }
 
   Widget _voteList(List<GameHistoryModel> history) => ListView.separated(

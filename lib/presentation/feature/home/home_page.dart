@@ -8,37 +8,49 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+    double appBarHeight = AppBar().preferredSize.height;
+    double statusBarHeight = MediaQuery.of(context).padding.top;
+
+    double availableHeight = screenHeight - appBarHeight - statusBarHeight;
+    double availableWidth = MediaQuery.of(context).size.width - 1; // -1 divider
+
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
           title: const Text('mafia board'),
         ),
-        body: Container(
-            margin: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
-            child: Center(
-              child: Row(children: [
-                Expanded(
-                  flex: 3,
-                    child: Column(
-                  children: const [
-                    Expanded(
-                      flex: 1,
-                      child: BoardPage(),
+        body: SizedBox(
+          height: availableHeight,
+          width: availableWidth,
+          child: Row(children: [
+            SizedBox(
+                width: availableWidth * 0.6,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: availableHeight * 0.5,
+                      child: const BoardPage(),
                     ),
-                    Expanded(
-                      flex: 1,
-                      child: GameHistoryView(),
+                    const Divider(
+                      height: 1,
+                      color: Colors.white12,
+                    ),
+                    SizedBox(
+                      height: availableHeight * 0.5 - 1,
+                      child: const GameHistoryView(),
                     ),
                   ],
                 )),
-                const VerticalDivider(
-                  color: Colors.white12,
-                ),
-                const Expanded(
-                  flex: 2,
-                  child: PlayersSheetPage(),
-                ),
-              ]),
-            )));
+            const VerticalDivider(
+              width: 1,
+              color: Colors.white12,
+            ),
+            SizedBox(
+              width: availableWidth * 0.4 - 1, // -1 divider
+              child: const PlayersSheetPage(),
+            ),
+          ]),
+        ));
   }
 }

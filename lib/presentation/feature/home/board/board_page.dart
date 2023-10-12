@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/game_timer_view.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_event.dart';
@@ -29,17 +30,19 @@ class _BoardPageState extends State<BoardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
-        bloc: boardBloc,
-        builder: (BuildContext context, BoardState state) {
-          return Column(
-            children: [
-              _header(state),
-              const Divider(),
-              _stageBoard(state),
-            ],
-          );
-        });
+    return Padding(
+        padding: EdgeInsets.all(Dimensions.smallSidePadding),
+        child: BlocBuilder(
+            bloc: boardBloc,
+            builder: (BuildContext context, BoardState state) {
+              return Column(
+                children: [
+                  _header(state),
+                  const Divider(),
+                  _stageBoard(state),
+                ],
+              );
+            }));
   }
 
   Widget _errorView(String errorMessage) {

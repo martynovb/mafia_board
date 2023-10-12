@@ -58,7 +58,8 @@ class _SpeakingPhaseViewState extends State<SpeakingPhaseView> {
                 _finishSpeechBtn(state.speakPhaseAction?.timeForSpeakInSec)
               else
                 _startSpeechBtn(),
-              Container(width: 200, child: VotePhaseListView()),
+              //Spacer(),
+              VotePhaseListView(),
             ],
           );
         });
