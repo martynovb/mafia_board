@@ -6,7 +6,6 @@ class VotePhaseAction extends GamePhaseAction {
   final PlayerModel? whoPutOnVote;
   final List<PlayerModel> playersToKick;
   Set<PlayerModel> votedPlayers = {};
-  bool isVoted;
   bool isGunfight;
   bool shouldKickAllPlayers;
 
@@ -14,11 +13,10 @@ class VotePhaseAction extends GamePhaseAction {
     required int currentDay,
     required this.playerOnVote,
     this.whoPutOnVote,
-    this.isVoted = false,
     this.isGunfight = false,
     this.shouldKickAllPlayers = false,
     this.playersToKick = const [],
-  }) : super(currentDay);
+  }) : super(currentDay: currentDay);
 
   bool vote(PlayerModel playerModel) => votedPlayers.add(playerModel);
 
@@ -30,7 +28,6 @@ class VotePhaseAction extends GamePhaseAction {
   String toString() {
     return 'VotePhaseAction: '
         '\nplayerOnVote: ${playerOnVote.toString()}'
-        '\nwhoPutOnVote: ${whoPutOnVote.toString()}'
-        '\nisVoted: $isVoted';
+        '\nwhoPutOnVote: ${whoPutOnVote.toString()}';
   }
 }

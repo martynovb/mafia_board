@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:mafia_board/data/board_repository.dart';
+import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/model/game_phase_model.dart';
 import 'package:mafia_board/domain/exceptions/invalid_player_data_exception.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
@@ -12,7 +12,7 @@ import 'package:mafia_board/presentation/maf_logger.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
   static const String _tag = 'BoardBloc';
-  final BoardRepository boardRepository;
+  final BoardRepo boardRepository;
   final PlayerValidator playerValidator;
   final GamePhaseManager gamePhaseManager;
   StreamSubscription? _gamePhaseSubscription;

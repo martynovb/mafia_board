@@ -9,8 +9,6 @@ import 'package:collection/collection.dart';
 const _tag = 'GamePhaseModel';
 
 class GamePhaseModel {
-  PlayerModel? readyToSpeakPlayer;
-  List<PlayerModel> spokenPlayers = [];
   int currentDay = 1;
   bool isStarted = false;
 
@@ -48,7 +46,7 @@ class GamePhaseModel {
     VotePhaseAction? phase;
     if (_votePhasesByDays.containsKey(currentDay)) {
       phase = _votePhasesByDays[currentDay]
-          ?.firstWhereOrNull((element) => !element.isVoted);
+          ?.firstWhereOrNull((element) => element.status != PhaseStatus.finished);
     }
     MafLogger.d(_tag, 'isVotingPhaseFinished: ${phase == null}');
     return phase == null;
@@ -143,7 +141,7 @@ class GamePhaseModel {
       _votePhasesByDays[day ?? currentDay]?.remove(votePhaseAction);
 
   VotePhaseAction? getCurrentVotePhase() =>
-      _votePhasesByDays[currentDay]?.firstWhereOrNull((phase) => !phase.isVoted);
+      _votePhasesByDays[currentDay]?.firstWhereOrNull((phase) => phase.status != PhaseStatus.finished);
 
   NightPhaseAction? getCurrentNightPhase() => _nightPhasesByDays[currentDay]
       ?.firstWhereOrNull((phase) => phase.status != PhaseStatus.finished);

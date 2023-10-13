@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:mafia_board/data/board_repository.dart';
+import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/game_phase_repository.dart';
 import 'package:mafia_board/data/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
@@ -14,7 +14,7 @@ import 'package:mafia_board/presentation/maf_logger.dart';
 class NightPhaseManager {
   static const _tag = 'NightPhaseManager';
   final GamePhaseRepository gamePhaseRepository;
-  final BoardRepository boardRepository;
+  final BoardRepo boardRepository;
   final GameHistoryManager gameHistoryManager;
   final RoleManager roleManager;
   void Function(GamePhaseModel)? updateGamePhase;

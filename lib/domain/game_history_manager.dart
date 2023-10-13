@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:mafia_board/data/constants.dart';
-import 'package:mafia_board/data/game_history_repository.dart';
+import 'package:mafia_board/data/repo/history/history_repository.dart';
 import 'package:mafia_board/data/model/game_history_model.dart';
 import 'package:mafia_board/data/model/game_history_type.dart';
 import 'package:mafia_board/data/model/game_phase/night_phase_action.dart';
@@ -13,7 +13,7 @@ import 'package:mafia_board/data/model/role.dart';
 import 'package:rxdart/subjects.dart';
 
 class GameHistoryManager {
-  final GameHistoryRepository repository;
+  final HistoryRepository repository;
 
   final BehaviorSubject<List<GameHistoryModel>> _gameHistorySubject =
       BehaviorSubject();

@@ -1,10 +1,11 @@
-import 'package:collection/collection.dart';
 import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/role.dart';
+import 'package:mafia_board/data/repo/board/board_repo.dart';
 
-class BoardRepository {
+class BoardRepoLocal extends BoardRepo {
   final List<PlayerModel> _players = [];
 
+  @override
   List<PlayerModel> createPlayers(int count) {
     _players.clear();
     for (int i = 0; i < count; i++) {
@@ -13,19 +14,19 @@ class BoardRepository {
     return _players;
   }
 
+  @override
   List<PlayerModel> getAllPlayers() => _players;
 
+  @override
   List<PlayerModel> getAllAvailablePlayers() => _players
       .where(
           (player) => !player.isKilled && !player.isRemoved && !player.isKicked)
       .toList();
 
+  @override
   Future<PlayerModel?> getPlayerByIndex(int index) async => _players[index];
 
-  Future<void> setPlayer(int index, PlayerModel playerModel) async {
-    _players[index] = playerModel;
-  }
-
+  @override
   Future<void> updatePlayer(
     int id, {
     String? nickname,
@@ -52,11 +53,10 @@ class BoardRepository {
     );
 
     _players[playerIndex] = newPlayerData;
-
-    print(newPlayerData.toString());
   }
 
-  void resetData() {
+  @override
+  void deleteAll() {
     for (var element in _players) {
       element.isRemoved = false;
       element.isKilled = false;

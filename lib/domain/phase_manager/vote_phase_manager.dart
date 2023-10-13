@@ -1,5 +1,5 @@
-import 'package:collection/collection.dart';
-import 'package:mafia_board/data/board_repository.dart';
+import 'package:mafia_board/data/model/phase_status.dart';
+import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/game_phase_repository.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
@@ -12,7 +12,7 @@ class VotePhaseManager {
   static const _tag = 'VotePhaseManager';
   final GamePhaseRepository gamePhaseRepository;
   final GameHistoryManager gameHistoryManager;
-  final BoardRepository boardRepository;
+  final BoardRepo boardRepository;
   void Function(GamePhaseModel)? updateGamePhase;
 
   VotePhaseManager({
@@ -44,7 +44,7 @@ class VotePhaseManager {
       // case when only one player on vote
       MafLogger.d(_tag, 'Skip vote phase');
       final votePhase = allVotePhases.first;
-      votePhase.isVoted = true;
+      votePhase.status = PhaseStatus.finished;
       _kickPlayers(
         phase: phase,
         playersOnVote: [allVotePhases.first.playerOnVote],
@@ -59,8 +59,9 @@ class VotePhaseManager {
     final currentVotePhase = phase.getCurrentVotePhase();
     if (currentVotePhase != null) {
       // workaround to handle last step in gunfight
-      currentVotePhase.isVoted =
-          currentVotePhase.shouldKickAllPlayers ? false : true;
+      currentVotePhase.status = currentVotePhase.shouldKickAllPlayers
+          ? PhaseStatus.inProgress
+          : PhaseStatus.finished;
       phase.updateVotePhase(currentVotePhase);
       updateGamePhase!(phase);
       gameHistoryManager.logVoteFinish(votePhaseAction: currentVotePhase);
@@ -133,7 +134,7 @@ class VotePhaseManager {
 
     var unvotedPhases = phase
         .getUniqueTodaysVotePhases()
-        .where((votePhase) => !votePhase.isVoted)
+        .where((votePhase) => votePhase.status != PhaseStatus.finished)
         .toList();
 
     var allVotePhases = phase.getUniqueTodaysVotePhases();
@@ -145,7 +146,7 @@ class VotePhaseManager {
         allVotePhases.length == 2 &&
         unvotedPlayers.length == availablePlayers.length / 2) {
       final unvotedPhase = unvotedPhases.first;
-      unvotedPhase.isVoted = true;
+      unvotedPhase.status =  PhaseStatus.finished;
       unvotedPhase.addVoteList(unvotedPlayers);
       phase.updateVotePhase(unvotedPhase);
       gameHistoryManager.logVoteFinish(votePhaseAction: unvotedPhase);
@@ -156,7 +157,7 @@ class VotePhaseManager {
 
     if (unvotedPhases.length == 1 && unvotedPhases.first.shouldKickAllPlayers) {
       final unvotedPhase = unvotedPhases.first;
-      unvotedPhase.isVoted = true;
+      unvotedPhase.status =  PhaseStatus.finished;
       _handlePlayersToKick(phase, unvotedPlayers.length);
       return;
     }
@@ -164,7 +165,7 @@ class VotePhaseManager {
     //when only 1 vote phase is left put all left votes against second player
     if (unvotedPhases.length == 1) {
       final unvotedPhase = unvotedPhases.first;
-      unvotedPhase.isVoted = true;
+      unvotedPhase.status =  PhaseStatus.finished;
       unvotedPhase.addVoteList(unvotedPlayers);
       phase.updateVotePhase(unvotedPhase);
       gameHistoryManager.logVoteFinish(votePhaseAction: unvotedPhase);
@@ -362,11 +363,13 @@ class VotePhaseManager {
     phase
         .getAllTodaysVotePhases()
         .where(
-          (votePhase) => !votePhase.isVoted && votePhase.votedPlayers.isEmpty,
+          (votePhase) =>
+              votePhase.status != PhaseStatus.finished &&
+              votePhase.votedPlayers.isEmpty,
         )
         .forEach((votePhase) {
       gameHistoryManager.logVoteFinish(votePhaseAction: votePhase);
-      votePhase.isVoted = true;
+      votePhase.status = PhaseStatus.finished;
     });
   }
 }

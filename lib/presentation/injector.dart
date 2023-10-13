@@ -1,7 +1,17 @@
 import 'package:get_it/get_it.dart';
-import 'package:mafia_board/data/board_repository.dart';
-import 'package:mafia_board/data/game_history_repository.dart';
+import 'package:mafia_board/data/model/game_phase/night_phase_action.dart';
+import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
+import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
+import 'package:mafia_board/data/repo/board/board_repo.dart';
+import 'package:mafia_board/data/repo/board/board_repo_local.dart';
+import 'package:mafia_board/data/repo/game_phase/base_phase_repo_local.dart';
+import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
+import 'package:mafia_board/data/repo/game_phase/vote_phase_repo/vote_phase_repo_local.dart';
+import 'package:mafia_board/data/repo/history/history_repository.dart';
+import 'package:mafia_board/data/repo/history/history_repository_local.dart';
 import 'package:mafia_board/data/game_phase_repository.dart';
+import 'package:mafia_board/data/repo/game_info/game_info_repo.dart';
+import 'package:mafia_board/data/repo/game_info/game_info_repo_local.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/night_phase_manager.dart';
@@ -21,6 +31,10 @@ import 'package:mafia_board/presentation/feature/home/players_sheet/role_bloc/ro
 class Injector {
   static final _getIt = GetIt.instance;
 
+  static const votePhaseRepoLocalTag = 'vote-phase-repo-local';
+  static const speakPhaseRepoLocalTag = 'speak-phase-repo-local';
+  static const nightPhaseRepoLocalTag = 'night-phase-repo-local';
+
   static void inject() {
     _injectDataLayer();
     _injectDomainLayer();
@@ -28,11 +42,27 @@ class Injector {
   }
 
   static void _injectDataLayer() {
-    _getIt.registerSingleton(GameHistoryRepository());
-    _getIt.registerSingleton(BoardRepository());
+    _getIt.registerSingleton<GamePhaseRepo<VotePhaseAction>>(
+      VotePhaseRepoLocal(),
+      instanceName: votePhaseRepoLocalTag,
+    );
+
+    _getIt.registerSingleton<GamePhaseRepo<SpeakPhaseAction>>(
+      BasePhaseRepoLocal(),
+      instanceName: speakPhaseRepoLocalTag,
+    );
+
+    _getIt.registerSingleton<GamePhaseRepo<NightPhaseAction>>(
+      BasePhaseRepoLocal(),
+      instanceName: nightPhaseRepoLocalTag,
+    );
+
+    _getIt.registerSingleton<HistoryRepository>(HistoryRepositoryLocal());
+    _getIt.registerSingleton<BoardRepo>(BoardRepoLocal());
     _getIt.registerSingleton(GamePhaseRepository());
     _getIt.registerSingleton(RoleManager.classic(_getIt.get()));
     _getIt.registerSingleton(PlayerValidator());
+    _getIt.registerSingleton<GameInfoRepo>(GameInfoRepoLocal());
   }
 
   static void _injectDomainLayer() {

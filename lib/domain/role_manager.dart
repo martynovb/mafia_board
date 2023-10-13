@@ -1,9 +1,10 @@
-import 'package:mafia_board/data/board_repository.dart';
+import 'package:mafia_board/data/repo/board/board_repo.dart';
+import 'package:mafia_board/data/repo/board/board_repo_local.dart';
 import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/data/model/role_model.dart';
 
 class RoleManager {
-  final BoardRepository _boardRepository;
+  final BoardRepo _boardRepository;
   final List<RoleModel> _allRoles;
   List<Role> _selectedRoles = [];
   Map<Role, bool> _uniqueAvailableRoles = {};

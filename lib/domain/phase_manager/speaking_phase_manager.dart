@@ -1,11 +1,11 @@
-import 'package:mafia_board/data/board_repository.dart';
+import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase_model.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
 
 class SpeakingPhaseManager {
-  final BoardRepository boardRepository;
+  final BoardRepo boardRepository;
   final GameHistoryManager gameHistoryManager;
   void Function(GamePhaseModel)? updateGamePhase;
 

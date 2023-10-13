@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:mafia_board/data/board_repository.dart';
+import 'package:mafia_board/data/repo/board/board_repo.dart';
+import 'package:mafia_board/data/repo/board/board_repo_local.dart';
 import 'package:mafia_board/data/game_phase_repository.dart';
 import 'package:mafia_board/data/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase_model.dart';
@@ -16,7 +17,7 @@ class GamePhaseManager {
   static const _tag = 'GamePhaseManager';
 
   final GamePhaseRepository gamePhaseRepository;
-  final BoardRepository boardRepository;
+  final BoardRepo boardRepository;
   final GameHistoryManager gameHistoryManager;
   final VotePhaseManager votePhaseGameManager;
   final SpeakingPhaseManager speakingPhaseManager;
@@ -49,7 +50,7 @@ class GamePhaseManager {
 
   void startGame() {
     gamePhaseRepository.resetGamePhase();
-    boardRepository.resetData();
+    boardRepository.deleteAll();
     final phase = gamePhaseRepository.getCurrentGamePhase();
     phase.isStarted = true;
     phase.addAllSpeakPhases(

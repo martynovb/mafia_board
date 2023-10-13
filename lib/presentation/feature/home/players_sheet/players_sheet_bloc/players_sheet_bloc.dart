@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:mafia_board/data/board_repository.dart';
+import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
@@ -11,7 +11,7 @@ import 'package:mafia_board/presentation/feature/home/players_sheet/players_shee
 import 'package:rxdart/rxdart.dart';
 
 class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
-  final BoardRepository boardRepository;
+  final BoardRepo boardRepository;
   final GameHistoryManager gameHistoryManager;
   final GamePhaseManager gamePhaseManager;
 
