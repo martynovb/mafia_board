@@ -1,118 +1,134 @@
 import 'dart:async';
 
+import 'package:mafia_board/data/model/game_info_model.dart';
+import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
+import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
+import 'package:mafia_board/data/model/phase_type.dart';
 import 'package:mafia_board/data/repo/board/board_repo.dart';
-import 'package:mafia_board/data/repo/board/board_repo_local.dart';
-import 'package:mafia_board/data/game_phase_repository.dart';
 import 'package:mafia_board/data/model/game_phase/night_phase_action.dart';
-import 'package:mafia_board/data/model/game_phase_model.dart';
-import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/role.dart';
+import 'package:mafia_board/data/repo/game_info/game_info_repo.dart';
+import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
 import 'package:mafia_board/domain/phase_manager/night_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/speaking_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/vote_phase_manager.dart';
 import 'package:rxdart/rxdart.dart';
 
-class GamePhaseManager {
-  static const _tag = 'GamePhaseManager';
+class GameManager {
+  static const _tag = 'GameManager';
 
-  final GamePhaseRepository gamePhaseRepository;
+  final GameInfoRepo gameInfoRepo;
   final BoardRepo boardRepository;
+  final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
+  final GamePhaseRepo<VotePhaseAction> voteGamePhaseRepo;
+  final GamePhaseRepo<NightPhaseAction> nightGamePhaseRepo;
   final GameHistoryManager gameHistoryManager;
   final VotePhaseManager votePhaseGameManager;
   final SpeakingPhaseManager speakingPhaseManager;
   final NightPhaseManager nightPhaseManager;
-  final BehaviorSubject<GamePhaseModel> _gamePhaseSubject = BehaviorSubject();
+  final BehaviorSubject<GameInfoModel> _gameInfoSubject = BehaviorSubject();
 
-  GamePhaseManager({
+  GameManager({
     required this.boardRepository,
-    required this.gamePhaseRepository,
+    required this.gameInfoRepo,
     required this.gameHistoryManager,
     required this.votePhaseGameManager,
+    required this.voteGamePhaseRepo,
     required this.speakingPhaseManager,
+    required this.speakGamePhaseRepo,
     required this.nightPhaseManager,
-  }) {
-    votePhaseGameManager.setUpdateGamePhase = _updateGamePhase;
-    speakingPhaseManager.setUpdateGamePhase = _updateGamePhase;
-    nightPhaseManager.setUpdateGamePhase = _updateGamePhase;
-  }
+    required this.nightGamePhaseRepo,
+  });
 
-  Stream<GamePhaseModel> get gamePhaseStream => _gamePhaseSubject.stream;
+  Stream<GameInfoModel> get gameInfoStream => _gameInfoSubject.stream;
 
-  Future<GamePhaseModel?> get gamePhase => _gamePhaseSubject.hasValue
-      ? Future.value(_gamePhaseSubject.value)
+  Future<GameInfoModel?> get gameInfo => _gameInfoSubject.hasValue
+      ? Future.value(_gameInfoSubject.value)
       : Future.value(null);
 
-  void _updateGamePhase(GamePhaseModel gamePhaseModel) {
-    gamePhaseRepository.setCurrentGamePhase(gamePhaseModel);
-    _gamePhaseSubject.add(gamePhaseModel);
+  void _updateGameInfo(GameInfoModel gameInfoModel) {
+    gameInfoRepo.updateGameInfo(gameInfoModel);
+    _gameInfoSubject.add(gameInfoModel);
+  }
+
+  void _resetData() {
+    gameInfoRepo.deleteAll();
+    boardRepository.deleteAll();
+    speakGamePhaseRepo.deleteAll();
+    voteGamePhaseRepo.deleteAll();
+    nightGamePhaseRepo.deleteAll();
   }
 
   void startGame() {
-    gamePhaseRepository.resetGamePhase();
-    boardRepository.deleteAll();
-    final phase = gamePhaseRepository.getCurrentGamePhase();
-    phase.isStarted = true;
-    phase.addAllSpeakPhases(
-      speakingPhaseManager.getPreparedSpeakPhases(phase.currentDay),
-    );
-    _updateGamePhase(phase);
-    gameHistoryManager.logGameStart(gamePhaseModel: phase);
-    gameHistoryManager.logNewDay(phase.currentDay);
+    _resetData();
+    const startDay = 1;
+    final startGameInfoModel = GameInfoModel(day: startDay);
+    gameInfoRepo.add(startGameInfoModel);
+    speakingPhaseManager.preparedSpeakPhases(startDay);
+    _updateGameInfo(startGameInfoModel);
+    gameHistoryManager.logGameStart(gameInfo: startGameInfoModel);
+    gameHistoryManager.logNewDay(startDay);
   }
 
-  void nextGamePhase() {
-    if (_isGameFinished()) {
+  Future<void> nextGamePhase() async {
+    if (await _isGameFinished()) {
       finishGame();
       return;
     }
 
-    final phase = gamePhaseRepository.getCurrentGamePhase();
+    final gameInfo = (await gameInfoRepo.getLastGameInfoByDay())!;
 
-    if (!phase.isSpeakingPhasesExist()) {
-      phase.addAllSpeakPhases(
-        speakingPhaseManager.getPreparedSpeakPhases(phase.currentDay),
-      );
-      _updateGamePhase(phase);
+    final currentDay = gameInfo.day;
+
+    if (!speakGamePhaseRepo.isExist(day: currentDay)) {
+      speakingPhaseManager.preparedSpeakPhases(currentDay);
     }
 
-    if (!phase.isSpeakPhaseFinished()) {
+    if (!speakGamePhaseRepo.isFinished(day: currentDay)) {
+      gameInfo.currentPhase = PhaseType.speak;
+      _updateGameInfo(gameInfo);
       return;
     }
 
-    votePhaseGameManager.skipVotePhasesIfPossible(phase);
-
-    if (!phase.isVotingPhaseFinished()) {
+    votePhaseGameManager.skipVotePhasesIfPossible();
+    if (!voteGamePhaseRepo.isFinished(day: currentDay)) {
+      gameInfo.currentPhase = PhaseType.vote;
+      _updateGameInfo(gameInfo);
       return;
     }
 
-    if (!phase.isNightPhasesExist()) {
-      phase.addAllNightPhases(
-        nightPhaseManager.getPreparedNightPhases(phase.currentDay),
-      );
-      _updateGamePhase(phase);
+    if (!nightGamePhaseRepo.isExist(day: currentDay)) {
+      nightPhaseManager.preparedNightPhases(currentDay);
     }
 
-    if (!phase.isNightPhaseFinished()) {
+    if (!nightGamePhaseRepo.isFinished(day: currentDay)) {
+      gameInfo.currentPhase = PhaseType.night;
+      _updateGameInfo(gameInfo);
       return;
     }
 
-    phase.increaseDay();
-    gameHistoryManager.logNewDay(phase.currentDay);
+    final nextDay = currentDay + 1;
+    final nextGameInfoModel = GameInfoModel(day: nextDay);
+    gameInfoRepo.add(nextGameInfoModel);
+    gameHistoryManager.logNewDay(nextDay);
 
     nextGamePhase();
   }
 
-  void finishGame() {
-    final phase = gamePhaseRepository.getCurrentGamePhase();
-    phase.isStarted = false;
-    _updateGamePhase(phase);
-    gameHistoryManager.logGameFinish(gamePhaseModel: phase);
+  Future<void> finishGame() async {
+    final gameInfo = await gameInfoRepo.getLastGameInfoByDay();
+    if (gameInfo == null) {
+      return;
+    }
+
+    gameInfo.isGameFinished = true;
+    gameHistoryManager.logGameFinish(gameInfo: gameInfo);
   }
 
-  bool _isGameFinished() {
-    final phase = gamePhaseRepository.getCurrentGamePhase();
-    if (phase.isStarted == false) {
+  Future<bool> _isGameFinished() async {
+    final gameInfo = await gameInfoRepo.getLastGameInfoByDay();
+    if (gameInfo == null || gameInfo.isGameFinished) {
       return true;
     }
     final allPlayers = boardRepository.getAllAvailablePlayers();
@@ -131,7 +147,7 @@ class GamePhaseManager {
         )
         .length;
 
-    if(!phase.isSpeakPhaseFinished()){
+    if (!speakGamePhaseRepo.isFinished()) {
       return false;
     }
 
@@ -145,75 +161,4 @@ class GamePhaseManager {
 
     return false;
   }
-
-  // SPEAK PHASE
-
-  void startSpeech() {
-    final phase = gamePhaseRepository.getCurrentGamePhase();
-    speakingPhaseManager.startSpeech(phase);
-  }
-
-  void finishSpeech() {
-    final phase = gamePhaseRepository.getCurrentGamePhase();
-    speakingPhaseManager.finishSpeech(phase);
-  }
-
-  // VOTE PHASE
-
-  bool putOnVote({
-    required PlayerModel currentPlayer,
-    required PlayerModel playerToVote,
-  }) =>
-      votePhaseGameManager.putOnVote(currentPlayer, playerToVote);
-
-  void finishCurrentVotePhase() =>
-      votePhaseGameManager.finishCurrentVotePhase();
-
-  bool voteAgainst({
-    required PlayerModel currentPlayer,
-    required PlayerModel voteAgainstPlayer,
-  }) =>
-      votePhaseGameManager.voteAgainst(
-        currentPlayer: currentPlayer,
-        voteAgainstPlayer: voteAgainstPlayer,
-      );
-
-  bool cancelVoteAgainst({
-    required PlayerModel currentPlayer,
-    required PlayerModel voteAgainstPlayer,
-  }) =>
-      votePhaseGameManager.cancelVoteAgainst(
-        currentPlayer: currentPlayer,
-        voteAgainstPlayer: voteAgainstPlayer,
-      );
-
-  Map<PlayerModel, bool> calculatePlayerVotingStatusMap(
-          GamePhaseModel? phase) =>
-      votePhaseGameManager.calculatePlayerVotingStatusMap(phase);
-
-  // NIGHT PHASE
-
-  void startCurrentNightPhase() => nightPhaseManager.startCurrentNightPhase();
-
-  NightPhaseAction? getCurrentNightPhase() =>
-      gamePhaseRepository.getCurrentGamePhase().getCurrentNightPhase();
-
-  void finishCurrentNightPhase() => nightPhaseManager.finishCurrentNightPhase();
-
-  void killPlayer(PlayerModel playerModel) {
-    nightPhaseManager.killPlayer(playerModel);
-  }
-
-  void cancelKillPlayer(PlayerModel playerModel) {
-    nightPhaseManager.cancelKillPlayer(playerModel);
-  }
-
-  void checkPlayer(PlayerModel playerModel) =>
-      nightPhaseManager.checkPlayer(playerModel);
-
-  void cancelCheckPlayer(PlayerModel playerModel) =>
-      nightPhaseManager.cancelCheckPlayer(playerModel);
-
-  void visitPlayer(PlayerModel playerModel, Role whoIsVisiting) =>
-      nightPhaseManager.visitPlayer(playerModel, whoIsVisiting);
 }

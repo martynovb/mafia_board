@@ -1,7 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/data/model/phase_type.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/game_timer_view.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
@@ -31,7 +31,7 @@ class _BoardPageState extends State<BoardPage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.all(Dimensions.smallSidePadding),
+        padding: const EdgeInsets.all(Dimensions.smallSidePadding),
         child: BlocBuilder(
             bloc: boardBloc,
             builder: (BuildContext context, BoardState state) {
@@ -56,11 +56,12 @@ class _BoardPageState extends State<BoardPage> {
   Widget _stageBoard(BoardState state) {
     if (state is InitialBoardState ||
         state is ErrorBoardState ||
-        (state is GamePhaseState && state.phase?.isStarted == false)) {
+        (state is GamePhaseState && state.gameInfo?.isGameFinished == true)) {
       return Center(
         child: _startGameButton(),
       );
-    } else if (state is GamePhaseState && state.phase?.isStarted == true) {
+    } else if (state is GamePhaseState &&
+        state.gameInfo?.isGameFinished == false) {
       return Center(child: _gamePhaseView(state));
     } else if (state is ErrorBoardState) {
       return _errorView(state.errorMessage);
@@ -72,7 +73,7 @@ class _BoardPageState extends State<BoardPage> {
   Widget _gamePhaseView(GamePhaseState gamePhaseState) {
     return Column(
       children: [
-        Text('DAY #${gamePhaseState.phase?.currentDay}'),
+        Text('DAY #${gamePhaseState.gameInfo?.day}'),
         Text('Title: ${gamePhaseState.currentGamePhaseName}'),
         _getPhaseView(gamePhaseState),
       ],
@@ -80,23 +81,21 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   Widget _getPhaseView(GamePhaseState gamePhaseState) {
-    if (gamePhaseState.phase?.isSpeakPhaseFinished() == false) {
+    if (gamePhaseState.gameInfo?.currentPhase == PhaseType.speak) {
       return SpeakingPhaseView(
-        onSpeechFinished: () => boardBloc.add(NextPhaseEvent()),
-      );
-    } else if (gamePhaseState.phase?.isVotingPhaseFinished() == false) {
+          onSpeechFinished: () => boardBloc.add(NextPhaseEvent()));
+    } else if (gamePhaseState.gameInfo?.currentPhase == PhaseType.vote) {
       return const VotePhaseView();
-    } else if (gamePhaseState.phase?.isNightPhaseFinished() == false) {
+    } else if (gamePhaseState.gameInfo?.currentPhase == PhaseType.night) {
       return NightPhaseView(
-        onNightPhaseFinished: () => boardBloc.add(NextPhaseEvent()),
-      );
+          onNightPhaseFinished: () => boardBloc.add(NextPhaseEvent()));
     } else {
       return Container();
     }
   }
 
   Widget _header(BoardState state) {
-    if (state is GamePhaseState && state.phase?.isStarted == true) {
+    if (state is GamePhaseState && state.gameInfo?.isGameFinished == false) {
       return SizedBox(
           height: _headerHeight,
           child: Row(

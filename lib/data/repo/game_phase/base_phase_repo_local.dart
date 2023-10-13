@@ -62,8 +62,8 @@ class BasePhaseRepoLocal<GamePhase extends GamePhaseAction>
   }
 
   @override
-  void remove({required GamePhase gamePhaseAction}) {
-    list.removeWhere((phase) => phase.id == gamePhaseAction.id);
+  void remove({required GamePhase gamePhase}) {
+    list.removeWhere((phase) => phase.id == gamePhase.id);
   }
 
   @override
@@ -75,5 +75,35 @@ class BasePhaseRepoLocal<GamePhase extends GamePhaseAction>
       return true;
     }
     return false;
+  }
+
+  @override
+  GamePhase? getCurrentPhase({int? day}) {
+    if (day != null) {
+      return list.firstWhereOrNull(
+        (element) =>
+            element.currentDay == day && element.status != PhaseStatus.finished,
+      );
+    } else {
+      int maxDay = list
+          .map((phase) => phase.currentDay)
+          .reduce((value, element) => value > element ? value : element);
+
+      return list.firstWhereOrNull(
+        (element) =>
+            element.currentDay == maxDay &&
+            element.status != PhaseStatus.finished,
+      );
+    }
+  }
+
+  @override
+  List<GamePhase> getAllPhases() {
+    return list;
+  }
+
+  @override
+  void deleteAll() {
+    list.clear();
   }
 }

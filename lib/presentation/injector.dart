@@ -9,7 +9,6 @@ import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/vote_phase_repo/vote_phase_repo_local.dart';
 import 'package:mafia_board/data/repo/history/history_repository.dart';
 import 'package:mafia_board/data/repo/history/history_repository_local.dart';
-import 'package:mafia_board/data/game_phase_repository.dart';
 import 'package:mafia_board/data/repo/game_info/game_info_repo.dart';
 import 'package:mafia_board/data/repo/game_info/game_info_repo_local.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
@@ -59,7 +58,6 @@ class Injector {
 
     _getIt.registerSingleton<HistoryRepository>(HistoryRepositoryLocal());
     _getIt.registerSingleton<BoardRepo>(BoardRepoLocal());
-    _getIt.registerSingleton(GamePhaseRepository());
     _getIt.registerSingleton(RoleManager.classic(_getIt.get()));
     _getIt.registerSingleton(PlayerValidator());
     _getIt.registerSingleton<GameInfoRepo>(GameInfoRepoLocal());
@@ -73,7 +71,9 @@ class Injector {
     );
     _getIt.registerSingleton(
       NightPhaseManager(
-        gamePhaseRepository: _getIt.get(),
+        gameInfoRepo: _getIt.get(),
+        nightGamePhaseRepo: _getIt.get(instanceName: nightPhaseRepoLocalTag),
+        speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
         gameHistoryManager: _getIt.get(),
         boardRepository: _getIt.get(),
         roleManager: _getIt.get(),
@@ -82,7 +82,9 @@ class Injector {
 
     _getIt.registerSingleton(
       VotePhaseManager(
-        gamePhaseRepository: _getIt.get(),
+        gameInfoRepo: _getIt.get(),
+        voteGamePhaseRepo: _getIt.get(instanceName: votePhaseRepoLocalTag),
+        speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
         gameHistoryManager: _getIt.get(),
         boardRepository: _getIt.get(),
       ),
@@ -90,25 +92,30 @@ class Injector {
 
     _getIt.registerSingleton(
       SpeakingPhaseManager(
+        speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
         boardRepository: _getIt.get(),
         gameHistoryManager: _getIt.get(),
       ),
     );
 
-    _getIt.registerSingleton(GamePhaseManager(
+    _getIt.registerSingleton(GameManager(
       boardRepository: _getIt.get(),
-      gamePhaseRepository: _getIt.get(),
+      gameInfoRepo: _getIt.get(),
       gameHistoryManager: _getIt.get(),
       votePhaseGameManager: _getIt.get(),
+      voteGamePhaseRepo: _getIt.get(instanceName: votePhaseRepoLocalTag),
       speakingPhaseManager: _getIt.get(),
+      speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
       nightPhaseManager: _getIt.get(),
+      nightGamePhaseRepo: _getIt.get(instanceName: nightPhaseRepoLocalTag),
     ));
   }
 
   static void _injectBloC() {
     _getIt.registerSingleton(
       BoardBloc(
-        gamePhaseManager: _getIt.get(),
+        votePhaseManager: _getIt.get(),
+        gameManager: _getIt.get(),
         boardRepository: _getIt.get(),
         playerValidator: _getIt.get(),
       ),
@@ -130,8 +137,9 @@ class Injector {
 
     _getIt.registerSingleton(
       VotePhaseBloc(
-        boardRepository: _getIt.get(),
         gamePhaseManager: _getIt.get(),
+        votePhaseManager: _getIt.get(),
+        boardRepository: _getIt.get(),
       ),
     );
 
@@ -143,20 +151,22 @@ class Injector {
 
     _getIt.registerSingleton(
       SpeakingPhaseBloc(
-        gamePhaseManager: _getIt.get(),
+        speakingPhaseManager: _getIt.get(),
       ),
     );
 
     _getIt.registerSingleton(
       NightPhaseBloc(
-        boardRepository: _getIt.get(),
         gamePhaseManager: _getIt.get(),
+        nightPhaseManager: _getIt.get(),
+        boardRepository: _getIt.get(),
       ),
     );
 
     _getIt.registerSingleton(
       VotePhaseListBloc(
-        gamePhaseManager: _getIt.get(),
+        gameManager: _getIt.get(),
+        votePhaseManager: _getIt.get(),
       ),
     );
   }

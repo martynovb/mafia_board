@@ -11,9 +11,15 @@ abstract class GamePhaseRepo<GamePhase extends GamePhaseAction> {
 
   GamePhase? getLastPhase();
 
-  void remove({required GamePhase gamePhaseAction});
+  GamePhase? getCurrentPhase({int? day});
+
+  void remove({required GamePhase gamePhase});
 
   bool update({required GamePhase gamePhase});
 
   List<GamePhase> getAllPhasesByDay({int? day});
+
+  List<GamePhase> getAllPhases();
+
+  void deleteAll();
 }

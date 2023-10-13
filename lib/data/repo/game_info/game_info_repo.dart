@@ -1,4 +1,5 @@
 import 'package:mafia_board/data/model/game_info_model.dart';
+import 'package:mafia_board/data/model/phase_type.dart';
 import 'package:mafia_board/data/model/player_model.dart';
 
 abstract class GameInfoRepo {
@@ -15,4 +16,6 @@ abstract class GameInfoRepo {
   Future<void> deleteAll();
 
   Future<void> add(GameInfoModel gameInfoModel);
+
+  Future<void> setCurrentPhaseType({required PhaseType phaseType});
 }

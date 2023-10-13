@@ -1,45 +1,47 @@
-import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
-import 'package:mafia_board/data/model/game_phase_model.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
+import 'package:mafia_board/data/repo/board/board_repo.dart';
+import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
 
 class SpeakingPhaseManager {
+  final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
   final BoardRepo boardRepository;
   final GameHistoryManager gameHistoryManager;
-  void Function(GamePhaseModel)? updateGamePhase;
 
   SpeakingPhaseManager({
+    required this.speakGamePhaseRepo,
     required this.boardRepository,
     required this.gameHistoryManager,
   });
 
-  set setUpdateGamePhase(
-    Function(GamePhaseModel)? updateGamePhase,
-  ) =>
-      this.updateGamePhase = updateGamePhase;
+  SpeakPhaseAction? getCurrentPhase() => speakGamePhaseRepo.getCurrentPhase();
 
-  List<SpeakPhaseAction> getPreparedSpeakPhases(int currentDay) {
-    final List<SpeakPhaseAction> phases = [];
+  void preparedSpeakPhases(int currentDay) {
     boardRepository.getAllAvailablePlayers().forEach((player) {
-      phases.add(
-        SpeakPhaseAction(currentDay: currentDay, player: player),
+      speakGamePhaseRepo.add(
+        gamePhase: SpeakPhaseAction(currentDay: currentDay, player: player),
       );
     });
-    return phases;
   }
 
-  void startSpeech(GamePhaseModel phase) {
-    final currentSpeakPhase = phase.getCurrentSpeakPhase();
-    currentSpeakPhase?.updateStatus = PhaseStatus.inProgress;
+  void startSpeech() {
+    final currentSpeakPhase = speakGamePhaseRepo.getCurrentPhase();
+    if (currentSpeakPhase == null) {
+      return;
+    }
+    currentSpeakPhase.updateStatus = PhaseStatus.inProgress;
+    speakGamePhaseRepo.update(gamePhase: currentSpeakPhase);
     gameHistoryManager.logPlayerSpeech(speakPhaseAction: currentSpeakPhase);
-    updateGamePhase!(phase);
   }
 
-  void finishSpeech(GamePhaseModel phase) {
-    final currentSpeakPhase = phase.getCurrentSpeakPhase();
-    currentSpeakPhase?.updateStatus = PhaseStatus.finished;
+  void finishSpeech() {
+    final currentSpeakPhase = speakGamePhaseRepo.getCurrentPhase();
+    if (currentSpeakPhase == null) {
+      return;
+    }
+    currentSpeakPhase.updateStatus = PhaseStatus.finished;
+    speakGamePhaseRepo.update(gamePhase: currentSpeakPhase);
     gameHistoryManager.logPlayerSpeech(speakPhaseAction: currentSpeakPhase);
-    updateGamePhase!(phase);
   }
 }

@@ -1,12 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:mafia_board/data/constants.dart';
+import 'package:mafia_board/data/model/game_info_model.dart';
 import 'package:mafia_board/data/repo/history/history_repository.dart';
 import 'package:mafia_board/data/model/game_history_model.dart';
 import 'package:mafia_board/data/model/game_history_type.dart';
 import 'package:mafia_board/data/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
-import 'package:mafia_board/data/model/game_phase_model.dart';
 import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
 import 'package:mafia_board/data/model/role.dart';
@@ -33,22 +33,22 @@ class GameHistoryManager {
   }
 
   void logGameStart({
-    required GamePhaseModel gamePhaseModel,
+    required GameInfoModel gameInfo,
   }) {
     _addRecord(GameHistoryModel(
       text: 'Game Started',
       type: GameHistoryType.startGame,
-      createdAt: gamePhaseModel.createdAt,
+      createdAt: gameInfo.createdAt,
     ));
   }
 
   void logGameFinish({
-    required GamePhaseModel gamePhaseModel,
+    required GameInfoModel gameInfo,
   }) {
     _addRecord(GameHistoryModel(
       text: 'Game Finished',
       type: GameHistoryType.finishGame,
-      createdAt: gamePhaseModel.createdAt,
+      createdAt: gameInfo.createdAt,
     ));
   }
 
@@ -64,10 +64,7 @@ class GameHistoryManager {
     ));
   }
 
-  void logPlayerSpeech({required SpeakPhaseAction? speakPhaseAction}) {
-    if (speakPhaseAction == null) {
-      return;
-    }
+  void logPlayerSpeech({required SpeakPhaseAction speakPhaseAction}) {
     String text;
     if (speakPhaseAction.isLastWord &&
         speakPhaseAction.status == PhaseStatus.inProgress) {

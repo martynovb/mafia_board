@@ -145,7 +145,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
           itemBuilder: (__, index) => _playerItem(
               index,
               sheetDataState.players[index],
-              sheetDataState.gamePhaseModel?.isStarted ?? false),
+              sheetDataState.gameInfo?.isGameFinished ?? true),
         ),
       );
 

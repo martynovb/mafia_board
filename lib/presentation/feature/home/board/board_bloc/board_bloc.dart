@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/data/repo/board/board_repo.dart';
-import 'package:mafia_board/data/model/game_phase_model.dart';
 import 'package:mafia_board/domain/exceptions/invalid_player_data_exception.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
+import 'package:mafia_board/domain/phase_manager/vote_phase_manager.dart';
 import 'package:mafia_board/domain/player_validator.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_event.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_state.dart';
@@ -14,11 +14,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   static const String _tag = 'BoardBloc';
   final BoardRepo boardRepository;
   final PlayerValidator playerValidator;
-  final GamePhaseManager gamePhaseManager;
+  final GameManager gameManager;
+  final VotePhaseManager votePhaseManager;
   StreamSubscription? _gamePhaseSubscription;
 
   BoardBloc({
-    required this.gamePhaseManager,
+    required this.votePhaseManager,
+    required this.gameManager,
     required this.boardRepository,
     required this.playerValidator,
   }) : super(InitialBoardState()) {
@@ -29,9 +31,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   void _subscribeToGamePhase() {
-    _gamePhaseSubscription = gamePhaseManager.gamePhaseStream.listen((phase) {
+    _gamePhaseSubscription = gameManager.gameInfoStream.listen((gameInfo) {
       // todo: change emit
-      emit(GamePhaseState(phase, mapGamePhaseName(phase)));
+      emit(GamePhaseState(gameInfo, gameInfo.currentPhase.name));
     });
   }
 
@@ -46,7 +48,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             (player) => playerValidator.validate(player),
           );
       _subscribeToGamePhase();
-      gamePhaseManager.startGame();
+      gameManager.startGame();
     } on InvalidPlayerDataException catch (ex) {
       emit(ErrorBoardState(ex.errorMessage));
     }
@@ -54,7 +56,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   void _finishGameEventHandler(event, emit) async {
     try {
-      gamePhaseManager.finishGame();
+      gameManager.finishGame();
       _unsubscribeFromGamePhase();
       emit(InitialBoardState());
     } on InvalidPlayerDataException catch (ex) {
@@ -64,7 +66,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   void _nextPhaseEventHandler(event, emit) async {
     try {
-      gamePhaseManager.nextGamePhase();
+      gameManager.nextGamePhase();
     } on InvalidPlayerDataException catch (ex) {
       emit(ErrorBoardState(ex.errorMessage));
     }
@@ -73,45 +75,16 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   void _putOnVoteEventHandler(PutOnVoteEvent event, emit) async {
     MafLogger.d(_tag, '_putOnVoteEventHandler');
     try {
-      final phase = await gamePhaseManager.gamePhase;
-      MafLogger.d(_tag, '$phase');
-      if (phase?.isSpeakPhaseFinished() == false) {
-        final currentSpeaker = phase?.getCurrentSpeakPhase()?.player;
-        if (currentSpeaker != null) {
-          MafLogger.d(_tag, 'Current speaker: ${currentSpeaker.nickname}');
-          MafLogger.d(_tag, 'Put on vote: ${event.playerOnVote.nickname}');
-          if (gamePhaseManager.putOnVote(
-            currentPlayer: currentSpeaker,
-            playerToVote: event.playerOnVote,
-          )) {
-            emit(GamePhaseState(
-                await gamePhaseManager.gamePhase, mapGamePhaseName(phase)));
-          }
-          return;
-        } else {
-          emit(ErrorBoardState("Can't put on vote: Not found current speaker"));
-        }
-      } else {
-        emit(ErrorBoardState("Can't put on vote: it's not speaking phase"));
-      }
+      votePhaseManager.putOnVote(event.playerOnVote);
+      final gameInfo = await gameManager.gameInfo;
+      emit(GamePhaseState(
+          await gameManager.gameInfo, gameInfo?.currentPhase.name ?? 'Unknown'));
     } on InvalidPlayerDataException catch (ex) {
       MafLogger.e(_tag, 'InvalidPlayerDataException');
       emit(ErrorBoardState(ex.errorMessage));
     } catch (ex) {
       MafLogger.e(_tag, 'Unexpected error');
       emit(ErrorBoardState('Unexpected error'));
-    }
-  }
-
-  String mapGamePhaseName(GamePhaseModel? phase) {
-    if (phase?.isSpeakPhaseFinished() == false) {
-      return 'Speaking';
-    } else if (phase?.isVotingPhaseFinished() == false) {
-      return 'Voting';
-    } else if (phase?.isNightPhaseFinished() == false) {
-      return 'Night';
-    } else {
-      return 'Unknown';
     }
   }
 

@@ -13,7 +13,7 @@ import 'package:rxdart/rxdart.dart';
 class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
   final BoardRepo boardRepository;
   final GameHistoryManager gameHistoryManager;
-  final GamePhaseManager gamePhaseManager;
+  final GameManager gamePhaseManager;
 
   StreamSubscription? _gamePhaseSubscription;
   final BehaviorSubject<SheetDataState> _playersSubject = BehaviorSubject();
@@ -34,10 +34,10 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
 
   void _listenToGamePhase() {
     _gamePhaseSubscription =
-        gamePhaseManager.gamePhaseStream.listen((gamePhaseModel) {
+        gamePhaseManager.gameInfoStream.listen((gamePhaseModel) {
       _playersSubject.add(SheetDataState(
         players: boardRepository.getAllPlayers(),
-        gamePhaseModel: gamePhaseModel,
+        gameInfo: gamePhaseModel,
       ));
     });
   }
@@ -53,7 +53,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     );
     _playersSubject.add(SheetDataState(
       players: boardRepository.getAllPlayers(),
-      gamePhaseModel: await gamePhaseManager.gamePhase,
+      gameInfo: await gamePhaseManager.gameInfo,
     ));
     final player = await boardRepository.getPlayerByIndex(event.playerId);
     if (player != null) {
@@ -68,7 +68,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     );
     _playersSubject.add(SheetDataState(
       players: boardRepository.getAllPlayers(),
-      gamePhaseModel: await gamePhaseManager.gamePhase,
+      gameInfo: await gamePhaseManager.gameInfo,
     ));
   }
 
@@ -79,7 +79,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     );
     _playersSubject.add(SheetDataState(
       players: boardRepository.getAllPlayers(),
-      gamePhaseModel: await gamePhaseManager.gamePhase,
+      gameInfo: await gamePhaseManager.gameInfo,
     ));
   }
 
@@ -90,7 +90,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     );
     _playersSubject.add(SheetDataState(
       players: boardRepository.getAllPlayers(),
-      gamePhaseModel: await gamePhaseManager.gamePhase,
+      gameInfo: await gamePhaseManager.gameInfo,
     ));
   }
 
