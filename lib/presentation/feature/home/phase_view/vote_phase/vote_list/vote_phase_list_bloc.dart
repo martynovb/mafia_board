@@ -17,20 +17,10 @@ class VotePhaseListBloc extends Bloc<VotePhaseListEvent, VotePhaseListState> {
     required this.gameManager,
     required this.votePhaseManager,
   }) : super(VotePhaseListState()) {
-    _listenToGamePhase();
+
   }
 
   Stream<List<VoteItem>> get voteListStream => _voteListSubject.stream;
-
-
-  void _listenToGamePhase() {
-    _gamePhaseSubscription =
-        gameManager.gameInfoStream.listen((gamePhaseModel) {
-      _voteListSubject.add(
-        _getTodaysVoteList(gamePhaseModel),
-      );
-    });
-  }
 
   List<VoteItem> _getTodaysVoteList(GameInfoModel gameInfo) {
     return votePhaseManager

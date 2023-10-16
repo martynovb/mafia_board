@@ -1,8 +1,11 @@
 import 'package:bloc/bloc.dart';
+import 'package:mafia_board/data/model/phase_status.dart';
+import 'package:mafia_board/data/model/phase_type.dart';
 import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
+import 'package:mafia_board/domain/phase_manager/speaking_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/vote_phase_manager.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_bloc/vote_phase_event.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_bloc/vote_phase_state.dart';
@@ -13,10 +16,12 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
   final BoardRepo boardRepository;
   final GameManager gamePhaseManager;
   final VotePhaseManager votePhaseManager;
+  final SpeakingPhaseManager speakingPhaseManager;
 
   VotePhaseBloc({
     required this.gamePhaseManager,
     required this.votePhaseManager,
+    required this.speakingPhaseManager,
     required this.boardRepository,
   }) : super(VotePhaseState()) {
     on<VoteAgainstEvent>(_voteAgainstEventHandler);
@@ -28,6 +33,7 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
   void _initializeDataEventHandler(GetVotingDataEvent event, emit) async {
     final currentVotePhase = votePhaseManager.getCurrentPhase();
     emit(VotePhaseState(
+      status: currentVotePhase?.status ?? PhaseStatus.notStarted,
       title: _mapVotePageTitle(currentVotePhase),
       playersToKickText:
           _parsePlayersToKickToString(currentVotePhase?.playersToKick),
@@ -37,19 +43,25 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
     ));
   }
 
-  void _finishVotingEventHandler(FinishVoteAgainstEvent event, emit) async {
+  Future<void> _finishVotingEventHandler(
+      FinishVoteAgainstEvent event, emit) async {
     try {
-      votePhaseManager.finishCurrentVotePhase();
-      gamePhaseManager.nextGamePhase();
+      await votePhaseManager.finishCurrentVotePhase();
       final currentVotePhase = votePhaseManager.getCurrentPhase();
-      emit(VotePhaseState(
-        title: _mapVotePageTitle(currentVotePhase),
-        playersToKickText:
-            _parsePlayersToKickToString(currentVotePhase?.playersToKick),
-        playerOnVote: currentVotePhase?.playerOnVote,
-        allAvailablePlayersToVote:
-            votePhaseManager.calculatePlayerVotingStatusMap(),
-      ));
+      final currentSpeakPhase = speakingPhaseManager.getCurrentPhase();
+      if (currentSpeakPhase == null && currentVotePhase != null) {
+        emit(VotePhaseState(
+          status: currentVotePhase.status,
+          title: _mapVotePageTitle(currentVotePhase),
+          playersToKickText:
+              _parsePlayersToKickToString(currentVotePhase.playersToKick),
+          playerOnVote: currentVotePhase.playerOnVote,
+          allAvailablePlayersToVote:
+              votePhaseManager.calculatePlayerVotingStatusMap(),
+        ));
+      } else {
+        emit(VotePhaseState(status: PhaseStatus.finished));
+      }
     } on Exception catch (ex) {
       MafLogger.e(_tag, '_finishVotingEventHandler $ex');
     }
@@ -63,6 +75,7 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
       );
       final currentVotePhase = votePhaseManager.getCurrentPhase();
       emit(VotePhaseState(
+        status: currentVotePhase?.status ?? PhaseStatus.notStarted,
         title: _mapVotePageTitle(currentVotePhase),
         playersToKickText:
             _parsePlayersToKickToString(currentVotePhase?.playersToKick),
@@ -86,6 +99,7 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
         );
         currentVotePhase = votePhaseManager.getCurrentPhase();
         emit(VotePhaseState(
+          status: currentVotePhase?.status ?? PhaseStatus.notStarted,
           title: _mapVotePageTitle(currentVotePhase),
           playersToKickText:
               _parsePlayersToKickToString(currentVotePhase?.playersToKick),

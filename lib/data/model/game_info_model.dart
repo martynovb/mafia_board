@@ -7,12 +7,13 @@ class GameInfoModel {
   final DateTime createdAt = DateTime.now();
   final List<PlayerModel> _mutedPlayers = [];
   final List<PlayerModel> _playersWithFoul = [];
-  final PhaseType currentPhase;
-  bool isGameFinished = false;
+  PhaseType currentPhase;
+  bool isGameStarted;
 
   GameInfoModel({
     required this.day,
     this.currentPhase = PhaseType.none,
+    this.isGameStarted = true,
   });
 
   void addMutedPlayer(PlayerModel player) => _mutedPlayers.add(player);
@@ -23,7 +24,4 @@ class GameInfoModel {
   List<PlayerModel> get playersWithFoul => _playersWithFoul;
 
   List<PlayerModel> get mutedPlayers => _mutedPlayers;
-
-  set currentPhase(PhaseType phaseType) => currentPhase = phaseType;
-
 }

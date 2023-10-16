@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/data/model/phase_status.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_bloc/vote_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_bloc/vote_phase_event.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_bloc/vote_phase_state.dart';
 
 class VotePhaseView extends StatefulWidget {
+  final void Function() onVoteFinished;
+
   const VotePhaseView({
     Key? key,
+    required this.onVoteFinished,
   }) : super(key: key);
 
   @override
@@ -32,7 +36,12 @@ class _VotePhaseViewState extends State<VotePhaseView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
+    return BlocConsumer(
+        listener: (BuildContext context, VotePhaseState state) {
+          if (state.status == PhaseStatus.finished) {
+            widget.onVoteFinished();
+          }
+        },
         bloc: votePhaseBloc,
         builder: (BuildContext context, VotePhaseState state) {
           return Column(

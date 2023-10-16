@@ -13,6 +13,7 @@ import 'package:mafia_board/domain/game_history_manager.dart';
 import 'package:mafia_board/domain/phase_manager/night_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/speaking_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/vote_phase_manager.dart';
+import 'package:mafia_board/presentation/maf_logger.dart';
 import 'package:rxdart/rxdart.dart';
 
 class GameManager {
@@ -47,34 +48,38 @@ class GameManager {
       ? Future.value(_gameInfoSubject.value)
       : Future.value(null);
 
-  void _updateGameInfo(GameInfoModel gameInfoModel) {
-    gameInfoRepo.updateGameInfo(gameInfoModel);
+  Future<void> _updateGameInfo(GameInfoModel gameInfoModel) async {
+    await gameInfoRepo.updateGameInfo(gameInfoModel);
     _gameInfoSubject.add(gameInfoModel);
   }
 
-  void _resetData() {
-    gameInfoRepo.deleteAll();
+  Future<void> _resetData() async {
+    await gameInfoRepo.deleteAll();
     boardRepository.deleteAll();
     speakGamePhaseRepo.deleteAll();
     voteGamePhaseRepo.deleteAll();
     nightGamePhaseRepo.deleteAll();
   }
 
-  void startGame() {
-    _resetData();
+  Future<GameInfoModel> startGame() async {
+    await _resetData();
     const startDay = 1;
-    final startGameInfoModel = GameInfoModel(day: startDay);
-    gameInfoRepo.add(startGameInfoModel);
-    speakingPhaseManager.preparedSpeakPhases(startDay);
+    final startGameInfoModel = GameInfoModel(
+      day: startDay,
+      isGameStarted: true,
+      currentPhase: PhaseType.speak,
+    );
+    await speakingPhaseManager.preparedSpeakPhases(startDay);
+    await gameInfoRepo.add(startGameInfoModel);
     _updateGameInfo(startGameInfoModel);
     gameHistoryManager.logGameStart(gameInfo: startGameInfoModel);
     gameHistoryManager.logNewDay(startDay);
+    return startGameInfoModel;
   }
 
-  Future<void> nextGamePhase() async {
+  Future<GameInfoModel?> nextGamePhase() async {
     if (await _isGameFinished()) {
-      finishGame();
-      return;
+      return await finishGame();
     }
 
     final gameInfo = (await gameInfoRepo.getLastGameInfoByDay())!;
@@ -86,16 +91,22 @@ class GameManager {
     }
 
     if (!speakGamePhaseRepo.isFinished(day: currentDay)) {
-      gameInfo.currentPhase = PhaseType.speak;
-      _updateGameInfo(gameInfo);
-      return;
+      if (gameInfo.currentPhase != PhaseType.speak) {
+        gameInfo.currentPhase = PhaseType.speak;
+        _updateGameInfo(gameInfo);
+      }
+      MafLogger.d(_tag, 'Current phase: ${gameInfo.currentPhase}');
+      return gameInfo;
     }
 
     votePhaseGameManager.skipVotePhasesIfPossible();
     if (!voteGamePhaseRepo.isFinished(day: currentDay)) {
-      gameInfo.currentPhase = PhaseType.vote;
-      _updateGameInfo(gameInfo);
-      return;
+      if (gameInfo.currentPhase != PhaseType.vote) {
+        gameInfo.currentPhase = PhaseType.vote;
+        _updateGameInfo(gameInfo);
+      }
+      MafLogger.d(_tag, 'Current phase: ${gameInfo.currentPhase}');
+      return gameInfo;
     }
 
     if (!nightGamePhaseRepo.isExist(day: currentDay)) {
@@ -103,32 +114,41 @@ class GameManager {
     }
 
     if (!nightGamePhaseRepo.isFinished(day: currentDay)) {
-      gameInfo.currentPhase = PhaseType.night;
-      _updateGameInfo(gameInfo);
-      return;
+      if (gameInfo.currentPhase != PhaseType.night) {
+        gameInfo.currentPhase = PhaseType.night;
+        _updateGameInfo(gameInfo);
+      }
+      MafLogger.d(_tag, 'Current phase: ${gameInfo.currentPhase}');
+      return gameInfo;
     }
 
+    MafLogger.d(_tag, 'Go to nex day');
     final nextDay = currentDay + 1;
-    final nextGameInfoModel = GameInfoModel(day: nextDay);
-    gameInfoRepo.add(nextGameInfoModel);
+    final nextGameInfoModel = GameInfoModel(
+      day: nextDay,
+      currentPhase: PhaseType.speak,
+    );
+    await gameInfoRepo.add(nextGameInfoModel);
     gameHistoryManager.logNewDay(nextDay);
-
-    nextGamePhase();
+    MafLogger.d(_tag, 'Current phase: ${gameInfo.currentPhase}');
+    return await nextGamePhase();
   }
 
-  Future<void> finishGame() async {
+  Future<GameInfoModel?> finishGame() async {
     final gameInfo = await gameInfoRepo.getLastGameInfoByDay();
     if (gameInfo == null) {
-      return;
+      return null;
     }
 
-    gameInfo.isGameFinished = true;
+    gameInfo.isGameStarted = false;
+    _updateGameInfo(gameInfo);
     gameHistoryManager.logGameFinish(gameInfo: gameInfo);
+    return gameInfo;
   }
 
   Future<bool> _isGameFinished() async {
     final gameInfo = await gameInfoRepo.getLastGameInfoByDay();
-    if (gameInfo == null || gameInfo.isGameFinished) {
+    if (gameInfo == null || !gameInfo.isGameStarted) {
       return true;
     }
     final allPlayers = boardRepository.getAllAvailablePlayers();

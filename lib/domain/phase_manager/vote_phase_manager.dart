@@ -25,7 +25,9 @@ class VotePhaseManager {
     required this.boardRepository,
   });
 
-  List<VotePhaseAction> getAllPhases(int day) => voteGamePhaseRepo.getAllPhasesByDay(day: day);
+  List<VotePhaseAction> getAllPhases(int day) =>
+      voteGamePhaseRepo.getAllPhasesByDay(day: day);
+
   VotePhaseAction? getCurrentPhase() => voteGamePhaseRepo.getCurrentPhase();
 
   Future<void> skipVotePhasesIfPossible() async {
@@ -49,14 +51,14 @@ class VotePhaseManager {
       final votePhase = allVotePhases.first;
       votePhase.status = PhaseStatus.finished;
       voteGamePhaseRepo.update(gamePhase: votePhase);
-      _kickPlayers(
+      await _kickPlayers(
         currentDay: currentDay,
         playersOnVote: [allVotePhases.first.playerOnVote],
       );
     }
   }
 
-  void finishCurrentVotePhase() {
+  Future<void> finishCurrentVotePhase() async {
     final currentVotePhase = voteGamePhaseRepo.getCurrentPhase();
     if (currentVotePhase != null) {
       // workaround to handle last step in gunfight
@@ -65,25 +67,26 @@ class VotePhaseManager {
           : PhaseStatus.finished;
       voteGamePhaseRepo.update(gamePhase: currentVotePhase);
       gameHistoryManager.logVoteFinish(votePhaseAction: currentVotePhase);
-      _finishVotePhaseIfPossible();
+      await _finishVotePhaseIfPossible();
     }
   }
 
-  bool putOnVote(PlayerModel playerToVote) {
+  Future<bool> putOnVote(PlayerModel playerToVote) async {
     final currentSpeaker = speakGamePhaseRepo.getCurrentPhase()?.player;
     final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay();
 
     if (currentSpeaker != null &&
-        !_isPlayerAlreadyPutOnVote(
-          currentSpeaker,
-          allVotePhases,
-        ) &&
-        !_isPlayerAlreadyOnVote(
-          playerToVote,
-          allVotePhases,
-        )) {
+        (allVotePhases.isEmpty ||
+            !_isPlayerAlreadyPutOnVote(
+                  currentSpeaker,
+                  allVotePhases,
+                ) &&
+                !_isPlayerAlreadyOnVote(
+                  playerToVote,
+                  allVotePhases,
+                ))) {
       final votePhase = VotePhaseAction(
-        currentDay: allVotePhases.first.currentDay,
+        currentDay: await gameInfoRepo.getCurrentDay(),
         playerOnVote: playerToVote,
         whoPutOnVote: currentSpeaker,
       );
@@ -120,7 +123,7 @@ class VotePhaseManager {
         false;
   }
 
-  void _finishVotePhaseIfPossible() {
+  Future<void> _finishVotePhaseIfPossible() async {
     final List<PlayerModel> unvotedPlayers = calculatePlayerVotingStatusMap()
         .entries
         .where((entry) => !entry.value)
@@ -130,7 +133,7 @@ class VotePhaseManager {
     // when all players voted
     // even if some vote phases are left
     if (unvotedPlayers.isEmpty) {
-      _handlePlayersToKick(unvotedPlayers.length);
+      await _handlePlayersToKick(unvotedPlayers.length);
       return;
     }
 
@@ -152,14 +155,14 @@ class VotePhaseManager {
       unvotedPhase.addVoteList(unvotedPlayers);
       voteGamePhaseRepo.update(gamePhase: unvotedPhase);
       gameHistoryManager.logVoteFinish(votePhaseAction: unvotedPhase);
-      _handlePlayersToKick(unvotedPlayers.length);
+      await _handlePlayersToKick(unvotedPlayers.length);
       return;
     }
 
     if (unvotedPhases.length == 1 && unvotedPhases.first.shouldKickAllPlayers) {
       final unvotedPhase = unvotedPhases.first;
       unvotedPhase.status = PhaseStatus.finished;
-      _handlePlayersToKick(unvotedPlayers.length);
+      await _handlePlayersToKick(unvotedPlayers.length);
       return;
     }
 
@@ -170,7 +173,7 @@ class VotePhaseManager {
       unvotedPhase.addVoteList(unvotedPlayers);
       voteGamePhaseRepo.update(gamePhase: unvotedPhase);
       gameHistoryManager.logVoteFinish(votePhaseAction: unvotedPhase);
-      _handlePlayersToKick(unvotedPlayers.length);
+      await _handlePlayersToKick(unvotedPlayers.length);
       return;
     }
   }
@@ -181,10 +184,10 @@ class VotePhaseManager {
   ) {
     for (var phase in allUniqueTodayVotePhases) {
       if (phase.whoPutOnVote?.id == playerModel.id) {
-        return false;
+        return true;
       }
     }
-    return true;
+    return false;
   }
 
   bool _isPlayerAlreadyOnVote(
@@ -199,7 +202,7 @@ class VotePhaseManager {
     return false;
   }
 
-  void _handlePlayersToKick(int unvotedPlayersCount) {
+  Future<void> _handlePlayersToKick(int unvotedPlayersCount) async {
     final votePhases = voteGamePhaseRepo.getAllPhasesByDay();
     final votesWithMaxVotes = _findVotePhasesWithMaxVotes(votePhases);
     final playersToKick =
@@ -213,7 +216,7 @@ class VotePhaseManager {
     // kick player from the game
     if (votesWithMaxVotes.length == 1 &&
         !votesWithMaxVotes.first.shouldKickAllPlayers) {
-      _kickPlayers(
+      await _kickPlayers(
         currentDay: votesWithMaxVotes.first.currentDay,
         playersOnVote: playersToKick,
       );
@@ -222,7 +225,7 @@ class VotePhaseManager {
 
     _finishAllTodaysUnvotePhases();
     // more then one player with max votes
-    _handleGunfightFlow(
+    await _handleGunfightFlow(
       votePhases: votePhases,
       playersToKick: playersToKick,
       unvotedPlayersCount: unvotedPlayersCount,
@@ -279,17 +282,17 @@ class VotePhaseManager {
     return playerVotingStatusMap;
   }
 
-  void _kickPlayers({
+  Future<void> _kickPlayers({
     required int currentDay,
     required List<PlayerModel> playersOnVote,
-  }) {
+  }) async {
     for (var playerModel in playersOnVote) {
       final speakPhase = SpeakPhaseAction(
         currentDay: currentDay,
         player: playerModel,
         isLastWord: true,
       );
-      boardRepository.updatePlayer(playerModel.id, isKicked: true);
+      await boardRepository.updatePlayer(playerModel.id, isKicked: true);
       speakGamePhaseRepo.add(gamePhase: speakPhase);
     }
     _finishAllTodaysUnvotePhases();
@@ -339,7 +342,7 @@ class VotePhaseManager {
         unvotedPlayersCount <
             boardRepository.getAllAvailablePlayers().length / 2) {
       // There were gunfight and vote about all players to kick and majority voted to kick
-      _kickPlayers(
+      await _kickPlayers(
         currentDay: currentDay,
         playersOnVote: votePhases.first.playersToKick,
       );

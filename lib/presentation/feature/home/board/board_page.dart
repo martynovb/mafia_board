@@ -56,12 +56,12 @@ class _BoardPageState extends State<BoardPage> {
   Widget _stageBoard(BoardState state) {
     if (state is InitialBoardState ||
         state is ErrorBoardState ||
-        (state is GamePhaseState && state.gameInfo?.isGameFinished == true)) {
+        (state is GamePhaseState && state.gameInfo?.isGameStarted == false)) {
       return Center(
         child: _startGameButton(),
       );
     } else if (state is GamePhaseState &&
-        state.gameInfo?.isGameFinished == false) {
+        state.gameInfo?.isGameStarted == true) {
       return Center(child: _gamePhaseView(state));
     } else if (state is ErrorBoardState) {
       return _errorView(state.errorMessage);
@@ -85,7 +85,8 @@ class _BoardPageState extends State<BoardPage> {
       return SpeakingPhaseView(
           onSpeechFinished: () => boardBloc.add(NextPhaseEvent()));
     } else if (gamePhaseState.gameInfo?.currentPhase == PhaseType.vote) {
-      return const VotePhaseView();
+      return VotePhaseView(
+          onVoteFinished: () => boardBloc.add(NextPhaseEvent()));
     } else if (gamePhaseState.gameInfo?.currentPhase == PhaseType.night) {
       return NightPhaseView(
           onNightPhaseFinished: () => boardBloc.add(NextPhaseEvent()));
@@ -95,7 +96,7 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   Widget _header(BoardState state) {
-    if (state is GamePhaseState && state.gameInfo?.isGameFinished == false) {
+    if (state is GamePhaseState && state.gameInfo?.isGameStarted == true) {
       return SizedBox(
           height: _headerHeight,
           child: Row(

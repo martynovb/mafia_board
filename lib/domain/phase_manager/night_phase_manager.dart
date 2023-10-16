@@ -58,6 +58,8 @@ class NightPhaseManager {
         playersForWakeUp: playersByRole,
       ));
     });
+
+    nightGamePhaseRepo.addAll(gamePhases: phases);
   }
 
   void startCurrentNightPhase() {

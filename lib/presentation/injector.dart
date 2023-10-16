@@ -139,6 +139,7 @@ class Injector {
       VotePhaseBloc(
         gamePhaseManager: _getIt.get(),
         votePhaseManager: _getIt.get(),
+        speakingPhaseManager: _getIt.get(),
         boardRepository: _getIt.get(),
       ),
     );

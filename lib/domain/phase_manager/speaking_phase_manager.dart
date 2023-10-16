@@ -17,12 +17,14 @@ class SpeakingPhaseManager {
 
   SpeakPhaseAction? getCurrentPhase() => speakGamePhaseRepo.getCurrentPhase();
 
-  void preparedSpeakPhases(int currentDay) {
+  Future<void> preparedSpeakPhases(int currentDay) async {
+    final List<SpeakPhaseAction> speakPhaseList = [];
     boardRepository.getAllAvailablePlayers().forEach((player) {
-      speakGamePhaseRepo.add(
-        gamePhase: SpeakPhaseAction(currentDay: currentDay, player: player),
+      speakPhaseList.add(
+        SpeakPhaseAction(currentDay: currentDay, player: player),
       );
     });
+    speakGamePhaseRepo.addAll(gamePhases: speakPhaseList);
   }
 
   void startSpeech() {

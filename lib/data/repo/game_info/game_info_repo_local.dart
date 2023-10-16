@@ -32,7 +32,7 @@ class GameInfoRepoLocal extends GameInfoRepo {
     final lastGameInfo = await getLastGameInfoByDay();
     if (lastGameInfo != null) {
       lastGameInfo.addMutedPlayer(player);
-      updateGameInfo(lastGameInfo);
+      await updateGameInfo(lastGameInfo);
     }
   }
 
@@ -63,7 +63,7 @@ class GameInfoRepoLocal extends GameInfoRepo {
     final lastGameInfo = await getLastGameInfoByDay();
     if (lastGameInfo != null) {
       lastGameInfo.currentPhase = phaseType;
-      updateGameInfo(lastGameInfo);
+      await updateGameInfo(lastGameInfo);
     }
   }
 }

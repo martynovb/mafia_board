@@ -30,13 +30,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     on<PutOnVoteEvent>(_putOnVoteEventHandler);
   }
 
-  void _subscribeToGamePhase() {
-    _gamePhaseSubscription = gameManager.gameInfoStream.listen((gameInfo) {
-      // todo: change emit
-      emit(GamePhaseState(gameInfo, gameInfo.currentPhase.name));
-    });
-  }
-
   void _unsubscribeFromGamePhase() {
     _gamePhaseSubscription?.cancel();
     _gamePhaseSubscription = null;
@@ -47,8 +40,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       boardRepository.getAllPlayers().forEach(
             (player) => playerValidator.validate(player),
           );
-      _subscribeToGamePhase();
-      gameManager.startGame();
+      final gameInfo = await gameManager.startGame();
+      emit(GamePhaseState(gameInfo, gameInfo.currentPhase.name));
     } on InvalidPlayerDataException catch (ex) {
       emit(ErrorBoardState(ex.errorMessage));
     }
@@ -64,11 +57,15 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     }
   }
 
-  void _nextPhaseEventHandler(event, emit) async {
+  Future<void> _nextPhaseEventHandler(event, emit) async {
     try {
-      gameManager.nextGamePhase();
+      final gameInfo = await gameManager.nextGamePhase();
+      emit(GamePhaseState(gameInfo, gameInfo?.currentPhase.name ?? ''));
     } on InvalidPlayerDataException catch (ex) {
       emit(ErrorBoardState(ex.errorMessage));
+    } catch (ex) {
+      MafLogger.e(_tag, 'Unexpected error: $ex');
+      //emit(ErrorBoardState('Unexpected error'));
     }
   }
 
@@ -77,14 +74,14 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     try {
       votePhaseManager.putOnVote(event.playerOnVote);
       final gameInfo = await gameManager.gameInfo;
-      emit(GamePhaseState(
-          await gameManager.gameInfo, gameInfo?.currentPhase.name ?? 'Unknown'));
+      emit(GamePhaseState(await gameManager.gameInfo,
+          gameInfo?.currentPhase.name ?? 'Unknown'));
     } on InvalidPlayerDataException catch (ex) {
       MafLogger.e(_tag, 'InvalidPlayerDataException');
       emit(ErrorBoardState(ex.errorMessage));
     } catch (ex) {
-      MafLogger.e(_tag, 'Unexpected error');
-      emit(ErrorBoardState('Unexpected error'));
+      MafLogger.e(_tag, 'Unexpected error: $ex');
+      //emit(ErrorBoardState('Unexpected error'));
     }
   }
 

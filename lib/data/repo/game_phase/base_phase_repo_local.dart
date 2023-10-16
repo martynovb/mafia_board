@@ -21,15 +21,11 @@ class BasePhaseRepoLocal<GamePhase extends GamePhaseAction>
 
   @override
   List<GamePhase> getAllPhasesByDay({int? day}) {
-    if (day != null) {
-      return list.where((phase) => phase.currentDay == day).toList();
-    } else {
-      int maxDay = list
-          .map((phase) => phase.currentDay)
-          .reduce((value, element) => value > element ? value : element);
-
-      return list.where((phase) => phase.currentDay == maxDay).toList();
-    }
+    return list.isEmpty
+        ? []
+        : list
+            .where((phase) => phase.currentDay == (day ?? _findMaxDay()))
+            .toList();
   }
 
   @override
@@ -44,31 +40,23 @@ class BasePhaseRepoLocal<GamePhase extends GamePhaseAction>
 
   @override
   bool isFinished({int? day}) {
-    if (day != null) {
-      return list.any(
-        (phase) =>
-            phase.currentDay == day && phase.status != PhaseStatus.finished,
-      );
-    } else {
-      int maxDay = list
-          .map((phase) => phase.currentDay)
-          .reduce((value, element) => value > element ? value : element);
-
-      return list.any(
-        (phase) =>
-            phase.currentDay == maxDay && phase.status != PhaseStatus.finished,
-      );
-    }
+    return !list.any(
+      (phase) =>
+          phase.currentDay == (day ?? _findMaxDay()) &&
+          phase.status != PhaseStatus.finished,
+    );
   }
 
   @override
   void remove({required GamePhase gamePhase}) {
-    list.removeWhere((phase) => phase.id == gamePhase.id);
+    if (list.isNotEmpty) {
+      list.removeWhere((phase) => phase.id == gamePhase.id);
+    }
   }
 
   @override
   bool update({required GamePhase gamePhase}) {
-    final index = list.indexWhere((gamePhase) => gamePhase.id == gamePhase.id);
+    final index = list.indexWhere((phase) => phase.id == gamePhase.id);
 
     if (index != -1) {
       list[index] = gamePhase;
@@ -79,22 +67,11 @@ class BasePhaseRepoLocal<GamePhase extends GamePhaseAction>
 
   @override
   GamePhase? getCurrentPhase({int? day}) {
-    if (day != null) {
-      return list.firstWhereOrNull(
-        (element) =>
-            element.currentDay == day && element.status != PhaseStatus.finished,
-      );
-    } else {
-      int maxDay = list
-          .map((phase) => phase.currentDay)
-          .reduce((value, element) => value > element ? value : element);
-
-      return list.firstWhereOrNull(
-        (element) =>
-            element.currentDay == maxDay &&
-            element.status != PhaseStatus.finished,
-      );
-    }
+    return list.firstWhereOrNull(
+      (element) =>
+          element.currentDay == (day ?? _findMaxDay()) &&
+          element.status != PhaseStatus.finished,
+    );
   }
 
   @override
@@ -105,5 +82,11 @@ class BasePhaseRepoLocal<GamePhase extends GamePhaseAction>
   @override
   void deleteAll() {
     list.clear();
+  }
+
+  int _findMaxDay() {
+    return list
+        .map((phase) => phase.currentDay)
+        .reduce((value, element) => value > element ? value : element);
   }
 }
