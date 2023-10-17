@@ -95,10 +95,13 @@ class NightPhaseManager {
     cancelKillPlayer(currentNightPhase.killedPlayer);
 
     boardRepository.updatePlayer(playerModel.id, isKilled: true);
-    final nextDay = (await gameInfoRepo.getCurrentDay()) + 1;
+    final currentDay = await gameInfoRepo.getCurrentDay();
     speakGamePhaseRepo.add(
       gamePhase: SpeakPhaseAction(
-          currentDay: nextDay, player: playerModel, isLastWord: true),
+        currentDay: currentDay,
+        player: playerModel,
+        isLastWord: true,
+      ),
     );
     currentNightPhase.killedPlayer = playerModel;
     gameHistoryManager.logKillPlayer(

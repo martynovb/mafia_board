@@ -1,3 +1,4 @@
+import 'package:class_to_string/class_to_string.dart';
 import 'package:mafia_board/data/model/role.dart';
 
 class PlayerModel {
@@ -39,6 +40,16 @@ class PlayerModel {
 
   @override
   String toString() {
-    return 'PlayerModel{id: $id, nickname: $nickname, fouls: $fouls, role: $role, score: $score, isRemoved: $isRemoved}';
+    return (ClassToString('PlayerModel')
+          ..add('id', id)
+          ..add('nickname', nickname)
+          ..add('fouls', fouls)
+          ..add('role', role)
+          ..add('score', score)
+          ..add('isRemoved', isRemoved)
+          ..add('isMuted', isMuted)
+          ..add('isKicked', isKicked)
+          ..add('isAvailable', isAvailable()))
+        .toString();
   }
 }

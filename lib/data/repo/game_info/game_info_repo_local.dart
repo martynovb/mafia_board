@@ -24,7 +24,7 @@ class GameInfoRepoLocal extends GameInfoRepo {
         .sorted(
           (a, b) => a.day.compareTo(b.day),
         )
-        .firstOrNull;
+        .lastOrNull;
   }
 
   @override

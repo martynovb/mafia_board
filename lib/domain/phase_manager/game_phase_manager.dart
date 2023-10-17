@@ -131,6 +131,7 @@ class GameManager {
     await gameInfoRepo.add(nextGameInfoModel);
     gameHistoryManager.logNewDay(nextDay);
     MafLogger.d(_tag, 'Current phase: ${gameInfo.currentPhase}');
+
     return await nextGamePhase();
   }
 

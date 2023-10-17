@@ -124,16 +124,19 @@ class VotePhaseManager {
   }
 
   Future<void> _finishVotePhaseIfPossible() async {
-    final List<PlayerModel> unvotedPlayers = calculatePlayerVotingStatusMap()
-        .entries
-        .where((entry) => !entry.value)
-        .map((entry) => entry.key)
-        .toList();
+    List<VotePhaseAction> allTodayVotePhases =
+        voteGamePhaseRepo.getAllPhasesByDay();
+    final List<PlayerModel> unvotedPlayers =
+        calculatePlayerVotingStatusMap(allTodayVotePhases)
+            .entries
+            .where((entry) => !entry.value)
+            .map((entry) => entry.key)
+            .toList();
 
     // when all players voted
     // even if some vote phases are left
     if (unvotedPlayers.isEmpty) {
-      await _handlePlayersToKick(unvotedPlayers.length);
+      await _handlePlayersToKick(unvotedPlayers.length, allTodayVotePhases);
       return;
     }
 
@@ -142,27 +145,26 @@ class VotePhaseManager {
         .where((votePhase) => votePhase.status != PhaseStatus.finished)
         .toList();
 
-    var allVotePhases = voteGamePhaseRepo.getAllPhasesByDay();
     var availablePlayers = boardRepository.getAllAvailablePlayers();
 
     // when two players on voting and half of players already voted against first
     // automatically put left votes against second
     if (unvotedPhases.length == 1 &&
-        allVotePhases.length == 2 &&
+        allTodayVotePhases.length == 2 &&
         unvotedPlayers.length == availablePlayers.length / 2) {
       final unvotedPhase = unvotedPhases.first;
       unvotedPhase.status = PhaseStatus.finished;
       unvotedPhase.addVoteList(unvotedPlayers);
       voteGamePhaseRepo.update(gamePhase: unvotedPhase);
       gameHistoryManager.logVoteFinish(votePhaseAction: unvotedPhase);
-      await _handlePlayersToKick(unvotedPlayers.length);
+      await _handlePlayersToKick(unvotedPlayers.length, allTodayVotePhases);
       return;
     }
 
     if (unvotedPhases.length == 1 && unvotedPhases.first.shouldKickAllPlayers) {
       final unvotedPhase = unvotedPhases.first;
       unvotedPhase.status = PhaseStatus.finished;
-      await _handlePlayersToKick(unvotedPlayers.length);
+      await _handlePlayersToKick(unvotedPlayers.length, allTodayVotePhases);
       return;
     }
 
@@ -173,7 +175,7 @@ class VotePhaseManager {
       unvotedPhase.addVoteList(unvotedPlayers);
       voteGamePhaseRepo.update(gamePhase: unvotedPhase);
       gameHistoryManager.logVoteFinish(votePhaseAction: unvotedPhase);
-      await _handlePlayersToKick(unvotedPlayers.length);
+      await _handlePlayersToKick(unvotedPlayers.length, allTodayVotePhases);
       return;
     }
   }
@@ -202,8 +204,11 @@ class VotePhaseManager {
     return false;
   }
 
-  Future<void> _handlePlayersToKick(int unvotedPlayersCount) async {
-    final votePhases = voteGamePhaseRepo.getAllPhasesByDay();
+  //add votePhases list as param
+  Future<void> _handlePlayersToKick(
+    int unvotedPlayersCount,
+    List<VotePhaseAction> votePhases,
+  ) async {
     final votesWithMaxVotes = _findVotePhasesWithMaxVotes(votePhases);
     final playersToKick =
         votesWithMaxVotes.map((votePhase) => votePhase.playerOnVote).toList();
@@ -266,15 +271,16 @@ class VotePhaseManager {
     return votesWithPlayersToKick;
   }
 
-  Map<PlayerModel, bool> calculatePlayerVotingStatusMap() {
-    List<VotePhaseAction> allTodayVotePhases =
-        voteGamePhaseRepo.getAllPhasesByDay();
-
+  Map<PlayerModel, bool> calculatePlayerVotingStatusMap([
+    List<VotePhaseAction>? allTodayVotePhases,
+  ]) {
+    final votePhases =
+        allTodayVotePhases ?? voteGamePhaseRepo.getAllPhasesByDay();
     final allAvailablePlayers = boardRepository.getAllAvailablePlayers();
     final Map<PlayerModel, bool> playerVotingStatusMap = {};
 
     for (var player in allAvailablePlayers) {
-      bool playerHasAlreadyVoted = allTodayVotePhases
+      bool playerHasAlreadyVoted = votePhases
           .any((votePhase) => votePhase.votedPlayers.contains(player));
       playerVotingStatusMap[player] = playerHasAlreadyVoted;
     }
@@ -286,6 +292,7 @@ class VotePhaseManager {
     required int currentDay,
     required List<PlayerModel> playersOnVote,
   }) async {
+    MafLogger.d(_tag, 'Kick players: ${playersOnVote.toString()}');
     for (var playerModel in playersOnVote) {
       final speakPhase = SpeakPhaseAction(
         currentDay: currentDay,

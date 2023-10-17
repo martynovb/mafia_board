@@ -1,3 +1,4 @@
+import 'package:class_to_string/class_to_string.dart';
 import 'package:mafia_board/data/model/game_phase/game_phase_action.dart';
 import 'package:mafia_board/data/model/player_model.dart';
 
@@ -26,8 +27,17 @@ class VotePhaseAction extends GamePhaseAction {
 
   @override
   String toString() {
-    return 'VotePhaseAction: '
-        '\nplayerOnVote: ${playerOnVote.toString()}'
-        '\nwhoPutOnVote: ${whoPutOnVote.toString()}';
+    return (ClassToString('VotePhaseAction')
+          ..add('id', id)
+          ..add('currentDay', currentDay)
+          ..add('createdAt', createdAt)
+          ..add('status', status)
+          ..add('playerOnVote', playerOnVote)
+          ..add('whoPutOnVote', whoPutOnVote)
+          ..add('playersToKick', playersToKick)
+          ..add('votedPlayers', votedPlayers)
+          ..add('isGunfight', isGunfight)
+          ..add('shouldKickAllPlayers', shouldKickAllPlayers))
+        .toString();
   }
 }

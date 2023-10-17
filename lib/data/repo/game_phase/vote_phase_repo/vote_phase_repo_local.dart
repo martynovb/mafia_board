@@ -1,7 +1,9 @@
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/repo/game_phase/base_phase_repo_local.dart';
+import 'package:mafia_board/presentation/maf_logger.dart';
 
 class VotePhaseRepoLocal extends BasePhaseRepoLocal<VotePhaseAction> {
+
   @override
   List<VotePhaseAction> getAllPhasesByDay({int? day}) {
     List<VotePhaseAction> todaysPhases = super.getAllPhasesByDay(day: day);
@@ -28,6 +30,8 @@ class VotePhaseRepoLocal extends BasePhaseRepoLocal<VotePhaseAction> {
     } else if (gunfightVotePhases.isNotEmpty) {
       return gunfightVotePhases;
     }
+
+    MafLogger.d('VotePhaseRepoLocal', votePhases.toString());
 
     return votePhases;
   }
