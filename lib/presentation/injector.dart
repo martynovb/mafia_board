@@ -6,6 +6,7 @@ import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/repo/board/board_repo_local.dart';
 import 'package:mafia_board/data/repo/game_phase/base_phase_repo_local.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
+import 'package:mafia_board/data/repo/game_phase/speak_phase_repo/speak_phase_repo_local.dart';
 import 'package:mafia_board/data/repo/game_phase/vote_phase_repo/vote_phase_repo_local.dart';
 import 'package:mafia_board/data/repo/history/history_repository.dart';
 import 'package:mafia_board/data/repo/history/history_repository_local.dart';
@@ -47,7 +48,7 @@ class Injector {
     );
 
     _getIt.registerSingleton<GamePhaseRepo<SpeakPhaseAction>>(
-      BasePhaseRepoLocal(),
+      SpeakPhaseRepoLocal(),
       instanceName: speakPhaseRepoLocalTag,
     );
 
@@ -92,6 +93,7 @@ class Injector {
 
     _getIt.registerSingleton(
       SpeakingPhaseManager(
+        gameInfoRepo: _getIt.get(),
         speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
         boardRepository: _getIt.get(),
         gameHistoryManager: _getIt.get(),

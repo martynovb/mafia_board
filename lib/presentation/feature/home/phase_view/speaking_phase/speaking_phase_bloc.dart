@@ -15,24 +15,24 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
     on<FinishSpeechEvent>(_finishSpeechEventHandler);
   }
 
-  void _getCurrentSpeakingPhaseEventHandler(
+  Future<void> _getCurrentSpeakingPhaseEventHandler(
       GetCurrentSpeakPhaseEvent event, emit) async {
     emit(SpeakingPhaseState(
-      speakPhaseAction: speakingPhaseManager.getCurrentPhase(),
+      speakPhaseAction: await speakingPhaseManager.getCurrentPhase(),
     ));
   }
 
-  void _startSpeechEventHandler(StartSpeechEvent event, emit) async {
-    speakingPhaseManager.startSpeech();
+  Future<void> _startSpeechEventHandler(StartSpeechEvent event, emit) async {
+    await speakingPhaseManager.startSpeech();
     emit(SpeakingPhaseState(
-      speakPhaseAction: speakingPhaseManager.getCurrentPhase(),
+      speakPhaseAction: await speakingPhaseManager.getCurrentPhase(),
     ));
   }
 
-  void _finishSpeechEventHandler(FinishSpeechEvent event, emit) async {
-    speakingPhaseManager.finishSpeech();
+  Future<void> _finishSpeechEventHandler(FinishSpeechEvent event, emit) async {
+    await speakingPhaseManager.finishSpeech();
     emit(SpeakingPhaseState(
-      speakPhaseAction: speakingPhaseManager.getCurrentPhase(),
+      speakPhaseAction: await speakingPhaseManager.getCurrentPhase(),
       isFinished: true,
     ));
   }

@@ -20,12 +20,10 @@ class BasePhaseRepoLocal<GamePhase extends GamePhaseAction>
   }
 
   @override
-  List<GamePhase> getAllPhasesByDay({int? day}) {
+  List<GamePhase> getAllPhasesByDay({required int day}) {
     return list.isEmpty
         ? []
-        : list
-            .where((phase) => phase.currentDay == (day ?? _findMaxDay()))
-            .toList();
+        : list.where((phase) => phase.currentDay == day).toList();
   }
 
   @override
@@ -39,11 +37,10 @@ class BasePhaseRepoLocal<GamePhase extends GamePhaseAction>
   }
 
   @override
-  bool isFinished({int? day}) {
+  bool isFinished({required int day}) {
     return !list.any(
       (phase) =>
-          phase.currentDay == (day ?? _findMaxDay()) &&
-          phase.status != PhaseStatus.finished,
+          phase.currentDay == day && phase.status != PhaseStatus.finished,
     );
   }
 
@@ -66,11 +63,10 @@ class BasePhaseRepoLocal<GamePhase extends GamePhaseAction>
   }
 
   @override
-  GamePhase? getCurrentPhase({int? day}) {
+  GamePhase? getCurrentPhase({required int day}) {
     return list.firstWhereOrNull(
       (element) =>
-          element.currentDay == (day ?? _findMaxDay()) &&
-          element.status != PhaseStatus.finished,
+          element.currentDay == day && element.status != PhaseStatus.finished,
     );
   }
 
@@ -82,11 +78,5 @@ class BasePhaseRepoLocal<GamePhase extends GamePhaseAction>
   @override
   void deleteAll() {
     list.clear();
-  }
-
-  int _findMaxDay() {
-    return list
-        .map((phase) => phase.currentDay)
-        .reduce((value, element) => value > element ? value : element);
   }
 }

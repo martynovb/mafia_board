@@ -28,13 +28,16 @@ class VotePhaseManager {
   List<VotePhaseAction> getAllPhases(int day) =>
       voteGamePhaseRepo.getAllPhasesByDay(day: day);
 
-  VotePhaseAction? getCurrentPhase() => voteGamePhaseRepo.getCurrentPhase();
+  Future<VotePhaseAction?> getCurrentPhase([int? currentDay]) async =>
+      voteGamePhaseRepo.getCurrentPhase(
+        day: currentDay ?? await gameInfoRepo.getCurrentDay(),
+      );
 
   Future<void> skipVotePhasesIfPossible() async {
-    final currentVotePhase = voteGamePhaseRepo.getCurrentPhase();
-    final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay();
-    final shouldKickAllVotePhase = checkVotePhasesShouldKickAll(allVotePhases);
     final currentDay = await gameInfoRepo.getCurrentDay();
+    final currentVotePhase = voteGamePhaseRepo.getCurrentPhase(day: currentDay);
+    final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay(day: currentDay);
+    final shouldKickAllVotePhase = checkVotePhasesShouldKickAll(allVotePhases);
     if (currentVotePhase != null &&
         currentDay == 1 &&
         allVotePhases.length == 1 &&
@@ -59,7 +62,8 @@ class VotePhaseManager {
   }
 
   Future<void> finishCurrentVotePhase() async {
-    final currentVotePhase = voteGamePhaseRepo.getCurrentPhase();
+    final currentDay = await gameInfoRepo.getCurrentDay();
+    final currentVotePhase = voteGamePhaseRepo.getCurrentPhase(day: currentDay);
     if (currentVotePhase != null) {
       // workaround to handle last step in gunfight
       currentVotePhase.status = currentVotePhase.shouldKickAllPlayers
@@ -72,8 +76,10 @@ class VotePhaseManager {
   }
 
   Future<bool> putOnVote(PlayerModel playerToVote) async {
-    final currentSpeaker = speakGamePhaseRepo.getCurrentPhase()?.player;
-    final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay();
+    final currentDay = await gameInfoRepo.getCurrentDay();
+    final currentSpeaker =
+        speakGamePhaseRepo.getCurrentPhase(day: currentDay)?.player;
+    final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay(day: currentDay);
 
     if (currentSpeaker != null &&
         (allVotePhases.isEmpty ||
@@ -97,11 +103,12 @@ class VotePhaseManager {
     return false;
   }
 
-  bool voteAgainst({
+  Future<bool> voteAgainst({
     required PlayerModel currentPlayer,
     required PlayerModel voteAgainstPlayer,
-  }) {
-    final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay();
+  }) async {
+    final currentDay = await gameInfoRepo.getCurrentDay();
+    final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay(day: currentDay);
     return allVotePhases
             .lastWhereOrNull(
               (phase) => phase.playerOnVote.id == voteAgainstPlayer.id,
@@ -110,11 +117,12 @@ class VotePhaseManager {
         false;
   }
 
-  bool cancelVoteAgainst({
+  Future<bool> cancelVoteAgainst({
     required PlayerModel currentPlayer,
     required PlayerModel voteAgainstPlayer,
-  }) {
-    final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay();
+  }) async {
+    final currentDay = await gameInfoRepo.getCurrentDay();
+    final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay(day: currentDay);
     return allVotePhases
             .lastWhereOrNull(
               (phase) => phase.playerOnVote.id == voteAgainstPlayer.id,
@@ -124,10 +132,13 @@ class VotePhaseManager {
   }
 
   Future<void> _finishVotePhaseIfPossible() async {
+    final currentDay = await gameInfoRepo.getCurrentDay();
+
     List<VotePhaseAction> allTodayVotePhases =
-        voteGamePhaseRepo.getAllPhasesByDay();
+        voteGamePhaseRepo.getAllPhasesByDay(day: currentDay);
+
     final List<PlayerModel> unvotedPlayers =
-        calculatePlayerVotingStatusMap(allTodayVotePhases)
+        (await calculatePlayerVotingStatusMap(allTodayVotePhases))
             .entries
             .where((entry) => !entry.value)
             .map((entry) => entry.key)
@@ -140,8 +151,7 @@ class VotePhaseManager {
       return;
     }
 
-    var unvotedPhases = voteGamePhaseRepo
-        .getAllPhasesByDay()
+    var unvotedPhases = allTodayVotePhases
         .where((votePhase) => votePhase.status != PhaseStatus.finished)
         .toList();
 
@@ -228,7 +238,7 @@ class VotePhaseManager {
       return;
     }
 
-    _finishAllTodaysUnvotePhases();
+    await _finishAllTodaysUnvotePhases();
     // more then one player with max votes
     await _handleGunfightFlow(
       votePhases: votePhases,
@@ -271,11 +281,13 @@ class VotePhaseManager {
     return votesWithPlayersToKick;
   }
 
-  Map<PlayerModel, bool> calculatePlayerVotingStatusMap([
+  Future<Map<PlayerModel, bool>> calculatePlayerVotingStatusMap([
     List<VotePhaseAction>? allTodayVotePhases,
-  ]) {
-    final votePhases =
-        allTodayVotePhases ?? voteGamePhaseRepo.getAllPhasesByDay();
+  ]) async {
+    final votePhases = allTodayVotePhases ??
+        voteGamePhaseRepo.getAllPhasesByDay(
+          day: await gameInfoRepo.getCurrentDay(),
+        );
     final allAvailablePlayers = boardRepository.getAllAvailablePlayers();
     final Map<PlayerModel, bool> playerVotingStatusMap = {};
 
@@ -302,7 +314,7 @@ class VotePhaseManager {
       await boardRepository.updatePlayer(playerModel.id, isKicked: true);
       speakGamePhaseRepo.add(gamePhase: speakPhase);
     }
-    _finishAllTodaysUnvotePhases();
+    await _finishAllTodaysUnvotePhases();
     gameHistoryManager.logKickPlayers(players: playersOnVote);
   }
 
@@ -365,9 +377,9 @@ class VotePhaseManager {
     return votePhases.any((votePhases) => votePhases.shouldKickAllPlayers);
   }
 
-  void _finishAllTodaysUnvotePhases() {
+  Future<void> _finishAllTodaysUnvotePhases() async {
     voteGamePhaseRepo
-        .getAllPhasesByDay()
+        .getAllPhasesByDay(day: await gameInfoRepo.getCurrentDay())
         .where(
           (votePhase) =>
               votePhase.status != PhaseStatus.finished &&

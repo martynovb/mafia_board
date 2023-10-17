@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
-import 'package:mafia_board/data/model/phase_type.dart';
 import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/model/player_model.dart';
@@ -30,8 +29,9 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
     on<CancelVoteAgainstEvent>(_cancelVoteAgainstEventHandler);
   }
 
-  void _initializeDataEventHandler(GetVotingDataEvent event, emit) async {
-    final currentVotePhase = votePhaseManager.getCurrentPhase();
+  Future<void> _initializeDataEventHandler(
+      GetVotingDataEvent event, emit) async {
+    final currentVotePhase = await votePhaseManager.getCurrentPhase();
     emit(VotePhaseState(
       status: currentVotePhase?.status ?? PhaseStatus.notStarted,
       title: _mapVotePageTitle(currentVotePhase),
@@ -39,7 +39,7 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
           _parsePlayersToKickToString(currentVotePhase?.playersToKick),
       playerOnVote: currentVotePhase?.playerOnVote,
       allAvailablePlayersToVote:
-          votePhaseManager.calculatePlayerVotingStatusMap(),
+          await votePhaseManager.calculatePlayerVotingStatusMap(),
     ));
   }
 
@@ -47,8 +47,8 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
       FinishVoteAgainstEvent event, emit) async {
     try {
       await votePhaseManager.finishCurrentVotePhase();
-      final currentVotePhase = votePhaseManager.getCurrentPhase();
-      final currentSpeakPhase = speakingPhaseManager.getCurrentPhase();
+      final currentVotePhase = await votePhaseManager.getCurrentPhase();
+      final currentSpeakPhase = await speakingPhaseManager.getCurrentPhase();
       if (currentSpeakPhase == null && currentVotePhase != null) {
         emit(VotePhaseState(
           status: currentVotePhase.status,
@@ -57,7 +57,7 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
               _parsePlayersToKickToString(currentVotePhase.playersToKick),
           playerOnVote: currentVotePhase.playerOnVote,
           allAvailablePlayersToVote:
-              votePhaseManager.calculatePlayerVotingStatusMap(),
+              await votePhaseManager.calculatePlayerVotingStatusMap(),
         ));
       } else {
         emit(VotePhaseState(status: PhaseStatus.finished));
@@ -67,13 +67,13 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
     }
   }
 
-  void _voteAgainstEventHandler(VoteAgainstEvent event, emit) async {
+  Future<void> _voteAgainstEventHandler(VoteAgainstEvent event, emit) async {
     try {
       votePhaseManager.voteAgainst(
         currentPlayer: event.currentPlayer,
         voteAgainstPlayer: event.voteAgainstPlayer,
       );
-      final currentVotePhase = votePhaseManager.getCurrentPhase();
+      final currentVotePhase = await votePhaseManager.getCurrentPhase();
       emit(VotePhaseState(
         status: currentVotePhase?.status ?? PhaseStatus.notStarted,
         title: _mapVotePageTitle(currentVotePhase),
@@ -81,23 +81,23 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
             _parsePlayersToKickToString(currentVotePhase?.playersToKick),
         playerOnVote: currentVotePhase?.playerOnVote,
         allAvailablePlayersToVote:
-            votePhaseManager.calculatePlayerVotingStatusMap(),
+            await votePhaseManager.calculatePlayerVotingStatusMap(),
       ));
     } on Exception catch (ex) {
       MafLogger.e(_tag, 'error: _voteAgainstEventHandler $ex');
     }
   }
 
-  void _cancelVoteAgainstEventHandler(
+  Future<void> _cancelVoteAgainstEventHandler(
       CancelVoteAgainstEvent event, emit) async {
     try {
-      var currentVotePhase = votePhaseManager.getCurrentPhase();
+      var currentVotePhase = await votePhaseManager.getCurrentPhase();
       if (currentVotePhase?.playerOnVote.id == event.voteAgainstPlayer.id) {
         votePhaseManager.cancelVoteAgainst(
           currentPlayer: event.currentPlayer,
           voteAgainstPlayer: event.voteAgainstPlayer,
         );
-        currentVotePhase = votePhaseManager.getCurrentPhase();
+        currentVotePhase = await votePhaseManager.getCurrentPhase();
         emit(VotePhaseState(
           status: currentVotePhase?.status ?? PhaseStatus.notStarted,
           title: _mapVotePageTitle(currentVotePhase),
@@ -105,7 +105,7 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
               _parsePlayersToKickToString(currentVotePhase?.playersToKick),
           playerOnVote: currentVotePhase?.playerOnVote,
           allAvailablePlayersToVote:
-              votePhaseManager.calculatePlayerVotingStatusMap(),
+              await votePhaseManager.calculatePlayerVotingStatusMap(),
         ));
       } else {
         MafLogger.d(_tag,

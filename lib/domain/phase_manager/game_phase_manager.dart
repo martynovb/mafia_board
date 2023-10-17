@@ -87,7 +87,7 @@ class GameManager {
     final currentDay = gameInfo.day;
 
     if (!speakGamePhaseRepo.isExist(day: currentDay)) {
-      speakingPhaseManager.preparedSpeakPhases(currentDay);
+      await speakingPhaseManager.preparedSpeakPhases(currentDay);
     }
 
     if (!speakGamePhaseRepo.isFinished(day: currentDay)) {
@@ -110,7 +110,7 @@ class GameManager {
     }
 
     if (!nightGamePhaseRepo.isExist(day: currentDay)) {
-      nightPhaseManager.preparedNightPhases(currentDay);
+      await nightPhaseManager.preparedNightPhases(currentDay);
     }
 
     if (!nightGamePhaseRepo.isFinished(day: currentDay)) {
@@ -130,6 +130,7 @@ class GameManager {
     );
     await gameInfoRepo.add(nextGameInfoModel);
     gameHistoryManager.logNewDay(nextDay);
+    _updateGameInfo(nextGameInfoModel);
     MafLogger.d(_tag, 'Current phase: ${gameInfo.currentPhase}');
 
     return await nextGamePhase();
@@ -168,7 +169,7 @@ class GameManager {
         )
         .length;
 
-    if (!speakGamePhaseRepo.isFinished()) {
+    if (!speakGamePhaseRepo.isFinished(day: gameInfo.day)) {
       return false;
     }
 

@@ -5,7 +5,7 @@ import 'package:mafia_board/presentation/maf_logger.dart';
 class VotePhaseRepoLocal extends BasePhaseRepoLocal<VotePhaseAction> {
 
   @override
-  List<VotePhaseAction> getAllPhasesByDay({int? day}) {
+  List<VotePhaseAction> getAllPhasesByDay({required int day}) {
     List<VotePhaseAction> todaysPhases = super.getAllPhasesByDay(day: day);
     List<VotePhaseAction> votePhases = [];
     List<VotePhaseAction> gunfightVotePhases = [];

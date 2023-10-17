@@ -26,76 +26,76 @@ class NightPhaseBloc extends Bloc<NightPhaseEvent, NightPhaseState> {
     on<VisitEvent>(_visitEventHandler);
   }
 
-  void _getCurrentNightPhaseEventHandler(
+  Future<void> _getCurrentNightPhaseEventHandler(
     GetCurrentNightPhaseEvent event,
     emit,
-  ) {
+  ) async {
     emit(NightPhaseState(
-      nightPhaseAction: nightPhaseManager.getCurrentPhase(),
+      nightPhaseAction: await nightPhaseManager.getCurrentPhase(),
       allPlayers: boardRepository.getAllPlayers(),
     ));
   }
 
-  void _startCurrentNightPhaseEventHandler(
+  Future<void> _startCurrentNightPhaseEventHandler(
     StartCurrentNightPhaseEvent event,
     emit,
-  ) {
-    nightPhaseManager.startCurrentNightPhase();
+  ) async {
+    await nightPhaseManager.startCurrentNightPhase();
     emit(NightPhaseState(
-      nightPhaseAction: nightPhaseManager.getCurrentPhase(),
+      nightPhaseAction: await nightPhaseManager.getCurrentPhase(),
       allPlayers: boardRepository.getAllPlayers(),
     ));
   }
 
-  void _finishCurrentNightPhaseEventHandler(
+  Future<void> _finishCurrentNightPhaseEventHandler(
     FinishCurrentNightPhaseEvent event,
     emit,
-  ) {
-    nightPhaseManager.finishCurrentNightPhase();
+  ) async {
+    await nightPhaseManager.finishCurrentNightPhase();
     emit(NightPhaseState(
-      nightPhaseAction: nightPhaseManager.getCurrentPhase(),
+      nightPhaseAction: await nightPhaseManager.getCurrentPhase(),
       isFinished: true,
     ));
   }
 
-  void _killEventHandler(KillEvent event, emit) {
-    nightPhaseManager.killPlayer(event.killedPlayer);
+  Future<void> _killEventHandler(KillEvent event, emit) async {
+    await nightPhaseManager.killPlayer(event.killedPlayer);
     emit(NightPhaseState(
-      nightPhaseAction: nightPhaseManager.getCurrentPhase(),
+      nightPhaseAction: await nightPhaseManager.getCurrentPhase(),
       allPlayers: boardRepository.getAllPlayers(),
     ));
   }
 
-  void _cancelKillEventHandler(CancelKillEvent event, emit) {
-    nightPhaseManager.cancelKillPlayer(event.killedPlayer);
+  Future<void> _cancelKillEventHandler(CancelKillEvent event, emit) async {
+    await nightPhaseManager.cancelKillPlayer(event.killedPlayer);
     emit(NightPhaseState(
-      nightPhaseAction: nightPhaseManager.getCurrentPhase(),
+      nightPhaseAction: await nightPhaseManager.getCurrentPhase(),
       allPlayers: boardRepository.getAllPlayers(),
     ));
   }
 
-  void _checkEventHandler(CheckEvent event, emit) {
-    nightPhaseManager.checkPlayer(event.playerToCheck);
+  Future<void> _checkEventHandler(CheckEvent event, emit) async {
+    await nightPhaseManager.checkPlayer(event.playerToCheck);
 
     emit(NightPhaseState(
-      nightPhaseAction: nightPhaseManager.getCurrentPhase(),
+      nightPhaseAction: await nightPhaseManager.getCurrentPhase(),
       allPlayers: boardRepository.getAllPlayers(),
     ));
   }
 
-  void _cancelCheckEventHandler(CancelCheckEvent event, emit) {
-    nightPhaseManager.cancelCheckPlayer(event.playerToCheck);
+  Future<void> _cancelCheckEventHandler(CancelCheckEvent event, emit) async {
+    await nightPhaseManager.cancelCheckPlayer(event.playerToCheck);
 
     emit(NightPhaseState(
-      nightPhaseAction: nightPhaseManager.getCurrentPhase(),
+      nightPhaseAction: await nightPhaseManager.getCurrentPhase(),
       allPlayers: boardRepository.getAllPlayers(),
     ));
   }
 
-  void _visitEventHandler(VisitEvent event, emit) {
+  Future<void> _visitEventHandler(VisitEvent event, emit) async {
     nightPhaseManager.visitPlayer(event.playerToVisit, event.role);
     emit(NightPhaseState(
-      nightPhaseAction: nightPhaseManager.getCurrentPhase(),
+      nightPhaseAction: await nightPhaseManager.getCurrentPhase(),
       allPlayers: boardRepository.getAllPlayers(),
     ));
   }
