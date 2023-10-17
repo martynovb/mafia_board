@@ -6,6 +6,7 @@ import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
+import 'package:mafia_board/domain/player_manager.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_event.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_state.dart';
 import 'package:rxdart/rxdart.dart';
@@ -14,6 +15,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
   final BoardRepo boardRepository;
   final GameHistoryManager gameHistoryManager;
   final GameManager gamePhaseManager;
+  final PlayerManager playerManager;
 
   StreamSubscription? _gamePhaseSubscription;
   final BehaviorSubject<SheetDataState> _playersSubject = BehaviorSubject();
@@ -22,6 +24,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     required this.boardRepository,
     required this.gameHistoryManager,
     required this.gamePhaseManager,
+    required this.playerManager,
   }) : super(InitialSheetState()) {
     on<AddFoulEvent>(_addFoulHandler);
     on<ChangeRoleEvent>(_changeRoleHandler);
@@ -46,11 +49,11 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
 
   void _addFoulHandler(AddFoulEvent event, emit) async {
     if (event.newFoulsCount > Constants.maxFouls) return;
-    boardRepository.updatePlayer(
-      event.playerId,
-      fouls: event.newFoulsCount,
-      isRemoved: event.newFoulsCount >= Constants.maxFouls,
-    );
+    if (event.newFoulsCount != 0) {
+      await playerManager.addFoul(event.playerId, event.newFoulsCount);
+    } else {
+      await playerManager.clearFouls(event.playerId);
+    }
     _playersSubject.add(SheetDataState(
       players: boardRepository.getAllPlayers(),
       gameInfo: await gamePhaseManager.gameInfo,

@@ -77,8 +77,14 @@ class VotePhaseManager {
 
   Future<bool> putOnVote(PlayerModel playerToVote) async {
     final currentDay = await gameInfoRepo.getCurrentDay();
+    final currentSpeakerId =
+        speakGamePhaseRepo.getCurrentPhase(day: currentDay)?.playerId;
+    if (currentSpeakerId == null) {
+      return false;
+    }
+
     final currentSpeaker =
-        speakGamePhaseRepo.getCurrentPhase(day: currentDay)?.player;
+        await boardRepository.getPlayerById(currentSpeakerId);
     final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay(day: currentDay);
 
     if (currentSpeaker != null &&
@@ -308,7 +314,7 @@ class VotePhaseManager {
     for (var playerModel in playersOnVote) {
       final speakPhase = SpeakPhaseAction(
         currentDay: currentDay,
-        player: playerModel,
+        playerId: playerModel.id,
         isLastWord: true,
       );
       await boardRepository.updatePlayer(playerModel.id, isKicked: true);
@@ -333,8 +339,9 @@ class VotePhaseManager {
         speakGamePhaseRepo.add(
             gamePhase: SpeakPhaseAction(
           currentDay: currentDay,
-          player: player,
+          playerId: player.id,
           timeForSpeakInSec: const Duration(seconds: 30),
+          isGunfight: true,
         ));
         voteGamePhaseRepo.add(
             gamePhase: VotePhaseAction(

@@ -7,6 +7,8 @@ abstract class BoardRepo {
 
   List<PlayerModel> getAllAvailablePlayers();
 
+  Future<PlayerModel?> getPlayerById(int id);
+
   Future<PlayerModel?> getPlayerByIndex(int index);
 
   Future<void> updatePlayer(

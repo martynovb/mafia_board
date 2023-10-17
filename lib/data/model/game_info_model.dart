@@ -5,6 +5,7 @@ class GameInfoModel {
   final int id = DateTime.now().millisecondsSinceEpoch;
   final int day;
   final DateTime createdAt = DateTime.now();
+  final List<PlayerModel> _removedPlayers = [];
   final List<PlayerModel> _mutedPlayers = [];
   final List<PlayerModel> _playersWithFoul = [];
   PhaseType currentPhase;
@@ -18,10 +19,20 @@ class GameInfoModel {
 
   void addMutedPlayer(PlayerModel player) => _mutedPlayers.add(player);
 
+  void addRemovedPlayer(PlayerModel player) => _removedPlayers.add(player);
+
   void addAllPlayersWithFoul(List<PlayerModel> players) =>
       _playersWithFoul.addAll(players);
 
   List<PlayerModel> get playersWithFoul => _playersWithFoul;
 
+  bool get isRemovedPlayer => _removedPlayers.isNotEmpty;
+
   List<PlayerModel> get mutedPlayers => _mutedPlayers;
+
+  void removedMutedPlayer(int id) =>
+      _mutedPlayers.removeWhere((player) => player.id == id);
+
+  void removedRemovedPlayer(int id) =>
+      _removedPlayers.removeWhere((player) => player.id == id);
 }

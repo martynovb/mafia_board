@@ -82,7 +82,7 @@ class GameManager {
       return await finishGame();
     }
 
-    final gameInfo = (await gameInfoRepo.getLastGameInfoByDay())!;
+    final gameInfo = (await gameInfoRepo.getLastValidGameInfoByDay())!;
 
     final currentDay = gameInfo.day;
 
@@ -122,22 +122,11 @@ class GameManager {
       return gameInfo;
     }
 
-    MafLogger.d(_tag, 'Go to nex day');
-    final nextDay = currentDay + 1;
-    final nextGameInfoModel = GameInfoModel(
-      day: nextDay,
-      currentPhase: PhaseType.speak,
-    );
-    await gameInfoRepo.add(nextGameInfoModel);
-    gameHistoryManager.logNewDay(nextDay);
-    _updateGameInfo(nextGameInfoModel);
-    MafLogger.d(_tag, 'Current phase: ${gameInfo.currentPhase}');
-
-    return await nextGamePhase();
+    return await _goNextDay(currentDay);
   }
 
   Future<GameInfoModel?> finishGame() async {
-    final gameInfo = await gameInfoRepo.getLastGameInfoByDay();
+    final gameInfo = await gameInfoRepo.getLastValidGameInfoByDay();
     if (gameInfo == null) {
       return null;
     }
@@ -149,7 +138,7 @@ class GameManager {
   }
 
   Future<bool> _isGameFinished() async {
-    final gameInfo = await gameInfoRepo.getLastGameInfoByDay();
+    final gameInfo = await gameInfoRepo.getLastValidGameInfoByDay();
     if (gameInfo == null || !gameInfo.isGameStarted) {
       return true;
     }
@@ -182,5 +171,28 @@ class GameManager {
     }
 
     return false;
+  }
+
+  Future<GameInfoModel?> _goNextDay(int currentDay) async {
+    MafLogger.d(_tag, 'Go to nex day');
+    final nextDay = currentDay + 1;
+    final lastGameInfo = await gameInfoRepo.getLastGameInfoByDay();
+    final GameInfoModel nextGameInfoModel;
+
+    if (lastGameInfo != null && lastGameInfo.day != currentDay) {
+      nextGameInfoModel = lastGameInfo;
+      nextGameInfoModel.currentPhase = PhaseType.speak;
+      await gameInfoRepo.updateGameInfo(nextGameInfoModel);
+    } else {
+      nextGameInfoModel = GameInfoModel(
+        day: nextDay,
+        currentPhase: PhaseType.speak,
+      );
+      await gameInfoRepo.add(nextGameInfoModel);
+    }
+    gameHistoryManager.logNewDay(nextDay);
+    _updateGameInfo(nextGameInfoModel);
+
+    return await nextGamePhase();
   }
 }

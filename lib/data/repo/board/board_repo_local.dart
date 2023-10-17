@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/data/repo/board/board_repo.dart';
@@ -64,5 +65,10 @@ class BoardRepoLocal extends BoardRepo {
       element.isKicked = false;
       element.fouls = 0;
     }
+  }
+
+  @override
+  Future<PlayerModel?> getPlayerById(int id) async {
+    return _players.firstWhereOrNull((player) => player.id == id);
   }
 }

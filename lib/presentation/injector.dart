@@ -17,6 +17,7 @@ import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/night_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/speaking_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/vote_phase_manager.dart';
+import 'package:mafia_board/domain/player_manager.dart';
 import 'package:mafia_board/domain/player_validator.dart';
 import 'package:mafia_board/domain/role_manager.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
@@ -67,6 +68,7 @@ class Injector {
   static void _injectDomainLayer() {
     _getIt.registerSingleton(
       GameHistoryManager(
+        boardRepo: _getIt.get(),
         repository: _getIt.get(),
       ),
     );
@@ -111,6 +113,13 @@ class Injector {
       nightPhaseManager: _getIt.get(),
       nightGamePhaseRepo: _getIt.get(instanceName: nightPhaseRepoLocalTag),
     ));
+
+    _getIt.registerSingleton(PlayerManager(
+      boardRepo: _getIt.get(),
+      voteGamePhaseRepo: _getIt.get(instanceName: votePhaseRepoLocalTag),
+      speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
+      gameInfoRepo: _getIt.get(),
+    ));
   }
 
   static void _injectBloC() {
@@ -128,6 +137,7 @@ class Injector {
         gamePhaseManager: _getIt.get(),
         boardRepository: _getIt.get(),
         gameHistoryManager: _getIt.get(),
+        playerManager: _getIt.get(),
       ),
     );
 
@@ -154,6 +164,7 @@ class Injector {
 
     _getIt.registerSingleton(
       SpeakingPhaseBloc(
+        boardRepo: _getIt.get(),
         speakingPhaseManager: _getIt.get(),
       ),
     );

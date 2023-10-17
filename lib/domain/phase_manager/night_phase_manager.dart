@@ -106,7 +106,7 @@ class NightPhaseManager {
     speakGamePhaseRepo.add(
       gamePhase: SpeakPhaseAction(
         currentDay: nextDay,
-        player: playerModel,
+        playerId: playerModel.id,
         isLastWord: true,
       ),
     );
@@ -141,7 +141,7 @@ class NightPhaseManager {
     }
 
     boardRepository.updatePlayer(killedPlayer.id, isKilled: false);
-    if (speakPhase.isLastWord && speakPhase.player?.id == playerModel.id) {
+    if (speakPhase.isLastWord && speakPhase.playerId == playerModel.id) {
       speakGamePhaseRepo.remove(gamePhase: speakPhase);
     }
     gameHistoryManager.removeLogKillPlayer(

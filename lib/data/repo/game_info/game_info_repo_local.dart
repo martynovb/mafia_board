@@ -14,13 +14,14 @@ class GameInfoRepoLocal extends GameInfoRepo {
 
   @override
   Future<int> getCurrentDay() async {
-    final int? currentDay = (await getLastGameInfoByDay())?.day;
+    final int? currentDay = (await getLastValidGameInfoByDay())?.day;
     return currentDay ?? -1;
   }
 
   @override
-  Future<GameInfoModel?> getLastGameInfoByDay() async {
+  Future<GameInfoModel?> getLastValidGameInfoByDay() async {
     return _list
+        .where((gameInfo) => gameInfo.currentPhase != PhaseType.none)
         .sorted(
           (a, b) => a.day.compareTo(b.day),
         )
@@ -29,7 +30,7 @@ class GameInfoRepoLocal extends GameInfoRepo {
 
   @override
   Future<void> mutePlayer(PlayerModel player) async {
-    final lastGameInfo = await getLastGameInfoByDay();
+    final lastGameInfo = await getLastValidGameInfoByDay();
     if (lastGameInfo != null) {
       lastGameInfo.addMutedPlayer(player);
       await updateGameInfo(lastGameInfo);
@@ -60,10 +61,19 @@ class GameInfoRepoLocal extends GameInfoRepo {
 
   @override
   Future<void> setCurrentPhaseType({required PhaseType phaseType}) async {
-    final lastGameInfo = await getLastGameInfoByDay();
+    final lastGameInfo = await getLastValidGameInfoByDay();
     if (lastGameInfo != null) {
       lastGameInfo.currentPhase = phaseType;
       await updateGameInfo(lastGameInfo);
     }
+  }
+
+  @override
+  Future<GameInfoModel?> getLastGameInfoByDay() async {
+    return _list
+        .sorted(
+          (a, b) => a.day.compareTo(b.day),
+        )
+        .lastOrNull;
   }
 }

@@ -7,6 +7,8 @@ abstract class GameInfoRepo {
 
   Future<List<GameInfoModel>> getAllGameInfo();
 
+  Future<GameInfoModel?> getLastValidGameInfoByDay();
+
   Future<GameInfoModel?> getLastGameInfoByDay();
 
   Future<void> mutePlayer(PlayerModel player);

@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/game_info_model.dart';
+import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/repo/history/history_repository.dart';
 import 'package:mafia_board/data/model/game_history_model.dart';
 import 'package:mafia_board/data/model/game_history_type.dart';
@@ -14,11 +15,15 @@ import 'package:rxdart/subjects.dart';
 
 class GameHistoryManager {
   final HistoryRepository repository;
+  final BoardRepo boardRepo;
 
   final BehaviorSubject<List<GameHistoryModel>> _gameHistorySubject =
       BehaviorSubject();
 
-  GameHistoryManager({required this.repository});
+  GameHistoryManager({
+    required this.repository,
+    required this.boardRepo,
+  });
 
   Stream<List<GameHistoryModel>> get gameHistoryStream =>
       _gameHistorySubject.stream;
@@ -64,22 +69,27 @@ class GameHistoryManager {
     ));
   }
 
-  void logPlayerSpeech({required SpeakPhaseAction speakPhaseAction}) {
+  Future<void> logPlayerSpeech({required SpeakPhaseAction speakPhaseAction}) async{
+    final speakerId = speakPhaseAction.playerId;
+    if(speakerId == null) {
+      return;
+    }
+    final speaker = await boardRepo.getPlayerById(speakerId);
     String text;
     if (speakPhaseAction.isLastWord &&
         speakPhaseAction.status == PhaseStatus.inProgress) {
       text =
-          'LAST SPEECH STARTED of player #${speakPhaseAction.player?.playerNumber}: ${speakPhaseAction.player?.nickname}';
+          'LAST SPEECH STARTED of player #${speaker?.playerNumber}: ${speaker?.nickname}';
     } else if (speakPhaseAction.isLastWord &&
         speakPhaseAction.status == PhaseStatus.finished) {
       text =
-          'LAST SPEECH FINISHED of player #${speakPhaseAction.player?.playerNumber}: ${speakPhaseAction.player?.nickname}';
+          'LAST SPEECH FINISHED of player #${speaker?.playerNumber}: ${speaker?.nickname}';
     } else if (speakPhaseAction.status == PhaseStatus.inProgress) {
       text =
-          'SPEECH STARTED of player #${speakPhaseAction.player?.playerNumber}: ${speakPhaseAction.player?.nickname}';
+          'SPEECH STARTED of player #${speaker?.playerNumber}: ${speaker?.nickname}';
     } else if (speakPhaseAction.status == PhaseStatus.finished) {
       text =
-          'SPEECH FINISHED of player #${speakPhaseAction.player?.playerNumber}: ${speakPhaseAction.player?.nickname}';
+          'SPEECH FINISHED of player #${speaker?.playerNumber}: ${speaker?.nickname}';
     } else {
       return;
     }
