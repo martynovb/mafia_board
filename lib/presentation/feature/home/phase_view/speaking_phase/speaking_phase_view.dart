@@ -50,8 +50,7 @@ class _SpeakingPhaseViewState extends State<SpeakingPhaseView> {
               Text(
                 'Speaking player: ${state.speaker?.nickname}',
               ),
-              if (state.speaker?.isMuted == true)
-                Text('MUTED'),
+              if (state.speaker?.isMuted == true) Text('MUTED'),
               if (_isTimerFinished)
                 _goNextPlayer()
               else if (state.speakPhaseAction != null &&
@@ -59,8 +58,6 @@ class _SpeakingPhaseViewState extends State<SpeakingPhaseView> {
                 _finishSpeechBtn(state.speakPhaseAction?.timeForSpeakInSec)
               else
                 _startSpeechBtn(),
-              //Spacer(),
-              VotePhaseListView(),
             ],
           );
         });

@@ -6,6 +6,7 @@ import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_event.dart';
+import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_list/vote_phase_list_view.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_event.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_state.dart';
@@ -57,29 +58,33 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
         if (state is InitialSheetState) {
           return Center(
               child: SingleChildScrollView(
-                  child:  Column(
-                        children: [
-                          ElevatedButton(
-                              onPressed: () => setTestData(),
-                              child: Text('Set Test Data')),
-                          _sheetHeader(),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: Dimensions.smallSidePadding,
-                                right: Dimensions.smallSidePadding),
-                            child: StreamBuilder(
-                                stream: _playersSheetBloc.playersStream,
-                                builder: (context,
-                                    AsyncSnapshot<SheetDataState> snapshot) {
-                                  if (snapshot.hasData) {
-                                    return _playersSheet(snapshot.data!);
-                                  } else {
-                                    return Container();
-                                  }
-                                }),
-                          )
-                        ],
-                      )));
+                  child: Column(
+            children: [
+              ElevatedButton(
+                  onPressed: () => setTestData(), child: Text('Set Test Data')),
+              _sheetHeader(),
+              Padding(
+                padding: const EdgeInsets.only(
+                    left: Dimensions.smallSidePadding,
+                    right: Dimensions.smallSidePadding),
+                child: StreamBuilder(
+                    stream: _playersSheetBloc.playersStream,
+                    builder: (context, AsyncSnapshot<SheetDataState> snapshot) {
+                      if (snapshot.hasData) {
+                        return _playersSheet(snapshot.data!);
+                      } else {
+                        return Container();
+                      }
+                    }),
+              ),
+              const Padding(
+                padding: EdgeInsets.all(
+                  Dimensions.defaultSidePadding,
+                ),
+                child: VotePhaseListView(),
+              ),
+            ],
+          )));
         }
         return const Center(
           child: Text('Something went wrong'),

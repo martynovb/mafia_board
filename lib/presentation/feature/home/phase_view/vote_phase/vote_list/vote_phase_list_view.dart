@@ -29,33 +29,31 @@ class _VotePhaseListViewState extends State<VotePhaseListView> {
   Widget build(BuildContext context) {
     return SizedBox(
         height: 24,
-        child: Row(
-          children: [
-            const Icon(Icons.thumb_up),
-            Text(': '),
-            Expanded(
-                child: StreamBuilder(
-                    stream: _votePhaseListBloc.voteListStream,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData &&
-                          snapshot.data?.isNotEmpty == true) {
-                        return _voteList(snapshot.data ?? []);
-                      } else {
-                        return Container();
-                      }
-                    }))
-          ],
-        ));
+        child: StreamBuilder(
+            stream: _votePhaseListBloc.voteListStream,
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data?.isNotEmpty == true) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.thumb_up, size: 24,),
+                    const Text(': '),
+                    Expanded(child: _voteList(snapshot.data ?? []))
+                  ],
+                );
+              } else {
+                return Container();
+              }
+            }));
   }
 
   Widget _voteList(List<VoteItem> voteList) {
-    return Center(
-        child: ListView.separated(
-            separatorBuilder: (context, index) => const Text(', '),
+    return  ListView.separated(
+            separatorBuilder: (context, index) => const Center(child:Text(', ')),
             scrollDirection: Axis.horizontal,
             itemCount: voteList.length,
             itemBuilder: (context, index) {
-              return Text('${voteList[index].playerNumber}');
-            }));
+              return  Center(child: Text('${voteList[index].playerNumber}'));
+            });
   }
 }

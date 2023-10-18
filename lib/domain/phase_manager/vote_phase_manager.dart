@@ -9,6 +9,7 @@ import 'package:mafia_board/data/repo/game_info/game_info_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
+import 'package:rxdart/subjects.dart';
 
 class VotePhaseManager {
   static const _tag = 'VotePhaseManager';
@@ -17,6 +18,7 @@ class VotePhaseManager {
   final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
   final GameHistoryManager gameHistoryManager;
   final BoardRepo boardRepository;
+  final BehaviorSubject<VotePhaseAction> _currentVoteSubject = BehaviorSubject();
 
   VotePhaseManager({
     required this.gameInfoRepo,
@@ -25,6 +27,8 @@ class VotePhaseManager {
     required this.gameHistoryManager,
     required this.boardRepository,
   });
+
+  Stream<VotePhaseAction> get currentVotePhaseStream => _currentVoteSubject.stream;
 
   List<VotePhaseAction> getAllPhases(int day) =>
       voteGamePhaseRepo.getAllPhasesByDay(day: day);
@@ -104,6 +108,7 @@ class VotePhaseManager {
         playerOnVote: playerToVote,
         whoPutOnVote: currentSpeaker,
       );
+      _currentVoteSubject.add(votePhase);
       await voteGamePhaseRepo.add(gamePhase: votePhase);
       gameHistoryManager.logPutOnVote(votePhaseAction: votePhase);
       return true;
@@ -399,5 +404,9 @@ class VotePhaseManager {
       votePhase.status = PhaseStatus.finished;
       voteGamePhaseRepo.update(gamePhase: votePhase);
     });
+  }
+
+  void dispose(){
+    _currentVoteSubject.close();
   }
 }
