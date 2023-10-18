@@ -1,8 +1,10 @@
+import 'package:collection/collection.dart';
 import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/game_info_model.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
+import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/repo/game_info/game_info_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
@@ -19,6 +21,19 @@ class PlayerManager {
     required this.speakGamePhaseRepo,
     required this.gameInfoRepo,
   });
+
+  Future<void> refreshMuteIfNeeded(GameInfoModel gameInfo) async {
+    final allActivePlayers = boardRepo.getAllAvailablePlayers();
+    final mutedPlayerIds = gameInfo.mutedPlayers.map((p) => p.id).toSet();
+
+    for (PlayerModel player in allActivePlayers) {
+      bool muted = mutedPlayerIds.contains(player.id);
+      boardRepo.updatePlayer(
+        player.id,
+        isMuted: muted,
+      );
+    }
+  }
 
   Future<void> addFoul(int id, int newFoulsCount) async {
     if (newFoulsCount == Constants.maxFouls) {
@@ -51,6 +66,7 @@ class PlayerManager {
     if (player.fouls == Constants.maxFoulsToSpeak) {
       gameInfo.removedMutedPlayer(id);
     } else {
+      gameInfo.removedMutedPlayer(id);
       gameInfo.removedRemovedPlayer(id);
 
       final speakPhases = speakGamePhaseRepo.getAllPhases();

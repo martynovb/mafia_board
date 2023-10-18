@@ -13,6 +13,7 @@ import 'package:mafia_board/domain/game_history_manager.dart';
 import 'package:mafia_board/domain/phase_manager/night_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/speaking_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/vote_phase_manager.dart';
+import 'package:mafia_board/domain/player_manager.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -28,6 +29,7 @@ class GameManager {
   final VotePhaseManager votePhaseGameManager;
   final SpeakingPhaseManager speakingPhaseManager;
   final NightPhaseManager nightPhaseManager;
+  final PlayerManager playerManager;
   final BehaviorSubject<GameInfoModel> _gameInfoSubject = BehaviorSubject();
 
   GameManager({
@@ -40,6 +42,7 @@ class GameManager {
     required this.speakGamePhaseRepo,
     required this.nightPhaseManager,
     required this.nightGamePhaseRepo,
+    required this.playerManager,
   });
 
   Stream<GameInfoModel> get gameInfoStream => _gameInfoSubject.stream;
@@ -99,7 +102,7 @@ class GameManager {
       return gameInfo;
     }
 
-    votePhaseGameManager.skipVotePhasesIfPossible();
+    await votePhaseGameManager.skipVotePhasesIfPossible();
     if (!voteGamePhaseRepo.isFinished(day: currentDay)) {
       if (gameInfo.currentPhase != PhaseType.vote) {
         gameInfo.currentPhase = PhaseType.vote;
@@ -158,7 +161,7 @@ class GameManager {
         )
         .length;
 
-    if (!speakGamePhaseRepo.isFinished(day: gameInfo.day)) {
+    if (!speakGamePhaseRepo.isFinished(day: gameInfo.day) || !nightGamePhaseRepo.isFinished(day: gameInfo.day)) {
       return false;
     }
 
@@ -190,6 +193,7 @@ class GameManager {
       );
       await gameInfoRepo.add(nextGameInfoModel);
     }
+    await playerManager.refreshMuteIfNeeded(nextGameInfoModel);
     gameHistoryManager.logNewDay(nextDay);
     _updateGameInfo(nextGameInfoModel);
 

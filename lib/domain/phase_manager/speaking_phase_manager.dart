@@ -25,11 +25,18 @@ class SpeakingPhaseManager {
 
   Future<void> preparedSpeakPhases(int currentDay) async {
     final List<SpeakPhaseAction> speakPhaseList = [];
-    boardRepository.getAllAvailablePlayers().forEach((player) {
+    final players = boardRepository.getAllAvailablePlayers();
+
+    if (players.isEmpty) return;
+
+    int startIndex = (currentDay - 1) % players.length;
+    final reorderedPlayers = players.sublist(startIndex)
+      ..addAll(players.sublist(0, startIndex));
+    for (var player in reorderedPlayers) {
       speakPhaseList.add(
         SpeakPhaseAction(currentDay: currentDay, playerId: player.id),
       );
-    });
+    }
     speakGamePhaseRepo.addAll(gamePhases: speakPhaseList);
   }
 
@@ -56,6 +63,4 @@ class SpeakingPhaseManager {
     speakGamePhaseRepo.update(gamePhase: currentSpeakPhase);
     gameHistoryManager.logPlayerSpeech(speakPhaseAction: currentSpeakPhase);
   }
-
-
 }

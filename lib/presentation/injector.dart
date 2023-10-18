@@ -102,6 +102,13 @@ class Injector {
       ),
     );
 
+    _getIt.registerSingleton(PlayerManager(
+      boardRepo: _getIt.get(),
+      voteGamePhaseRepo: _getIt.get(instanceName: votePhaseRepoLocalTag),
+      speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
+      gameInfoRepo: _getIt.get(),
+    ));
+
     _getIt.registerSingleton(GameManager(
       boardRepository: _getIt.get(),
       gameInfoRepo: _getIt.get(),
@@ -112,13 +119,7 @@ class Injector {
       speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
       nightPhaseManager: _getIt.get(),
       nightGamePhaseRepo: _getIt.get(instanceName: nightPhaseRepoLocalTag),
-    ));
-
-    _getIt.registerSingleton(PlayerManager(
-      boardRepo: _getIt.get(),
-      voteGamePhaseRepo: _getIt.get(instanceName: votePhaseRepoLocalTag),
-      speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
-      gameInfoRepo: _getIt.get(),
+      playerManager: _getIt.get(),
     ));
   }
 

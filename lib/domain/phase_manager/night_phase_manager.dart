@@ -103,7 +103,7 @@ class NightPhaseManager {
 
     boardRepository.updatePlayer(playerModel.id, isKilled: true);
     final nextDay = currentDay + 1;
-    speakGamePhaseRepo.add(
+    await speakGamePhaseRepo.add(
       gamePhase: SpeakPhaseAction(
         currentDay: nextDay,
         playerId: playerModel.id,

@@ -72,7 +72,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   void _putOnVoteEventHandler(PutOnVoteEvent event, emit) async {
     MafLogger.d(_tag, '_putOnVoteEventHandler');
     try {
-      votePhaseManager.putOnVote(event.playerOnVote);
+      votePhaseManager.putOnVote(event.playerOnVote.id);
       final gameInfo = await gameManager.gameInfo;
       emit(GamePhaseState(await gameManager.gameInfo,
           gameInfo?.currentPhase.name ?? 'Unknown'));

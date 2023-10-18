@@ -5,7 +5,7 @@ abstract class GamePhaseRepo<GamePhase extends GamePhaseAction> {
 
   bool isFinished({required int day});
 
-  void add({required GamePhase gamePhase});
+  Future<void> add({required GamePhase gamePhase});
 
   void addAll({required List<GamePhase> gamePhases});
 

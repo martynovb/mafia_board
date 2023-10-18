@@ -7,10 +7,10 @@ import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 class BasePhaseRepoLocal<GamePhase extends GamePhaseAction>
     extends GamePhaseRepo<GamePhase> {
   @protected
-  final List<GamePhase> list = [];
+  final Set<GamePhase> list = {};
 
   @override
-  void add({required GamePhase gamePhase}) {
+  Future<void> add({required GamePhase gamePhase}) async {
     list.add(gamePhase);
   }
 
@@ -53,10 +53,10 @@ class BasePhaseRepoLocal<GamePhase extends GamePhaseAction>
 
   @override
   bool update({required GamePhase gamePhase}) {
-    final index = list.indexWhere((phase) => phase.id == gamePhase.id);
+    final existedGamePhase = list.firstWhereOrNull((phase) => phase.id == gamePhase.id);
 
-    if (index != -1) {
-      list[index] = gamePhase;
+    if (existedGamePhase != null) {
+      list.add(gamePhase);
       return true;
     }
     return false;
@@ -72,7 +72,7 @@ class BasePhaseRepoLocal<GamePhase extends GamePhaseAction>
 
   @override
   List<GamePhase> getAllPhases() {
-    return list;
+    return list.toList();
   }
 
   @override

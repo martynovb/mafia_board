@@ -3,7 +3,6 @@ import 'package:mafia_board/data/repo/game_phase/base_phase_repo_local.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
 
 class VotePhaseRepoLocal extends BasePhaseRepoLocal<VotePhaseAction> {
-
   @override
   List<VotePhaseAction> getAllPhasesByDay({required int day}) {
     List<VotePhaseAction> todaysPhases = super.getAllPhasesByDay(day: day);
@@ -16,6 +15,7 @@ class VotePhaseRepoLocal extends BasePhaseRepoLocal<VotePhaseAction> {
       if (seenIds.add(hashCode)) {
         if (votePhase.shouldKickAllPlayers) {
           askToKickAllPlayers = votePhase;
+          break;
         }
         if (votePhase.isGunfight) {
           gunfightVotePhases.add(votePhase);
@@ -31,7 +31,10 @@ class VotePhaseRepoLocal extends BasePhaseRepoLocal<VotePhaseAction> {
       return gunfightVotePhases;
     }
 
-    MafLogger.d('VotePhaseRepoLocal', votePhases.toString());
+    MafLogger.d(
+      'VotePhaseRepoLocal',
+      'getAllPhasesByDay ${votePhases.toString()}',
+    );
 
     return votePhases;
   }
