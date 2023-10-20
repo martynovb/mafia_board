@@ -16,10 +16,6 @@ class HomePage extends StatelessWidget {
     double availableWidth = MediaQuery.of(context).size.width - 1; // -1 divider
 
     return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text('mafia board'),
-        ),
         body: SizedBox(
           height: availableHeight,
           width: availableWidth,
