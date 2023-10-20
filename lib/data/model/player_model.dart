@@ -11,13 +11,15 @@ class PlayerModel {
   bool isKilled;
   bool isMuted;
   bool isKicked;
+  int playerNumber;
 
   PlayerModel(
     this.id,
     this.nickname,
     this.fouls,
     this.role,
-    this.score, {
+    this.score,
+    this.playerNumber, {
     this.isRemoved = false,
     this.isKilled = false,
     this.isMuted = false,
@@ -26,9 +28,7 @@ class PlayerModel {
 
   bool isAvailable() => !isRemoved && !isKilled && !isKicked;
 
-  int get playerNumber => id + 1;
-
-  PlayerModel.empty({this.id = 0})
+  PlayerModel.empty({required this.id, required this.playerNumber})
       : nickname = '',
         role = Role.NONE,
         fouls = 0,
@@ -46,6 +46,7 @@ class PlayerModel {
           ..add('fouls', fouls)
           ..add('role', role)
           ..add('score', score)
+          ..add('playerNumber', playerNumber)
           ..add('isRemoved', isRemoved)
           ..add('isMuted', isMuted)
           ..add('isKicked', isKicked)

@@ -48,7 +48,7 @@ class _SpeakingPhaseViewState extends State<SpeakingPhaseView> {
           return Column(
             children: [
               Text(
-                'Speaking player: ${state.speaker?.nickname}',
+                'Speaking player #${state.speaker?.playerNumber}: ${state.speaker?.nickname}',
               ),
               if (state.speaker?.isMuted == true) Text('MUTED'),
               if (_isTimerFinished)

@@ -61,7 +61,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
                   child: Column(
             children: [
               ElevatedButton(
-                  onPressed: () => setTestData(), child: Text('Set Test Data')),
+                  onPressed: () => _playersSheetBloc.add(SetTestDataEvent()), child: Text('Set Test Data')),
               _sheetHeader(),
               Padding(
                 padding: const EdgeInsets.only(
@@ -193,7 +193,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
               nickname: playerModel.nickname,
               onChanged: (nickname) => _playersSheetBloc.add(
                 ChangeNicknameEvent(
-                  playerId: index,
+                  playerId: playerModel.id,
                   newNickname: nickname,
                 ),
               ),
@@ -300,92 +300,5 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
                 }).toList(),
               );
             }));
-  }
-
-  void setTestData() {
-    for (var i = 1; i <= 10; i++) {
-      _playersSheetBloc.add(ChangeNicknameEvent(
-        playerId: i - 1,
-        newNickname: 'Player#$i',
-      ));
-    }
-    _playersSheetBloc.add(
-      ChangeRoleEvent(playerId: 0, newRole: Role.DON.name),
-    );
-    _roleBloc.add(
-      RecalculateRolesEvent(0, Role.DON.name),
-    );
-
-    _playersSheetBloc.add(
-      ChangeRoleEvent(playerId: 1, newRole: Role.MAFIA.name),
-    );
-    _roleBloc.add(
-      RecalculateRolesEvent(1, Role.MAFIA.name),
-    );
-
-    _playersSheetBloc.add(
-      ChangeRoleEvent(playerId: 2, newRole: Role.MAFIA.name),
-    );
-    _roleBloc.add(
-      RecalculateRolesEvent(2, Role.MAFIA.name),
-    );
-
-    _playersSheetBloc.add(
-      ChangeRoleEvent(playerId: 3, newRole: Role.SHERIFF.name),
-    );
-    _roleBloc.add(
-      RecalculateRolesEvent(3, Role.SHERIFF.name),
-    );
-
-    _playersSheetBloc.add(
-      ChangeRoleEvent(playerId: 4, newRole: Role.CIVILIAN.name),
-    );
-    _roleBloc.add(
-      RecalculateRolesEvent(4, Role.CIVILIAN.name),
-    );
-
-    _playersSheetBloc.add(
-      ChangeRoleEvent(playerId: 5, newRole: Role.CIVILIAN.name),
-    );
-    _roleBloc.add(
-      RecalculateRolesEvent(5, Role.CIVILIAN.name),
-    );
-
-    _playersSheetBloc.add(
-      ChangeRoleEvent(playerId: 6, newRole: Role.CIVILIAN.name),
-    );
-    _roleBloc.add(
-      RecalculateRolesEvent(6, Role.CIVILIAN.name),
-    );
-
-    _playersSheetBloc.add(
-      ChangeRoleEvent(playerId: 7, newRole: Role.CIVILIAN.name),
-    );
-    _roleBloc.add(
-      RecalculateRolesEvent(7, Role.CIVILIAN.name),
-    );
-
-    _playersSheetBloc.add(
-      ChangeRoleEvent(playerId: 8, newRole: Role.CIVILIAN.name),
-    );
-    _roleBloc.add(
-      RecalculateRolesEvent(8, Role.CIVILIAN.name),
-    );
-
-    _playersSheetBloc.add(
-      ChangeRoleEvent(playerId: 9, newRole: Role.CIVILIAN.name),
-    );
-    _roleBloc.add(
-      RecalculateRolesEvent(9, Role.CIVILIAN.name),
-    );
-
-    _playersSheetBloc.add(
-      ChangeRoleEvent(playerId: 10, newRole: Role.CIVILIAN.name),
-    );
-    _roleBloc.add(
-      RecalculateRolesEvent(10, Role.CIVILIAN.name),
-    );
-
-    setState(() {});
   }
 }

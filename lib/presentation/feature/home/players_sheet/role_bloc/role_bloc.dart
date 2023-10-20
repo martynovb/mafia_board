@@ -9,7 +9,7 @@ class RoleBloc extends Bloc<RoleEvent, ShowRolesState> {
 
   RoleBloc({required this.roleManager}) : super(ShowRolesState()) {
     emit(ShowRolesState(
-      roles: roleManager.availableRoles,
+      roles: roleManager.uniqueAvailableRoles,
     ));
     on<RecalculateRolesEvent>(_recalculateAvailableRolesHandler);
   }
@@ -21,7 +21,7 @@ class RoleBloc extends Bloc<RoleEvent, ShowRolesState> {
     roleManager.recalculateAvailableRoles(
         event.index, roleMapper(event.selectedRole));
     emit(ShowRolesState(
-      roles: roleManager.availableRoles,
+      roles: roleManager.uniqueAvailableRoles,
     ));
   }
 }

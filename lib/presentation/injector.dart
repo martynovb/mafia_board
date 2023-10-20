@@ -139,6 +139,7 @@ class Injector {
         boardRepository: _getIt.get(),
         gameHistoryManager: _getIt.get(),
         playerManager: _getIt.get(),
+        roleManager: _getIt.get(),
       ),
     );
 

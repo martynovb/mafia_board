@@ -15,7 +15,7 @@ class HomePage extends StatelessWidget {
     double availableHeight = screenHeight - appBarHeight - statusBarHeight;
     double availableWidth = MediaQuery.of(context).size.width - 1; // -1 divider
 
-    return Scaffold(
+    return SafeArea(child: Scaffold(
         body: SizedBox(
           height: availableHeight,
           width: availableWidth,
@@ -47,6 +47,6 @@ class HomePage extends StatelessWidget {
               child: const PlayersSheetPage(),
             ),
           ]),
-        ));
+        )));
   }
 }

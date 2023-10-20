@@ -9,7 +9,7 @@ abstract class BoardRepo {
 
   Future<PlayerModel?> getPlayerById(int id);
 
-  Future<PlayerModel?> getPlayerByIndex(int index);
+  Future<PlayerModel?> getPlayerByNumber(int index);
 
   Future<void> updatePlayer(
     int id, {

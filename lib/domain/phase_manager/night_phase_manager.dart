@@ -102,17 +102,18 @@ class NightPhaseManager {
     await cancelKillPlayer(currentNightPhase.killedPlayer);
 
     boardRepository.updatePlayer(playerModel.id, isKilled: true);
+    final updatedPlayer = await boardRepository.getPlayerById(playerModel.id);
     final nextDay = currentDay + 1;
     await speakGamePhaseRepo.add(
       gamePhase: SpeakPhaseAction(
         currentDay: nextDay,
-        playerId: playerModel.id,
+        playerId: updatedPlayer?.id,
         isLastWord: true,
       ),
     );
-    currentNightPhase.killedPlayer = playerModel;
+    currentNightPhase.killedPlayer = updatedPlayer;
     gameHistoryManager.logKillPlayer(
-      player: playerModel,
+      player: updatedPlayer,
       nightPhaseAction: currentNightPhase,
     );
     nightGamePhaseRepo.update(gamePhase: currentNightPhase);
@@ -140,7 +141,7 @@ class NightPhaseManager {
       return;
     }
 
-    boardRepository.updatePlayer(killedPlayer.id, isKilled: false);
+    await boardRepository.updatePlayer(killedPlayer.id, isKilled: false);
     if (speakPhase.isLastWord && speakPhase.playerId == playerModel.id) {
       speakGamePhaseRepo.remove(gamePhase: speakPhase);
     }

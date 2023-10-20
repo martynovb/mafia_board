@@ -8,6 +8,7 @@ class RoleManager {
   final List<RoleModel> _allRoles;
   List<Role> _selectedRoles = [];
   Map<Role, bool> _uniqueAvailableRoles = {};
+  final List<Role> _availableRoles;
 
   RoleManager.classic(this._boardRepository)
       : _allRoles = [
@@ -16,12 +17,26 @@ class RoleManager {
           RoleModel(role: Role.MAFIA, count: 2, nightPriority: 1),
           RoleModel(role: Role.CIVILIAN, count: 6),
           RoleModel(role: Role.SHERIFF, count: 1, nightPriority: 3),
+        ],
+        _availableRoles = [
+          Role.MAFIA,
+          Role.MAFIA,
+          Role.CIVILIAN,
+          Role.CIVILIAN,
+          Role.CIVILIAN,
+          Role.CIVILIAN,
+          Role.CIVILIAN,
+          Role.CIVILIAN,
+          Role.SHERIFF,
+          Role.DON,
         ] {
     _calculateAvailableRoles();
     _createPlayers();
   }
 
-  Map<Role, bool> get availableRoles => _uniqueAvailableRoles;
+  Map<Role, bool> get uniqueAvailableRoles => _uniqueAvailableRoles;
+
+  List<Role> get availableRoles => _availableRoles;
 
   void recalculateAvailableRoles(int index, Role selectedRole) {
     _selectedRoles[index] = selectedRole;

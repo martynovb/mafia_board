@@ -10,7 +10,10 @@ class BoardRepoLocal extends BoardRepo {
   List<PlayerModel> createPlayers(int count) {
     _players.clear();
     for (int i = 0; i < count; i++) {
-      _players.add(PlayerModel.empty(id: i));
+      _players.add(PlayerModel.empty(
+        id: DateTime.now().microsecondsSinceEpoch,
+        playerNumber: i + 1,
+      ));
     }
     return _players;
   }
@@ -25,7 +28,7 @@ class BoardRepoLocal extends BoardRepo {
       .toList();
 
   @override
-  Future<PlayerModel?> getPlayerByIndex(int index) async => _players[index];
+  Future<PlayerModel?> getPlayerByNumber(int number) async => _players.firstWhereOrNull((player) => player.playerNumber == number);
 
   @override
   Future<void> updatePlayer(
@@ -47,6 +50,7 @@ class BoardRepoLocal extends BoardRepo {
       fouls ?? player.fouls,
       role ?? player.role,
       score ?? player.score,
+      player.playerNumber,
       isRemoved: isRemoved ?? player.isRemoved,
       isKilled: isKilled ?? player.isKilled,
       isKicked: isKicked ?? player.isKicked,

@@ -30,6 +30,9 @@ class ChangeNicknameEvent extends SheetEvent {
   });
 }
 
+class SetTestDataEvent extends SheetEvent {
+}
+
 class KillPlayerHandler extends SheetEvent {
   final int playerId;
 
