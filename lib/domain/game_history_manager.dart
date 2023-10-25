@@ -14,7 +14,7 @@ import 'package:mafia_board/data/model/role.dart';
 import 'package:rxdart/subjects.dart';
 
 class GameHistoryManager {
-  final HistoryRepository repository;
+  final HistoryRepo repository;
   final BoardRepo boardRepo;
 
   final BehaviorSubject<List<GameHistoryModel>> _gameHistorySubject =

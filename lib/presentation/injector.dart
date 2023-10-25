@@ -1,7 +1,13 @@
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/data/api/auth_api.dart';
+import 'package:mafia_board/data/api/error_handler.dart';
+import 'package:mafia_board/data/api/http_client.dart';
+import 'package:mafia_board/data/api/network_manager.dart';
+import 'package:mafia_board/data/api/token_provider.dart';
 import 'package:mafia_board/data/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
+import 'package:mafia_board/data/repo/auth_repo.dart';
 import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/repo/board/board_repo_local.dart';
 import 'package:mafia_board/data/repo/game_phase/base_phase_repo_local.dart';
@@ -20,6 +26,8 @@ import 'package:mafia_board/domain/phase_manager/vote_phase_manager.dart';
 import 'package:mafia_board/domain/player_manager.dart';
 import 'package:mafia_board/domain/player_validator.dart';
 import 'package:mafia_board/domain/role_manager.dart';
+import 'package:mafia_board/presentation/feature/app/bloc/app_bloc.dart';
+import 'package:mafia_board/presentation/feature/auth/bloc/auth_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/history/game_history_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/night_phase/night_phase_bloc.dart';
@@ -36,6 +44,12 @@ class Injector {
   static const speakPhaseRepoLocalTag = 'speak-phase-repo-local';
   static const nightPhaseRepoLocalTag = 'night-phase-repo-local';
 
+  static const String _baseUrl =
+      'http://10.0.2.2:8000/'; //10.0.2.2 // 127.0.0.1
+  static const Map<String, String> _headers = {
+    'Content-Type': 'application/json'
+  };
+
   static void inject() {
     _injectDataLayer();
     _injectDomainLayer();
@@ -43,6 +57,29 @@ class Injector {
   }
 
   static void _injectDataLayer() {
+    //network
+    _getIt.registerSingleton<TokenProvider>(TokenProvider());
+    _getIt.registerSingleton<ErrorHandler>(ErrorHandler(
+      tokenProvider: _getIt.get(),
+    ));
+    _getIt.registerSingleton<HttpClient>(HttpClient(
+      baseUrl: _baseUrl,
+      defaultHeaders: _headers,
+      tokenProvider: _getIt.get(),
+    ));
+    _getIt.registerSingleton<NetworkManager>(NetworkManager(
+      httpClient: _getIt.get(),
+      errorHandler: _getIt.get(),
+    ));
+
+    _getIt.registerSingleton<AuthApi>(AuthApi(_getIt.get()));
+
+    //repo
+    _getIt.registerSingleton<AuthRepo>(AuthRepo(
+      api: _getIt.get(),
+      tokenProvider: _getIt.get(),
+    ));
+
     _getIt.registerSingleton<GamePhaseRepo<VotePhaseAction>>(
       VotePhaseRepoLocal(),
       instanceName: votePhaseRepoLocalTag,
@@ -58,7 +95,7 @@ class Injector {
       instanceName: nightPhaseRepoLocalTag,
     );
 
-    _getIt.registerSingleton<HistoryRepository>(HistoryRepositoryLocal());
+    _getIt.registerSingleton<HistoryRepo>(HistoryRepoLocal());
     _getIt.registerSingleton<BoardRepo>(BoardRepoLocal());
     _getIt.registerSingleton(RoleManager.classic(_getIt.get()));
     _getIt.registerSingleton(PlayerValidator());
@@ -144,10 +181,7 @@ class Injector {
     );
 
     _getIt.registerSingleton(
-      RoleBloc(
-        roleManager: RoleManager.classic(_getIt.get()),
-      ),
-    );
+        RoleBloc(roleManager: RoleManager.classic(_getIt.get())));
 
     _getIt.registerSingleton(
       VotePhaseBloc(
@@ -158,11 +192,7 @@ class Injector {
       ),
     );
 
-    _getIt.registerSingleton(
-      GameHistoryBloc(
-        gameHistoryManager: _getIt.get(),
-      ),
-    );
+    _getIt.registerSingleton(GameHistoryBloc(gameHistoryManager: _getIt.get()));
 
     _getIt.registerSingleton(
       SpeakingPhaseBloc(
@@ -185,5 +215,9 @@ class Injector {
         votePhaseManager: _getIt.get(),
       ),
     );
+
+    _getIt.registerSingleton(AuthBloc(authRepo: _getIt.get()));
+
+    _getIt.registerSingleton(AppBloc(authRepo: _getIt.get()));
   }
 }

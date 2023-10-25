@@ -1,7 +1,7 @@
 import 'package:mafia_board/data/model/game_history_model.dart';
 import 'package:mafia_board/data/repo/history/history_repository.dart';
 
-class HistoryRepositoryLocal extends HistoryRepository {
+class HistoryRepoLocal extends HistoryRepo {
   final List<GameHistoryModel> _gameHistory = [];
 
   @override
