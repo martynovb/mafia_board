@@ -18,6 +18,10 @@ import 'package:mafia_board/data/repo/history/history_repository.dart';
 import 'package:mafia_board/data/repo/history/history_repository_local.dart';
 import 'package:mafia_board/data/repo/game_info/game_info_repo.dart';
 import 'package:mafia_board/data/repo/game_info/game_info_repo_local.dart';
+import 'package:mafia_board/domain/field_validation/email_validator.dart';
+import 'package:mafia_board/domain/field_validation/nickname_field_validator.dart';
+import 'package:mafia_board/domain/field_validation/password_validator.dart';
+import 'package:mafia_board/domain/field_validation/repeat_password_validator.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/night_phase_manager.dart';
@@ -158,6 +162,13 @@ class Injector {
       nightGamePhaseRepo: _getIt.get(instanceName: nightPhaseRepoLocalTag),
       playerManager: _getIt.get(),
     ));
+
+    //validation
+    _getIt.registerSingleton<NicknameFieldValidator>(NicknameFieldValidator());
+    _getIt.registerSingleton<RepeatPasswordFieldValidator>(
+        RepeatPasswordFieldValidator());
+    _getIt.registerSingleton<PasswordFieldValidator>(PasswordFieldValidator());
+    _getIt.registerSingleton<EmailFieldValidator>(EmailFieldValidator());
   }
 
   static void _injectBloC() {
@@ -216,7 +227,11 @@ class Injector {
       ),
     );
 
-    _getIt.registerSingleton(AuthBloc(authRepo: _getIt.get()));
+    _getIt.registerSingleton(AuthBloc(
+      emailFieldValidator: _getIt.get(),
+      passwordFieldValidator: _getIt.get(),
+      authRepo: _getIt.get(),
+    ));
 
     _getIt.registerSingleton(AppBloc(authRepo: _getIt.get()));
   }

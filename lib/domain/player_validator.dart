@@ -1,6 +1,6 @@
 import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/role.dart';
-import 'package:mafia_board/domain/exceptions/invalid_player_data_exception.dart';
+import 'package:mafia_board/domain/exceptions/exception.dart';
 
 class PlayerValidator {
   void validate(PlayerModel player) {

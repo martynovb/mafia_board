@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/data/repo/board/board_repo.dart';
-import 'package:mafia_board/domain/exceptions/invalid_player_data_exception.dart';
+import 'package:mafia_board/domain/exceptions/exception.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/vote_phase_manager.dart';
 import 'package:mafia_board/domain/player_validator.dart';

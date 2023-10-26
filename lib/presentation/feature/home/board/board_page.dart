@@ -10,6 +10,7 @@ import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_sta
 import 'package:mafia_board/presentation/feature/home/phase_view/night_phase/night_phase_view.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/speaking_phase/speaking_phase_view.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_view.dart';
+import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 
 class BoardPage extends StatefulWidget {
   const BoardPage({super.key});
@@ -31,7 +32,7 @@ class _BoardPageState extends State<BoardPage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.all(Dimensions.smallSidePadding),
+        padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
         child: BlocBuilder(
             bloc: boardBloc,
             builder: (BuildContext context, BoardState state) {
@@ -46,10 +47,9 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   Widget _errorView(String errorMessage) {
-    return Text(
-      errorMessage,
-      style: const TextStyle(
-          color: Colors.red, fontSize: 24, fontWeight: FontWeight.bold),
+    return InfoField(
+      message: errorMessage,
+      infoFieldType: InfoFieldType.error,
     );
   }
 

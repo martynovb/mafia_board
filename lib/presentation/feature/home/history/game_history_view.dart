@@ -31,7 +31,7 @@ class _GameHistoryViewState extends State<GameHistoryView> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.all(Dimensions.smallSidePadding),
+        padding: EdgeInsets.all(Dimensions.sidePadding0_5x),
         child: BlocBuilder(
             bloc: gameHistoryBloc,
             builder: (context, GameHistoryState state) {

@@ -65,8 +65,8 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
               _sheetHeader(),
               Padding(
                 padding: const EdgeInsets.only(
-                    left: Dimensions.smallSidePadding,
-                    right: Dimensions.smallSidePadding),
+                    left: Dimensions.sidePadding0_5x,
+                    right: Dimensions.sidePadding0_5x),
                 child: StreamBuilder(
                     stream: _playersSheetBloc.playersStream,
                     builder: (context, AsyncSnapshot<SheetDataState> snapshot) {
@@ -95,7 +95,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
 
   Widget _sheetHeader() {
     return Container(
-        padding: const EdgeInsets.all(Dimensions.smallSidePadding),
+        padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
         height: Dimensions.playerSheetHeaderHeight,
         child: Row(
           children: [
@@ -103,7 +103,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
               flex: _voteColumnFlex,
               child: const Padding(
                   padding: EdgeInsets.only(
-                    left: Dimensions.smallSidePadding,
+                    left: Dimensions.sidePadding0_5x,
                   ),
                   child: Icon(
                     Icons.thumb_up,
@@ -145,7 +145,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: sheetDataState.players.length,
           separatorBuilder: (context, index) => const Divider(
-            height: Dimensions.smallSidePadding,
+            height: Dimensions.sidePadding0_5x,
           ),
           itemBuilder: (__, index) => _playerItem(
               index,

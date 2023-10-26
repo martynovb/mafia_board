@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/presentation/feature/auth/bloc/auth_bloc.dart';
 import 'package:mafia_board/presentation/feature/auth/bloc/auth_event.dart';
+import 'package:mafia_board/presentation/feature/auth/bloc/auth_state.dart';
+import 'package:mafia_board/presentation/feature/dimensions.dart';
+import 'package:mafia_board/presentation/feature/router.dart';
+import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
+import 'package:mafia_board/presentation/feature/widgets/input_text_field.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -12,49 +18,178 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   late AuthBloc _authBloc;
-  late TextEditingController _emailEditController = TextEditingController();
-  late TextEditingController _passwordEditController = TextEditingController();
+  late final TextEditingController _emailEditController =
+      TextEditingController();
+  late final TextEditingController _passwordEditController =
+      TextEditingController();
 
   @override
   void initState() {
     _authBloc = GetIt.instance();
+    _emailEditController.text = "mafiatest@gmail.com";
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Scaffold(
-            appBar: AppBar(),
-            body: Column(
-              children: [
-                const Icon(Icons.login),
-                const Text('Sign in to your account'),
-                TextField(
-                  maxLines: 1,
-                  controller: _emailEditController,
-                  decoration: const InputDecoration(
-                    hintText: 'email',
-                    border: InputBorder.none,
-                  ),
-                ),
-                TextField(
-                  maxLines: 1,
-                  controller: _passwordEditController,
-                  decoration: const InputDecoration(
-                    hintText: 'password',
-                    border: InputBorder.none,
-                  ),
-                ),
-                ElevatedButton(
-                    onPressed: () {
-                      _authBloc.add(LoginAuthEvent(
-                        email: _emailEditController.text,
-                        password: _passwordEditController.text,
-                      ));
-                    },
-                    child: Text('Sign in')),
-              ],
-            )));
+    return Scaffold(
+      body: Center(child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+        double width;
+        if (constraints.maxWidth > 400) {
+          width = 400;
+        } else {
+          width = constraints.maxWidth;
+        }
+
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: width),
+              child: BlocConsumer(
+                listener: (context, AuthState state) {
+                  if (state is SuccessAuthState) {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      AppRouter.homePage,
+                      (route) => true,
+                    );
+                  }
+                },
+                bloc: _authBloc,
+                builder: (context, AuthState state) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Logo (replace with your asset image)
+                      const SizedBox(
+                        height: Dimensions.defaultSidePadding,
+                      ),
+                      const Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.thumb_up, size: 70, color: Colors.red),
+                          Icon(Icons.thumb_down, size: 70, color: Colors.black)
+                        ],
+                      ),
+                      const SizedBox(height: Dimensions.sidePadding2x),
+
+                      // Sign in to your account
+                      const Text(
+                        'Sign in to your account',
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: Dimensions.defaultSidePadding),
+
+                      if (state is ErrorAuthState) ...[
+                        InfoField(
+                            message: state.errorMessage,
+                            infoFieldType: InfoFieldType.error),
+                        const SizedBox(height: Dimensions.defaultSidePadding),
+                      ],
+
+                      // Email input
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              bottom: Dimensions.sidePadding0_5x),
+                          child: Text(
+                            'Email',
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      InputTextField(
+                        controller: _emailEditController,
+                      ),
+                      const SizedBox(height: Dimensions.defaultSidePadding),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          const Text(
+                            'Password',
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          GestureDetector(
+                            onTap: () => Navigator.pushNamed(
+                                context, AppRouter.resetPasswordPage),
+                            child: const Text(
+                              'Forgot password?',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.redAccent,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: Dimensions.defaultSidePadding),
+                      // Password input
+                      InputTextField(
+                        controller: _passwordEditController,
+                      ),
+                      const SizedBox(height: Dimensions.defaultSidePadding),
+
+                      // Sign in button
+                      SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: () => _authBloc.add(LoginAuthEvent(
+                              email: _emailEditController.text.trim(),
+                              password: _passwordEditController.text.trim(),
+                            )),
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.red),
+                            ),
+                            child: const Text('Sign in',
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold)),
+                          )),
+                      const SizedBox(height: Dimensions.defaultSidePadding),
+
+                      // Don't have an account? Create an account
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('Don\'t have an account?'),
+                          TextButton(
+                            onPressed: () => Navigator.pushNamed(
+                                context, AppRouter.createAccountPage),
+                            child: const Text(
+                              'Create an account',
+                              style: TextStyle(
+                                  color: Colors.redAccent,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              )),
+        );
+      })),
+    );
+  }
+
+  @override
+  void dispose() {
+    _emailEditController.dispose();
+    _passwordEditController.dispose();
+    super.dispose();
   }
 }

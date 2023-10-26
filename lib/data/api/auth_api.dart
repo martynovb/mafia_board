@@ -5,7 +5,7 @@ import 'package:mafia_board/data/api/network_manager.dart';
 class AuthApi {
   final NetworkManager _networkManager;
 
-  static const _authPath = 'api/v1/auth/users/';
+  static const _authPath = 'api/v1/auth';
 
   AuthApi(this._networkManager);
 
@@ -14,7 +14,7 @@ class AuthApi {
 
   Future<dynamic> logout() => _networkManager.post('$_authPath/token/logout');
 
-  Future<UserApiModel> me() => _networkManager.get('$_authPath/me').then(
+  Future<UserApiModel> me() => _networkManager.get('$_authPath/users/me').then(
         (result) => UserApiModel.fromJson(result),
       );
 
