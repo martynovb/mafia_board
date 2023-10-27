@@ -49,10 +49,7 @@ class _LoginPageState extends State<LoginPage> {
                 listener: (context, AuthState state) {
                   if (state is SuccessAuthState) {
                     Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      AppRouter.homePage,
-                      (route) => true,
-                    );
+                        context, AppRouter.homePage, (route) => false);
                   }
                 },
                 bloc: _authBloc,
@@ -188,6 +185,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
+    _authBloc.add(ClearAuthEvent());
     _emailEditController.dispose();
     _passwordEditController.dispose();
     super.dispose();

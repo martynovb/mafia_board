@@ -9,6 +9,7 @@ class ErrorAuthState extends AuthState {
 }
 
 class SuccessAuthState extends AuthState {}
+class LogoutSuccessAuthState extends AuthState {}
 
 class MeAuthState extends AuthState {
   final String username;

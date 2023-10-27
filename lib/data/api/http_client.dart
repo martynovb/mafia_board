@@ -1,15 +1,14 @@
 import 'package:http/http.dart' as http;
+import 'package:mafia_board/data/api/base_url_provider.dart';
 import 'package:mafia_board/data/api/token_provider.dart';
 
 class HttpClient extends http.BaseClient {
   final http.Client _inner = http.Client();
-  final String baseUrl;
-  final Map<String, String> defaultHeaders;
+  final BaseUrlProvider baseUrlProvider;
   final TokenProvider tokenProvider;
 
   HttpClient({
-    required this.baseUrl,
-    required this.defaultHeaders,
+    required this.baseUrlProvider,
     required this.tokenProvider,
   });
 
@@ -24,7 +23,7 @@ class HttpClient extends http.BaseClient {
   }
 
   Future<http.Request> _prepareRequest(http.BaseRequest request) async {
-    final newUri = Uri.parse(baseUrl + request.url.path);
+    final newUri = Uri.parse(baseUrlProvider.baseUrl + request.url.path);
 
     final newRequest = http.Request(request.method, newUri)
       ..headers.addAll(request.headers)
@@ -33,7 +32,7 @@ class HttpClient extends http.BaseClient {
       ..maxRedirects = request.maxRedirects
       ..bodyBytes = await request.finalize().toBytes();
 
-    newRequest.headers.addAll(defaultHeaders);
+    newRequest.headers.addAll(baseUrlProvider.defaultHeaders);
 
     return newRequest;
   }

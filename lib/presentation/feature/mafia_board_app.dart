@@ -58,6 +58,7 @@ class _MafiaBoardAppState extends State<MafiaBoardApp> {
           bloc: appBloc,
           builder: (context, AppState state) {
             return MaterialApp(
+              debugShowCheckedModeBanner: false,
               title: 'Mafia board',
               theme: ThemeData(brightness: Brightness.dark),
               home: state is InitialAppState

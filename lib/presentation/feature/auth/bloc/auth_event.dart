@@ -1,6 +1,7 @@
 abstract class AuthEvent {}
 
 class MeAuthEvent extends AuthEvent {}
+class ClearAuthEvent extends AuthEvent {}
 class LogoutAuthEvent extends AuthEvent {}
 
 class LoginAuthEvent extends AuthEvent {
@@ -15,13 +16,13 @@ class LoginAuthEvent extends AuthEvent {
 
 class RegistrationAuthEvent extends AuthEvent {
   final String email;
-  final String username;
+  final String nickname;
   final String password;
   final String repeatPassword;
 
   RegistrationAuthEvent({
     required this.email,
-    required this.username,
+    required this.nickname,
     required this.password,
     required this.repeatPassword,
   });

@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/data/api/auth_api.dart';
+import 'package:mafia_board/data/api/base_url_provider.dart';
 import 'package:mafia_board/data/api/error_handler.dart';
 import 'package:mafia_board/data/api/http_client.dart';
 import 'package:mafia_board/data/api/network_manager.dart';
@@ -48,12 +51,6 @@ class Injector {
   static const speakPhaseRepoLocalTag = 'speak-phase-repo-local';
   static const nightPhaseRepoLocalTag = 'night-phase-repo-local';
 
-  static const String _baseUrl =
-      'http://10.0.2.2:8000/'; //10.0.2.2 // 127.0.0.1
-  static const Map<String, String> _headers = {
-    'Content-Type': 'application/json'
-  };
-
   static void inject() {
     _injectDataLayer();
     _injectDomainLayer();
@@ -62,15 +59,16 @@ class Injector {
 
   static void _injectDataLayer() {
     //network
+    _getIt.registerSingleton<BaseUrlProvider>(LocalBaseUrlProvider());
     _getIt.registerSingleton<TokenProvider>(TokenProvider());
     _getIt.registerSingleton<ErrorHandler>(ErrorHandler(
       tokenProvider: _getIt.get(),
     ));
     _getIt.registerSingleton<HttpClient>(HttpClient(
-      baseUrl: _baseUrl,
-      defaultHeaders: _headers,
       tokenProvider: _getIt.get(),
+      baseUrlProvider: _getIt.get(),
     ));
+
     _getIt.registerSingleton<NetworkManager>(NetworkManager(
       httpClient: _getIt.get(),
       errorHandler: _getIt.get(),
@@ -228,8 +226,10 @@ class Injector {
     );
 
     _getIt.registerSingleton(AuthBloc(
+      nicknameFieldValidator: _getIt.get(),
       emailFieldValidator: _getIt.get(),
       passwordFieldValidator: _getIt.get(),
+      repeatPasswordFieldValidator: _getIt.get(),
       authRepo: _getIt.get(),
     ));
 

@@ -3,10 +3,12 @@ import 'package:mafia_board/presentation/feature/dimensions.dart';
 
 class InputTextField extends StatelessWidget {
   final TextEditingController controller;
+  final bool obscureText;
 
   const InputTextField({
     Key? key,
     required this.controller,
+    this.obscureText = false,
   }) : super(key: key);
 
   @override
@@ -14,6 +16,7 @@ class InputTextField extends StatelessWidget {
     return SizedBox(
       height: 40,
       child: TextField(
+        obscureText: obscureText,
         textAlign: TextAlign.left,
         textAlignVertical: TextAlignVertical.center,
         controller: controller,

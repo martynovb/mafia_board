@@ -38,7 +38,7 @@ class AuthApi {
     required String password,
   }) =>
       _networkManager.post(
-        _authPath,
+        '$_authPath/users/',
         body: {
           'email': email,
           'username': username,

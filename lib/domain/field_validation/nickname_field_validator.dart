@@ -4,8 +4,8 @@ import 'package:mafia_board/domain/field_validation/validation_error_code.dart';
 import 'package:mafia_board/domain/field_validation/validator.dart';
 
 class NicknameFieldValidator extends FieldValidator {
-  static const maxSymbols = 16;
-  static const minSymbols = 6;
+  static const maxSymbols = 24;
+  static const minSymbols = 2;
 
   @override
   void validate(String? value) {
@@ -15,7 +15,7 @@ class NicknameFieldValidator extends FieldValidator {
       throw ValidationError(
         fieldType: fieldType,
         errorCode: ValidationErrorCode.invalidData,
-        errorMessage: 'Full name should not be empty',
+        errorMessage: 'Nickname should not be empty',
       );
     }
     if (fieldText.length > maxSymbols || fieldText.length < minSymbols) {
@@ -23,7 +23,7 @@ class NicknameFieldValidator extends FieldValidator {
         fieldType: fieldType,
         errorCode: ValidationErrorCode.lenght,
         errorMessage:
-            'Full name must be between $minSymbols and $maxSymbols characters.',
+            'Nickname must be between $minSymbols and $maxSymbols characters.',
       );
     }
   }

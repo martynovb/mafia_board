@@ -6,7 +6,7 @@ import 'package:mafia_board/data/api/http_client.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
 
 class NetworkManager {
-  static const String _tag = 'ConnectNetworkManager';
+  static const String _tag = 'NetworkManager';
 
   final HttpClient httpClient;
   final ErrorHandler errorHandler;
@@ -26,7 +26,7 @@ class NetworkManager {
     Map<String, dynamic>? body,
   }) async {
     MafLogger.d(_tag, 'POST: $path');
-    MafLogger.d(_tag, 'body: $body');
+    body ?? MafLogger.d(_tag, 'body: $body');
     return _requestWrapper(() => httpClient.post(
           Uri.parse(path),
           body: body != null ? jsonEncode(body) : null,
@@ -37,6 +37,7 @@ class NetworkManager {
       Future<http.Response> Function() request) async {
     try {
       final response = await request();
+      MafLogger.d(_tag, 'RESPONSE statusCode: ${response.statusCode}');
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else if (response.statusCode == 204) {

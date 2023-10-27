@@ -12,12 +12,12 @@ class AuthRepo {
 
   Future<UserApiModel?> registerUser({
     required String email,
-    required String username,
+    required String nickname,
     required String password,
   }) async {
     final result = await api.register(
       email: email,
-      username: username,
+      username: nickname,
       password: password,
     );
     await tokenProvider.setToken(result.token);
