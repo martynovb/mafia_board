@@ -49,6 +49,7 @@ class _VotePhaseListViewState extends State<VotePhaseListView> {
 
   Widget _voteList(List<VoteItem> voteList) {
     return  ListView.separated(
+      shrinkWrap: true,
             separatorBuilder: (context, index) => const Center(child:Text(', ')),
             scrollDirection: Axis.horizontal,
             itemCount: voteList.length,

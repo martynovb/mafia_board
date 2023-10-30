@@ -6,6 +6,7 @@ class VotePhaseState {
   final String playersToKickText;
   final PlayerModel? playerOnVote;
   final Map<PlayerModel, bool> allAvailablePlayersToVote;
+  final List<PlayerModel> players;
   final PhaseStatus status;
 
   VotePhaseState({
@@ -13,6 +14,7 @@ class VotePhaseState {
     this.playersToKickText = '',
     this.playerOnVote,
     this.allAvailablePlayersToVote = const {},
+    required this.players,
     this.status = PhaseStatus.notStarted,
   });
 }

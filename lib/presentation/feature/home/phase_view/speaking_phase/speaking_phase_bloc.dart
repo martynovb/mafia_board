@@ -13,7 +13,7 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
   SpeakingPhaseBloc({
     required this.speakingPhaseManager,
     required this.boardRepo,
-  }) : super(SpeakingPhaseState()) {
+  }) : super(SpeakingPhaseState(players: boardRepo.getAllPlayers())) {
     on<GetCurrentSpeakPhaseEvent>(_getCurrentSpeakingPhaseEventHandler);
     on<StartSpeechEvent>(_startSpeechEventHandler);
     on<FinishSpeechEvent>(_finishSpeechEventHandler);
@@ -24,6 +24,7 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
     final currentSpeakPhase = await speakingPhaseManager.getCurrentPhase();
     final currentSpeakerId = currentSpeakPhase?.playerId;
     emit(SpeakingPhaseState(
+      players: boardRepo.getAllPlayers(),
       speakPhaseAction: currentSpeakPhase,
       speaker: currentSpeakerId != null ? await boardRepo.getPlayerById(currentSpeakerId) : null,
 
@@ -35,6 +36,7 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
     final currentSpeakPhase = await speakingPhaseManager.getCurrentPhase();
     final currentSpeakerId = currentSpeakPhase?.playerId;
     emit(SpeakingPhaseState(
+      players: boardRepo.getAllPlayers(),
       speakPhaseAction: currentSpeakPhase,
       speaker: currentSpeakerId != null ? await boardRepo.getPlayerById(currentSpeakerId) : null,
 
@@ -46,6 +48,7 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
     final currentSpeakPhase = await speakingPhaseManager.getCurrentPhase();
     final currentSpeakerId = currentSpeakPhase?.playerId;
     emit(SpeakingPhaseState(
+      players: boardRepo.getAllPlayers(),
       speakPhaseAction: currentSpeakPhase,
       speaker: currentSpeakerId != null ? await boardRepo.getPlayerById(currentSpeakerId) : null,
       isFinished: true,
@@ -54,11 +57,13 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
 }
 
 class SpeakingPhaseState {
+  final List<PlayerModel> players;
   final SpeakPhaseAction? speakPhaseAction;
   final PlayerModel? speaker;
   final bool isFinished;
 
   SpeakingPhaseState({
+    required this.players,
     this.speakPhaseAction,
     this.speaker,
     this.isFinished = false,

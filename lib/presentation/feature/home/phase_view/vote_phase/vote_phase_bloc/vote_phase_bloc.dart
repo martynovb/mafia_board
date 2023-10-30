@@ -22,7 +22,7 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
     required this.votePhaseManager,
     required this.speakingPhaseManager,
     required this.boardRepository,
-  }) : super(VotePhaseState()) {
+  }) : super(VotePhaseState(players: boardRepository.getAllPlayers())) {
     on<VoteAgainstEvent>(_voteAgainstEventHandler);
     on<GetVotingDataEvent>(_initializeDataEventHandler);
     on<FinishVoteAgainstEvent>(_finishVotingEventHandler);
@@ -33,6 +33,7 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
       GetVotingDataEvent event, emit) async {
     final currentVotePhase = await votePhaseManager.getCurrentPhase();
     emit(VotePhaseState(
+      players: boardRepository.getAllPlayers(),
       status: currentVotePhase?.status ?? PhaseStatus.notStarted,
       title: _mapVotePageTitle(currentVotePhase),
       playersToKickText:
@@ -51,6 +52,7 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
       final currentSpeakPhase = await speakingPhaseManager.getCurrentPhase();
       if (currentSpeakPhase == null && currentVotePhase != null) {
         emit(VotePhaseState(
+          players: boardRepository.getAllPlayers(),
           status: currentVotePhase.status,
           title: _mapVotePageTitle(currentVotePhase),
           playersToKickText:
@@ -60,7 +62,10 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
               await votePhaseManager.calculatePlayerVotingStatusMap(),
         ));
       } else {
-        emit(VotePhaseState(status: PhaseStatus.finished));
+        emit(VotePhaseState(
+          status: PhaseStatus.finished,
+          players: boardRepository.getAllPlayers(),
+        ));
       }
     } on Exception catch (ex) {
       MafLogger.e(_tag, '_finishVotingEventHandler $ex');
@@ -75,6 +80,7 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
       );
       final currentVotePhase = await votePhaseManager.getCurrentPhase();
       emit(VotePhaseState(
+        players: boardRepository.getAllPlayers(),
         status: currentVotePhase?.status ?? PhaseStatus.notStarted,
         title: _mapVotePageTitle(currentVotePhase),
         playersToKickText:
@@ -99,6 +105,7 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
         );
         currentVotePhase = await votePhaseManager.getCurrentPhase();
         emit(VotePhaseState(
+          players: boardRepository.getAllPlayers(),
           status: currentVotePhase?.status ?? PhaseStatus.notStarted,
           title: _mapVotePageTitle(currentVotePhase),
           playersToKickText:
@@ -122,7 +129,7 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
     } else if (votePhaseAction.shouldKickAllPlayers) {
       return 'Kick all players?';
     }
-    return 'Vote against ${votePhaseAction.playerOnVote.nickname}';
+    return 'Vote against #${votePhaseAction.playerOnVote.seatNumber}: ${votePhaseAction.playerOnVote.nickname}';
   }
 
   String _parsePlayersToKickToString(List<PlayerModel>? players) {

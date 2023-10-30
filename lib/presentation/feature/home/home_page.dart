@@ -3,6 +3,7 @@ import 'package:mafia_board/presentation/feature/home/board/board_page.dart';
 import 'package:mafia_board/presentation/feature/home/history/game_history_view.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_page.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
+import 'package:mafia_board/presentation/feature/table/table_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -35,15 +36,15 @@ class HomePage extends StatelessWidget {
                     child: Column(
                       children: [
                         SizedBox(
-                          height: availableHeight * 0.5,
-                          child: const BoardPage(),
+                          height: availableHeight * 0.7,
+                          child: const TablePage(),
                         ),
                         const Divider(
                           height: 1,
                           color: Colors.white12,
                         ),
                         SizedBox(
-                          height: availableHeight * 0.5 - 1,
+                          height: availableHeight * 0.3 - 1,
                           child: const GameHistoryView(),
                         ),
                       ],
