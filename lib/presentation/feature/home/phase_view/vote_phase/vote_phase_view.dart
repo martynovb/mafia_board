@@ -91,7 +91,7 @@ class _VotePhaseViewState extends State<VotePhaseView> {
               Icons.thumb_up,
               size: 16,
             ),
-            label: Text('${player.playerNumber}'),
+            label: Text('${player.seatNumber}'),
             onLongPress: () {
               if (state.playerOnVote != null) {
                 votePhaseBloc.add(CancelVoteAgainstEvent(

@@ -30,9 +30,9 @@ class GameInfoModel {
 
   List<PlayerModel> get mutedPlayers => _mutedPlayers;
 
-  void removedMutedPlayer(int id) =>
+  void removedMutedPlayer(String id) =>
       _mutedPlayers.removeWhere((player) => player.id == id);
 
-  void removedRemovedPlayer(int id) =>
+  void removedRemovedPlayer(String id) =>
       _removedPlayers.removeWhere((player) => player.id == id);
 }

@@ -15,7 +15,6 @@ import 'package:mafia_board/presentation/feature/home/players_sheet/role_bloc/ro
 import 'package:mafia_board/presentation/feature/home/players_sheet/role_bloc/role_state.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/widgets/blur_widget.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/widgets/hover_detector_widget.dart';
-import 'package:mafia_board/presentation/feature/home/players_sheet/widgets/nickname_widget.dart';
 
 class PlayersSheetPage extends StatefulWidget {
   const PlayersSheetPage({
@@ -31,6 +30,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
   final int _nicknameColumnFlex = 5;
   final int _foulsColumnFlex = 4;
   final int _roleColumnFlex = 5;
+  bool isGameStarted = false;
 
   late PlayersSheetBloc _playersSheetBloc;
   late RoleBloc _roleBloc;
@@ -61,7 +61,8 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
                   child: Column(
             children: [
               ElevatedButton(
-                  onPressed: () => _playersSheetBloc.add(SetTestDataEvent()), child: Text('Set Test Data')),
+                  onPressed: () => _playersSheetBloc.add(SetTestDataEvent()),
+                  child: Text('Set Test Data')),
               _sheetHeader(),
               Padding(
                 padding: const EdgeInsets.only(
@@ -71,6 +72,8 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
                     stream: _playersSheetBloc.playersStream,
                     builder: (context, AsyncSnapshot<SheetDataState> snapshot) {
                       if (snapshot.hasData) {
+                        isGameStarted =
+                            snapshot.data?.gameInfo?.isGameStarted ?? false;
                         return _playersSheet(snapshot.data!);
                       } else {
                         return Container();
@@ -148,13 +151,13 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
             height: Dimensions.sidePadding0_5x,
           ),
           itemBuilder: (__, index) => _playerItem(
-              index,
-              sheetDataState.players[index],
-              sheetDataState.gameInfo?.isGameStarted ?? false),
+            index,
+            sheetDataState.players[index],
+          ),
         ),
       );
 
-  Widget _playerItem(int index, PlayerModel playerModel, bool isGameStarted) {
+  Widget _playerItem(int seatNumber, PlayerModel playerModel) {
     return Container(
       height: Dimensions.playerItemHeight,
       color: !playerModel.isAvailable()
@@ -177,7 +180,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
                 child: Center(
                   child: HoverDetectorWidget(
                     enabled: isGameStarted,
-                    child: Text((index + 1).toString()),
+                    child: Text((playerModel.seatNumber).toString()),
                   ),
                 ),
               ),
@@ -188,16 +191,15 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
           ),
           Expanded(
             flex: _nicknameColumnFlex,
-            child: NicknameWidget(
-              enabled: !isGameStarted,
-              nickname: playerModel.nickname,
-              onChanged: (nickname) => _playersSheetBloc.add(
-                ChangeNicknameEvent(
-                  playerId: playerModel.id,
-                  newNickname: nickname,
-                ),
-              ),
-            ),
+            child: playerModel.id.isEmpty
+                ? IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () {
+                      _playersSheetBloc.add(
+                          FindUserEvent(seatNumber: playerModel.seatNumber));
+                    },
+                  )
+                : Text(playerModel.nickname),
           ),
           const VerticalDivider(
             color: Colors.white,
@@ -222,8 +224,8 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
             child: Center(
                 child: _roleDropdown(
               playerModel.id,
+              playerModel.seatNumber,
               playerModel.role,
-              isGameStarted,
             )),
           ),
         ],
@@ -231,38 +233,39 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
     );
   }
 
-  Widget _foulsBuilder(int playerId, int fouls, bool isGameStarted) => InkWell(
-      onTap: isGameStarted ? () {} : null,
-      child: GestureDetector(
-        onTap: isGameStarted
-            ? () => _playersSheetBloc.add(
-                  AddFoulEvent(
-                    playerId: playerId,
-                    newFoulsCount: fouls + 1,
-                  ),
-                )
-            : null,
-        onLongPress: () {
-          _playersSheetBloc.add(
-            AddFoulEvent(
-              playerId: playerId,
-              newFoulsCount: 0,
+  Widget _foulsBuilder(String playerId, int fouls, bool isGameStarted) =>
+      InkWell(
+          onTap: isGameStarted ? () {} : null,
+          child: GestureDetector(
+            onTap: isGameStarted
+                ? () => _playersSheetBloc.add(
+                      AddFoulEvent(
+                        playerId: playerId,
+                        newFoulsCount: fouls + 1,
+                      ),
+                    )
+                : null,
+            onLongPress: () {
+              _playersSheetBloc.add(
+                AddFoulEvent(
+                  playerId: playerId,
+                  newFoulsCount: 0,
+                ),
+              );
+            },
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              shrinkWrap: true,
+              itemCount: fouls,
+              itemBuilder: (__, index) => const Icon(
+                size: Dimensions.foulItemWidth,
+                Icons.close,
+                color: Colors.red,
+              ),
             ),
-          );
-        },
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          shrinkWrap: true,
-          itemCount: fouls,
-          itemBuilder: (__, index) => const Icon(
-            size: Dimensions.foulItemWidth,
-            Icons.close,
-            color: Colors.red,
-          ),
-        ),
-      ));
+          ));
 
-  Widget _roleDropdown(int playerId, Role playerRole, bool isGameStarted) {
+  Widget _roleDropdown(String playerId, int seatNumber, Role playerRole) {
     return BlurWidget(
         isBlured: isGameStarted,
         placeholder: const Center(
@@ -282,7 +285,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
                         );
                         _roleBloc.add(
                           RecalculateRolesEvent(
-                              playerId, newRole ?? Role.NONE.name),
+                              seatNumber, newRole ?? Role.NONE.name),
                         );
                       },
                 items: state.roles.entries.map((entry) {

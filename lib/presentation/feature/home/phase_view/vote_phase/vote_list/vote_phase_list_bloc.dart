@@ -42,7 +42,7 @@ class VotePhaseListBloc extends Bloc<VotePhaseListEvent, VotePhaseListState> {
     _gamePhaseSubscription =
         votePhaseManager.currentVotePhaseStream.listen((newVotePhase) {
       voteList
-          .add(VoteItem(playerNumber: newVotePhase.playerOnVote.playerNumber));
+          .add(VoteItem(playerNumber: newVotePhase.playerOnVote.seatNumber));
       _voteListSubject.add(voteList);
     });
   }

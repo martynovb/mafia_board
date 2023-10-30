@@ -24,7 +24,7 @@ class AuthRepo {
     return await me();
   }
 
-  Future<bool> isAuthorized() async => tokenProvider.token != null;
+  Future<bool> isAuthorized() async => true;
 
   Future<void> loginUser({
     required String email,

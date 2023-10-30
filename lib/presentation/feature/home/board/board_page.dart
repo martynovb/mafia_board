@@ -21,7 +21,6 @@ class BoardPage extends StatefulWidget {
 
 class _BoardPageState extends State<BoardPage> {
   late BoardBloc boardBloc;
-  final double _headerHeight = 32;
 
   @override
   void initState() {
@@ -98,7 +97,7 @@ class _BoardPageState extends State<BoardPage> {
   Widget _header(BoardState state) {
     if (state is GamePhaseState && state.gameInfo?.isGameStarted == true) {
       return SizedBox(
-          height: _headerHeight,
+          height: Dimensions.headerHeight,
           child: Row(
             children: [
               const GameTimerView(),
@@ -108,7 +107,7 @@ class _BoardPageState extends State<BoardPage> {
           ));
     } else {
       return SizedBox(
-        height: _headerHeight,
+        height: Dimensions.headerHeight,
         child: state is ErrorBoardState ? _errorView(state.errorMessage) : null,
       );
     }

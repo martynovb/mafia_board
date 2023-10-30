@@ -80,7 +80,7 @@ class VotePhaseManager {
     }
   }
 
-  Future<bool> putOnVote(int playerToVoteId) async {
+  Future<bool> putOnVote(String playerToVoteId) async {
     final playerToVote = await boardRepository.getPlayerById(playerToVoteId);
     final currentDay = await gameInfoRepo.getCurrentDay();
     final currentSpeakerId =

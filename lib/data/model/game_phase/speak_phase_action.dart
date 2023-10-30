@@ -3,7 +3,7 @@ import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
 
 class SpeakPhaseAction extends GamePhaseAction {
-  final int? playerId;
+  final String? playerId;
   Duration timeForSpeakInSec;
   bool isLastWord = false;
   bool isGunfight = false;

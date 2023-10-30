@@ -35,7 +35,7 @@ class PlayerManager {
     }
   }
 
-  Future<void> addFoul(int id, int newFoulsCount) async {
+  Future<void> addFoul(String id, int newFoulsCount) async {
     if (newFoulsCount == Constants.maxFouls) {
       await _removePlayer(id);
     } else if (newFoulsCount == Constants.maxFoulsToSpeak) {
@@ -48,7 +48,7 @@ class PlayerManager {
     );
   }
 
-  Future<void> clearFouls(int id) async {
+  Future<void> clearFouls(String id) async {
     final player = await boardRepo.getPlayerById(id);
     if (player == null) {
       return;
@@ -92,7 +92,7 @@ class PlayerManager {
     }
   }
 
-  Future<void> _mutePlayer(int id) async {
+  Future<void> _mutePlayer(String id) async {
     final player = await boardRepo.getPlayerById(id);
     if (player == null) {
       return;
@@ -118,7 +118,7 @@ class PlayerManager {
     }
   }
 
-  Future<void> _removePlayer(int id) async {
+  Future<void> _removePlayer(String id) async {
     final player = await boardRepo.getPlayerById(id);
     if (player == null) {
       return;
@@ -165,7 +165,7 @@ class PlayerManager {
   }
 
   bool isPlayerHasAlreadySpokenToday(
-      List<SpeakPhaseAction> speakPhases, int playerId) {
+      List<SpeakPhaseAction> speakPhases, String playerId) {
     return !speakPhases.any(
       (phase) =>
           phase.status != PhaseStatus.finished && phase.playerId == playerId,

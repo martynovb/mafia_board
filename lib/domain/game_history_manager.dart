@@ -79,17 +79,17 @@ class GameHistoryManager {
     if (speakPhaseAction.isLastWord &&
         speakPhaseAction.status == PhaseStatus.inProgress) {
       text =
-          'LAST SPEECH STARTED of player #${speaker?.playerNumber}: ${speaker?.nickname}';
+          'LAST SPEECH STARTED of player #${speaker?.seatNumber}: ${speaker?.nickname}';
     } else if (speakPhaseAction.isLastWord &&
         speakPhaseAction.status == PhaseStatus.finished) {
       text =
-          'LAST SPEECH FINISHED of player #${speaker?.playerNumber}: ${speaker?.nickname}';
+          'LAST SPEECH FINISHED of player #${speaker?.seatNumber}: ${speaker?.nickname}';
     } else if (speakPhaseAction.status == PhaseStatus.inProgress) {
       text =
-          'SPEECH STARTED of player #${speaker?.playerNumber}: ${speaker?.nickname}';
+          'SPEECH STARTED of player #${speaker?.seatNumber}: ${speaker?.nickname}';
     } else if (speakPhaseAction.status == PhaseStatus.finished) {
       text =
-          'SPEECH FINISHED of player #${speaker?.playerNumber}: ${speaker?.nickname}';
+          'SPEECH FINISHED of player #${speaker?.seatNumber}: ${speaker?.nickname}';
     } else {
       return;
     }
@@ -127,7 +127,7 @@ class GameHistoryManager {
 
     _addRecord(GameHistoryModel(
       text:
-          'VOTE against #${playersToKick.isEmpty ? ('${votePhaseAction.playerOnVote.playerNumber} ${votePhaseAction.playerOnVote.nickname}') : playersToKick} has finished.',
+          'VOTE against #${playersToKick.isEmpty ? ('${votePhaseAction.playerOnVote.seatNumber} ${votePhaseAction.playerOnVote.nickname}') : playersToKick} has finished.',
       // todo: blood from my eyes
       subText: 'Voted ($votedPlayers)',
       type: GameHistoryType.voteFinish,
@@ -139,7 +139,7 @@ class GameHistoryManager {
   void logAddFoul({required PlayerModel player}) {
     _addRecord(GameHistoryModel(
       text:
-          'FOUL (${player.fouls}/${Constants.maxFouls}) for player #${player.playerNumber}: ${player.nickname}',
+          'FOUL (${player.fouls}/${Constants.maxFouls}) for player #${player.seatNumber}: ${player.nickname}',
       type: GameHistoryType.playerSpeech,
       createdAt: DateTime.now(),
     ));

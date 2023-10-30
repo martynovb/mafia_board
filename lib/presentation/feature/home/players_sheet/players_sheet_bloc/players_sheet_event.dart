@@ -1,7 +1,13 @@
 abstract class SheetEvent {}
 
+class FindUserEvent extends SheetEvent {
+  final int seatNumber;
+
+  FindUserEvent({required this.seatNumber});
+}
+
 class AddFoulEvent extends SheetEvent {
-  final int playerId;
+  final String playerId;
   final int newFoulsCount;
 
   AddFoulEvent({
@@ -11,7 +17,7 @@ class AddFoulEvent extends SheetEvent {
 }
 
 class ChangeRoleEvent extends SheetEvent {
-  final int playerId;
+  final String playerId;
   final String? newRole;
 
   ChangeRoleEvent({
@@ -21,7 +27,7 @@ class ChangeRoleEvent extends SheetEvent {
 }
 
 class ChangeNicknameEvent extends SheetEvent {
-  final int playerId;
+  final String playerId;
   final String? newNickname;
 
   ChangeNicknameEvent({
@@ -34,7 +40,7 @@ class SetTestDataEvent extends SheetEvent {
 }
 
 class KillPlayerHandler extends SheetEvent {
-  final int playerId;
+  final String playerId;
 
   KillPlayerHandler({required this.playerId});
 }

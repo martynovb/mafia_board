@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/data/model/player_model.dart';
+import 'package:mafia_board/data/model/user_model.dart';
 import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/role.dart';
@@ -13,6 +14,7 @@ import 'package:mafia_board/domain/role_manager.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_event.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_state.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:uuid/uuid.dart';
 
 class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
   final BoardRepo boardRepository;
@@ -32,8 +34,8 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     required this.roleManager,
   }) : super(InitialSheetState()) {
     on<AddFoulEvent>(_addFoulHandler);
+    on<FindUserEvent>(_findUserHandler);
     on<ChangeRoleEvent>(_changeRoleHandler);
-    on<ChangeNicknameEvent>(_changeNicknameHandler);
     on<KillPlayerHandler>(_killPlayerHandler);
     on<SetTestDataEvent>(_setTestDataHandler);
     _playersSubject
@@ -52,6 +54,19 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
   }
 
   Stream<SheetDataState> get playersStream => _playersSubject.stream;
+
+  void _findUserHandler(FindUserEvent event, emit) async {
+    final nick = String.fromCharCodes(
+        List.generate(6, (index) => Random().nextInt(33) + 89));
+    final newUser = UserModel(
+        id: const Uuid().v1(), nickname: nick, email: '$nick@mail.com');
+    boardRepository.setUser(event.seatNumber, newUser);
+
+    _playersSubject.add(SheetDataState(
+      players: boardRepository.getAllPlayers(),
+      gameInfo: await gamePhaseManager.gameInfo,
+    ));
+  }
 
   void _addFoulHandler(AddFoulEvent event, emit) async {
     if (event.newFoulsCount > Constants.maxFouls) return;
@@ -81,17 +96,6 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     ));
   }
 
-  void _changeNicknameHandler(ChangeNicknameEvent event, emit) async {
-    boardRepository.updatePlayer(
-      event.playerId,
-      nickname: event.newNickname,
-    );
-    _playersSubject.add(SheetDataState(
-      players: boardRepository.getAllPlayers(),
-      gameInfo: await gamePhaseManager.gameInfo,
-    ));
-  }
-
   void _killPlayerHandler(KillPlayerHandler event, emit) async {
     boardRepository.updatePlayer(
       event.playerId,
@@ -104,18 +108,20 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
   }
 
   Future<void> _setTestDataHandler(event, emit) async {
-    final allPlayers = boardRepository.getAllPlayers();
     List<Role> roles = roleManager.availableRoles..shuffle();
-    for (var i = 0; i < allPlayers.length; i++) {
-      final player = allPlayers[i];
-      Role role = roles[i];
-      boardRepository.updatePlayer(
-        player.id,
-        role: role,
-        nickname: String.fromCharCodes(
-            List.generate(6, (index) => Random().nextInt(33) + 89)),
-      );
+    for (var i = 1; i <= roles.length; i++) {
+      Role role = roles[i - 1];
+      final nick = String.fromCharCodes(
+          List.generate(6, (index) => Random().nextInt(33) + 89));
+
+      final newUser = UserModel(
+          id: const Uuid().v1(), nickname: nick, email: '$nick@mail.com');
+
+      boardRepository.setUser(i, newUser);
+      await boardRepository.updatePlayer(newUser.id, role: role);
+      roleManager.recalculateAvailableRoles(i, role);
     }
+
     _playersSubject.add(SheetDataState(
       players: boardRepository.getAllPlayers(),
       gameInfo: await gamePhaseManager.gameInfo,

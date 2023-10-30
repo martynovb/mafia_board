@@ -38,8 +38,8 @@ class RoleManager {
 
   List<Role> get availableRoles => _availableRoles;
 
-  void recalculateAvailableRoles(int index, Role selectedRole) {
-    _selectedRoles[index] = selectedRole;
+  void recalculateAvailableRoles(int seatNumber, Role selectedRole) {
+    _selectedRoles[seatNumber] = selectedRole;
     for (RoleModel roleModel in _allRoles) {
       if (roleModel.role == Role.NONE) {
         continue;

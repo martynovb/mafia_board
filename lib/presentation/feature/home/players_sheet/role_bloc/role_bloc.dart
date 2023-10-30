@@ -19,7 +19,7 @@ class RoleBloc extends Bloc<RoleEvent, ShowRolesState> {
     emit,
   ) async {
     roleManager.recalculateAvailableRoles(
-        event.index, roleMapper(event.selectedRole));
+        event.seatNumber, roleMapper(event.selectedRole));
     emit(ShowRolesState(
       roles: roleManager.uniqueAvailableRoles,
     ));

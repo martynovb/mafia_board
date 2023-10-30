@@ -1,52 +1,56 @@
 import 'package:class_to_string/class_to_string.dart';
 import 'package:mafia_board/data/model/role.dart';
+import 'package:mafia_board/data/model/user_model.dart';
 
 class PlayerModel {
-  int id;
-  final String nickname;
+  UserModel? _user;
   int fouls;
-  final Role role;
+  Role role;
   double score;
   bool isRemoved;
   bool isKilled;
   bool isMuted;
   bool isKicked;
-  int playerNumber;
+  int seatNumber;
 
   PlayerModel(
-    this.id,
-    this.nickname,
-    this.fouls,
+    this._user,
     this.role,
-    this.score,
-    this.playerNumber, {
+    this.seatNumber, {
+    this.fouls = 0,
+    this.score = 0,
     this.isRemoved = false,
     this.isKilled = false,
     this.isMuted = false,
     this.isKicked = false,
   });
 
-  bool isAvailable() => !isRemoved && !isKilled && !isKicked;
-
-  PlayerModel.empty({required this.id, required this.playerNumber})
-      : nickname = '',
-        role = Role.NONE,
+  PlayerModel.empty(this.seatNumber)
+      : role = Role.NONE,
         fouls = 0,
         score = 0,
         isRemoved = false,
+        isKilled = false,
         isMuted = false,
-        isKicked = false,
-        isKilled = false;
+        isKicked = false;
+
+  set user(UserModel user) => _user = user;
+
+  String get id => _user?.id ?? '';
+
+  String get nickname => _user?.nickname ?? '';
+
+  bool isAvailable() => !isRemoved && !isKilled && !isKicked;
 
   @override
   String toString() {
     return (ClassToString('PlayerModel')
           ..add('id', id)
-          ..add('nickname', nickname)
+          ..add('user', _user)
           ..add('fouls', fouls)
           ..add('role', role)
           ..add('score', score)
-          ..add('playerNumber', playerNumber)
+          ..add('seatNumber', seatNumber)
           ..add('isRemoved', isRemoved)
           ..add('isMuted', isMuted)
           ..add('isKicked', isKicked)

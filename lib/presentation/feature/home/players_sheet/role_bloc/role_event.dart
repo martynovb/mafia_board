@@ -1,8 +1,8 @@
 abstract class RoleEvent {}
 
 class RecalculateRolesEvent extends RoleEvent {
-  final int index;
+  final int seatNumber;
   final String selectedRole;
 
-  RecalculateRolesEvent(this.index, this.selectedRole);
+  RecalculateRolesEvent(this.seatNumber, this.selectedRole);
 }
