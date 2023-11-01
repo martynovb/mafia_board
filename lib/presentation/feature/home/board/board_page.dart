@@ -30,19 +30,21 @@ class _BoardPageState extends State<BoardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-        padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
-        child: BlocBuilder(
-            bloc: boardBloc,
-            builder: (BuildContext context, BoardState state) {
-              return Column(
-                children: [
-                  _header(state),
-                  const Divider(),
-                  _stageBoard(state),
-                ],
-              );
-            }));
+    return Scaffold(
+        appBar: AppBar(),
+        body: Padding(
+            padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
+            child: BlocBuilder(
+                bloc: boardBloc,
+                builder: (BuildContext context, BoardState state) {
+                  return Column(
+                    children: [
+                      _header(state),
+                      const Divider(),
+                      _stageBoard(state),
+                    ],
+                  );
+                })));
   }
 
   Widget _errorView(String errorMessage) {

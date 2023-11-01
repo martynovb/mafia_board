@@ -47,6 +47,7 @@ class _GameHistoryViewState extends State<GameHistoryView> {
 
   Widget _voteList(List<GameHistoryModel> history) => ListView.separated(
         separatorBuilder: (context, index) => const Divider(),
+        shrinkWrap: true,
         itemBuilder: (context, index) {
           return _voteItem(index, history[index]);
         },

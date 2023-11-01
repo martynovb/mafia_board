@@ -1,5 +1,3 @@
-import 'dart:js_util';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -62,6 +60,8 @@ class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
               TableWidget(
                 players: state.players,
                 center: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       'Player #${state.speaker?.seatNumber} is speaking',

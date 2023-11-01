@@ -1,4 +1,3 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -8,10 +7,9 @@ import 'package:mafia_board/presentation/feature/game_timer_view.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_event.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_state.dart';
+import 'package:mafia_board/presentation/feature/home/phase_view/night_phase/night_phase_table_view.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/night_phase/night_phase_view.dart';
-import 'package:mafia_board/presentation/feature/home/phase_view/speaking_phase/speaking_phase_view.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_table_view.dart';
-import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_view.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/speaking_phase/speaking_phase_table_view.dart';
 import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 
@@ -34,7 +32,9 @@ class _TableState extends State<TablePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Scaffold(
+        appBar: AppBar(),
+    body: Padding(
       padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
       child: BlocBuilder(
         bloc: boardBloc,
@@ -48,7 +48,7 @@ class _TableState extends State<TablePage> {
           );
         },
       ),
-    );
+    ));
   }
 
   Widget _centerTableContent() {
@@ -63,7 +63,7 @@ class _TableState extends State<TablePage> {
               return VotePhaseTableView(
                   onVoteFinished: () => boardBloc.add(NextPhaseEvent()));
             } else if (state.gameInfo?.currentPhase == PhaseType.night) {
-              return NightPhaseView(
+              return NightPhaseTableView(
                   onNightPhaseFinished: () => boardBloc.add(NextPhaseEvent()));
             }
           }
@@ -96,7 +96,7 @@ class _TableState extends State<TablePage> {
       },
       child: const Text(
         'Finish Game',
-        style: TextStyle(fontSize: 32),
+        style: TextStyle(fontSize: 22),
       ));
 
   Widget _errorView(String errorMessage) {

@@ -1,9 +1,12 @@
 import 'package:mafia_board/data/constants.dart';
 
 class Dimensions {
+  static const double dividerHeight = 1;
   static const double defaultIconSize = 24;
   static const double defaultSidePadding = 16;
-  static const double headerHeight = 32;
+  static const double logsPanelHeight = 50;
+  static const double tableHeight = 400;
+  static const double headerHeight = 40;
   static const double sidePadding0_25x = defaultSidePadding/4;
   static const double sidePadding0_5x = defaultSidePadding/2;
   static const double sidePadding2x = defaultSidePadding*2;

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:mafia_board/data/model/game_info_model.dart';
 import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/domain/exceptions/exception.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
@@ -16,7 +17,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final PlayerValidator playerValidator;
   final GameManager gameManager;
   final VotePhaseManager votePhaseManager;
-  StreamSubscription? _gamePhaseSubscription;
 
   BoardBloc({
     required this.votePhaseManager,
@@ -30,10 +30,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     on<PutOnVoteEvent>(_putOnVoteEventHandler);
   }
 
-  void _unsubscribeFromGamePhase() {
-    _gamePhaseSubscription?.cancel();
-    _gamePhaseSubscription = null;
-  }
+  Stream<GameInfoModel> get gameInfoStream => gameManager.gameInfoStream;
 
   void _startGameEventHandler(event, emit) async {
     try {
@@ -50,7 +47,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   void _finishGameEventHandler(event, emit) async {
     try {
       gameManager.finishGame();
-      _unsubscribeFromGamePhase();
       emit(InitialBoardState());
     } on InvalidPlayerDataException catch (ex) {
       emit(ErrorBoardState(ex.errorMessage));
@@ -86,7 +82,5 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   void dispose() {
-    _gamePhaseSubscription?.cancel();
-    _gamePhaseSubscription = null;
   }
 }

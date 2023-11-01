@@ -14,6 +14,7 @@ import 'package:mafia_board/presentation/feature/home/phase_view/speaking_phase/
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_list/vote_phase_list_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_bloc/vote_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_bloc.dart';
+import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_page.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/role_bloc/role_bloc.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
 
@@ -64,7 +65,7 @@ class _MafiaBoardAppState extends State<MafiaBoardApp> {
               home: state is InitialAppState
                   ? Container()
                   : state.isAuthorized
-                      ? const HomePage()
+                      ? const PlayersSheetPage()
                       : const LoginPage(),
               routes: AppRouter.routes,
             );

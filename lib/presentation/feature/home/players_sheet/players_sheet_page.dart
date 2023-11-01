@@ -6,6 +6,7 @@ import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_event.dart';
+import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_state.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_list/vote_phase_list_view.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_event.dart';
@@ -15,6 +16,8 @@ import 'package:mafia_board/presentation/feature/home/players_sheet/role_bloc/ro
 import 'package:mafia_board/presentation/feature/home/players_sheet/role_bloc/role_state.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/widgets/blur_widget.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/widgets/hover_detector_widget.dart';
+import 'package:mafia_board/presentation/feature/router.dart';
+import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 
 class PlayersSheetPage extends StatefulWidget {
   const PlayersSheetPage({
@@ -52,48 +55,73 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder(
-      bloc: _playersSheetBloc,
-      builder: (BuildContext context, SheetState state) {
-        if (state is InitialSheetState) {
-          return Center(
-              child: SingleChildScrollView(
-                  child: Column(
-            children: [
-              ElevatedButton(
-                  onPressed: () => _playersSheetBloc.add(SetTestDataEvent()),
-                  child: Text('Set Test Data')),
-              _sheetHeader(),
-              Padding(
-                padding: const EdgeInsets.only(
-                    left: Dimensions.sidePadding0_5x,
-                    right: Dimensions.sidePadding0_5x),
-                child: StreamBuilder(
-                    stream: _playersSheetBloc.playersStream,
-                    builder: (context, AsyncSnapshot<SheetDataState> snapshot) {
-                      if (snapshot.hasData) {
-                        isGameStarted =
-                            snapshot.data?.gameInfo?.isGameStarted ?? false;
-                        return _playersSheet(snapshot.data!);
-                      } else {
-                        return Container();
-                      }
-                    }),
-              ),
-              const Padding(
-                padding: EdgeInsets.all(
-                  Dimensions.defaultSidePadding,
-                ),
-                child: VotePhaseListView(),
-              ),
-            ],
-          )));
-        }
-        return const Center(
-          child: Text('Something went wrong'),
-        );
-      },
-    );
+    return Scaffold(
+        appBar: AppBar(),
+        body: BlocBuilder(
+          bloc: _playersSheetBloc,
+          builder: (BuildContext context, SheetState state) {
+            if (state is InitialSheetState) {
+              return Center(
+                  child: SingleChildScrollView(
+                      child: Column(
+                children: [
+                  BlocConsumer(
+                      listener: (context, BoardState state) {
+                        if ((state is GamePhaseState &&
+                            state.gameInfo?.isGameStarted == true)) {
+                          Navigator.pushNamedAndRemoveUntil(context, AppRouter.tablePage, (_) => false);
+                        }
+                      },
+                      bloc: _boardBloc,
+                      builder: (context, BoardState state) {
+                        return Column(
+                          children: [
+                            if (state is ErrorBoardState) ...[
+                              const SizedBox(
+                                height: Dimensions.defaultSidePadding,
+                              ),
+                              _errorView(state.errorMessage)
+                            ],
+                            if (state is ErrorBoardState ||
+                                state is InitialBoardState ||
+                                (state is GamePhaseState &&
+                                    state.gameInfo?.isGameStarted == false))
+                              _startGameButton()
+                            else
+                              Container()
+                          ],
+                        );
+                      }),
+                  ElevatedButton(
+                      onPressed: () =>
+                          _playersSheetBloc.add(SetTestDataEvent()),
+                      child: Text('Set Test Data')),
+                  _sheetHeader(),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: Dimensions.sidePadding0_5x,
+                        right: Dimensions.sidePadding0_5x),
+                    child: StreamBuilder(
+                        stream: _playersSheetBloc.playersStream,
+                        builder:
+                            (context, AsyncSnapshot<SheetDataState> snapshot) {
+                          if (snapshot.hasData) {
+                            isGameStarted =
+                                snapshot.data?.gameInfo?.isGameStarted ?? false;
+                            return _playersSheet(snapshot.data!);
+                          } else {
+                            return Container();
+                          }
+                        }),
+                  ),
+                ],
+              )));
+            }
+            return const Center(
+              child: Text('Something went wrong'),
+            );
+          },
+        ));
   }
 
   Widget _sheetHeader() {
@@ -304,4 +332,20 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
               );
             }));
   }
+
+  Widget _errorView(String errorMessage) {
+    return InfoField(
+      message: errorMessage,
+      infoFieldType: InfoFieldType.error,
+    );
+  }
+
+  Widget _startGameButton() => GestureDetector(
+      onTap: () {
+        _boardBloc.add(StartGameEvent());
+      },
+      child: const Text(
+        'Start Game',
+        style: TextStyle(fontSize: 32),
+      ));
 }
