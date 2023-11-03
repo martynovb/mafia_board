@@ -55,11 +55,6 @@ class VotePhaseListBloc extends Bloc<VotePhaseListEvent, VotePhaseListState> {
     await _gameInfoSubscription?.cancel();
     _gameInfoSubscription = null;
   }
-
-  void dispose() {
-    _voteListSubject.close();
-    _unsubscribe();
-  }
 }
 
 class VotePhaseListEvent {}

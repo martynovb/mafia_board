@@ -18,7 +18,8 @@ class VotePhaseManager {
   final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
   final GameHistoryManager gameHistoryManager;
   final BoardRepo boardRepository;
-  final BehaviorSubject<VotePhaseAction> _currentVoteSubject = BehaviorSubject();
+  final BehaviorSubject<VotePhaseAction> _currentVoteSubject =
+      BehaviorSubject();
 
   VotePhaseManager({
     required this.gameInfoRepo,
@@ -28,7 +29,8 @@ class VotePhaseManager {
     required this.boardRepository,
   });
 
-  Stream<VotePhaseAction> get currentVotePhaseStream => _currentVoteSubject.stream;
+  Stream<VotePhaseAction> get currentVotePhaseStream =>
+      _currentVoteSubject.stream;
 
   List<VotePhaseAction> getAllPhases(int day) =>
       voteGamePhaseRepo.getAllPhasesByDay(day: day);
@@ -85,7 +87,9 @@ class VotePhaseManager {
     final currentDay = await gameInfoRepo.getCurrentDay();
     final currentSpeakerId =
         speakGamePhaseRepo.getCurrentPhase(day: currentDay)?.playerId;
-    if (currentSpeakerId == null || playerToVote == null || !playerToVote.isAvailable()) {
+    if (currentSpeakerId == null ||
+        playerToVote == null ||
+        !playerToVote.isInGame()) {
       return false;
     }
 
@@ -120,6 +124,9 @@ class VotePhaseManager {
     required PlayerModel currentPlayer,
     required PlayerModel voteAgainstPlayer,
   }) async {
+    if (!currentPlayer.isInGame()) {
+      return false;
+    }
     final currentDay = await gameInfoRepo.getCurrentDay();
     final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay(day: currentDay);
     return allVotePhases
@@ -406,7 +413,7 @@ class VotePhaseManager {
     });
   }
 
-  void dispose(){
+  void dispose() {
     _currentVoteSubject.close();
   }
 }

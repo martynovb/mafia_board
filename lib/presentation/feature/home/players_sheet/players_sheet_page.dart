@@ -76,11 +76,6 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
                         children: [
                           BlocConsumer(
                               listener: (context, BoardState state) {
-                                if ((state is GamePhaseState &&
-                                    state.gameInfo?.isGameStarted == true &&
-                                    widget.nextPage != null)) {
-                                  widget.nextPage!();
-                                }
                               },
                               bloc: _boardBloc,
                               builder: (context, BoardState state) {
@@ -220,7 +215,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
   Widget _playerItem(int seatNumber, PlayerModel playerModel) {
     return Container(
       height: Dimensions.playerItemHeight,
-      color: !playerModel.isAvailable()
+      color: !playerModel.isInGame()
           ? Colors.red.withOpacity(0.5)
           : Colors.transparent,
       child: Row(
@@ -370,6 +365,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
   Widget _startGameButton() => GestureDetector(
       onTap: () {
         _boardBloc.add(StartGameEvent());
+        widget.nextPage!();
       },
       child: const Text(
         'Start Game',

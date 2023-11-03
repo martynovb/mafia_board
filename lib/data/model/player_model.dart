@@ -40,7 +40,7 @@ class PlayerModel {
 
   String get nickname => _user?.nickname ?? '';
 
-  bool isAvailable() => !isRemoved && !isKilled && !isKicked;
+  bool isInGame() => !isRemoved && !isKilled && !isKicked;
 
   @override
   String toString() {
@@ -54,7 +54,7 @@ class PlayerModel {
           ..add('isRemoved', isRemoved)
           ..add('isMuted', isMuted)
           ..add('isKicked', isKicked)
-          ..add('isAvailable', isAvailable()))
+          ..add('isAvailable', isInGame()))
         .toString();
   }
 }

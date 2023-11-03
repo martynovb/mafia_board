@@ -20,12 +20,6 @@ class _VotePhaseListViewState extends State<VotePhaseListView> {
   }
 
   @override
-  void dispose() {
-    _votePhaseListBloc.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return SizedBox(
         height: 24,

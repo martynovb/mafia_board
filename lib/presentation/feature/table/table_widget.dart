@@ -140,7 +140,7 @@ class _TableWidgetState extends State<TableWidget> {
     PlayerModel playerModel,
     HighlightedPlayerData? highlightedPlayerData,
   ) {
-    if (!playerModel.isAvailable()) {
+    if (!playerModel.isInGame()) {
       return Colors.white60;
     } else if (highlightedPlayerData != null &&
         (highlightedPlayerData.selectedToKill)) {
