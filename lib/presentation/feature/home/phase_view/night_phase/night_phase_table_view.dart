@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
+import 'package:mafia_board/data/model/phase_type.dart';
 import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/presentation/feature/game_timer_view.dart';
@@ -94,16 +95,17 @@ class _NightPhaseTableViewState extends State<NightPhaseTableView> {
     if (state.nightPhaseAction?.role == Role.MAFIA) {
       return state.allPlayers
           .where((player) => player.isKilled)
-          .map((player) =>
-              HighlightedPlayerData(player: player, selectedToKill: true))
+          .map((player) => HighlightedPlayerData(
+              phaseType: PhaseType.night, player: player, selectedToKill: true))
           .toList();
     } else if (state.nightPhaseAction?.role == Role.DON ||
         state.nightPhaseAction?.role == Role.SHERIFF &&
             state.nightPhaseAction?.checkedPlayer != null) {
       final checkedPlayer = state.nightPhaseAction?.checkedPlayer;
-      if(checkedPlayer != null) {
+      if (checkedPlayer != null) {
         return [
           HighlightedPlayerData(
+            phaseType: PhaseType.night,
             player: checkedPlayer,
             showRole: true,
           )
@@ -132,6 +134,7 @@ class _NightPhaseTableViewState extends State<NightPhaseTableView> {
 
   Widget _donView(NightPhaseState state) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         if (_isTimerFinished)
           _goNextPhase()
@@ -146,6 +149,7 @@ class _NightPhaseTableViewState extends State<NightPhaseTableView> {
 
   Widget _sheriffView(NightPhaseState state) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         if (_isTimerFinished)
           _goNextPhase()
@@ -159,15 +163,15 @@ class _NightPhaseTableViewState extends State<NightPhaseTableView> {
   }
 
   Widget _goNextPhase() {
-    return Column(
-      children: [
-        ElevatedButton(
-            onPressed: () {
-              nightPhaseBloc.add(FinishCurrentNightPhaseEvent());
-              _isTimerFinished = false;
-            },
-            child: Text('Next role')),
-      ],
+    return ElevatedButton(
+      onPressed: () {
+        nightPhaseBloc.add(FinishCurrentNightPhaseEvent());
+        _isTimerFinished = false;
+      },
+      child: Text('Next'),
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(Colors.black)
+      ),
     );
   }
 

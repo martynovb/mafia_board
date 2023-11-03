@@ -8,7 +8,6 @@ import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_blo
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_event.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_state.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/night_phase/night_phase_table_view.dart';
-import 'package:mafia_board/presentation/feature/home/phase_view/night_phase/night_phase_view.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_table_view.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/speaking_phase/speaking_phase_table_view.dart';
 import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
@@ -20,9 +19,13 @@ class TablePage extends StatefulWidget {
   State<StatefulWidget> createState() => _TableState();
 }
 
-class _TableState extends State<TablePage> {
+class _TableState extends State<TablePage> with AutomaticKeepAliveClientMixin {
+  final timerKey = GlobalKey<GameTimerViewState>();
   late BoardBloc boardBloc;
   int touchedIndex = -1;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -32,13 +35,18 @@ class _TableState extends State<TablePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(),
-    body: Padding(
+    return Padding(
       padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
       child: BlocBuilder(
         bloc: boardBloc,
         builder: (BuildContext context, BoardState state) {
+          if (state is InitialBoardState ||
+              (state is GamePhaseState &&
+                  state.gameInfo?.isGameStarted == false)) {
+            return Center(
+              child: Text('Game is not started'),
+            );
+          }
           return Column(
             children: [
               _header(state),
@@ -48,7 +56,7 @@ class _TableState extends State<TablePage> {
           );
         },
       ),
-    ));
+    );
   }
 
   Widget _centerTableContent() {
@@ -77,7 +85,7 @@ class _TableState extends State<TablePage> {
           height: Dimensions.headerHeight,
           child: Row(
             children: [
-              const GameTimerView(),
+              GameTimerView(key: timerKey),
               const Spacer(),
               _finishGameButton(),
             ],

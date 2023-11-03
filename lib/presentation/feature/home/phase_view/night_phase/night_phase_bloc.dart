@@ -53,6 +53,7 @@ class NightPhaseBloc extends Bloc<NightPhaseEvent, NightPhaseState> {
   ) async {
     await nightPhaseManager.finishCurrentNightPhase();
     emit(NightPhaseState(
+      allPlayers: boardRepository.getAllPlayers(),
       nightPhaseAction: await nightPhaseManager.getCurrentPhase(),
       isFinished: true,
     ));

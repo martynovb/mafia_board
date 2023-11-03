@@ -7,7 +7,6 @@ import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_event.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_state.dart';
-import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_list/vote_phase_list_view.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_event.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_bloc/players_sheet_state.dart';
@@ -16,19 +15,22 @@ import 'package:mafia_board/presentation/feature/home/players_sheet/role_bloc/ro
 import 'package:mafia_board/presentation/feature/home/players_sheet/role_bloc/role_state.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/widgets/blur_widget.dart';
 import 'package:mafia_board/presentation/feature/home/players_sheet/widgets/hover_detector_widget.dart';
-import 'package:mafia_board/presentation/feature/router.dart';
 import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 
 class PlayersSheetPage extends StatefulWidget {
+  final Function()? nextPage;
+
   const PlayersSheetPage({
     super.key,
+    this.nextPage,
   });
 
   @override
   State<PlayersSheetPage> createState() => _PlayersSheetPageState();
 }
 
-class _PlayersSheetPageState extends State<PlayersSheetPage> {
+class _PlayersSheetPageState extends State<PlayersSheetPage>
+    with AutomaticKeepAliveClientMixin {
   final int _voteColumnFlex = 0;
   final int _nicknameColumnFlex = 5;
   final int _foulsColumnFlex = 4;
@@ -38,6 +40,9 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
   late PlayersSheetBloc _playersSheetBloc;
   late RoleBloc _roleBloc;
   late BoardBloc _boardBloc;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -55,73 +60,85 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(),
-        body: BlocBuilder(
-          bloc: _playersSheetBloc,
-          builder: (BuildContext context, SheetState state) {
-            if (state is InitialSheetState) {
-              return Center(
-                  child: SingleChildScrollView(
+    return BlocBuilder(
+      bloc: _playersSheetBloc,
+      builder: (BuildContext context, SheetState state) {
+        if (state is InitialSheetState) {
+          return Center(
+            child: SingleChildScrollView(
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  return ConstrainedBox(
+                      constraints: const BoxConstraints(
+                          maxWidth: Dimensions.maxPlayersListWidth),
                       child: Column(
-                children: [
-                  BlocConsumer(
-                      listener: (context, BoardState state) {
-                        if ((state is GamePhaseState &&
-                            state.gameInfo?.isGameStarted == true)) {
-                          Navigator.pushNamedAndRemoveUntil(context, AppRouter.tablePage, (_) => false);
-                        }
-                      },
-                      bloc: _boardBloc,
-                      builder: (context, BoardState state) {
-                        return Column(
-                          children: [
-                            if (state is ErrorBoardState) ...[
-                              const SizedBox(
-                                height: Dimensions.defaultSidePadding,
-                              ),
-                              _errorView(state.errorMessage)
-                            ],
-                            if (state is ErrorBoardState ||
-                                state is InitialBoardState ||
-                                (state is GamePhaseState &&
-                                    state.gameInfo?.isGameStarted == false))
-                              _startGameButton()
-                            else
-                              Container()
-                          ],
-                        );
-                      }),
-                  ElevatedButton(
-                      onPressed: () =>
-                          _playersSheetBloc.add(SetTestDataEvent()),
-                      child: Text('Set Test Data')),
-                  _sheetHeader(),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        left: Dimensions.sidePadding0_5x,
-                        right: Dimensions.sidePadding0_5x),
-                    child: StreamBuilder(
-                        stream: _playersSheetBloc.playersStream,
-                        builder:
-                            (context, AsyncSnapshot<SheetDataState> snapshot) {
-                          if (snapshot.hasData) {
-                            isGameStarted =
-                                snapshot.data?.gameInfo?.isGameStarted ?? false;
-                            return _playersSheet(snapshot.data!);
-                          } else {
-                            return Container();
-                          }
-                        }),
-                  ),
-                ],
-              )));
-            }
-            return const Center(
-              child: Text('Something went wrong'),
-            );
-          },
-        ));
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          BlocConsumer(
+                              listener: (context, BoardState state) {
+                                if ((state is GamePhaseState &&
+                                    state.gameInfo?.isGameStarted == true &&
+                                    widget.nextPage != null)) {
+                                  widget.nextPage!();
+                                }
+                              },
+                              bloc: _boardBloc,
+                              builder: (context, BoardState state) {
+                                return Column(
+                                  children: [
+                                    if (state is ErrorBoardState) ...[
+                                      const SizedBox(
+                                        height: Dimensions.defaultSidePadding,
+                                      ),
+                                      _errorView(state.errorMessage)
+                                    ],
+                                    if (state is ErrorBoardState ||
+                                        state is InitialBoardState ||
+                                        (state is GamePhaseState &&
+                                            state.gameInfo?.isGameStarted ==
+                                                false))
+                                      _startGameButton()
+                                    else
+                                      Container()
+                                  ],
+                                );
+                              }),
+                          ElevatedButton(
+                              onPressed: () =>
+                                  _playersSheetBloc.add(SetTestDataEvent()),
+                              child: const Text('Set Test Data')),
+                          _sheetHeader(),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: Dimensions.sidePadding0_5x,
+                                right: Dimensions.sidePadding0_5x),
+                            child: StreamBuilder(
+                              stream: _playersSheetBloc.playersStream,
+                              builder: (context,
+                                  AsyncSnapshot<SheetDataState> snapshot) {
+                                if (snapshot.hasData) {
+                                  isGameStarted =
+                                      snapshot.data?.gameInfo?.isGameStarted ??
+                                          false;
+                                  return _playersSheet(snapshot.data!);
+                                } else {
+                                  return Container();
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      ));
+                },
+              ),
+            ),
+          );
+        }
+        return const Center(
+          child: Text('Something went wrong'),
+        );
+      },
+    );
   }
 
   Widget _sheetHeader() {
@@ -137,7 +154,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
                     left: Dimensions.sidePadding0_5x,
                   ),
                   child: Icon(
-                    Icons.thumb_up,
+                    Icons.numbers,
                     size: Dimensions.defaultIconSize,
                   )),
             ),
@@ -153,7 +170,22 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
             ),
             Expanded(
               flex: _foulsColumnFlex,
-              child: const Center(child: Text('fouls')),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.check,
+                    size: Dimensions.defaultIconSize,
+                  ),
+                  SizedBox(
+                    width: Dimensions.sidePadding0_5x,
+                  ),
+                  Text('fouls'),
+                  SizedBox(
+                    width: Dimensions.defaultSidePadding,
+                  ),
+                ],
+              ),
             ),
             const VerticalDivider(
               color: Colors.transparent,
@@ -198,19 +230,8 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
             child: SizedBox(
               width: Dimensions.defaultIconSize,
               height: Dimensions.defaultIconSize,
-              child: InkWell(
-                onTap: isGameStarted
-                    ? () {
-                        _boardBloc
-                            .add(PutOnVoteEvent(playerOnVote: playerModel));
-                      }
-                    : null,
-                child: Center(
-                  child: HoverDetectorWidget(
-                    enabled: isGameStarted,
-                    child: Text((playerModel.seatNumber).toString()),
-                  ),
-                ),
+              child: Center(
+                child: Text((playerModel.seatNumber).toString()),
               ),
             ),
           ),
@@ -227,7 +248,13 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
                           FindUserEvent(seatNumber: playerModel.seatNumber));
                     },
                   )
-                : Text(playerModel.nickname),
+                : GestureDetector(
+                    child: Text(playerModel.nickname),
+                    onTap: () {
+                      _playersSheetBloc.add(
+                          FindUserEvent(seatNumber: playerModel.seatNumber));
+                    },
+                  ),
           ),
           const VerticalDivider(
             color: Colors.white,
@@ -287,7 +314,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage> {
               itemCount: fouls,
               itemBuilder: (__, index) => const Icon(
                 size: Dimensions.foulItemWidth,
-                Icons.close,
+                Icons.check,
                 color: Colors.red,
               ),
             ),

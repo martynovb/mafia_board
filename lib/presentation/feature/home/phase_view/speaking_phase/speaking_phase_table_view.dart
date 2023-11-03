@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
+import 'package:mafia_board/data/model/phase_type.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/game_timer_view.dart';
 import 'package:mafia_board/presentation/feature/home/board/board_bloc/board_bloc.dart';
@@ -81,11 +82,12 @@ class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
                   if (state.speaker != null &&
                       state.speakPhaseAction != null) ...[
                     HighlightedPlayerData(
+                        phaseType: PhaseType.speak,
                         player: state.speaker!,
                         isSpeaking: state.speakPhaseAction?.status ==
                             PhaseStatus.inProgress,
                         isReadyToSpeak: state.speakPhaseAction?.status ==
-                            PhaseStatus.notStarted)
+                            PhaseStatus.notStarted),
                   ]
                 ],
                 onPlayerClicked: (player) {

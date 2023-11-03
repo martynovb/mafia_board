@@ -6,6 +6,7 @@ class Dimensions {
   static const double defaultSidePadding = 16;
   static const double logsPanelHeight = 50;
   static const double tableHeight = 400;
+  static const double maxPlayersListWidth  = 500;
   static const double headerHeight = 40;
   static const double sidePadding0_25x = defaultSidePadding/4;
   static const double sidePadding0_5x = defaultSidePadding/2;

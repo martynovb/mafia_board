@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:mafia_board/data/model/phase_type.dart';
 import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
@@ -48,7 +49,7 @@ class _TableWidgetState extends State<TableWidget> {
 
   Widget _table() {
     List<PieChartSectionData> sections = [];
-    if(widget.players.isEmpty){
+    if (widget.players.isEmpty) {
       return Container();
     }
     for (var i = 0; i <= widget.players.length; i++) {
@@ -93,7 +94,7 @@ class _TableWidgetState extends State<TableWidget> {
               setState(() {
                 touchedIndex = -1;
               });
-            } else if (event is FlPanDownEvent) {
+            } else if (event is FlPanDownEvent && touchedSection.touchedSectionIndex > 0) {
               widget.onPlayerClicked(
                 widget.players[touchedSection.touchedSectionIndex - 1],
               );
@@ -139,8 +140,8 @@ class _TableWidgetState extends State<TableWidget> {
     PlayerModel playerModel,
     HighlightedPlayerData? highlightedPlayerData,
   ) {
-    if (playerModel.isKicked || playerModel.isRemoved) {
-      return Colors.white12;
+    if (!playerModel.isAvailable()) {
+      return Colors.white60;
     } else if (highlightedPlayerData != null &&
         (highlightedPlayerData.selectedToKill)) {
       return Colors.black;
@@ -207,6 +208,7 @@ class _TableWidgetState extends State<TableWidget> {
 }
 
 class HighlightedPlayerData {
+  final PhaseType phaseType;
   final PlayerModel player;
   final bool isSpeaking;
   final bool isReadyToSpeak;
@@ -214,9 +216,12 @@ class HighlightedPlayerData {
   final bool selectedToKill;
   final bool onVote;
   final bool isVoted;
+  final bool isAvailable;
 
   HighlightedPlayerData({
     required this.player,
+    required this.phaseType,
+    this.isAvailable = true,
     this.isSpeaking = false,
     this.showRole = false,
     this.selectedToKill = false,

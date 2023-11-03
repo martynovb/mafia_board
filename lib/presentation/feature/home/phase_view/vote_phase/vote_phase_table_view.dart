@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
+import 'package:mafia_board/data/model/phase_type.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_bloc/vote_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_bloc/vote_phase_event.dart';
 import 'package:mafia_board/presentation/feature/home/phase_view/vote_phase/vote_phase_bloc/vote_phase_state.dart';
@@ -55,6 +56,7 @@ class _VotePhaseTableViewState extends State<VotePhaseTableView> {
                   highlightedPlayerList: state.allAvailablePlayersToVote.entries
                       .map(
                         (entry) => HighlightedPlayerData(
+                          phaseType: PhaseType.vote,
                           player: entry.key,
                           isVoted: entry.value,
                           onVote: state.playerOnVote?.id == entry.key.id,
@@ -82,6 +84,7 @@ class _VotePhaseTableViewState extends State<VotePhaseTableView> {
 
   Widget _center(VotePhaseState state) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(state.title),
         if (state.playersToKickText.isNotEmpty) Text(state.playersToKickText),

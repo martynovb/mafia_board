@@ -65,7 +65,7 @@ class _MafiaBoardAppState extends State<MafiaBoardApp> {
               home: state is InitialAppState
                   ? Container()
                   : state.isAuthorized
-                      ? const PlayersSheetPage()
+                      ? const GamePage()
                       : const LoginPage(),
               routes: AppRouter.routes,
             );

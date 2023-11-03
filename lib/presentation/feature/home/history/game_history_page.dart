@@ -6,15 +6,18 @@ import 'package:mafia_board/data/model/game_history_type.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/home/history/game_history_bloc.dart';
 
-class GameHistoryView extends StatefulWidget {
-  const GameHistoryView({Key? key}) : super(key: key);
+class GameHistoryPage extends StatefulWidget  {
+  const GameHistoryPage({Key? key}) : super(key: key);
 
   @override
-  State<GameHistoryView> createState() => _GameHistoryViewState();
+  State<GameHistoryPage> createState() => _GameHistoryPageState();
 }
 
-class _GameHistoryViewState extends State<GameHistoryView> {
+class _GameHistoryPageState extends State<GameHistoryPage> with AutomaticKeepAliveClientMixin {
   late GameHistoryBloc gameHistoryBloc;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -31,10 +34,15 @@ class _GameHistoryViewState extends State<GameHistoryView> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.all(Dimensions.sidePadding0_5x),
+        padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
         child: BlocBuilder(
             bloc: gameHistoryBloc,
             builder: (context, GameHistoryState state) {
+              if (state.records.isEmpty) {
+                return const Center(
+                  child: Text('History is empty'),
+                );
+              }
               return Column(
                 children: [
                   const Text('Game logs:'),

@@ -9,7 +9,7 @@ import 'package:mafia_board/presentation/feature/settings/settings_page.dart';
 import 'package:mafia_board/presentation/feature/table/table_page.dart';
 
 class AppRouter {
-  static const homePage = '/home';
+  static const gamePage = '/game';
   static const mePage = '/me';
   static const settingsPage = '/settings';
   static const loginPage = '/login';
@@ -20,7 +20,7 @@ class AppRouter {
   static const tablePage = '/tablePage';
 
   static final Map<String, WidgetBuilder> routes = {
-    homePage: (context) => const HomePage(),
+    gamePage: (context) => const GamePage(),
     settingsPage: (context) => const SettingsPage(),
     loginPage: (context) => const LoginPage(),
     createAccountPage: (context) => const CreateAccountPage(),
