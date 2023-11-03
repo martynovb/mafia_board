@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:mafia_board/data/repo/board/board_repo.dart';
+import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/night_phase_manager.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/night_phase/night_phase_event.dart';
@@ -9,7 +9,7 @@ class NightPhaseBloc extends Bloc<NightPhaseEvent, NightPhaseState> {
   static const String _tag = 'SpeakingPhaseBloc';
   final GameManager gamePhaseManager;
   final NightPhaseManager nightPhaseManager;
-  final BoardRepo boardRepository;
+  final PlayersRepo boardRepository;
 
   NightPhaseBloc({
     required this.gamePhaseManager,

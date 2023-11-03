@@ -6,9 +6,11 @@ import 'package:mafia_board/presentation/feature/app/bloc/app_event.dart';
 import 'package:mafia_board/presentation/feature/app/bloc/app_state.dart';
 import 'package:mafia_board/presentation/feature/auth/bloc/auth_bloc.dart';
 import 'package:mafia_board/presentation/feature/auth/login_page.dart';
-import 'package:mafia_board/presentation/feature/game/board/board_bloc/board_bloc.dart';
+import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_bloc.dart';
+import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_bloc.dart';
+import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_page.dart';
+import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/history/game_history_bloc.dart';
-import 'package:mafia_board/presentation/feature/game/game_page.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/night_phase/night_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/speaking_phase/speaking_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote_list/vote_phase_list_bloc.dart';
@@ -45,7 +47,7 @@ class _MafiaBoardAppState extends State<MafiaBoardApp> {
         providers: [
           BlocProvider(create: (context) => GetIt.instance<PlayersSheetBloc>()),
           BlocProvider(create: (context) => GetIt.instance<RoleBloc>()),
-          BlocProvider(create: (context) => GetIt.instance<BoardBloc>()),
+          BlocProvider(create: (context) => GetIt.instance<GameBloc>()),
           BlocProvider(create: (context) => GetIt.instance<VotePhaseBloc>()),
           BlocProvider(create: (context) => GetIt.instance<GameHistoryBloc>()),
           BlocProvider(create: (context) => GetIt.instance<SpeakingPhaseBloc>()),
@@ -53,6 +55,8 @@ class _MafiaBoardAppState extends State<MafiaBoardApp> {
           BlocProvider(create: (context) => GetIt.instance<VotePhaseListBloc>()),
           BlocProvider(create: (context) => GetIt.instance<AuthBloc>()),
           BlocProvider(create: (context) => GetIt.instance<AppBloc>()),
+          BlocProvider(create: (context) => GetIt.instance<ClubsDetailsBloc>()),
+          BlocProvider(create: (context) => GetIt.instance<ClubsListBloc>()),
         ],
         child: BlocBuilder(
           bloc: appBloc,
@@ -64,7 +68,7 @@ class _MafiaBoardAppState extends State<MafiaBoardApp> {
               home: state is InitialAppState
                   ? Container()
                   : state.isAuthorized
-                      ? const GamePage()
+                      ? const ClubsPage()
                       : const LoginPage(),
               routes: AppRouter.routes,
             );

@@ -1,14 +1,13 @@
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/player_model.dart';
-import 'package:mafia_board/data/repo/board/board_repo.dart';
-import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
+import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/phase_manager/speaking_phase_manager.dart';
 
 class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
   static const String _tag = 'SpeakingPhaseBloc';
   final SpeakingPhaseManager speakingPhaseManager;
-  final BoardRepo boardRepo;
+  final PlayersRepo boardRepo;
 
   SpeakingPhaseBloc({
     required this.speakingPhaseManager,

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/data/api/auth_api.dart';
 import 'package:mafia_board/data/api/base_url_provider.dart';
@@ -10,9 +8,13 @@ import 'package:mafia_board/data/api/token_provider.dart';
 import 'package:mafia_board/data/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
-import 'package:mafia_board/data/repo/auth_repo.dart';
-import 'package:mafia_board/data/repo/board/board_repo.dart';
-import 'package:mafia_board/data/repo/board/board_repo_local.dart';
+import 'package:mafia_board/data/repo/auth/auth_repo.dart';
+import 'package:mafia_board/data/repo/auth/auth_repo_local.dart';
+import 'package:mafia_board/data/repo/auth/auth_repo_remote.dart';
+import 'package:mafia_board/data/repo/auth/users/users_repo.dart';
+import 'package:mafia_board/data/repo/auth/users/users_repo_local.dart';
+import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
+import 'package:mafia_board/data/repo/clubs/clubs_repo_local.dart';
 import 'package:mafia_board/data/repo/game_phase/base_phase_repo_local.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/speak_phase_repo/speak_phase_repo_local.dart';
@@ -21,6 +23,8 @@ import 'package:mafia_board/data/repo/history/history_repository.dart';
 import 'package:mafia_board/data/repo/history/history_repository_local.dart';
 import 'package:mafia_board/data/repo/game_info/game_info_repo.dart';
 import 'package:mafia_board/data/repo/game_info/game_info_repo_local.dart';
+import 'package:mafia_board/data/repo/players/players_repo.dart';
+import 'package:mafia_board/data/repo/players/players_repo_local.dart';
 import 'package:mafia_board/domain/field_validation/email_validator.dart';
 import 'package:mafia_board/domain/field_validation/nickname_field_validator.dart';
 import 'package:mafia_board/domain/field_validation/password_validator.dart';
@@ -35,7 +39,9 @@ import 'package:mafia_board/domain/player_validator.dart';
 import 'package:mafia_board/domain/role_manager.dart';
 import 'package:mafia_board/presentation/feature/app/bloc/app_bloc.dart';
 import 'package:mafia_board/presentation/feature/auth/bloc/auth_bloc.dart';
-import 'package:mafia_board/presentation/feature/game/board/board_bloc/board_bloc.dart';
+import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_bloc.dart';
+import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_bloc.dart';
+import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/history/game_history_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/night_phase/night_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/speaking_phase/speaking_phase_bloc.dart';
@@ -51,13 +57,13 @@ class Injector {
   static const speakPhaseRepoLocalTag = 'speak-phase-repo-local';
   static const nightPhaseRepoLocalTag = 'night-phase-repo-local';
 
-  static void inject() {
-    _injectDataLayer();
+  static void inject(bool isLocalDataBase) {
+    _injectDataLayer(isLocalDataBase);
     _injectDomainLayer();
     _injectBloC();
   }
 
-  static void _injectDataLayer() {
+  static void _injectDataLayer(bool isLocalDataBase) {
     //network
     _getIt.registerSingleton<BaseUrlProvider>(LocalBaseUrlProvider());
     _getIt.registerSingleton<TokenProvider>(TokenProvider());
@@ -77,10 +83,14 @@ class Injector {
     _getIt.registerSingleton<AuthApi>(AuthApi(_getIt.get()));
 
     //repo
-    _getIt.registerSingleton<AuthRepo>(AuthRepo(
-      api: _getIt.get(),
-      tokenProvider: _getIt.get(),
-    ));
+    _getIt.registerSingleton<AuthRepo>(
+      isLocalDataBase
+          ? AuthRepoLocal()
+          : AuthRepoRemote(
+              api: _getIt.get(),
+              tokenProvider: _getIt.get(),
+            ),
+    );
 
     _getIt.registerSingleton<GamePhaseRepo<VotePhaseAction>>(
       VotePhaseRepoLocal(),
@@ -98,10 +108,15 @@ class Injector {
     );
 
     _getIt.registerSingleton<HistoryRepo>(HistoryRepoLocal());
-    _getIt.registerSingleton<BoardRepo>(BoardRepoLocal());
+    _getIt.registerSingleton<PlayersRepo>(PlayersRepoLocal());
     _getIt.registerSingleton(RoleManager.classic(_getIt.get()));
     _getIt.registerSingleton(PlayerValidator());
     _getIt.registerSingleton<GameInfoRepo>(GameInfoRepoLocal());
+    _getIt.registerSingleton<UsersRepo>(UsersRepoLocal(authRepo: _getIt.get()));
+    _getIt.registerSingleton<ClubsRepo>(ClubsRepoLocal(
+      authRepo: _getIt.get(),
+      usersRepo: _getIt.get(),
+    ));
   }
 
   static void _injectDomainLayer() {
@@ -171,7 +186,7 @@ class Injector {
 
   static void _injectBloC() {
     _getIt.registerSingleton(
-      BoardBloc(
+      GameBloc(
         votePhaseManager: _getIt.get(),
         gameManager: _getIt.get(),
         boardRepository: _getIt.get(),
@@ -234,5 +249,7 @@ class Injector {
     ));
 
     _getIt.registerSingleton(AppBloc(authRepo: _getIt.get()));
+    _getIt.registerSingleton(ClubsListBloc(clubsRepo: _getIt.get()));
+    _getIt.registerSingleton(ClubsDetailsBloc(clubsRepo: _getIt.get()));
   }
 }

@@ -4,11 +4,11 @@ import 'package:mafia_board/data/model/game_info_model.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/model/phase_type.dart';
-import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/data/repo/game_info/game_info_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
+import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
 import 'package:mafia_board/domain/phase_manager/night_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/speaking_phase_manager.dart';
@@ -21,7 +21,7 @@ class GameManager {
   static const _tag = 'GameManager';
 
   final GameInfoRepo gameInfoRepo;
-  final BoardRepo boardRepository;
+  final PlayersRepo boardRepository;
   final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
   final GamePhaseRepo<VotePhaseAction> voteGamePhaseRepo;
   final GamePhaseRepo<NightPhaseAction> nightGamePhaseRepo;

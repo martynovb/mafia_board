@@ -4,9 +4,9 @@ import 'package:get_it/get_it.dart';
 import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
-import 'package:mafia_board/presentation/feature/game/board/board_bloc/board_bloc.dart';
-import 'package:mafia_board/presentation/feature/game/board/board_bloc/board_event.dart';
-import 'package:mafia_board/presentation/feature/game/board/board_bloc/board_state.dart';
+import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
+import 'package:mafia_board/presentation/feature/game/game_bloc/game_event.dart';
+import 'package:mafia_board/presentation/feature/game/game_bloc/game_state.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/players_sheet_bloc/players_sheet_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/players_sheet_bloc/players_sheet_event.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/players_sheet_bloc/players_sheet_state.dart';
@@ -14,7 +14,6 @@ import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/ro
 import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/role_event.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/role_state.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/widgets/blur_widget.dart';
-import 'package:mafia_board/presentation/feature/game/players_sheet/widgets/hover_detector_widget.dart';
 import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 
 class PlayersSheetPage extends StatefulWidget {
@@ -39,7 +38,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
 
   late PlayersSheetBloc _playersSheetBloc;
   late RoleBloc _roleBloc;
-  late BoardBloc _boardBloc;
+  late GameBloc _boardBloc;
 
   @override
   bool get wantKeepAlive => true;
@@ -48,7 +47,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
   void initState() {
     _playersSheetBloc = GetIt.instance<PlayersSheetBloc>();
     _roleBloc = GetIt.instance<RoleBloc>();
-    _boardBloc = GetIt.instance<BoardBloc>();
+    _boardBloc = GetIt.instance<GameBloc>();
     super.initState();
   }
 
@@ -75,10 +74,10 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           BlocConsumer(
-                              listener: (context, BoardState state) {
+                              listener: (context, GameState state) {
                               },
                               bloc: _boardBloc,
-                              builder: (context, BoardState state) {
+                              builder: (context, GameState state) {
                                 return Column(
                                   children: [
                                     if (state is ErrorBoardState) ...[

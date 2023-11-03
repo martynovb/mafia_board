@@ -2,9 +2,9 @@ import 'package:collection/collection.dart';
 import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/data/model/user_model.dart';
-import 'package:mafia_board/data/repo/board/board_repo.dart';
+import 'package:mafia_board/data/repo/players/players_repo.dart';
 
-class BoardRepoLocal extends BoardRepo {
+class PlayersRepoLocal extends PlayersRepo {
   final List<PlayerModel> _players = [];
 
   @override

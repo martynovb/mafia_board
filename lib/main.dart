@@ -8,6 +8,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await TokenProvider().openBox();
-  Injector.inject();
+  Injector.inject(true);
   runApp(const MafiaBoardApp());
 }

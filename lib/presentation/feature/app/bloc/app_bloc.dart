@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:mafia_board/data/repo/auth_repo.dart';
+import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 import 'package:mafia_board/presentation/feature/app/bloc/app_event.dart';
 import 'package:mafia_board/presentation/feature/app/bloc/app_state.dart';
 

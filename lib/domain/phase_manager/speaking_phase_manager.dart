@@ -1,14 +1,14 @@
 import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
-import 'package:mafia_board/data/repo/board/board_repo.dart';
+import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/data/repo/game_info/game_info_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
 
 class SpeakingPhaseManager {
   final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
-  final BoardRepo boardRepository;
+  final PlayersRepo boardRepository;
   final GameInfoRepo gameInfoRepo;
   final GameHistoryManager gameHistoryManager;
 

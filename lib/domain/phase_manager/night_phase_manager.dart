@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/player_model.dart';
@@ -7,6 +6,7 @@ import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
 import 'package:mafia_board/data/repo/game_info/game_info_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
+import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
 import 'package:mafia_board/domain/role_manager.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
@@ -16,7 +16,7 @@ class NightPhaseManager {
   final GameInfoRepo gameInfoRepo;
   final GamePhaseRepo<NightPhaseAction> nightGamePhaseRepo;
   final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
-  final BoardRepo boardRepository;
+  final PlayersRepo boardRepository;
   final GameHistoryManager gameHistoryManager;
   final RoleManager roleManager;
 

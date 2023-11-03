@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/game_info_model.dart';
-import 'package:mafia_board/data/repo/board/board_repo.dart';
+import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/data/repo/history/history_repository.dart';
 import 'package:mafia_board/data/model/game_history_model.dart';
 import 'package:mafia_board/data/model/game_history_type.dart';
@@ -15,7 +15,7 @@ import 'package:rxdart/subjects.dart';
 
 class GameHistoryManager {
   final HistoryRepo repository;
-  final BoardRepo boardRepo;
+  final PlayersRepo boardRepo;
 
   final BehaviorSubject<List<GameHistoryModel>> _gameHistorySubject =
       BehaviorSubject();

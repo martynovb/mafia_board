@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/data/api/error_handler.dart';
-import 'package:mafia_board/data/repo/auth_repo.dart';
+import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 import 'package:mafia_board/domain/exceptions/exception.dart';
 import 'package:mafia_board/domain/field_validation/email_validator.dart';
 import 'package:mafia_board/domain/field_validation/nickname_field_validator.dart';

@@ -5,10 +5,10 @@ import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
 import 'package:mafia_board/data/model/phase_type.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
+import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
+import 'package:mafia_board/presentation/feature/game/game_bloc/game_event.dart';
 import 'package:mafia_board/presentation/feature/game/table/table_widget.dart';
 import 'package:mafia_board/presentation/feature/game_timer_view.dart';
-import 'package:mafia_board/presentation/feature/game/board/board_bloc/board_bloc.dart';
-import 'package:mafia_board/presentation/feature/game/board/board_bloc/board_event.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/speaking_phase/speaking_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote_list/vote_phase_list_view.dart';
 
@@ -26,7 +26,7 @@ class SpeakingPhaseTableView extends StatefulWidget {
 
 class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
   late SpeakingPhaseBloc speakingPhaseBloc;
-  late BoardBloc boardBloc;
+  late GameBloc boardBloc;
   final timerKey = GlobalKey<GameTimerViewState>();
   bool _isTimerFinished = false;
 

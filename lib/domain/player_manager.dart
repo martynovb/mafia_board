@@ -1,16 +1,15 @@
-import 'package:collection/collection.dart';
 import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/game_info_model.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
 import 'package:mafia_board/data/model/player_model.dart';
-import 'package:mafia_board/data/repo/board/board_repo.dart';
+import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/data/repo/game_info/game_info_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 
 class PlayerManager {
-  final BoardRepo boardRepo;
+  final PlayersRepo boardRepo;
   final GameInfoRepo gameInfoRepo;
   final GamePhaseRepo<VotePhaseAction> voteGamePhaseRepo;
   final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;

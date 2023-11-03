@@ -13,4 +13,10 @@ class UserModel {
       : id = '',
         nickname = '',
         email = '';
+
+  UserModel.fromApiModel({
+    required this.id,
+    required this.nickname,
+    required this.email,
+  });
 }

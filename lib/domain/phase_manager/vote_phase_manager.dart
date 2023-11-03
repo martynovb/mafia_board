@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
 import 'package:mafia_board/data/model/phase_type.dart';
-import 'package:mafia_board/data/repo/board/board_repo.dart';
+import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/model/player_model.dart';
@@ -18,7 +18,7 @@ class VotePhaseManager {
   final GamePhaseRepo<VotePhaseAction> voteGamePhaseRepo;
   final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
   final GameHistoryManager gameHistoryManager;
-  final BoardRepo boardRepository;
+  final PlayersRepo boardRepository;
   final BehaviorSubject<VotePhaseAction> _currentVoteSubject =
       BehaviorSubject();
 

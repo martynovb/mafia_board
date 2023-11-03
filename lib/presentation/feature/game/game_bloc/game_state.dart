@@ -1,16 +1,16 @@
 import 'package:mafia_board/data/model/game_info_model.dart';
 
-abstract class BoardState {}
+abstract class GameState {}
 
-class InitialBoardState extends BoardState {}
+class InitialBoardState extends GameState {}
 
-class ErrorBoardState extends BoardState {
+class ErrorBoardState extends GameState {
   final String errorMessage;
 
   ErrorBoardState(this.errorMessage);
 }
 
-class GamePhaseState extends BoardState {
+class GamePhaseState extends GameState {
   String currentGamePhaseName = '';
   GameInfoModel? gameInfo;
 

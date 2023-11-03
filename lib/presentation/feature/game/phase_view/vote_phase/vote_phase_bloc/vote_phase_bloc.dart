@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
-import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/model/player_model.dart';
+import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/speaking_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/vote_phase_manager.dart';
@@ -12,7 +12,7 @@ import 'package:mafia_board/presentation/maf_logger.dart';
 
 class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
   static const String _tag = 'VotePhaseBloc';
-  final BoardRepo boardRepository;
+  final PlayersRepo boardRepository;
   final GameManager gamePhaseManager;
   final VotePhaseManager votePhaseManager;
   final SpeakingPhaseManager speakingPhaseManager;

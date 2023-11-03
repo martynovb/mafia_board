@@ -2,7 +2,7 @@ import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/data/model/user_model.dart';
 
-abstract class BoardRepo {
+abstract class PlayersRepo {
 
   List<PlayerModel> createPlayers(int count);
 

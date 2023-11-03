@@ -2,23 +2,23 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/data/model/game_info_model.dart';
-import 'package:mafia_board/data/repo/board/board_repo.dart';
+import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/exceptions/exception.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/vote_phase_manager.dart';
 import 'package:mafia_board/domain/player_validator.dart';
-import 'package:mafia_board/presentation/feature/game/board/board_bloc/board_event.dart';
-import 'package:mafia_board/presentation/feature/game/board/board_bloc/board_state.dart';
+import 'package:mafia_board/presentation/feature/game/game_bloc/game_event.dart';
+import 'package:mafia_board/presentation/feature/game/game_bloc/game_state.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
 
-class BoardBloc extends Bloc<BoardEvent, BoardState> {
+class GameBloc extends Bloc<GameEvent, GameState> {
   static const String _tag = 'BoardBloc';
-  final BoardRepo boardRepository;
+  final PlayersRepo boardRepository;
   final PlayerValidator playerValidator;
   final GameManager gameManager;
   final VotePhaseManager votePhaseManager;
 
-  BoardBloc({
+  GameBloc({
     required this.votePhaseManager,
     required this.gameManager,
     required this.boardRepository,

@@ -2,11 +2,10 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
-import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/user_model.dart';
-import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/role.dart';
+import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
 import 'package:mafia_board/domain/player_manager.dart';
@@ -17,7 +16,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
 
 class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
-  final BoardRepo boardRepository;
+  final PlayersRepo boardRepository;
   final GameHistoryManager gameHistoryManager;
   final GameManager gamePhaseManager;
   final PlayerManager playerManager;

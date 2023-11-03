@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/data/model/phase_type.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
+import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
+import 'package:mafia_board/presentation/feature/game/game_bloc/game_event.dart';
+import 'package:mafia_board/presentation/feature/game/game_bloc/game_state.dart';
 import 'package:mafia_board/presentation/feature/game_timer_view.dart';
-import 'package:mafia_board/presentation/feature/game/board/board_bloc/board_bloc.dart';
-import 'package:mafia_board/presentation/feature/game/board/board_bloc/board_event.dart';
-import 'package:mafia_board/presentation/feature/game/board/board_bloc/board_state.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/night_phase/night_phase_table_view.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote_phase_table_view.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/speaking_phase/speaking_phase_table_view.dart';
@@ -21,7 +21,7 @@ class TablePage extends StatefulWidget {
 
 class _TableState extends State<TablePage> with AutomaticKeepAliveClientMixin {
   final timerKey = GlobalKey<GameTimerViewState>();
-  late BoardBloc boardBloc;
+  late GameBloc boardBloc;
   int touchedIndex = -1;
 
   @override
@@ -39,7 +39,7 @@ class _TableState extends State<TablePage> with AutomaticKeepAliveClientMixin {
       padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
       child: BlocBuilder(
         bloc: boardBloc,
-        builder: (BuildContext context, BoardState state) {
+        builder: (BuildContext context, GameState state) {
           if (state is InitialBoardState ||
               (state is GamePhaseState &&
                   state.gameInfo?.isGameStarted == false)) {
@@ -62,7 +62,7 @@ class _TableState extends State<TablePage> with AutomaticKeepAliveClientMixin {
   Widget _centerTableContent() {
     return BlocBuilder(
         bloc: boardBloc,
-        builder: (BuildContext context, BoardState state) {
+        builder: (BuildContext context, GameState state) {
           if (state is GamePhaseState) {
             if (state.gameInfo?.currentPhase == PhaseType.speak) {
               return SpeakingPhaseTableView(
@@ -79,7 +79,7 @@ class _TableState extends State<TablePage> with AutomaticKeepAliveClientMixin {
         });
   }
 
-  Widget _header(BoardState state) {
+  Widget _header(GameState state) {
     if (state is GamePhaseState && state.gameInfo?.isGameStarted == true) {
       return SizedBox(
           height: Dimensions.headerHeight,
@@ -106,13 +106,6 @@ class _TableState extends State<TablePage> with AutomaticKeepAliveClientMixin {
         'Finish Game',
         style: TextStyle(fontSize: 22),
       ));
-
-  Widget _errorView(String errorMessage) {
-    return InfoField(
-      message: errorMessage,
-      infoFieldType: InfoFieldType.error,
-    );
-  }
 
   Widget _startGameButton() => GestureDetector(
       onTap: () {
