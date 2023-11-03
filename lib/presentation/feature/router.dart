@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:mafia_board/presentation/feature/auth/create_account_page.dart';
 import 'package:mafia_board/presentation/feature/auth/login_page.dart';
 import 'package:mafia_board/presentation/feature/auth/reset_password_page.dart';
-import 'package:mafia_board/presentation/feature/home/board/board_page.dart';
-import 'package:mafia_board/presentation/feature/home/game_page.dart';
-import 'package:mafia_board/presentation/feature/home/players_sheet/players_sheet_page.dart';
+import 'package:mafia_board/presentation/feature/game/board/board_page.dart';
+import 'package:mafia_board/presentation/feature/game/game_page.dart';
+import 'package:mafia_board/presentation/feature/game/players_sheet/players_sheet_page.dart';
+import 'package:mafia_board/presentation/feature/game/table/table_page.dart';
 import 'package:mafia_board/presentation/feature/settings/settings_page.dart';
-import 'package:mafia_board/presentation/feature/table/table_page.dart';
 
 class AppRouter {
   static const gamePage = '/game';

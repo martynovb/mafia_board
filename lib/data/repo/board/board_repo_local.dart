@@ -3,7 +3,6 @@ import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/role.dart';
 import 'package:mafia_board/data/model/user_model.dart';
 import 'package:mafia_board/data/repo/board/board_repo.dart';
-import 'package:uuid/uuid.dart';
 
 class BoardRepoLocal extends BoardRepo {
   final List<PlayerModel> _players = [];
@@ -21,8 +20,7 @@ class BoardRepoLocal extends BoardRepo {
   void setUser(int seatNumber, UserModel user) {
     final playerIndex =
         _players.indexWhere((player) => player.seatNumber == seatNumber);
-    PlayerModel player = _players[playerIndex];
-    player.user = user;
+    PlayerModel player = PlayerModel(user, Role.NONE, seatNumber);
     _players[playerIndex] = player;
   }
 

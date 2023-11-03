@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
+import 'package:mafia_board/data/model/phase_type.dart';
 import 'package:mafia_board/data/repo/board/board_repo.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
@@ -83,8 +84,16 @@ class VotePhaseManager {
   }
 
   Future<bool> putOnVote(String playerToVoteId) async {
+    final gameInfo = await gameInfoRepo.getLastGameInfoByDay();
+    final currentDay = gameInfo?.day ?? -1;
+    if (gameInfo?.currentPhase != PhaseType.speak ||
+        speakGamePhaseRepo.getCurrentPhase(day: currentDay)?.isGunfight ==
+            true ||
+        speakGamePhaseRepo.getCurrentPhase(day: currentDay)?.isLastWord ==
+            true) {
+      return false;
+    }
     final playerToVote = await boardRepository.getPlayerById(playerToVoteId);
-    final currentDay = await gameInfoRepo.getCurrentDay();
     final currentSpeakerId =
         speakGamePhaseRepo.getCurrentPhase(day: currentDay)?.playerId;
     if (currentSpeakerId == null ||
