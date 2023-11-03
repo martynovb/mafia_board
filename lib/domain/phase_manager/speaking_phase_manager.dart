@@ -1,3 +1,4 @@
+import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
 import 'package:mafia_board/data/repo/board/board_repo.dart';
@@ -34,7 +35,13 @@ class SpeakingPhaseManager {
       ..addAll(players.sublist(0, startIndex));
     for (var player in reorderedPlayers) {
       speakPhaseList.add(
-        SpeakPhaseAction(currentDay: currentDay, playerId: player.id),
+        SpeakPhaseAction(
+          currentDay: currentDay,
+          playerId: player.id,
+          timeForSpeakInSec: player.isMuted
+              ? Constants.mutedTimeForSpeak
+              : Constants.defaultTimeForSpeak,
+        ),
       );
     }
     speakGamePhaseRepo.addAll(gamePhases: speakPhaseList);

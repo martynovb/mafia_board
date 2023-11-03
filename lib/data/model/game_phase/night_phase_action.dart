@@ -1,3 +1,4 @@
+import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/game_phase/game_phase_action.dart';
 import 'package:mafia_board/data/model/player_model.dart';
 import 'package:mafia_board/data/model/role.dart';
@@ -14,7 +15,7 @@ class NightPhaseAction extends GamePhaseAction {
     required int currentDay,
     required this.role,
     this.playersForWakeUp = const [],
-    this.timeForNight = const Duration(seconds: 10),
+    this.timeForNight = Constants.timeForNight,
     PhaseStatus status = PhaseStatus.notStarted,
     this.killedPlayer,
     this.checkedPlayer,

@@ -363,7 +363,7 @@ class VotePhaseManager {
             gamePhase: SpeakPhaseAction(
           currentDay: currentDay,
           playerId: player.id,
-          timeForSpeakInSec: const Duration(seconds: 30),
+          timeForSpeakInSec: Constants.gunfightTimeForSpeak,
           isGunfight: true,
         ));
         await voteGamePhaseRepo.add(

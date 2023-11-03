@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/phase_status.dart';
 import 'package:mafia_board/presentation/feature/game_timer_view.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/speaking_phase/speaking_phase_bloc.dart';
@@ -86,7 +87,7 @@ class _SpeakingPhaseViewState extends State<SpeakingPhaseView> {
   }
 
   Widget _finishSpeechBtn(
-      [Duration? countdownDuration = const Duration(seconds: 60)]) {
+      [Duration? countdownDuration = Constants.defaultTimeForSpeak]) {
     return Row(
       children: [
         const Spacer(),
