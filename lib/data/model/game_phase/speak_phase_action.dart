@@ -5,16 +5,19 @@ import 'package:mafia_board/data/model/phase_status.dart';
 class SpeakPhaseAction extends GamePhaseAction {
   final String? playerId;
   Duration timeForSpeakInSec;
-  bool isLastWord = false;
-  bool isGunfight = false;
+  bool isLastWord;
+  bool isGunfight;
+  bool isBestMove;
+  List<int> bestMove = [];
 
   SpeakPhaseAction({
     required int currentDay,
     required this.playerId,
     this.timeForSpeakInSec = Constants.defaultTimeForSpeak,
-    this.isLastWord = false,
     PhaseStatus status = PhaseStatus.notStarted,
+    this.isLastWord = false,
     this.isGunfight = false,
+    this.isBestMove = false,
   }) : super(currentDay: currentDay, status: status);
 
   @override

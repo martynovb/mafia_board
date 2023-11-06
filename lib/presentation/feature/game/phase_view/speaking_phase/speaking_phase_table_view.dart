@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/data/constants.dart';
@@ -11,6 +12,7 @@ import 'package:mafia_board/presentation/feature/game/table/table_widget.dart';
 import 'package:mafia_board/presentation/feature/game_timer_view.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/speaking_phase/speaking_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote_list/vote_phase_list_view.dart';
+import 'package:mafia_board/presentation/feature/widgets/input_text_field.dart';
 
 class SpeakingPhaseTableView extends StatefulWidget {
   final void Function() onSpeechFinished;
@@ -25,6 +27,9 @@ class SpeakingPhaseTableView extends StatefulWidget {
 }
 
 class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
+  final _bestMove1Controller = TextEditingController();
+  final _bestMove2Controller = TextEditingController();
+  final _bestMove3Controller = TextEditingController();
   late SpeakingPhaseBloc speakingPhaseBloc;
   late GameBloc boardBloc;
   final timerKey = GlobalKey<GameTimerViewState>();
@@ -95,6 +100,7 @@ class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
                   boardBloc.add(PutOnVoteEvent(playerOnVote: player));
                 },
               ),
+              if (state.speakPhaseAction?.isBestMove == true) _bestMoveForm(),
               const VotePhaseListView(),
             ],
           );
@@ -106,7 +112,10 @@ class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
       return _goNextPlayer();
     } else if (state.speakPhaseAction != null &&
         state.speakPhaseAction?.status == PhaseStatus.inProgress) {
-      return _finishSpeechBtn(state.speakPhaseAction?.timeForSpeakInSec);
+      return _finishSpeechBtn(
+        state.speakPhaseAction?.timeForSpeakInSec,
+        state.speakPhaseAction?.isBestMove == true,
+      );
     } else {
       return _startSpeechBtn();
     }
@@ -136,7 +145,8 @@ class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
   }
 
   Widget _finishSpeechBtn(
-      [Duration? countdownDuration = Constants.defaultTimeForSpeak]) {
+      [Duration? countdownDuration = Constants.defaultTimeForSpeak,
+      bool isBestMove = false]) {
     return Row(
       children: [
         const Spacer(),
@@ -165,12 +175,90 @@ class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
         ),
         IconButton(
           onPressed: () {
-            speakingPhaseBloc.add(FinishSpeechEvent());
+            speakingPhaseBloc.add(FinishSpeechEvent(
+              isBestMove
+                  ? [
+                      _bestMove1Controller.text.trim(),
+                      _bestMove2Controller.text.trim(),
+                      _bestMove3Controller.text.trim(),
+                    ]
+                  : [],
+            ));
           },
           icon: const Icon(Icons.stop),
         ),
         const Spacer(),
       ],
     );
+  }
+
+  Widget _bestMoveForm() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text('Best move'),
+        const SizedBox(
+          height: Dimensions.defaultSidePadding,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: Dimensions.inputTextHeight,
+              child: InputTextField(
+                controller: _bestMove1Controller,
+                textInputType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  _maxValueFormatter(1, 10),
+                ],
+              ),
+            ),
+            const SizedBox(
+              width: Dimensions.defaultSidePadding,
+            ),
+            SizedBox(
+              width: Dimensions.inputTextHeight,
+              child: InputTextField(
+                controller: _bestMove2Controller,
+                textInputType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  _maxValueFormatter(1, 10),
+                ],
+              ),
+            ),
+            const SizedBox(
+              width: Dimensions.defaultSidePadding,
+            ),
+            SizedBox(
+              width: Dimensions.inputTextHeight,
+              child: InputTextField(
+                controller: _bestMove3Controller,
+                textInputType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  _maxValueFormatter(1, 10),
+                ],
+              ),
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
+  TextInputFormatter _maxValueFormatter(int minValue, int maxValue) {
+    return TextInputFormatter.withFunction((oldValue, newValue) {
+      if (newValue.text.isEmpty) {
+        return newValue;
+      } else if (int.tryParse(newValue.text) != null &&
+          int.parse(newValue.text) <= maxValue &&
+          int.parse(newValue.text) >= minValue) {
+        return newValue;
+      } else {
+        return oldValue;
+      }
+    });
   }
 }

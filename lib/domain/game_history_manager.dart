@@ -69,13 +69,15 @@ class GameHistoryManager {
     ));
   }
 
-  Future<void> logPlayerSpeech({required SpeakPhaseAction speakPhaseAction}) async{
+  Future<void> logPlayerSpeech(
+      {required SpeakPhaseAction speakPhaseAction}) async {
     final speakerId = speakPhaseAction.playerId;
-    if(speakerId == null) {
+    if (speakerId == null) {
       return;
     }
     final speaker = await boardRepo.getPlayerById(speakerId);
     String text;
+    String subText = '';
     if (speakPhaseAction.isLastWord &&
         speakPhaseAction.status == PhaseStatus.inProgress) {
       text =
@@ -84,6 +86,9 @@ class GameHistoryManager {
         speakPhaseAction.status == PhaseStatus.finished) {
       text =
           'LAST SPEECH FINISHED of player #${speaker?.seatNumber}: ${speaker?.nickname}';
+      subText = speakPhaseAction.bestMove.isEmpty
+          ? ''
+          : 'Best move: ${speakPhaseAction.bestMove.join(', ')}';
     } else if (speakPhaseAction.status == PhaseStatus.inProgress) {
       text =
           'SPEECH STARTED of player #${speaker?.seatNumber}: ${speaker?.nickname}';
@@ -96,6 +101,7 @@ class GameHistoryManager {
 
     _addRecord(GameHistoryModel(
       text: text,
+      subText: subText,
       type: speakPhaseAction.isLastWord
           ? GameHistoryType.lastWord
           : GameHistoryType.playerSpeech,

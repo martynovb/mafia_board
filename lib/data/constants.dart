@@ -6,4 +6,5 @@ class Constants {
   static const mutedTimeForSpeak = Duration(seconds: 10);
   static const gunfightTimeForSpeak = Duration(seconds: 30);
   static const timeForNight = Duration(seconds: 10);
+  static const maxInputSymbols = 100;
 }

@@ -25,8 +25,9 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
     emit(SpeakingPhaseState(
       players: boardRepo.getAllPlayers(),
       speakPhaseAction: currentSpeakPhase,
-      speaker: currentSpeakerId != null ? await boardRepo.getPlayerById(currentSpeakerId) : null,
-
+      speaker: currentSpeakerId != null
+          ? await boardRepo.getPlayerById(currentSpeakerId)
+          : null,
     ));
   }
 
@@ -37,21 +38,38 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
     emit(SpeakingPhaseState(
       players: boardRepo.getAllPlayers(),
       speakPhaseAction: currentSpeakPhase,
-      speaker: currentSpeakerId != null ? await boardRepo.getPlayerById(currentSpeakerId) : null,
-
+      speaker: currentSpeakerId != null
+          ? await boardRepo.getPlayerById(currentSpeakerId)
+          : null,
     ));
   }
 
   Future<void> _finishSpeechEventHandler(FinishSpeechEvent event, emit) async {
-    await speakingPhaseManager.finishSpeech();
+    await speakingPhaseManager.finishSpeech(_parseBestMove(event.bestMove));
     final currentSpeakPhase = await speakingPhaseManager.getCurrentPhase();
     final currentSpeakerId = currentSpeakPhase?.playerId;
     emit(SpeakingPhaseState(
       players: boardRepo.getAllPlayers(),
       speakPhaseAction: currentSpeakPhase,
-      speaker: currentSpeakerId != null ? await boardRepo.getPlayerById(currentSpeakerId) : null,
+      speaker: currentSpeakerId != null
+          ? await boardRepo.getPlayerById(currentSpeakerId)
+          : null,
       isFinished: true,
     ));
+  }
+
+  List<int> _parseBestMove(List<String> bestMoveNumbers) {
+    final List<int> parsedBestMove = [];
+    if (bestMoveNumbers.isEmpty) {
+      return parsedBestMove;
+    }
+    for (String seatNumberStr in bestMoveNumbers) {
+      int? seatNumber = int.tryParse(seatNumberStr);
+      if (seatNumber != null) {
+        parsedBestMove.add(seatNumber);
+      }
+    }
+    return parsedBestMove;
   }
 }
 
@@ -75,4 +93,8 @@ class GetCurrentSpeakPhaseEvent extends SpeakingPhaseEvent {}
 
 class StartSpeechEvent extends SpeakingPhaseEvent {}
 
-class FinishSpeechEvent extends SpeakingPhaseEvent {}
+class FinishSpeechEvent extends SpeakingPhaseEvent {
+  final List<String> bestMove;
+
+  FinishSpeechEvent([this.bestMove = const []]);
+}

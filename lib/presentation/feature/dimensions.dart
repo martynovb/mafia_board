@@ -18,4 +18,5 @@ class Dimensions {
   static const double roleViewWidth = 96;
   static const double foulItemWidth = 18;
   static const double foulsViewWidth = foulItemWidth * Constants.maxFouls;
+  static const double inputTextHeight = 40;
 }

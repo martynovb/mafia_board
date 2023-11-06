@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/data/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/data/model/player_model.dart';
@@ -109,6 +110,7 @@ class NightPhaseManager {
         currentDay: nextDay,
         playerId: updatedPlayer?.id,
         isLastWord: true,
+        isBestMove: currentDay == Constants.firstDay
       ),
     );
     currentNightPhase.killedPlayer = updatedPlayer;

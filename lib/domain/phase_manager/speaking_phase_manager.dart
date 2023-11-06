@@ -59,7 +59,9 @@ class SpeakingPhaseManager {
     gameHistoryManager.logPlayerSpeech(speakPhaseAction: currentSpeakPhase);
   }
 
-  Future<void> finishSpeech() async {
+  Future<void> finishSpeech([
+    List<int> bestMove = const [],
+  ]) async {
     final currentDay = await gameInfoRepo.getCurrentDay();
     final currentSpeakPhase =
         speakGamePhaseRepo.getCurrentPhase(day: currentDay);
@@ -67,6 +69,7 @@ class SpeakingPhaseManager {
       return;
     }
     currentSpeakPhase.updateStatus = PhaseStatus.finished;
+    currentSpeakPhase.bestMove = bestMove;
     speakGamePhaseRepo.update(gamePhase: currentSpeakPhase);
     gameHistoryManager.logPlayerSpeech(speakPhaseAction: currentSpeakPhase);
   }
