@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mafia_board/data/model/club_model.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_bloc.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_event.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_state.dart';

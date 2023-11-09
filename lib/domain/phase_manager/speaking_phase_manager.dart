@@ -1,6 +1,6 @@
 import 'package:mafia_board/data/constants.dart';
-import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
-import 'package:mafia_board/data/model/phase_status.dart';
+import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
+import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/data/repo/game_info/game_info_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';

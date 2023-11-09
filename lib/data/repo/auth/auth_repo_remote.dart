@@ -1,6 +1,6 @@
 import 'package:mafia_board/data/api/auth_api.dart';
 import 'package:mafia_board/data/api/token_provider.dart';
-import 'package:mafia_board/data/model/user_model.dart';
+import 'package:mafia_board/domain/model/user_model.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 
 class AuthRepoRemote extends AuthRepo {

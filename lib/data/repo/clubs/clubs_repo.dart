@@ -1,4 +1,4 @@
-import 'package:mafia_board/data/model/club_model.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
 
 abstract class ClubsRepo {
   Future<List<ClubModel>> getClubs({String? id, int limit = 10});

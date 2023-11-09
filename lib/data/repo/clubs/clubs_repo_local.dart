@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
-import 'package:mafia_board/data/model/club_model.dart';
-import 'package:mafia_board/data/model/user_model.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
+import 'package:mafia_board/domain/model/user_model.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 import 'package:mafia_board/data/repo/auth/users/users_repo.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';

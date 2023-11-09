@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
-import 'package:mafia_board/data/model/game_info_model.dart';
-import 'package:mafia_board/data/model/phase_type.dart';
+import 'package:mafia_board/domain/model/game_info_model.dart';
+import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/vote_phase_manager.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote_list/vote_item.dart';

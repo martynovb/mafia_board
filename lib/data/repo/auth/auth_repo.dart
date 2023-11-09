@@ -1,4 +1,4 @@
-import 'package:mafia_board/data/model/user_model.dart';
+import 'package:mafia_board/domain/model/user_model.dart';
 
 abstract class AuthRepo {
   Future<UserModel> registerUser({

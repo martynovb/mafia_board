@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mafia_board/data/model/game_phase/game_phase_action.dart';
-import 'package:mafia_board/data/model/phase_status.dart';
+import 'package:mafia_board/domain/model/game_phase/game_phase_action.dart';
+import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 
 class BasePhaseRepoLocal<GamePhase extends GamePhaseAction>

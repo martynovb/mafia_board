@@ -1,4 +1,4 @@
-import 'package:mafia_board/data/model/game_history_model.dart';
+import 'package:mafia_board/domain/model/game_history_model.dart';
 import 'package:mafia_board/data/repo/history/history_repository.dart';
 
 class HistoryRepoLocal extends HistoryRepo {

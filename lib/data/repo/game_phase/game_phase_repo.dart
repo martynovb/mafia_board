@@ -1,4 +1,4 @@
-import 'package:mafia_board/data/model/game_phase/game_phase_action.dart';
+import 'package:mafia_board/domain/model/game_phase/game_phase_action.dart';
 
 abstract class GamePhaseRepo<GamePhase extends GamePhaseAction> {
   bool isExist({required int day});

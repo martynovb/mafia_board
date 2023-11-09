@@ -1,4 +1,4 @@
-import 'package:mafia_board/data/model/game_info_model.dart';
+import 'package:mafia_board/domain/model/game_info_model.dart';
 
 abstract class GameState {}
 

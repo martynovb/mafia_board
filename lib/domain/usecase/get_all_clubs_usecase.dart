@@ -1,4 +1,4 @@
-import 'package:mafia_board/data/model/club_model.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
 import 'package:mafia_board/domain/usecase/base_usecase.dart';
 

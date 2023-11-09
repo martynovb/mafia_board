@@ -1,5 +1,5 @@
-import 'package:mafia_board/data/model/club_model.dart';
-import 'package:mafia_board/data/model/user_model.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
+import 'package:mafia_board/domain/model/user_model.dart';
 
 abstract class ClubsListState {}
 

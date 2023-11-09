@@ -1,6 +1,6 @@
-import 'package:mafia_board/data/model/game_history_model.dart';
-import 'package:mafia_board/data/model/game_info_model.dart';
-import 'package:mafia_board/data/model/player_model.dart';
+import 'package:mafia_board/domain/model/game_history_model.dart';
+import 'package:mafia_board/domain/model/game_info_model.dart';
+import 'package:mafia_board/domain/model/player_model.dart';
 
 class GameModel {
   final String id;

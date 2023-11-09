@@ -1,4 +1,4 @@
-import 'package:mafia_board/data/model/role.dart';
+import 'package:mafia_board/domain/model/role.dart';
 
 class RoleModel {
   Role role;

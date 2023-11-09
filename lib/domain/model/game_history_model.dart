@@ -1,5 +1,5 @@
-import 'package:mafia_board/data/model/game_history_type.dart';
-import 'package:mafia_board/data/model/game_phase/game_phase_action.dart';
+import 'package:mafia_board/domain/model/game_history_type.dart';
+import 'package:mafia_board/domain/model/game_phase/game_phase_action.dart';
 
 class GameHistoryModel {
   final int id;

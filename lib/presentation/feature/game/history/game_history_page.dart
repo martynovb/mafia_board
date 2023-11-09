@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mafia_board/data/model/game_history_model.dart';
-import 'package:mafia_board/data/model/game_history_type.dart';
+import 'package:mafia_board/domain/model/game_history_model.dart';
+import 'package:mafia_board/domain/model/game_history_type.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/game/history/game_history_bloc.dart';
 

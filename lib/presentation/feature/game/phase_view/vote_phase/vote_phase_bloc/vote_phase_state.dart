@@ -1,5 +1,5 @@
-import 'package:mafia_board/data/model/phase_status.dart';
-import 'package:mafia_board/data/model/player_model.dart';
+import 'package:mafia_board/domain/model/phase_status.dart';
+import 'package:mafia_board/domain/model/player_model.dart';
 
 class VotePhaseState {
   final String title;

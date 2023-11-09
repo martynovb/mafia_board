@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
-import 'package:mafia_board/data/model/game_info_model.dart';
-import 'package:mafia_board/data/model/phase_type.dart';
-import 'package:mafia_board/data/model/player_model.dart';
+import 'package:mafia_board/domain/model/game_info_model.dart';
+import 'package:mafia_board/domain/model/phase_type.dart';
+import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/data/repo/game_info/game_info_repo.dart';
 
 class GameInfoRepoLocal extends GameInfoRepo {

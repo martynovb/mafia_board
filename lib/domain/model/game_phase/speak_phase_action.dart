@@ -1,6 +1,6 @@
 import 'package:mafia_board/data/constants.dart';
-import 'package:mafia_board/data/model/game_phase/game_phase_action.dart';
-import 'package:mafia_board/data/model/phase_status.dart';
+import 'package:mafia_board/domain/model/game_phase/game_phase_action.dart';
+import 'package:mafia_board/domain/model/phase_status.dart';
 
 class SpeakPhaseAction extends GamePhaseAction {
   final String? playerId;

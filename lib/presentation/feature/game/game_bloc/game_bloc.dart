@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:mafia_board/data/model/game_info_model.dart';
+import 'package:mafia_board/domain/model/game_info_model.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/exceptions/exception.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';

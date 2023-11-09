@@ -1,4 +1,4 @@
-import 'package:mafia_board/data/model/player_model.dart';
+import 'package:mafia_board/domain/model/player_model.dart';
 
 abstract class VotePhaseEvent {}
 

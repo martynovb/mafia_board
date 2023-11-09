@@ -1,6 +1,6 @@
 import 'package:mafia_board/data/repo/players/players_repo.dart';
-import 'package:mafia_board/data/model/role.dart';
-import 'package:mafia_board/data/model/role_model.dart';
+import 'package:mafia_board/domain/model/role.dart';
+import 'package:mafia_board/domain/model/role_model.dart';
 
 class RoleManager {
   final PlayersRepo _boardRepository;

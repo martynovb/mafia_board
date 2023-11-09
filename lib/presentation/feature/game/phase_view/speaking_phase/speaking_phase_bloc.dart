@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:mafia_board/data/model/game_phase/speak_phase_action.dart';
-import 'package:mafia_board/data/model/player_model.dart';
+import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
+import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/phase_manager/speaking_phase_manager.dart';
 

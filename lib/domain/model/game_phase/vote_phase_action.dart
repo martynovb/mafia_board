@@ -1,6 +1,6 @@
 import 'package:class_to_string/class_to_string.dart';
-import 'package:mafia_board/data/model/game_phase/game_phase_action.dart';
-import 'package:mafia_board/data/model/player_model.dart';
+import 'package:mafia_board/domain/model/game_phase/game_phase_action.dart';
+import 'package:mafia_board/domain/model/player_model.dart';
 
 class VotePhaseAction extends GamePhaseAction {
   final PlayerModel playerOnVote;

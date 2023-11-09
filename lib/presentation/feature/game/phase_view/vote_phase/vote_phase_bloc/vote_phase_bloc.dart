@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
-import 'package:mafia_board/data/model/phase_status.dart';
-import 'package:mafia_board/data/model/game_phase/vote_phase_action.dart';
-import 'package:mafia_board/data/model/player_model.dart';
+import 'package:mafia_board/domain/model/phase_status.dart';
+import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
+import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/speaking_phase_manager.dart';
