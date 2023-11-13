@@ -5,6 +5,8 @@ import 'package:mafia_board/data/api/error_handler.dart';
 import 'package:mafia_board/data/api/http_client.dart';
 import 'package:mafia_board/data/api/network_manager.dart';
 import 'package:mafia_board/data/api/token_provider.dart';
+import 'package:mafia_board/data/repo/rules/rules_local_repo.dart';
+import 'package:mafia_board/data/repo/rules/rules_repo.dart';
 import 'package:mafia_board/domain/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
@@ -37,6 +39,10 @@ import 'package:mafia_board/domain/phase_manager/vote_phase_manager.dart';
 import 'package:mafia_board/domain/player_manager.dart';
 import 'package:mafia_board/domain/player_validator.dart';
 import 'package:mafia_board/domain/role_manager.dart';
+import 'package:mafia_board/domain/usecase/get_all_clubs_usecase.dart';
+import 'package:mafia_board/domain/usecase/get_club_details_usecase.dart';
+import 'package:mafia_board/domain/usecase/get_rules_usecase.dart';
+import 'package:mafia_board/domain/usecase/update_rules_usecase.dart';
 import 'package:mafia_board/presentation/feature/app/bloc/app_bloc.dart';
 import 'package:mafia_board/presentation/feature/auth/bloc/auth_bloc.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_bloc.dart';
@@ -49,6 +55,7 @@ import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote
 import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote_phase_bloc/vote_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/players_sheet_bloc/players_sheet_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/role_bloc.dart';
+import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_bloc.dart';
 
 class Injector {
   static final _getIt = GetIt.instance;
@@ -117,6 +124,10 @@ class Injector {
       authRepo: _getIt.get(),
       usersRepo: _getIt.get(),
     ));
+
+    _getIt.registerSingleton<RulesRepo>(RulesLocalRepo(
+      _getIt.get(),
+    ));
   }
 
   static void _injectDomainLayer() {
@@ -175,6 +186,18 @@ class Injector {
       nightGamePhaseRepo: _getIt.get(instanceName: nightPhaseRepoLocalTag),
       playerManager: _getIt.get(),
     ));
+
+    //usecase
+    _getIt.registerSingleton<GetAllClubsUseCase>(
+        GetAllClubsUseCase(clubsRepo: _getIt.get()));
+    _getIt.registerSingleton<GetClubDetailsUseCase>(GetClubDetailsUseCase(
+      authRepo: _getIt.get(),
+      clubsRepo: _getIt.get(),
+    ));
+    _getIt.registerSingleton<GetRulesUseCase>(
+        GetRulesUseCase(rulesRepo: _getIt.get()));
+    _getIt.registerSingleton<UpdateRulesUseCase>(
+        UpdateRulesUseCase(rulesRepo: _getIt.get()));
 
     //validation
     _getIt.registerSingleton<NicknameFieldValidator>(NicknameFieldValidator());
@@ -249,7 +272,12 @@ class Injector {
     ));
 
     _getIt.registerSingleton(AppBloc(authRepo: _getIt.get()));
-    _getIt.registerSingleton(ClubsListBloc(clubsRepo: _getIt.get()));
-    _getIt.registerSingleton(ClubsDetailsBloc(clubsRepo: _getIt.get()));
+    _getIt.registerSingleton(ClubsListBloc(getAllClubsUseCase: _getIt.get()));
+    _getIt.registerSingleton(
+        ClubsDetailsBloc(getClubDetailsUseCase: _getIt.get()));
+    _getIt.registerSingleton(GameRulesBloc(
+      updateRulesUseCase: _getIt.get(),
+      getRulesUseCase: _getIt.get(),
+    ));
   }
 }

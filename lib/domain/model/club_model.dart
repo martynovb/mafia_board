@@ -1,3 +1,4 @@
+import 'package:mafia_board/data/entity/club_entity.dart';
 import 'package:mafia_board/domain/model/game_model.dart';
 import 'package:mafia_board/domain/model/user_model.dart';
 
@@ -8,8 +9,8 @@ class ClubModel {
   final List<UserModel> members;
   final List<UserModel> admins;
   final List<UserModel> waitList;
-  final List<GameModel> games;
-  final bool amIAdmin;
+  bool isAdmin = false;
+  List<GameModel> games = [];
 
   ClubModel({
     required this.id,
@@ -18,7 +19,23 @@ class ClubModel {
     required this.members,
     required this.admins,
     required this.waitList,
-    required this.games,
-    this.amIAdmin = false,
+    this.games = const [],
+    this.isAdmin = false,
   });
+
+  ClubModel.fromEntity(ClubEntity entity, [this.isAdmin = false])
+      : id = entity.id ?? '',
+        title = entity.title ?? '',
+        description = entity.description ?? '',
+        members = entity.members
+                ?.map((user) => UserModel.fromEntity(user))
+                .toList() ??
+            [],
+        admins =
+            entity.admins?.map((user) => UserModel.fromEntity(user)).toList() ??
+                [],
+        waitList = entity.waitList
+                ?.map((user) => UserModel.fromEntity(user))
+                .toList() ??
+            [];
 }

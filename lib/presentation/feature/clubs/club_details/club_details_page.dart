@@ -8,8 +8,9 @@ import 'package:mafia_board/presentation/feature/clubs/club_details/club_details
 import 'package:mafia_board/presentation/feature/router.dart';
 
 class ClubDetailsPage extends StatefulWidget {
-
-  const ClubDetailsPage({Key? key,}) : super(key: key);
+  const ClubDetailsPage({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<ClubDetailsPage> createState() => _ClubDetailsPageState();
@@ -27,7 +28,8 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
 
   @override
   void didChangeDependencies() {
-    final Map<String, dynamic>? args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final Map<String, dynamic>? args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     clubId = args?['clubId'] ?? '';
     clubDetailsBloc.add(GetClubDetailsEvent(clubId));
     super.didChangeDependencies();
@@ -63,7 +65,7 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
           child: Text('Members (${club.members.length})'),
         ),
         const Divider(),
-        if (club.amIAdmin) ...[
+        if (club.isAdmin) ...[
           GestureDetector(
             onTap: () {},
             child: Text('Pending requests (${club.waitList.length})'),
@@ -75,12 +77,13 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
           child: Text('Games (${club.games.length})'),
         ),
         const Divider(),
-        if (club.amIAdmin)
+        if (club.isAdmin)
           GestureDetector(
             onTap: () {
               Navigator.pushNamed(
                 context,
                 AppRouter.gamePage,
+                arguments: {'clubId': club.id},
               );
             },
             child: Text('Start new game'),

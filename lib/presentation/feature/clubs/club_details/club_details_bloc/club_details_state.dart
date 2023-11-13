@@ -9,3 +9,10 @@ class DetailsState extends ClubDetailsState {
 
   DetailsState(this.club);
 }
+
+class ErrorClubState extends ClubDetailsState {
+  final String error;
+
+  ErrorClubState(this.error);
+
+}

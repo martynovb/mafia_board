@@ -1,0 +1,49 @@
+import 'package:mafia_board/data/repo/rules/rules_repo.dart';
+import 'package:mafia_board/domain/model/rules_model.dart';
+import 'package:mafia_board/domain/usecase/base_usecase.dart';
+
+class UpdateRulesUseCase extends BaseUseCase<Future<void>, UpdateRulesParams> {
+  final RulesRepo rulesRepo;
+
+  UpdateRulesUseCase({required this.rulesRepo});
+
+  @override
+  Future<void> execute({UpdateRulesParams? params}) async {
+    await rulesRepo.updateClubRules(
+      clubId: params!.clubId,
+      civilWin: params.civilWin,
+      mafWin: params.mafWin,
+      civilLoss: params.civilLoss,
+      mafLoss: params.mafLoss,
+      kickLoss: params.kickLoss,
+      defaultBonus: params.defaultBonus,
+      ppkLoss: params.ppkLoss,
+      gameLoss: params.gameLoss,
+    );
+  }
+}
+
+class UpdateRulesParams {
+  final String clubId;
+
+  final double civilWin;
+  final double mafWin;
+  final double civilLoss;
+  final double mafLoss;
+  final double kickLoss;
+  final double defaultBonus;
+  final double ppkLoss;
+  final double gameLoss;
+
+  UpdateRulesParams({
+    required this.clubId,
+    required this.civilWin,
+    required this.mafWin,
+    required this.civilLoss,
+    required this.mafLoss,
+    required this.kickLoss,
+    required this.defaultBonus,
+    required this.ppkLoss,
+    required this.gameLoss,
+  });
+}

@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
-import 'package:mafia_board/domain/model/club_model.dart';
-import 'package:mafia_board/domain/model/user_model.dart';
+import 'package:mafia_board/data/entity/club_entity.dart';
+import 'package:mafia_board/data/entity/user_entity.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 import 'package:mafia_board/data/repo/auth/users/users_repo.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
@@ -19,20 +19,20 @@ class ClubsRepoLocal extends ClubsRepo {
 
   Future _initClubsData() async {
     final club = _clubs.first;
-    club.admins.add(await authRepo.me());
+    club.admins?.add(await authRepo.me());
 
-    club.waitList.add(UserModel(
+    club.waitList?.add(UserEntity(
       id: const Uuid().v1(),
-      nickname: 'Flash',
+      username: 'Flash',
       email: 'flash@gmail.com',
     ));
-    club.waitList.add(UserModel(
+    club.waitList?.add(UserEntity(
       id: const Uuid().v1(),
-      nickname: 'Samorityanka',
+      username: 'Samorityanka',
       email: 'samorityanka@gmail.com',
     ));
 
-    club.members.addAll(await usersRepo.getAllUsers());
+    club.members?.addAll(await usersRepo.getAllUsers());
   }
 
   @override
@@ -47,7 +47,7 @@ class ClubsRepoLocal extends ClubsRepo {
     }
 
     bool isCurrentUserAdmin =
-        club.admins.firstWhereOrNull((user) => user.id == currentUserId) !=
+        club.admins?.firstWhereOrNull((user) => user.id == currentUserId) !=
             null;
 
     if (!isCurrentUserAdmin) {
@@ -55,23 +55,23 @@ class ClubsRepoLocal extends ClubsRepo {
     }
 
     final user =
-        club.waitList.firstWhereOrNull((user) => user.id == participantUserId);
+        club.waitList?.firstWhereOrNull((user) => user.id == participantUserId);
 
     if (user == null) {
       return false;
     }
 
-    club.members.add(user);
+    club.members?.add(user);
     return true;
   }
 
   @override
-  Future<ClubModel?> getClubDetails({required String id}) async {
+  Future<ClubEntity?> getClubDetails({required String id}) async {
     return _clubs.firstWhereOrNull((club) => club.id == id);
   }
 
   @override
-  Future<List<ClubModel>> getClubs({String? id, int limit = 10}) async {
+  Future<List<ClubEntity>> getClubs({String? id, int limit = 10}) async {
     var startIndexOf = 0;
     if (id != null) {
       startIndexOf = _clubs.indexWhere((club) => club.id == id);
@@ -100,7 +100,7 @@ class ClubsRepoLocal extends ClubsRepo {
     }
 
     bool isCurrentUserAdmin =
-        club.admins.firstWhereOrNull((user) => user.id == currentUserId) !=
+        club.admins?.firstWhereOrNull((user) => user.id == currentUserId) !=
             null;
 
     if (!isCurrentUserAdmin) {
@@ -108,13 +108,13 @@ class ClubsRepoLocal extends ClubsRepo {
     }
 
     final user =
-        club.waitList.firstWhereOrNull((user) => user.id == participantUserId);
+        club.waitList?.firstWhereOrNull((user) => user.id == participantUserId);
 
     if (user == null) {
       return false;
     }
 
-    return club.members.remove(user);
+    return club.members?.remove(user) ?? false;
   }
 
   @override
@@ -129,7 +129,7 @@ class ClubsRepoLocal extends ClubsRepo {
 
     final currentUser = await authRepo.me();
 
-    club.waitList.add(currentUser);
+    club.waitList?.add(currentUser);
     return true;
   }
 
@@ -145,7 +145,7 @@ class ClubsRepoLocal extends ClubsRepo {
     }
 
     bool isCurrentUserAdmin =
-        club.admins.firstWhereOrNull((user) => user.id == currentUserId) !=
+        club.admins?.firstWhereOrNull((user) => user.id == currentUserId) !=
             null;
 
     if (!isCurrentUserAdmin) {
@@ -153,43 +153,39 @@ class ClubsRepoLocal extends ClubsRepo {
     }
 
     final user =
-        club.waitList.firstWhereOrNull((user) => user.id == participantUserId);
+        club.waitList?.firstWhereOrNull((user) => user.id == participantUserId);
 
     if (user == null) {
       return false;
     }
 
-    return club.members.remove(user);
+    return club.members?.remove(user) ?? false;
   }
 
-  final List<ClubModel> _clubs = [
-    ClubModel(
+  final List<ClubEntity> _clubs = [
+    ClubEntity(
       id: const Uuid().v1(),
       title: 'Zmiiv mafia',
       description: 'Zmiiv mafia mafia',
-      amIAdmin: true,
       members: [],
       admins: [],
       waitList: [],
-      games: [],
     ),
-    ClubModel(
+    ClubEntity(
       id: const Uuid().v1(),
       title: 'Kharkiv mafia',
       description: 'Kharkiv mafia mafia',
       members: [],
       admins: [],
       waitList: [],
-      games: [],
     ),
-    ClubModel(
+    ClubEntity(
       id: const Uuid().v1(),
       title: 'Kiev mafia',
       description: 'Kiev mafia mafia',
       members: [],
       admins: [],
       waitList: [],
-      games: [],
     ),
   ];
 }

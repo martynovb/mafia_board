@@ -1,28 +1,32 @@
 import 'package:bloc/bloc.dart';
-import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
+import 'package:mafia_board/domain/usecase/get_club_details_usecase.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_event.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_state.dart';
 
 class ClubsDetailsBloc extends Bloc<ClubsDetailsEvent, ClubDetailsState> {
   static const String _tag = 'ClubsDetailsBloc';
-  final ClubsRepo clubsRepo;
+  final GetClubDetailsUseCase getClubDetailsUseCase;
 
   ClubsDetailsBloc({
-    required this.clubsRepo,
+    required this.getClubDetailsUseCase,
   }) : super(InitialState()) {
     on<GetClubDetailsEvent>(_getClubDetailsEventHandler);
   }
 
   Future<void> _getClubDetailsEventHandler(
-      GetClubDetailsEvent event, emit) async {
+    GetClubDetailsEvent event,
+    emit,
+  ) async {
     if (event.clubId.isEmpty) {
       emit(InitialState());
       return;
     }
 
-    final result = await clubsRepo.getClubDetails(id: event.clubId);
-    emit(
-      result != null ? DetailsState(result) : InitialState(),
-    );
+    try {
+      final result = await getClubDetailsUseCase.execute(params: event.clubId);
+      emit(DetailsState(result));
+    } catch (e) {
+      emit(ErrorClubState('Something went wrong'));
+    }
   }
 }

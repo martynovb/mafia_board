@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:mafia_board/domain/model/user_model.dart';
+import 'package:mafia_board/data/entity/user_entity.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 import 'package:mafia_board/data/repo/auth/users/users_repo.dart';
 import 'package:uuid/uuid.dart';
@@ -16,61 +16,61 @@ class UsersRepoLocal extends UsersRepo {
   }
 
   @override
-  Future<List<UserModel>> getAllUsers() async => _users;
+  Future<List<UserEntity>> getAllUsers() async => _users;
 
   @override
-  Future<UserModel?> getUserById(String id) async =>
+  Future<UserEntity?> getUserById(String id) async =>
       _users.firstWhereOrNull((user) => user.id == id);
 
-  final List<UserModel> _users = [
-    UserModel(
+  final List<UserEntity> _users = [
+    UserEntity(
       id: const Uuid().v1(),
-      nickname: 'Doc',
+      username: 'Doc',
       email: 'doc@gmail.com',
     ),
-    UserModel(
+    UserEntity(
       id: const Uuid().v1(),
-      nickname: 'Veritas',
+      username: 'Veritas',
       email: 'veritas@gmail.com',
     ),
-    UserModel(
+    UserEntity(
       id: const Uuid().v1(),
-      nickname: 'Kolpak',
+      username: 'Kolpak',
       email: 'kolpak@gmail.com',
     ),
-    UserModel(
+    UserEntity(
       id: const Uuid().v1(),
-      nickname: 'Masyanya',
+      username: 'Masyanya',
       email: 'masyanya@gmail.com',
     ),
-    UserModel(
+    UserEntity(
       id: const Uuid().v1(),
-      nickname: 'L',
+      username: 'L',
       email: 'l@gmail.com',
     ),
-    UserModel(
+    UserEntity(
       id: const Uuid().v1(),
-      nickname: 'Diavolonok',
+      username: 'Diavolonok',
       email: 'diavolonok@gmail.com',
     ),
-    UserModel(
+    UserEntity(
       id: const Uuid().v1(),
-      nickname: 'Sifer',
+      username: 'Sifer',
       email: 'sifer@gmail.com',
     ),
-    UserModel(
+    UserEntity(
       id: const Uuid().v1(),
-      nickname: 'Greshnik',
+      username: 'Greshnik',
       email: 'greshnik@gmail.com',
     ),
-    UserModel(
+    UserEntity(
       id: const Uuid().v1(),
-      nickname: 'Lastochka',
+      username: 'Lastochka',
       email: 'lastochka@gmail.com',
     ),
-    UserModel(
+    UserEntity(
       id: const Uuid().v1(),
-      nickname: 'F1boy',
+      username: 'F1boy',
       email: 'f1boy@gmail.com',
     ),
   ];

@@ -1,7 +1,7 @@
-import 'package:mafia_board/domain/model/user_model.dart';
+import 'package:mafia_board/data/entity/user_entity.dart';
 
 abstract class UsersRepo {
-  Future<List<UserModel>> getAllUsers();
+  Future<List<UserEntity>> getAllUsers();
 
-  Future<UserModel?> getUserById(String id);
+  Future<UserEntity?> getUserById(String id);
 }

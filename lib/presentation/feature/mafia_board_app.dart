@@ -17,6 +17,7 @@ import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote
 import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote_phase_bloc/vote_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/players_sheet_bloc/players_sheet_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/role_bloc.dart';
+import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_bloc.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
 
 class MafiaBoardApp extends StatefulWidget {
@@ -57,6 +58,7 @@ class _MafiaBoardAppState extends State<MafiaBoardApp> {
           BlocProvider(create: (context) => GetIt.instance<AppBloc>()),
           BlocProvider(create: (context) => GetIt.instance<ClubsDetailsBloc>()),
           BlocProvider(create: (context) => GetIt.instance<ClubsListBloc>()),
+          BlocProvider(create: (context) => GetIt.instance<GameRulesBloc>()),
         ],
         child: BlocBuilder(
           bloc: appBloc,

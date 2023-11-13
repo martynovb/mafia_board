@@ -14,7 +14,7 @@ class GamePage extends StatefulWidget {
 class _GamePageState extends State<GamePage>
     with SingleTickerProviderStateMixin {
   late TabController _pageController;
-
+  late String clubId;
   late List<Widget> _tabList;
 
   @override
@@ -33,9 +33,17 @@ class _GamePageState extends State<GamePage>
   }
 
   @override
+  void didChangeDependencies() {
+    final Map<String, dynamic>? args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    clubId = args?['clubId'] ?? '';
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child:  Scaffold(
+      child: Scaffold(
         appBar: _appBar(context),
         body: TabBarView(
           controller: _pageController,
@@ -58,8 +66,11 @@ class _GamePageState extends State<GamePage>
         ),
         actions: [
           IconButton(
-              onPressed: () =>
-                  Navigator.pushNamed(context, AppRouter.settingsPage),
+              onPressed: () => Navigator.pushNamed(
+                    context,
+                    AppRouter.gameRulesPage,
+                    arguments: {'clubId': clubId},
+                  ),
               icon: const Icon(Icons.settings))
         ],
       );

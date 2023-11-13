@@ -1,6 +1,6 @@
 import 'package:mafia_board/data/api/auth_api.dart';
 import 'package:mafia_board/data/api/token_provider.dart';
-import 'package:mafia_board/domain/model/user_model.dart';
+import 'package:mafia_board/data/entity/user_entity.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 
 class AuthRepoRemote extends AuthRepo {
@@ -12,7 +12,7 @@ class AuthRepoRemote extends AuthRepo {
   AuthRepoRemote({required this.api, required this.tokenProvider});
 
   @override
-  Future<UserModel> registerUser({
+  Future<UserEntity> registerUser({
     required String email,
     required String nickname,
     required String password,
@@ -45,12 +45,5 @@ class AuthRepoRemote extends AuthRepo {
   }
 
   @override
-  Future<UserModel> me() async {
-    final userApiModel = await api.me();
-    return UserModel(
-      id: userApiModel.id!,
-      nickname: userApiModel.username!,
-      email: userApiModel.email!,
-    );
-  }
+  Future<UserEntity> me() async => await api.me();
 }

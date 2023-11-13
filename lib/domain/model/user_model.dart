@@ -1,3 +1,5 @@
+import 'package:mafia_board/data/entity/user_entity.dart';
+
 class UserModel {
   final String id;
   final String nickname;
@@ -14,9 +16,8 @@ class UserModel {
         nickname = '',
         email = '';
 
-  UserModel.fromApiModel({
-    required this.id,
-    required this.nickname,
-    required this.email,
-  });
+  UserModel.fromEntity(UserEntity entity)
+      : id = entity.id ?? '',
+        nickname = entity.username ?? '',
+        email = entity.email ?? '';
 }

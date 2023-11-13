@@ -16,7 +16,7 @@ class RequestClubMembershipUseCase extends BaseUseCase<Future<bool>, String> {
     final currentUser = await authRepo.me();
     return clubsRepo.sendRequestToJoinClub(
       clubId: params!,
-      currentUserId: currentUser.id,
+      currentUserId: currentUser.id ?? '',
     );
   }
 }

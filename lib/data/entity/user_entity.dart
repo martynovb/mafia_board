@@ -16,4 +16,13 @@ class UserEntity {
       email: json['email'] as String?,
     );
   }
+
+  static List<UserEntity> parseUserEntities(dynamic data) {
+    if (data is! List) {
+      return [];
+    }
+    return data
+        .map<UserEntity>((e) => UserEntity.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
 }

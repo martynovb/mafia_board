@@ -11,7 +11,8 @@ class GetAllClubsUseCase extends BaseUseCase<Future<List<ClubModel>>, String> {
 
   @override
   Future<List<ClubModel>> execute({String? params}) async {
-    return clubsRepo.getClubs(id: params);
+    final clubs =  await clubsRepo.getClubs(id: params);
+    return clubs.map((club) => ClubModel.fromEntity(club)).toList();
   }
 
 

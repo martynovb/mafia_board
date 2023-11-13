@@ -1,3 +1,4 @@
+import 'package:mafia_board/data/entity/user_entity.dart';
 import 'package:mafia_board/domain/model/user_model.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 import 'package:uuid/uuid.dart';
@@ -5,13 +6,13 @@ import 'package:uuid/uuid.dart';
 class AuthRepoLocal extends AuthRepo {
   bool _isAuthorized = true;
 
-  final UserModel currentUser = UserModel(
-      id: const Uuid().v1(), nickname: 'Magic', email: 'magic@gmail.com');
+  final UserEntity currentUser = UserEntity(
+      id: const Uuid().v1(), username: 'Magic', email: 'magic@gmail.com');
 
   AuthRepoLocal();
 
   @override
-  Future<UserModel> me() async {
+  Future<UserEntity> me() async {
     return currentUser;
   }
 
@@ -31,7 +32,7 @@ class AuthRepoLocal extends AuthRepo {
   }
 
   @override
-  Future<UserModel> registerUser({
+  Future<UserEntity> registerUser({
     required String email,
     required String nickname,
     required String password,

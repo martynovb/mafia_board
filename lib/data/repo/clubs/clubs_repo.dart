@@ -1,9 +1,10 @@
+import 'package:mafia_board/data/entity/club_entity.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
 
 abstract class ClubsRepo {
-  Future<List<ClubModel>> getClubs({String? id, int limit = 10});
+  Future<List<ClubEntity>> getClubs({String? id, int limit = 10});
 
-  Future<ClubModel?> getClubDetails({required String id});
+  Future<ClubEntity?> getClubDetails({required String id});
 
   Future<bool> sendRequestToJoinClub({
     required String clubId,

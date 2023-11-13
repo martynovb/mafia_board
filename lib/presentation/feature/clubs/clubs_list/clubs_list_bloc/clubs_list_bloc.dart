@@ -1,14 +1,14 @@
 import 'package:bloc/bloc.dart';
-import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
+import 'package:mafia_board/domain/usecase/get_all_clubs_usecase.dart';
 import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_event.dart';
 import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_state.dart';
 
 class ClubsListBloc extends Bloc<ClubsListEvent, ClubsListState> {
   static const String _tag = 'ClubsListBloc';
-  final ClubsRepo clubsRepo;
+  final GetAllClubsUseCase getAllClubsUseCase;
 
   ClubsListBloc({
-    required this.clubsRepo,
+    required this.getAllClubsUseCase,
   }) : super(InitialClubState()) {
     on<GetAllClubsEvent>(_getAllClubsEventHandler);
     on<GetAllClubMembersEvent>(_getClubMembersEventHandler);
@@ -16,7 +16,7 @@ class ClubsListBloc extends Bloc<ClubsListEvent, ClubsListState> {
   }
 
   Future<void> _getAllClubsEventHandler(event, emit) async {
-    emit(AllClubsState(await clubsRepo.getClubs()));
+    emit(AllClubsState(await getAllClubsUseCase.execute()));
   }
 
   Future<void> _getClubMembersEventHandler(event, emit) async {}
