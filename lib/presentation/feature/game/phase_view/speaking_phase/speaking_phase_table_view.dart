@@ -60,9 +60,6 @@ class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
         builder: (context, SpeakingPhaseState state) {
           return Column(
             children: [
-              const SizedBox(
-                height: Dimensions.sidePadding0_5x,
-              ),
               if (state.speaker?.isMuted == true) const Text('MUTED'),
               TableWidget(
                 players: state.players,

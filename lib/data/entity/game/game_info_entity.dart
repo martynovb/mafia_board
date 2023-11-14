@@ -1,7 +1,7 @@
 import 'package:mafia_board/data/entity/game/player_entity.dart';
 import 'package:mafia_board/domain/utils/date_format_util.dart';
 
-class GameInfoEntity {
+class DayInfoEntity {
   final String? id;
   final String? gameId;
   final int? day;
@@ -11,7 +11,7 @@ class GameInfoEntity {
   final List<PlayerEntity>? playersWithFoul;
   final String? currentPhase;
 
-  GameInfoEntity({
+  DayInfoEntity({
     required this.id,
     required this.gameId,
     required this.day,
@@ -22,8 +22,8 @@ class GameInfoEntity {
     required this.currentPhase,
   });
 
-  static GameInfoEntity fromJson(Map<dynamic, dynamic> json) {
-    return GameInfoEntity(
+  static DayInfoEntity fromJson(Map<dynamic, dynamic> json) {
+    return DayInfoEntity(
       id: json['id'] as String?,
       gameId: json['gameId'] as String?,
       day: json['day'] as int?,
@@ -36,12 +36,12 @@ class GameInfoEntity {
     );
   }
 
-  static List<GameInfoEntity> parseEntities(dynamic data) {
+  static List<DayInfoEntity> parseEntities(dynamic data) {
     if (data is! List) {
       return [];
     }
     return data
-        .map<GameInfoEntity>((e) => GameInfoEntity.fromJson(e as Map<String, dynamic>))
+        .map<DayInfoEntity>((e) => DayInfoEntity.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 }

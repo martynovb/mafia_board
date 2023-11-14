@@ -2,22 +2,22 @@ import 'package:mafia_board/domain/model/game_info_model.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 
-abstract class GameInfoRepo {
+abstract class DayInfoRepo {
   Future<int> getCurrentDay();
 
-  Future<List<GameInfoModel>> getAllGameInfo();
+  Future<List<DayInfoModel>> getAllDaysInfo();
 
-  Future<GameInfoModel?> getLastValidGameInfoByDay();
+  Future<DayInfoModel?> getLastValidDayInfoByDay();
 
-  Future<GameInfoModel?> getLastGameInfoByDay();
+  Future<DayInfoModel?> getLastDayInfoByDay();
 
   Future<void> mutePlayer(PlayerModel player);
 
-  Future<void> updateGameInfo(GameInfoModel gameInfoModel);
+  Future<void> updateDayInfo(DayInfoModel dayInfoModel);
 
   Future<void> deleteAll();
 
-  Future<void> add(GameInfoModel gameInfoModel);
+  Future<void> add(DayInfoModel dayInfoModel);
 
   Future<void> setCurrentPhaseType({required PhaseType phaseType});
 }

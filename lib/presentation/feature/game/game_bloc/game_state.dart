@@ -4,6 +4,8 @@ abstract class GameState {}
 
 class InitialBoardState extends GameState {}
 
+class GoToGameResults extends GameState {}
+
 class ErrorBoardState extends GameState {
   final String errorMessage;
 
@@ -12,7 +14,7 @@ class ErrorBoardState extends GameState {
 
 class GamePhaseState extends GameState {
   String currentGamePhaseName = '';
-  GameInfoModel? gameInfo;
+  DayInfoModel? dayInfo;
 
-  GamePhaseState(this.gameInfo, this.currentGamePhaseName);
+  GamePhaseState(this.dayInfo, this.currentGamePhaseName);
 }

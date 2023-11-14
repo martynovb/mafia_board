@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:mafia_board/domain/model/finish_game_type.dart';
+import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
+import 'package:mafia_board/presentation/feature/game/game_bloc/game_event.dart';
+import 'package:mafia_board/presentation/feature/game/game_bloc/game_state.dart';
 import 'package:mafia_board/presentation/feature/game/history/game_history_page.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/players_sheet_page.dart';
 import 'package:mafia_board/presentation/feature/game/table/table_page.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
+import 'package:mafia_board/presentation/feature/widgets/dialogs.dart';
 
 class GamePage extends StatefulWidget {
   const GamePage({Key? key}) : super(key: key);
@@ -16,9 +23,12 @@ class _GamePageState extends State<GamePage>
   late TabController _pageController;
   late String clubId;
   late List<Widget> _tabList;
+  late GameBloc gameBloc;
+  bool _isGameStarted = false;
 
   @override
   void initState() {
+    gameBloc = GetIt.I();
     _pageController = TabController(initialIndex: 0, vsync: this, length: 3);
     _tabList = [
       PlayersSheetPage(nextPage: () {
@@ -26,7 +36,7 @@ class _GamePageState extends State<GamePage>
           _pageController.animateTo(_pageController.index + 1);
         }
       }),
-      const TablePage(),
+      TablePage(onGameFinished: _showFinishConfirmationDialog),
       const GameHistoryPage(),
     ];
     super.initState();
@@ -42,15 +52,26 @@ class _GamePageState extends State<GamePage>
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: _appBar(context),
-        body: TabBarView(
-          controller: _pageController,
-          children: _tabList,
-        ),
-      ),
-    );
+    return WillPopScope(
+        onWillPop: () async => _showFinishConfirmationDialog(),
+        child: BlocListener(
+            bloc: gameBloc,
+            listener: (context, GameState state) {
+              if (state is GoToGameResults) {
+                Navigator.pushNamed(context, AppRouter.gameResultsPage);
+              } else if (state is GamePhaseState) {
+                _isGameStarted = state.dayInfo?.isGameStarted ?? false;
+              }
+            },
+            child: SafeArea(
+              child: Scaffold(
+                appBar: _appBar(context),
+                body: TabBarView(
+                  controller: _pageController,
+                  children: _tabList,
+                ),
+              ),
+            )));
   }
 
   AppBar _appBar(BuildContext context) => AppBar(
@@ -74,4 +95,43 @@ class _GamePageState extends State<GamePage>
               icon: const Icon(Icons.settings))
         ],
       );
+
+  Future<bool> _showFinishConfirmationDialog() async {
+    if (!_isGameStarted) {
+      return true;
+    }
+    return await showDefaultDialog(
+      context: context,
+      title: 'Do you want to finish the game?',
+      actions: <Widget>[
+        TextButton(
+          child: const Text('PPK - Civilians won'),
+          onPressed: () {
+            gameBloc.add(FinishGameEvent(FinishGameType.ppkCiv));
+            Navigator.of(context).pop();
+          },
+        ),
+        TextButton(
+          child: const Text('PPK - Mafia won'),
+          onPressed: () {
+            gameBloc.add(FinishGameEvent(FinishGameType.ppkMaf));
+            Navigator.of(context).pop();
+          },
+        ),
+        TextButton(
+          child: const Text("Just finish and don't save results"),
+          onPressed: () {
+            gameBloc.add(FinishGameEvent(FinishGameType.remove));
+            Navigator.of(context).pop(true);
+          },
+        ),
+        TextButton(
+          child: const Text('Cancel'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+  }
 }

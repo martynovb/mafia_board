@@ -89,7 +89,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
                                     if (state is ErrorBoardState ||
                                         state is InitialBoardState ||
                                         (state is GamePhaseState &&
-                                            state.gameInfo?.isGameStarted ==
+                                            state.dayInfo?.isGameStarted ==
                                                 false))
                                       _startGameButton()
                                     else
@@ -112,7 +112,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
                                   AsyncSnapshot<SheetDataState> snapshot) {
                                 if (snapshot.hasData) {
                                   isGameStarted =
-                                      snapshot.data?.gameInfo?.isGameStarted ??
+                                      snapshot.data?.dayInfo?.isGameStarted ??
                                           false;
                                   return _playersSheet(snapshot.data!);
                                 } else {

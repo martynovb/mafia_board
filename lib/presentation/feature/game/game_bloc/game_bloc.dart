@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/domain/model/game_info_model.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/exceptions/exception.dart';
@@ -30,23 +31,26 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     on<PutOnVoteEvent>(_putOnVoteEventHandler);
   }
 
-  Stream<GameInfoModel> get gameInfoStream => gameManager.gameInfoStream;
+  Stream<DayInfoModel> get dayInfoStream => gameManager.dayInfoStream;
 
   void _startGameEventHandler(event, emit) async {
     try {
       boardRepository.getAllPlayers().forEach(
             (player) => playerValidator.validate(player),
           );
-      final gameInfo = await gameManager.startGame();
-      emit(GamePhaseState(gameInfo, gameInfo.currentPhase.name));
+      final dayInfo = await gameManager.startGame();
+      emit(GamePhaseState(dayInfo, dayInfo.currentPhase.name));
     } on InvalidPlayerDataException catch (ex) {
       emit(ErrorBoardState(ex.errorMessage));
     }
   }
 
-  void _finishGameEventHandler(event, emit) async {
+  void _finishGameEventHandler(FinishGameEvent event, emit) async {
     try {
-      gameManager.finishGame();
+      await gameManager.finishGame(event.finishGameType);
+      if (event.finishGameType != FinishGameType.remove) {
+        emit(GoToGameResults());
+      }
       emit(InitialBoardState());
     } on InvalidPlayerDataException catch (ex) {
       emit(ErrorBoardState(ex.errorMessage));
@@ -55,8 +59,8 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
   Future<void> _nextPhaseEventHandler(event, emit) async {
     try {
-      final gameInfo = await gameManager.nextGamePhase();
-      emit(GamePhaseState(gameInfo, gameInfo?.currentPhase.name ?? ''));
+      final dayInfo = await gameManager.nextGamePhase();
+      emit(GamePhaseState(dayInfo, dayInfo?.currentPhase.name ?? ''));
     } on InvalidPlayerDataException catch (ex) {
       emit(ErrorBoardState(ex.errorMessage));
     } catch (ex) {
@@ -69,9 +73,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     MafLogger.d(_tag, '_putOnVoteEventHandler');
     try {
       votePhaseManager.putOnVote(event.playerOnVote.id);
-      final gameInfo = await gameManager.gameInfo;
-      emit(GamePhaseState(await gameManager.gameInfo,
-          gameInfo?.currentPhase.name ?? 'Unknown'));
+      final dayInfo = await gameManager.dayInfo;
+      emit(GamePhaseState(await gameManager.dayInfo,
+          dayInfo?.currentPhase.name ?? 'Unknown'));
     } on InvalidPlayerDataException catch (ex) {
       MafLogger.e(_tag, 'InvalidPlayerDataException');
       emit(ErrorBoardState(ex.errorMessage));
@@ -81,6 +85,5 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     }
   }
 
-  void dispose() {
-  }
+  void dispose() {}
 }

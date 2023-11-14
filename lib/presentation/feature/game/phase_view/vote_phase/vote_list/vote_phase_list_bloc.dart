@@ -14,7 +14,7 @@ class VotePhaseListBloc extends Bloc<VotePhaseListEvent, VotePhaseListState> {
   final VotePhaseManager votePhaseManager;
   final List<VoteItem> voteList = [];
   final BehaviorSubject<List<VoteItem>> _voteListSubject = BehaviorSubject();
-  StreamSubscription? _gameInfoSubscription;
+  StreamSubscription? _dayInfoSubscription;
   StreamSubscription? _gamePhaseSubscription;
 
   VotePhaseListBloc({
@@ -22,14 +22,14 @@ class VotePhaseListBloc extends Bloc<VotePhaseListEvent, VotePhaseListState> {
     required this.votePhaseManager,
   }) : super(VotePhaseListState()) {
     _listenToPlayersOnVote();
-    _listenToNewGameInfo();
+    _listenToNewDayInfo();
   }
 
-  Future<void> _listenToNewGameInfo() async {
-    await _gameInfoSubscription?.cancel();
-    _gameInfoSubscription = null;
-    _gameInfoSubscription = gameManager.gameInfoStream.listen((gameInfo) {
-      if (gameInfo.currentPhase != PhaseType.vote) {
+  Future<void> _listenToNewDayInfo() async {
+    await _dayInfoSubscription?.cancel();
+    _dayInfoSubscription = null;
+    _dayInfoSubscription = gameManager.dayInfoStream.listen((dayInfo) {
+      if (dayInfo.currentPhase != PhaseType.vote) {
         voteList.clear();
         _voteListSubject.add(voteList);
       }
@@ -52,8 +52,8 @@ class VotePhaseListBloc extends Bloc<VotePhaseListEvent, VotePhaseListState> {
   Future<void> _unsubscribe() async {
     await _gamePhaseSubscription?.cancel();
     _gamePhaseSubscription = null;
-    await _gameInfoSubscription?.cancel();
-    _gameInfoSubscription = null;
+    await _dayInfoSubscription?.cancel();
+    _dayInfoSubscription = null;
   }
 }
 

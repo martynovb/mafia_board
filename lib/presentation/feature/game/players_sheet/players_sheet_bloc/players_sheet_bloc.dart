@@ -44,10 +44,10 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
 
   void _listenToGamePhase() {
     _gamePhaseSubscription =
-        gamePhaseManager.gameInfoStream.listen((gamePhaseModel) {
+        gamePhaseManager.dayInfoStream.listen((gamePhaseModel) {
       _playersSubject.add(SheetDataState(
         players: boardRepository.getAllPlayers(),
-        gameInfo: gamePhaseModel,
+        dayInfo: gamePhaseModel,
       ));
     });
   }
@@ -63,7 +63,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
 
     _playersSubject.add(SheetDataState(
       players: boardRepository.getAllPlayers(),
-      gameInfo: await gamePhaseManager.gameInfo,
+      dayInfo: await gamePhaseManager.dayInfo,
     ));
   }
 
@@ -76,7 +76,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     }
     _playersSubject.add(SheetDataState(
       players: boardRepository.getAllPlayers(),
-      gameInfo: await gamePhaseManager.gameInfo,
+      dayInfo: await gamePhaseManager.dayInfo,
     ));
     final player = await boardRepository.getPlayerById(event.playerId);
     if (player != null) {
@@ -91,7 +91,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     );
     _playersSubject.add(SheetDataState(
       players: boardRepository.getAllPlayers(),
-      gameInfo: await gamePhaseManager.gameInfo,
+      dayInfo: await gamePhaseManager.dayInfo,
     ));
   }
 
@@ -102,7 +102,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     );
     _playersSubject.add(SheetDataState(
       players: boardRepository.getAllPlayers(),
-      gameInfo: await gamePhaseManager.gameInfo,
+      dayInfo: await gamePhaseManager.dayInfo,
     ));
   }
 
@@ -123,13 +123,12 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
 
     _playersSubject.add(SheetDataState(
       players: boardRepository.getAllPlayers(),
-      gameInfo: await gamePhaseManager.gameInfo,
+      dayInfo: await gamePhaseManager.dayInfo,
     ));
   }
 
   void dispose() {
     _gamePhaseSubscription?.cancel();
     _gamePhaseSubscription = null;
-    _playersSubject.close();
   }
 }

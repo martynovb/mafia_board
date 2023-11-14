@@ -7,7 +7,7 @@ class InitialSheetState extends SheetState {}
 
 class SheetDataState extends SheetState {
   final List<PlayerModel> players;
-  final GameInfoModel? gameInfo;
+  final DayInfoModel? dayInfo;
 
-  SheetDataState({required this.players, this.gameInfo});
+  SheetDataState({required this.players, this.dayInfo});
 }

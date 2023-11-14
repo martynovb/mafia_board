@@ -5,7 +5,7 @@ import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
-import 'package:mafia_board/data/repo/game_info/game_info_repo.dart';
+import 'package:mafia_board/data/repo/game_info/day_info_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/game_history_manager.dart';
@@ -14,7 +14,7 @@ import 'package:mafia_board/presentation/maf_logger.dart';
 
 class NightPhaseManager {
   static const _tag = 'NightPhaseManager';
-  final GameInfoRepo gameInfoRepo;
+  final DayInfoRepo dayInfoRepo;
   final GamePhaseRepo<NightPhaseAction> nightGamePhaseRepo;
   final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
   final PlayersRepo boardRepository;
@@ -22,7 +22,7 @@ class NightPhaseManager {
   final RoleManager roleManager;
 
   NightPhaseManager({
-    required this.gameInfoRepo,
+    required this.dayInfoRepo,
     required this.nightGamePhaseRepo,
     required this.speakGamePhaseRepo,
     required this.roleManager,
@@ -32,7 +32,7 @@ class NightPhaseManager {
 
   Future<NightPhaseAction?> getCurrentPhase([int? day]) async =>
       nightGamePhaseRepo.getCurrentPhase(
-        day: day ?? await gameInfoRepo.getCurrentDay(),
+        day: day ?? await dayInfoRepo.getCurrentDay(),
       );
 
   Future<void> preparedNightPhases(int currentDay) async {
@@ -67,7 +67,7 @@ class NightPhaseManager {
   }
 
   Future<void> startCurrentNightPhase() async {
-    final currentDay = await gameInfoRepo.getCurrentDay();
+    final currentDay = await dayInfoRepo.getCurrentDay();
     final phase = nightGamePhaseRepo.getCurrentPhase(day: currentDay);
     if (phase == null) {
       return;
@@ -77,7 +77,7 @@ class NightPhaseManager {
   }
 
   Future<void> finishCurrentNightPhase() async {
-    final currentDay = await gameInfoRepo.getCurrentDay();
+    final currentDay = await dayInfoRepo.getCurrentDay();
     final phase = nightGamePhaseRepo.getCurrentPhase(day: currentDay);
     if (phase == null) {
       return;
@@ -87,7 +87,7 @@ class NightPhaseManager {
   }
 
   Future<void> killPlayer(PlayerModel? playerModel) async {
-    final currentDay = await gameInfoRepo.getCurrentDay();
+    final currentDay = await dayInfoRepo.getCurrentDay();
     final currentNightPhase =
         nightGamePhaseRepo.getCurrentPhase(day: currentDay);
     if (currentNightPhase == null ||
@@ -122,7 +122,7 @@ class NightPhaseManager {
   }
 
   Future<void> cancelKillPlayer(PlayerModel? playerModel) async {
-    final currentDay = await gameInfoRepo.getCurrentDay();
+    final currentDay = await dayInfoRepo.getCurrentDay();
     final currentNightPhase =
         nightGamePhaseRepo.getCurrentPhase(day: currentDay);
     if (currentNightPhase == null ||
@@ -136,7 +136,7 @@ class NightPhaseManager {
       return;
     }
 
-    final nextDay = (await gameInfoRepo.getCurrentDay()) + 1;
+    final nextDay = (await dayInfoRepo.getCurrentDay()) + 1;
     final speakPhase = speakGamePhaseRepo.getCurrentPhase(day: nextDay);
     final killedPlayer = currentNightPhase.killedPlayer;
     if (speakPhase == null || killedPlayer == null) {
@@ -155,7 +155,7 @@ class NightPhaseManager {
   }
 
   Future<void> checkPlayer(PlayerModel? playerModel) async {
-    final currentDay = await gameInfoRepo.getCurrentDay();
+    final currentDay = await dayInfoRepo.getCurrentDay();
     await cancelCheckPlayer(playerModel);
     final currentNightPhase = nightGamePhaseRepo.getCurrentPhase(
       day: currentDay,
@@ -173,7 +173,7 @@ class NightPhaseManager {
   }
 
   Future<void> cancelCheckPlayer(PlayerModel? playerModel) async {
-    final currentDay = await gameInfoRepo.getCurrentDay();
+    final currentDay = await dayInfoRepo.getCurrentDay();
     final currentNightPhase = nightGamePhaseRepo.getCurrentPhase(day: currentDay);
     if (currentNightPhase == null) {
       return;
@@ -191,7 +191,7 @@ class NightPhaseManager {
       return;
     }
 
-    final nextDay = (await gameInfoRepo.getCurrentDay()) + 1;
+    final nextDay = (await dayInfoRepo.getCurrentDay()) + 1;
     if (whoIsVisiting == Role.DOCTOR) {
       final lastWordSpeakingPhase =
           speakGamePhaseRepo.getCurrentPhase(day: nextDay);
@@ -208,7 +208,7 @@ class NightPhaseManager {
   }
 
   Future<bool> _isPlayerAlreadyKilledBefore(PlayerModel playerModel) async {
-    final currentDay = await gameInfoRepo.getCurrentDay();
+    final currentDay = await dayInfoRepo.getCurrentDay();
     bool result = false;
     nightGamePhaseRepo.getAllPhases().forEach((phase) {
       if (currentDay < phase.currentDay &&

@@ -48,9 +48,6 @@ class _VotePhaseTableViewState extends State<VotePhaseTableView> {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(
-                height: 16,
-              ),
               TableWidget(
                   highlightedPlayerList: state.allAvailablePlayersToVote.entries
                       .map(

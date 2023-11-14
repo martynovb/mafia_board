@@ -1,8 +1,9 @@
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
+import 'package:uuid/uuid.dart';
 
-class GameInfoModel {
-  final int id = DateTime.now().millisecondsSinceEpoch;
+class DayInfoModel {
+  final String id = const Uuid().v1();
   final int day;
   final DateTime createdAt = DateTime.now();
   final List<PlayerModel> _removedPlayers = [];
@@ -11,7 +12,7 @@ class GameInfoModel {
   PhaseType currentPhase;
   bool isGameStarted;
 
-  GameInfoModel({
+  DayInfoModel({
     required this.day,
     this.currentPhase = PhaseType.none,
     this.isGameStarted = true,

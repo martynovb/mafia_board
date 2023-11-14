@@ -38,22 +38,22 @@ class GameHistoryManager {
   }
 
   void logGameStart({
-    required GameInfoModel gameInfo,
+    required DayInfoModel dayInfo,
   }) {
     _addRecord(GameHistoryModel(
       text: 'Game Started',
       type: GameHistoryType.startGame,
-      createdAt: gameInfo.createdAt,
+      createdAt: dayInfo.createdAt,
     ));
   }
 
   void logGameFinish({
-    required GameInfoModel gameInfo,
+    required DayInfoModel dayInfo,
   }) {
     _addRecord(GameHistoryModel(
       text: 'Game Finished',
       type: GameHistoryType.finishGame,
-      createdAt: gameInfo.createdAt,
+      createdAt: dayInfo.createdAt,
     ));
   }
 
