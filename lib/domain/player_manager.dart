@@ -5,12 +5,17 @@ import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
-import 'package:mafia_board/data/repo/game_info/day_info_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
+import 'package:mafia_board/domain/usecase/create_day_info_usecase.dart';
+import 'package:mafia_board/domain/usecase/get_current_game_usecase.dart';
+import 'package:mafia_board/domain/usecase/get_last_valid_day_info_usecase.dart';
+import 'package:mafia_board/domain/usecase/update_day_info_usecase.dart';
 
 class PlayerManager {
   final PlayersRepo boardRepo;
-  final DayInfoRepo dayInfoRepo;
+  final GetCurrentGameUseCase getCurrentGameUseCase;
+  final UpdateDayInfoUseCase updateDayInfoUseCase;
+  final CreateDayInfoUseCase createDayInfoUseCase;
   final GamePhaseRepo<VotePhaseAction> voteGamePhaseRepo;
   final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
 
@@ -18,12 +23,14 @@ class PlayerManager {
     required this.boardRepo,
     required this.voteGamePhaseRepo,
     required this.speakGamePhaseRepo,
-    required this.dayInfoRepo,
+    required this.getCurrentGameUseCase,
+    required this.updateDayInfoUseCase,
+    required this.createDayInfoUseCase,
   });
 
   Future<void> refreshMuteIfNeeded(DayInfoModel dayInfo) async {
     final allActivePlayers = boardRepo.getAllAvailablePlayers();
-    final mutedPlayerIds = dayInfo.mutedPlayers.map((p) => p.id).toSet();
+    final mutedPlayerIds = dayInfo.getMutedPlayers.map((p) => p.id).toSet();
 
     for (PlayerModel player in allActivePlayers) {
       bool muted = mutedPlayerIds.contains(player.id);
@@ -60,7 +67,8 @@ class PlayerManager {
       fouls: 0,
     );
 
-    final dayInfo = (await dayInfoRepo.getLastValidDayInfoByDay())!;
+    final game = await getCurrentGameUseCase.execute();
+    final dayInfo = game.currentDayInfo;
 
     if (player.fouls == Constants.maxFoulsToSpeak) {
       dayInfo.removedMutedPlayer(id);
@@ -103,17 +111,20 @@ class PlayerManager {
       fouls: Constants.maxFoulsToSpeak,
     );
 
-    final dayInfo = (await dayInfoRepo.getLastValidDayInfoByDay())!;
+    final game = await getCurrentGameUseCase.execute();
+    final dayInfo = game.currentDayInfo;
     final speakPhases = speakGamePhaseRepo.getAllPhasesByDay(day: dayInfo.day);
 
     if (isPlayerHasAlreadySpokenToday(speakPhases, id)) {
       //add mute for the next day
-      await dayInfoRepo.add(
-        DayInfoModel(day: dayInfo.day + 1)..addMutedPlayer(player),
-      );
+      await createDayInfoUseCase.execute(
+          params: CreateDayInfoParams(
+        day: dayInfo.day + 1,
+        mutedPlayers: [player],
+      ));
     } else {
       dayInfo.addMutedPlayer(player);
-      await dayInfoRepo.updateDayInfo(dayInfo);
+      await updateDayInfoUseCase.execute(params: dayInfo);
     }
   }
 
@@ -129,7 +140,8 @@ class PlayerManager {
       fouls: Constants.maxFouls,
     );
 
-    final dayInfo = (await dayInfoRepo.getLastValidDayInfoByDay())!;
+    final game = await getCurrentGameUseCase.execute();
+    final dayInfo = game.currentDayInfo;
 
     //finish future speak phases
     final speakPhases = speakGamePhaseRepo.getAllPhases();
@@ -160,7 +172,7 @@ class PlayerManager {
 
     dayInfo.removedMutedPlayer(id);
     dayInfo.addRemovedPlayer(player);
-    dayInfoRepo.updateDayInfo(dayInfo);
+    await updateDayInfoUseCase.execute(params: dayInfo);
   }
 
   bool isPlayerHasAlreadySpokenToday(

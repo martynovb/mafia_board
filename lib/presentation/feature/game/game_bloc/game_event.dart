@@ -3,7 +3,11 @@ import 'package:mafia_board/domain/model/player_model.dart';
 
 abstract class GameEvent {}
 
-class StartGameEvent extends GameEvent {}
+class StartGameEvent extends GameEvent {
+  final String clubId;
+
+  StartGameEvent(this.clubId);
+}
 
 class FinishGameEvent extends GameEvent {
   final FinishGameType finishGameType;

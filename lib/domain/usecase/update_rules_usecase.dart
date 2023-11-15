@@ -2,7 +2,7 @@ import 'package:mafia_board/data/repo/rules/rules_repo.dart';
 import 'package:mafia_board/domain/model/rules_model.dart';
 import 'package:mafia_board/domain/usecase/base_usecase.dart';
 
-class UpdateRulesUseCase extends BaseUseCase<Future<void>, UpdateRulesParams> {
+class UpdateRulesUseCase extends BaseUseCase<void, UpdateRulesParams> {
   final RulesRepo rulesRepo;
 
   UpdateRulesUseCase({required this.rulesRepo});

@@ -2,7 +2,7 @@ import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
 import 'package:mafia_board/domain/usecase/base_usecase.dart';
 
-class RequestClubMembershipUseCase extends BaseUseCase<Future<bool>, String> {
+class RequestClubMembershipUseCase extends BaseUseCase<bool, String> {
   final ClubsRepo clubsRepo;
   final AuthRepo authRepo;
 

@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
@@ -17,11 +18,13 @@ import 'package:mafia_board/presentation/feature/game/players_sheet/widgets/blur
 import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 
 class PlayersSheetPage extends StatefulWidget {
+  final String clubId;
   final Function()? nextPage;
 
   const PlayersSheetPage({
     super.key,
     this.nextPage,
+    required this.clubId,
   });
 
   @override
@@ -59,6 +62,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return BlocBuilder(
       bloc: _playersSheetBloc,
       builder: (BuildContext context, SheetState state) {
@@ -70,59 +74,56 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
                   return ConstrainedBox(
                       constraints: const BoxConstraints(
                           maxWidth: Dimensions.maxPlayersListWidth),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          BlocConsumer(
-                              listener: (context, GameState state) {
-                              },
-                              bloc: _boardBloc,
-                              builder: (context, GameState state) {
-                                return Column(
-                                  children: [
-                                    if (state is ErrorBoardState) ...[
-                                      const SizedBox(
-                                        height: Dimensions.defaultSidePadding,
-                                      ),
-                                      _errorView(state.errorMessage)
-                                    ],
-                                    if (state is ErrorBoardState ||
-                                        state is InitialBoardState ||
-                                        (state is GamePhaseState &&
-                                            state.dayInfo?.isGameStarted ==
-                                                false))
-                                      _startGameButton()
-                                    else
-                                      Container()
-                                  ],
-                                );
-                              }),
-                          ElevatedButton(
-                              onPressed: () =>
-                                  _playersSheetBloc.add(SetTestDataEvent()),
-                              child: const Text('Set Test Data')),
-                          _sheetHeader(),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: Dimensions.sidePadding0_5x,
-                                right: Dimensions.sidePadding0_5x),
-                            child: StreamBuilder(
-                              stream: _playersSheetBloc.playersStream,
-                              builder: (context,
-                                  AsyncSnapshot<SheetDataState> snapshot) {
-                                if (snapshot.hasData) {
-                                  isGameStarted =
-                                      snapshot.data?.dayInfo?.isGameStarted ??
-                                          false;
-                                  return _playersSheet(snapshot.data!);
-                                } else {
-                                  return Container();
-                                }
-                              },
-                            ),
-                          ),
-                        ],
-                      ));
+                      child: BlocConsumer(
+                          listener: (context, GameState state) {
+                            if (state is GamePhaseState) {
+                              isGameStarted = state.currentGame?.gameStatus ==
+                                  GameStatus.inProgress;
+                            }
+                          },
+                          bloc: _boardBloc,
+                          builder: (context, GameState state) {
+                            return Column(
+                              children: [
+                                if (state is ErrorBoardState) ...[
+                                  const SizedBox(
+                                    height: Dimensions.defaultSidePadding,
+                                  ),
+                                  _errorView(state.errorMessage)
+                                ],
+                                if (state is ErrorBoardState ||
+                                    state is InitialBoardState ||
+                                    (state is GamePhaseState &&
+                                        state.currentGame?.gameStatus !=
+                                            GameStatus.inProgress))
+                                  _startGameButton()
+                                else
+                                  Container(),
+                                ElevatedButton(
+                                    onPressed: () => _playersSheetBloc
+                                        .add(SetTestDataEvent()),
+                                    child: const Text('Set Test Data')),
+                                _sheetHeader(),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: Dimensions.sidePadding0_5x,
+                                      right: Dimensions.sidePadding0_5x),
+                                  child: StreamBuilder(
+                                    stream: _playersSheetBloc.playersStream,
+                                    builder: (context,
+                                        AsyncSnapshot<SheetDataState>
+                                            snapshot) {
+                                      if (snapshot.hasData) {
+                                        return _playersSheet(snapshot.data!);
+                                      } else {
+                                        return Container();
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            );
+                          }));
                 },
               ),
             ),
@@ -363,7 +364,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
 
   Widget _startGameButton() => GestureDetector(
       onTap: () {
-        _boardBloc.add(StartGameEvent());
+        _boardBloc.add(StartGameEvent(widget.clubId));
         widget.nextPage!();
       },
       child: const Text(

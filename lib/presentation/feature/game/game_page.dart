@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
+import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_event.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_state.dart';
@@ -29,16 +30,6 @@ class _GamePageState extends State<GamePage>
   @override
   void initState() {
     gameBloc = GetIt.I();
-    _pageController = TabController(initialIndex: 0, vsync: this, length: 3);
-    _tabList = [
-      PlayersSheetPage(nextPage: () {
-        if (_pageController.index < 2) {
-          _pageController.animateTo(_pageController.index + 1);
-        }
-      }),
-      TablePage(onGameFinished: _showFinishConfirmationDialog),
-      const GameHistoryPage(),
-    ];
     super.initState();
   }
 
@@ -47,6 +38,20 @@ class _GamePageState extends State<GamePage>
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     clubId = args?['clubId'] ?? '';
+
+    _pageController = TabController(initialIndex: 0, vsync: this, length: 3);
+    _tabList = [
+      PlayersSheetPage(
+          clubId: clubId,
+          nextPage: () {
+            if (_pageController.index < 2) {
+              _pageController.animateTo(_pageController.index + 1);
+            }
+          }),
+      TablePage(onGameFinished: _showFinishConfirmationDialog),
+      const GameHistoryPage(),
+    ];
+
     super.didChangeDependencies();
   }
 
@@ -60,7 +65,7 @@ class _GamePageState extends State<GamePage>
               if (state is GoToGameResults) {
                 Navigator.pushNamed(context, AppRouter.gameResultsPage);
               } else if (state is GamePhaseState) {
-                _isGameStarted = state.dayInfo?.isGameStarted ?? false;
+                _isGameStarted = state.currentGame?.gameStatus == GameStatus.inProgress;
               }
             },
             child: SafeArea(

@@ -2,7 +2,7 @@ import 'package:mafia_board/data/repo/rules/rules_repo.dart';
 import 'package:mafia_board/domain/model/rules_model.dart';
 import 'package:mafia_board/domain/usecase/base_usecase.dart';
 
-class GetRulesUseCase extends BaseUseCase<Future<RulesModel>, String> {
+class GetRulesUseCase extends BaseUseCase<RulesModel, String> {
 
   final RulesRepo rulesRepo;
 

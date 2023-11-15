@@ -9,7 +9,7 @@ class DayInfoEntity {
   final List<PlayerEntity>? removedPlayers;
   final List<PlayerEntity>? mutedPlayers;
   final List<PlayerEntity>? playersWithFoul;
-  final String? currentPhase;
+  String? currentPhase;
 
   DayInfoEntity({
     required this.id,

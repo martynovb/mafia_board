@@ -3,7 +3,7 @@ import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/usecase/base_usecase.dart';
 
-class GetClubDetailsUseCase extends BaseUseCase<Future<ClubModel>, String> {
+class GetClubDetailsUseCase extends BaseUseCase<ClubModel, String> {
   final AuthRepo authRepo;
   final ClubsRepo clubsRepo;
 

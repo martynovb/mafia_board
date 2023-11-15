@@ -1,4 +1,5 @@
 import 'package:class_to_string/class_to_string.dart';
+import 'package:mafia_board/data/entity/game/player_entity.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/domain/model/user_model.dart';
 
@@ -26,13 +27,39 @@ class PlayerModel {
   });
 
   PlayerModel.empty(this.seatNumber)
-      : role = Role.NONE,
+      : _user = UserModel.empty(),
+        role = Role.NONE,
         fouls = 0,
         score = 0,
         isRemoved = false,
         isKilled = false,
         isMuted = false,
         isKicked = false;
+
+  PlayerModel.fromEntity(PlayerEntity? entity)
+      : _user = UserModel.fromEntity(entity?.user),
+        seatNumber = entity?.seatNumber ?? -1,
+        role = roleMapper(entity?.role),
+        fouls = entity?.fouls ?? -1,
+        score = entity?.score ?? -1,
+        isRemoved = entity?.isRemoved ?? false,
+        isKilled = entity?.isKilled ?? false,
+        isMuted = entity?.isMuted ?? false,
+        isKicked = entity?.isKicked ?? false;
+
+  PlayerEntity toEntity() {
+    return PlayerEntity(
+      user: _user?.toEntity(),
+      role: role.name,
+      seatNumber: seatNumber,
+      fouls: fouls,
+      score: score,
+      isRemoved: isRemoved,
+      isKilled: isKilled,
+      isMuted: isMuted,
+      isKicked: isKicked,
+    );
+  }
 
   set user(UserModel user) => _user = user;
 

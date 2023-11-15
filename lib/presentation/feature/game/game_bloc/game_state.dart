@@ -1,4 +1,5 @@
 import 'package:mafia_board/domain/model/game_info_model.dart';
+import 'package:mafia_board/domain/model/game_model.dart';
 
 abstract class GameState {}
 
@@ -14,7 +15,7 @@ class ErrorBoardState extends GameState {
 
 class GamePhaseState extends GameState {
   String currentGamePhaseName = '';
-  DayInfoModel? dayInfo;
+  GameModel? currentGame;
 
-  GamePhaseState(this.dayInfo, this.currentGamePhaseName);
+  GamePhaseState(this.currentGame, this.currentGamePhaseName);
 }

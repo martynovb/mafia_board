@@ -10,6 +10,7 @@ import 'package:mafia_board/domain/game_history_manager.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
 import 'package:mafia_board/domain/player_manager.dart';
 import 'package:mafia_board/domain/role_manager.dart';
+import 'package:mafia_board/domain/usecase/get_current_game_usecase.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/players_sheet_bloc/players_sheet_event.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/players_sheet_bloc/players_sheet_state.dart';
 import 'package:rxdart/rxdart.dart';
@@ -21,6 +22,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
   final GameManager gamePhaseManager;
   final PlayerManager playerManager;
   final RoleManager roleManager;
+  final GetCurrentGameUseCase getCurrentGameUseCase;
 
   StreamSubscription? _gamePhaseSubscription;
   final BehaviorSubject<SheetDataState> _playersSubject = BehaviorSubject();
@@ -31,6 +33,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     required this.gamePhaseManager,
     required this.playerManager,
     required this.roleManager,
+    required this.getCurrentGameUseCase,
   }) : super(InitialSheetState()) {
     on<AddFoulEvent>(_addFoulHandler);
     on<FindUserEvent>(_findUserHandler);
@@ -44,10 +47,10 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
 
   void _listenToGamePhase() {
     _gamePhaseSubscription =
-        gamePhaseManager.dayInfoStream.listen((gamePhaseModel) {
+        gamePhaseManager.dayInfoStream.listen((gamePhaseModel) async {
       _playersSubject.add(SheetDataState(
         players: boardRepository.getAllPlayers(),
-        dayInfo: gamePhaseModel,
+        currentGame: await getCurrentGameUseCase.execute(),
       ));
     });
   }
@@ -63,7 +66,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
 
     _playersSubject.add(SheetDataState(
       players: boardRepository.getAllPlayers(),
-      dayInfo: await gamePhaseManager.dayInfo,
+      currentGame: await getCurrentGameUseCase.execute(),
     ));
   }
 
@@ -76,7 +79,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     }
     _playersSubject.add(SheetDataState(
       players: boardRepository.getAllPlayers(),
-      dayInfo: await gamePhaseManager.dayInfo,
+      currentGame: await getCurrentGameUseCase.execute(),
     ));
     final player = await boardRepository.getPlayerById(event.playerId);
     if (player != null) {
@@ -91,7 +94,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     );
     _playersSubject.add(SheetDataState(
       players: boardRepository.getAllPlayers(),
-      dayInfo: await gamePhaseManager.dayInfo,
+      currentGame: await getCurrentGameUseCase.execute(),
     ));
   }
 
@@ -102,7 +105,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     );
     _playersSubject.add(SheetDataState(
       players: boardRepository.getAllPlayers(),
-      dayInfo: await gamePhaseManager.dayInfo,
+      currentGame: await getCurrentGameUseCase.execute(),
     ));
   }
 
@@ -123,7 +126,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
 
     _playersSubject.add(SheetDataState(
       players: boardRepository.getAllPlayers(),
-      dayInfo: await gamePhaseManager.dayInfo,
+      currentGame: await getCurrentGameUseCase.execute(),
     ));
   }
 

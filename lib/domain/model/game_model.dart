@@ -1,17 +1,23 @@
-import 'package:mafia_board/domain/model/game_history_model.dart';
+import 'package:mafia_board/data/entity/game/game_entity.dart';
+import 'package:mafia_board/data/entity/game/game_info_entity.dart';
 import 'package:mafia_board/domain/model/game_info_model.dart';
-import 'package:mafia_board/domain/model/player_model.dart';
+import 'package:mafia_board/domain/model/game_status.dart';
 
 class GameModel {
   final String id;
-  final List<DayInfoModel> dayInfoList;
-  final List<GameHistoryModel> gameHisotry;
-  final List<PlayerModel> players;
+  final DayInfoModel currentDayInfo;
+  final GameStatus gameStatus;
 
   GameModel({
     required this.id,
-    required this.dayInfoList,
-    required this.gameHisotry,
-    required this.players,
+    required this.currentDayInfo,
+    required this.gameStatus,
   });
+
+  GameModel.fromEntity(
+    GameEntity? gameEntity,
+    DayInfoEntity? dayInfoEntity,
+  )   : id = gameEntity?.id ?? '',
+        gameStatus = gameStatusMapper(gameEntity?.gameStatus),
+        currentDayInfo = DayInfoModel.fromEntity(dayInfoEntity);
 }

@@ -1,3 +1,3 @@
 abstract class BaseUseCase<R, P> {
-  R execute({P? params});
+  Future<R> execute({P? params});
 }

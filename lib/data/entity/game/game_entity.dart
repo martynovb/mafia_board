@@ -4,15 +4,13 @@ import 'package:mafia_board/data/entity/game/player_entity.dart';
 
 class GameEntity {
   final String? id;
-  final List<DayInfoEntity> dayInfoList;
-  final List<GameHistoryEntity> gameHistory;
+  final String? clubId;
   final List<PlayerEntity> players;
-  final String? gameStatus;
+  String? gameStatus;
 
   GameEntity({
     required this.id,
-    required this.dayInfoList,
-    required this.gameHistory,
+    required this.clubId,
     required this.players,
     required this.gameStatus,
   });
@@ -20,8 +18,7 @@ class GameEntity {
   static GameEntity fromJson(Map<dynamic, dynamic> json) {
     return GameEntity(
       id: json['id'] as String?,
-      dayInfoList: DayInfoEntity.parseEntities(json['game_info_list']),
-      gameHistory: GameHistoryEntity.parseEntities(json['game_history']),
+      clubId: json['clubId'] as String?,
       players: PlayerEntity.parsePlayerEntities(json['players']),
       gameStatus: json['game_status'] as String?,
     );
