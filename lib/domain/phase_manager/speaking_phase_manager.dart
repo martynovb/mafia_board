@@ -29,14 +29,17 @@ class SpeakingPhaseManager {
 
   Future<void> preparedSpeakPhases(int currentDay) async {
     final List<SpeakPhaseAction> speakPhaseList = [];
-    final players = boardRepository.getAllAvailablePlayers();
+    final players = boardRepository.getAllPlayers();
 
-    if (players.isEmpty) return;
+    if (players.isEmpty) throw Exception('preparedSpeakPhases: no players');
 
     int startIndex = (currentDay - 1) % players.length;
     final reorderedPlayers = players.sublist(startIndex)
       ..addAll(players.sublist(0, startIndex));
     for (var player in reorderedPlayers) {
+      if (!player.isInGame()) {
+        continue;
+      }
       speakPhaseList.add(
         SpeakPhaseAction(
           currentDay: currentDay,
