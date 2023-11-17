@@ -7,7 +7,7 @@ import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
-import 'package:mafia_board/domain/game_history_manager.dart';
+import 'package:mafia_board/domain/manager/game_history_manager.dart';
 import 'package:mafia_board/domain/usecase/get_current_game_usecase.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
 import 'package:rxdart/subjects.dart';

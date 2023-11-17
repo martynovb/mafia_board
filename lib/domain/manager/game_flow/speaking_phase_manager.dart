@@ -4,7 +4,7 @@ import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/data/repo/game_info/game_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
-import 'package:mafia_board/domain/game_history_manager.dart';
+import 'package:mafia_board/domain/manager/game_history_manager.dart';
 import 'package:mafia_board/domain/usecase/get_current_game_usecase.dart';
 
 class SpeakingPhaseManager {

@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/domain/model/role.dart';
-import 'package:mafia_board/domain/role_manager.dart';
+import 'package:mafia_board/domain/manager/role_manager.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/role_event.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/role_state.dart';
 

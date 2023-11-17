@@ -7,8 +7,8 @@ import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
-import 'package:mafia_board/domain/game_history_manager.dart';
-import 'package:mafia_board/domain/role_manager.dart';
+import 'package:mafia_board/domain/manager/game_history_manager.dart';
+import 'package:mafia_board/domain/manager/role_manager.dart';
 import 'package:mafia_board/domain/usecase/get_current_game_usecase.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
 

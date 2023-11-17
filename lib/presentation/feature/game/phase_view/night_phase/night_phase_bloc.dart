@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
-import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
-import 'package:mafia_board/domain/phase_manager/night_phase_manager.dart';
+import 'package:mafia_board/domain/manager/game_flow/game_phase_manager.dart';
+import 'package:mafia_board/domain/manager/game_flow/night_phase_manager.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/night_phase/night_phase_event.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/night_phase/night_phase_state.dart';
 

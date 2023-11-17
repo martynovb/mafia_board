@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/domain/model/game_history_model.dart';
-import 'package:mafia_board/domain/game_history_manager.dart';
+import 'package:mafia_board/domain/manager/game_history_manager.dart';
 
 class GameHistoryBloc
     extends Bloc<SubscribeToGameHistoryEvent, GameHistoryState> {
