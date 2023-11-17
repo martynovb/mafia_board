@@ -15,6 +15,9 @@ class FinishGameEvent extends GameEvent {
   FinishGameEvent(this.finishGameType);
 }
 
+class RemoveGameDataEvent extends GameEvent {}
+class ResetGameDataEvent extends GameEvent {}
+
 class NextPhaseEvent extends GameEvent {}
 
 class PutOnVoteEvent extends GameEvent {

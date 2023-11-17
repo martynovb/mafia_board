@@ -41,7 +41,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
 
   late PlayersSheetBloc _playersSheetBloc;
   late RoleBloc _roleBloc;
-  late GameBloc _boardBloc;
+  late GameBloc _gameBloc;
 
   @override
   bool get wantKeepAlive => true;
@@ -50,7 +50,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
   void initState() {
     _playersSheetBloc = GetIt.instance<PlayersSheetBloc>();
     _roleBloc = GetIt.instance<RoleBloc>();
-    _boardBloc = GetIt.instance<GameBloc>();
+    _gameBloc = GetIt.instance<GameBloc>();
     super.initState();
   }
 
@@ -81,7 +81,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
                                   GameStatus.inProgress;
                             }
                           },
-                          bloc: _boardBloc,
+                          bloc: _gameBloc,
                           builder: (context, GameState state) {
                             return Column(
                               children: [
@@ -92,7 +92,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
                                   _errorView(state.errorMessage)
                                 ],
                                 if (state is ErrorBoardState ||
-                                    state is InitialBoardState ||
+                                    state is InitialGameState ||
                                     (state is GamePhaseState &&
                                         state.currentGame?.gameStatus !=
                                             GameStatus.inProgress))
@@ -364,7 +364,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
 
   Widget _startGameButton() => GestureDetector(
       onTap: () {
-        _boardBloc.add(StartGameEvent(widget.clubId));
+        _gameBloc.add(StartGameEvent(widget.clubId));
         widget.nextPage!();
       },
       child: const Text(

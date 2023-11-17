@@ -27,5 +27,5 @@ abstract class PlayersRepo {
     bool? isMuted,
   });
 
-  void deleteAll();
+  void resetAll();
 }

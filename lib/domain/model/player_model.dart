@@ -61,7 +61,18 @@ class PlayerModel {
     );
   }
 
-  set user(UserModel user) => _user = user;
+  void reset(){
+    _user = null;
+    role = Role.NONE;
+    fouls = 0;
+    score = 0;
+    isRemoved = false;
+    isKilled = false;
+    isMuted = false;
+    isKicked = false;
+  }
+
+  set user(UserModel? user) => _user = user;
 
   String get id => _user?.id ?? '';
 

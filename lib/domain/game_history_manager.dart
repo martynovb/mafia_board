@@ -236,4 +236,8 @@ class GameHistoryManager {
       createdAt: DateTime.now(),
     ));
   }
+
+  void reset() {
+    _gameHistorySubject.add([]);
+  }
 }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:mafia_board/data/constants.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/domain/model/game_info_model.dart';
+import 'package:mafia_board/domain/model/game_model.dart';
 import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
@@ -22,6 +23,7 @@ import 'package:mafia_board/domain/usecase/create_game_usecase.dart';
 import 'package:mafia_board/domain/usecase/finish_game_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_current_game_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_last_day_info_usecase.dart';
+import 'package:mafia_board/domain/usecase/remove_game_data_usecase.dart';
 import 'package:mafia_board/domain/usecase/update_day_info_usecase.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -47,8 +49,9 @@ class GameManager {
   final CreateGameUseCase createGameUseCase;
   final GetCurrentGameUseCase getCurrentGameUseCase;
   final FinishGameUseCase finishGameUseCase;
+  final RemoveGameDataUseCase removeGameDataUseCase;
 
-  final BehaviorSubject<DayInfoModel> _dayInfoSubject = BehaviorSubject();
+  final BehaviorSubject<GameModel?> _gameSubject = BehaviorSubject();
 
   GameManager({
     required this.boardRepository,
@@ -67,29 +70,17 @@ class GameManager {
     required this.getCurrentGameUseCase,
     required this.getLastDayInfoUseCase,
     required this.finishGameUseCase,
+    required this.removeGameDataUseCase,
   });
 
-  Stream<DayInfoModel> get dayInfoStream => _dayInfoSubject.stream;
-
-  Future<DayInfoModel?> get dayInfo => _dayInfoSubject.hasValue
-      ? Future.value(_dayInfoSubject.value)
-      : Future.value(null);
+  Stream<GameModel?> get gameStream => _gameSubject.stream;
 
   Future<void> _updateDayInfo(DayInfoModel dayInfoModel) async {
     await updateDayInfoUseCase.execute(params: dayInfoModel);
-    _dayInfoSubject.add(dayInfoModel);
-  }
-
-  Future<void> _resetData() async {
-    await dayInfoRepo.deleteAll();
-    boardRepository.deleteAll();
-    speakGamePhaseRepo.deleteAll();
-    voteGamePhaseRepo.deleteAll();
-    nightGamePhaseRepo.deleteAll();
+    _gameSubject.add(await getCurrentGameUseCase.execute());
   }
 
   Future<void> startGame(String clubId) async {
-    await _resetData();
     //create a game in specific club
     await createGameUseCase.execute(
       params: CreateGameParams(
@@ -131,6 +122,16 @@ class GameManager {
     }
 
     await votePhaseGameManager.skipVotePhasesIfPossible();
+    // workaround, refactor duplication of code
+    if (!speakGamePhaseRepo.isFinished(day: currentDay)) {
+      if (dayInfo.currentPhase != PhaseType.speak) {
+        dayInfo.currentPhase = PhaseType.speak;
+        _updateDayInfo(dayInfo);
+      }
+      MafLogger.d(_tag, 'Current phase: ${dayInfo.currentPhase}');
+      return dayInfo;
+    }
+
     if (!voteGamePhaseRepo.isFinished(day: currentDay)) {
       if (dayInfo.currentPhase != PhaseType.vote) {
         dayInfo.currentPhase = PhaseType.vote;
@@ -157,7 +158,7 @@ class GameManager {
   }
 
   Future<DayInfoModel> finishGame(FinishGameType finishGameType) async {
-    final game = await finishGameUseCase.execute();
+    final game = await finishGameUseCase.execute(params: finishGameType);
     final dayInfo = game.currentDayInfo;
 
     _updateDayInfo(dayInfo);
@@ -227,5 +228,12 @@ class GameManager {
     _updateDayInfo(nextDayInfoModel);
 
     return await nextGamePhase();
+  }
+
+  Future<void> resetGameData() async {
+    await removeGameDataUseCase.execute();
+    votePhaseGameManager.reset();
+    gameHistoryManager.reset();
+    _gameSubject.add(null);
   }
 }

@@ -31,21 +31,15 @@ class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
   final _bestMove2Controller = TextEditingController();
   final _bestMove3Controller = TextEditingController();
   late SpeakingPhaseBloc speakingPhaseBloc;
-  late GameBloc boardBloc;
+  late GameBloc gameBloc;
   final timerKey = GlobalKey<GameTimerViewState>();
   bool _isTimerFinished = false;
 
   @override
   void initState() {
     speakingPhaseBloc = GetIt.I();
-    boardBloc = GetIt.I();
+    gameBloc = GetIt.I();
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    speakingPhaseBloc.add(GetCurrentSpeakPhaseEvent());
-    super.didChangeDependencies();
   }
 
   @override
@@ -63,23 +57,25 @@ class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
               if (state.speaker?.isMuted == true) const Text('MUTED'),
               TableWidget(
                 players: state.players,
-                center: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Player #${state.speaker?.seatNumber} is speaking',
-                    ),
-                    const SizedBox(
-                      height: Dimensions.sidePadding0_5x,
-                    ),
-                    Text(
-                      '${state.speaker?.nickname}',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 14),
-                    ),
-                  ],
-                ),
+                center: state.speaker == null
+                    ? Container()
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Player #${state.speaker?.seatNumber} is speaking',
+                          ),
+                          const SizedBox(
+                            height: Dimensions.sidePadding0_5x,
+                          ),
+                          Text(
+                            '${state.speaker?.nickname}',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 14),
+                          ),
+                        ],
+                      ),
                 judgeSide: _center(state),
                 highlightedPlayerList: [
                   if (state.speaker != null &&
@@ -94,7 +90,7 @@ class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
                   ]
                 ],
                 onPlayerClicked: (player) {
-                  boardBloc.add(PutOnVoteEvent(playerOnVote: player));
+                  gameBloc.add(PutOnVoteEvent(playerOnVote: player));
                 },
               ),
               if (state.speakPhaseAction?.isBestMove == true) _bestMoveForm(),

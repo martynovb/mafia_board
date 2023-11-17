@@ -3,6 +3,7 @@ import 'package:mafia_board/data/entity/game/game_entity.dart';
 import 'package:mafia_board/data/entity/game/game_info_entity.dart';
 import 'package:mafia_board/data/entity/game/player_entity.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
+import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
@@ -10,8 +11,8 @@ import 'package:mafia_board/data/repo/game_info/game_repo.dart';
 import 'package:uuid/uuid.dart';
 
 class GameRepoLocal extends GameRepo {
-  final List<GameEntity> _gamesList = [];
-  final List<DayInfoEntity> _list = [];
+  GameEntity? _currentGame;
+  final List<DayInfoEntity> _dayInfoList = [];
   final PlayersRepo playersRepo;
 
   GameRepoLocal({required this.playersRepo});
@@ -22,19 +23,18 @@ class GameRepoLocal extends GameRepo {
     required GameStatus gameStatus,
   }) async {
     final players = playersRepo.getAllPlayers();
-    final gameEntity = GameEntity(
-      id: const Uuid().v1(),
-      clubId: clubId,
-      players: players.map((playerModel) => playerModel.toEntity()).toList(),
-      gameStatus: gameStatus.name,
-    );
-    _gamesList.add(gameEntity);
-    return gameEntity;
+    _currentGame = GameEntity(
+        id: const Uuid().v1(),
+        clubId: clubId,
+        players: players.map((playerModel) => playerModel.toEntity()).toList(),
+        gameStatus: gameStatus.name,
+        finishGameType: FinishGameType.none.name);
+    return _currentGame!;
   }
 
   @override
   Future<List<DayInfoEntity>> getAllDaysInfo() async {
-    return _list;
+    return _dayInfoList;
   }
 
   @override
@@ -45,7 +45,7 @@ class GameRepoLocal extends GameRepo {
 
   @override
   Future<DayInfoEntity?> getLastValidDayInfo() async {
-    return _list
+    return _dayInfoList
         .where((dayInfo) => dayInfo.currentPhase != PhaseType.none.name)
         .sorted((a, b) => a.day?.compareTo(b.day ?? -1) ?? -1)
         .lastOrNull;
@@ -62,7 +62,7 @@ class GameRepoLocal extends GameRepo {
 
   @override
   Future<void> deleteAll() async {
-    _list.clear();
+    _dayInfoList.clear();
   }
 
   @override
@@ -71,11 +71,11 @@ class GameRepoLocal extends GameRepo {
       return false;
     }
 
-    final index = _list
+    final index = _dayInfoList
         .indexWhere((existingDayInfo) => existingDayInfo.id == dayInfoModel.id);
 
     if (index != -1) {
-      _list[index] = dayInfoModel;
+      _dayInfoList[index] = dayInfoModel;
       return true;
     }
     return false;
@@ -83,7 +83,7 @@ class GameRepoLocal extends GameRepo {
 
   @override
   Future<void> add(DayInfoEntity dayInfoModel) async {
-    _list.add(dayInfoModel);
+    _dayInfoList.add(dayInfoModel);
   }
 
   @override
@@ -97,7 +97,7 @@ class GameRepoLocal extends GameRepo {
 
   @override
   Future<DayInfoEntity?> getLastDayInfo() async {
-    return _list
+    return _dayInfoList
         .sorted((a, b) => a.day?.compareTo(b.day ?? -1) ?? -1)
         .lastOrNull;
   }
@@ -119,24 +119,31 @@ class GameRepoLocal extends GameRepo {
       playersWithFoul: [],
       currentPhase: currentPhase?.name,
     );
-    _list.add(entity);
+    _dayInfoList.add(entity);
     return entity;
   }
 
   @override
-  Future<GameEntity?> getLastActiveGame() async => _gamesList.firstWhereOrNull(
-      (game) => game.gameStatus == GameStatus.inProgress.name);
+  Future<GameEntity?> getLastActiveGame() async {
+    return _currentGame;
+  }
 
   @override
-  Future<GameEntity?> finishCurrentGame() async {
-    final currentGame = await getLastActiveGame();
+  Future<GameEntity?> finishCurrentGame(FinishGameType finishGameType) async {
+    final currentGame = _currentGame;
     if (currentGame == null) {
       return null;
     }
 
     currentGame.gameStatus = GameStatus.finished.name;
-    final indexOf = _gamesList.lastIndexOf(currentGame);
-    _gamesList[indexOf] = currentGame;
+    currentGame.finishGameType = finishGameType.name;
     return currentGame;
+  }
+
+  @override
+  Future<bool> removeGameData() async {
+    _currentGame = null;
+    _dayInfoList.clear();
+    return true;
   }
 }

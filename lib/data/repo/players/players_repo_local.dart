@@ -62,13 +62,9 @@ class PlayersRepoLocal extends PlayersRepo {
   }
 
   @override
-  void deleteAll() {
-    for (var element in _players) {
-      element.isRemoved = false;
-      element.isKilled = false;
-      element.isMuted = false;
-      element.isKicked = false;
-      element.fouls = 0;
+  void resetAll() {
+    for (var player in _players) {
+      player.reset();
     }
   }
 

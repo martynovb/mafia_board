@@ -20,7 +20,7 @@ class VotePhaseManager {
   final PlayersRepo boardRepository;
   final GetCurrentGameUseCase getCurrentGameUseCase;
 
-  final BehaviorSubject<VotePhaseAction> _currentVoteSubject =
+  final BehaviorSubject<VotePhaseAction?> _currentVoteSubject =
       BehaviorSubject();
 
   VotePhaseManager({
@@ -31,7 +31,7 @@ class VotePhaseManager {
     required this.getCurrentGameUseCase,
   });
 
-  Stream<VotePhaseAction> get currentVotePhaseStream =>
+  Stream<VotePhaseAction?> get currentVotePhaseStream =>
       _currentVoteSubject.stream;
 
   List<VotePhaseAction> getAllPhases(int day) =>
@@ -435,7 +435,7 @@ class VotePhaseManager {
     });
   }
 
-  void dispose() {
-    _currentVoteSubject.close();
+  void reset() {
+    _currentVoteSubject.add(null);
   }
 }

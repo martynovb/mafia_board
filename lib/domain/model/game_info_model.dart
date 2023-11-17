@@ -1,3 +1,4 @@
+import 'package:class_to_string/class_to_string.dart';
 import 'package:mafia_board/data/entity/game/game_info_entity.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
@@ -68,4 +69,16 @@ class DayInfoModel {
 
   void removedRemovedPlayer(String id) =>
       removedPlayers.removeWhere((player) => player.id == id);
+
+  @override
+  String toString() {
+    return (ClassToString('DayInfoModel')
+          ..add('id', id)
+          ..add('gameId', gameId)
+          ..add('day', day)
+          ..add('createdAt', createdAt)
+          ..add('removedPlayers', removedPlayers.length)
+          ..add('mutedPlayers', mutedPlayers.length))
+        .toString();
+  }
 }

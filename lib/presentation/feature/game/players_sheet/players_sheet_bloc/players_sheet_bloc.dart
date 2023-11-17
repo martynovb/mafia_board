@@ -47,11 +47,13 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
 
   void _listenToGamePhase() {
     _gamePhaseSubscription =
-        gamePhaseManager.dayInfoStream.listen((gamePhaseModel) async {
-      _playersSubject.add(SheetDataState(
-        players: boardRepository.getAllPlayers(),
-        currentGame: await getCurrentGameUseCase.execute(),
-      ));
+        gamePhaseManager.gameStream.listen((gameModel) async {
+          if(gameModel != null) {
+            _playersSubject.add(SheetDataState(
+              players: boardRepository.getAllPlayers(),
+              currentGame: await getCurrentGameUseCase.execute(),
+            ));
+          }
     });
   }
 

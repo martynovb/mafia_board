@@ -7,12 +7,14 @@ class GameEntity {
   final String? clubId;
   final List<PlayerEntity> players;
   String? gameStatus;
+  String? finishGameType;
 
   GameEntity({
     required this.id,
     required this.clubId,
     required this.players,
     required this.gameStatus,
+    required this.finishGameType,
   });
 
   static GameEntity fromJson(Map<dynamic, dynamic> json) {
@@ -21,6 +23,7 @@ class GameEntity {
       clubId: json['clubId'] as String?,
       players: PlayerEntity.parsePlayerEntities(json['players']),
       gameStatus: json['game_status'] as String?,
+      finishGameType: json['finish_game_type'] as String?,
     );
   }
 }

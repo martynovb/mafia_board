@@ -48,6 +48,7 @@ import 'package:mafia_board/domain/usecase/get_current_game_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_last_day_info_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_last_valid_day_info_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_rules_usecase.dart';
+import 'package:mafia_board/domain/usecase/remove_game_data_usecase.dart';
 import 'package:mafia_board/domain/usecase/update_day_info_usecase.dart';
 import 'package:mafia_board/domain/usecase/update_rules_usecase.dart';
 import 'package:mafia_board/presentation/feature/app/bloc/app_bloc.dart';
@@ -222,6 +223,17 @@ class Injector {
       ),
     );
 
+    _getIt.registerSingleton<RemoveGameDataUseCase>(
+      RemoveGameDataUseCase(
+        gameRepo: _getIt.get(),
+        voteGamePhaseRepo: _getIt.get(instanceName: votePhaseRepoLocalTag),
+        speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
+        nightGamePhaseRepo: _getIt.get(instanceName: nightPhaseRepoLocalTag),
+        playersRepo: _getIt.get(),
+        historyRepo: _getIt.get(),
+      ),
+    );
+
     _getIt.registerSingleton(
       GameManager(
         voteGamePhaseRepo: _getIt.get(instanceName: votePhaseRepoLocalTag),
@@ -240,6 +252,7 @@ class Injector {
         getLastDayInfoUseCase: _getIt.get(),
         getCurrentGameUseCase: _getIt.get(),
         finishGameUseCase: _getIt.get(),
+        removeGameDataUseCase: _getIt.get(),
       ),
     );
 

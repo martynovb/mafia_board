@@ -19,7 +19,9 @@ class InputTextField extends StatelessWidget {
     this.inputFormatters = const [],
     this.preText = '',
   }) : super(key: key) {
-    controller.text = preText;
+    if (preText.isNotEmpty) {
+      controller.text = preText;
+    }
   }
 
   @override

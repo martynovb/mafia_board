@@ -7,6 +7,7 @@ import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_event.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_state.dart';
+import 'package:mafia_board/presentation/feature/game/phase_view/speaking_phase/speaking_phase_bloc.dart';
 import 'package:mafia_board/presentation/feature/game_timer_view.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/night_phase/night_phase_table_view.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote_phase_table_view.dart';
@@ -26,7 +27,8 @@ class TablePage extends StatefulWidget {
 
 class _TableState extends State<TablePage> with AutomaticKeepAliveClientMixin {
   final timerKey = GlobalKey<GameTimerViewState>();
-  late GameBloc boardBloc;
+  late GameBloc gameBloc;
+  late SpeakingPhaseBloc speakingPhaseBloc;
   int touchedIndex = -1;
 
   @override
@@ -34,7 +36,8 @@ class _TableState extends State<TablePage> with AutomaticKeepAliveClientMixin {
 
   @override
   void initState() {
-    boardBloc = GetIt.I();
+    gameBloc = GetIt.I();
+    speakingPhaseBloc = GetIt.I();
     super.initState();
   }
 
@@ -44,9 +47,9 @@ class _TableState extends State<TablePage> with AutomaticKeepAliveClientMixin {
     return Padding(
       padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
       child: BlocBuilder(
-        bloc: boardBloc,
+        bloc: gameBloc,
         builder: (BuildContext context, GameState state) {
-          if (state is InitialBoardState ||
+          if (state is InitialGameState ||
               (state is GamePhaseState &&
                   state.currentGame?.gameStatus != GameStatus.inProgress)) {
             return const Center(
@@ -67,18 +70,19 @@ class _TableState extends State<TablePage> with AutomaticKeepAliveClientMixin {
 
   Widget _centerTableContent() {
     return BlocBuilder(
-        bloc: boardBloc,
+        bloc: gameBloc,
         builder: (BuildContext context, GameState state) {
           if (state is GamePhaseState) {
             if (state.currentGame?.currentDayInfo.currentPhase == PhaseType.speak) {
+              speakingPhaseBloc.add(GetCurrentSpeakPhaseEvent());
               return SpeakingPhaseTableView(
-                  onSpeechFinished: () => boardBloc.add(NextPhaseEvent()));
+                  onSpeechFinished: () => gameBloc.add(NextPhaseEvent()));
             } else if (state.currentGame?.currentDayInfo.currentPhase == PhaseType.vote) {
               return VotePhaseTableView(
-                  onVoteFinished: () => boardBloc.add(NextPhaseEvent()));
+                  onVoteFinished: () => gameBloc.add(NextPhaseEvent()));
             } else if (state.currentGame?.currentDayInfo.currentPhase == PhaseType.night) {
               return NightPhaseTableView(
-                  onNightPhaseFinished: () => boardBloc.add(NextPhaseEvent()));
+                  onNightPhaseFinished: () => gameBloc.add(NextPhaseEvent()));
             }
           }
           return Container();

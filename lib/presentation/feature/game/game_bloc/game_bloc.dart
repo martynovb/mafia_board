@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
-import 'package:mafia_board/domain/model/game_info_model.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/exceptions/exception.dart';
+import 'package:mafia_board/domain/model/game_model.dart';
 import 'package:mafia_board/domain/phase_manager/game_phase_manager.dart';
 import 'package:mafia_board/domain/phase_manager/vote_phase_manager.dart';
 import 'package:mafia_board/domain/player_validator.dart';
@@ -14,7 +14,7 @@ import 'package:mafia_board/presentation/feature/game/game_bloc/game_state.dart'
 import 'package:mafia_board/presentation/maf_logger.dart';
 
 class GameBloc extends Bloc<GameEvent, GameState> {
-  static const String _tag = 'BoardBloc';
+  static const String _tag = 'GameBloc';
   final PlayersRepo boardRepository;
   final PlayerValidator playerValidator;
   final GameManager gameManager;
@@ -27,14 +27,26 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     required this.boardRepository,
     required this.playerValidator,
     required this.getCurrentGameUseCase,
-  }) : super(InitialBoardState()) {
+  }) : super(InitialGameState()) {
     on<StartGameEvent>(_startGameEventHandler);
     on<FinishGameEvent>(_finishGameEventHandler);
     on<NextPhaseEvent>(_nextPhaseEventHandler);
+    //todo: move to speaking phase bloc
     on<PutOnVoteEvent>(_putOnVoteEventHandler);
+    on<RemoveGameDataEvent>(_removeGameDataEventHandler);
+    on<ResetGameDataEvent>(_resetGameDataEventHandler);
   }
 
-  Stream<DayInfoModel> get dayInfoStream => gameManager.dayInfoStream;
+  Stream<GameModel?> get gameStream => gameManager.gameStream;
+
+  void _resetGameDataEventHandler(ResetGameDataEvent event, emit) async {
+    emit(InitialGameState);
+  }
+
+  void _removeGameDataEventHandler(RemoveGameDataEvent event, emit) async {
+    await gameManager.resetGameData();
+    emit(InitialGameState);
+  }
 
   void _startGameEventHandler(StartGameEvent event, emit) async {
     try {
@@ -57,10 +69,14 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   void _finishGameEventHandler(FinishGameEvent event, emit) async {
     try {
       await gameManager.finishGame(event.finishGameType);
-      if (event.finishGameType != FinishGameType.remove) {
+      if (event.finishGameType == FinishGameType.reset) {
+        await gameManager.resetGameData();
+        emit(CloseGameState());
+      } else {
+
         emit(GoToGameResults());
       }
-      emit(InitialBoardState());
+      emit(InitialGameState());
     } on InvalidPlayerDataException catch (ex) {
       emit(ErrorBoardState(ex.errorMessage));
     }

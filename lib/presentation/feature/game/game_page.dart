@@ -52,6 +52,13 @@ class _GamePageState extends State<GamePage>
       const GameHistoryPage(),
     ];
 
+    gameBloc.gameStream.listen((gameModel) {
+      if (gameModel?.gameStatus == GameStatus.finished &&
+          gameModel?.finishGameType == FinishGameType.normalFinish) {
+        _showFinishSuccessDialog();
+      }
+    });
+
     super.didChangeDependencies();
   }
 
@@ -65,7 +72,11 @@ class _GamePageState extends State<GamePage>
               if (state is GoToGameResults) {
                 Navigator.pushNamed(context, AppRouter.gameResultsPage);
               } else if (state is GamePhaseState) {
-                _isGameStarted = state.currentGame?.gameStatus == GameStatus.inProgress;
+                _isGameStarted =
+                    state.currentGame?.gameStatus == GameStatus.inProgress;
+              }
+              else if (state is CloseGameState) {
+                Navigator.pop(context);
               }
             },
             child: SafeArea(
@@ -126,14 +137,37 @@ class _GamePageState extends State<GamePage>
         TextButton(
           child: const Text("Just finish and don't save results"),
           onPressed: () {
-            gameBloc.add(FinishGameEvent(FinishGameType.remove));
-            Navigator.of(context).pop(true);
+            gameBloc.add(FinishGameEvent(FinishGameType.reset));
+            Navigator.of(context).pop();
           },
         ),
         TextButton(
           child: const Text('Cancel'),
           onPressed: () {
             Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+  }
+
+  Future<bool> _showFinishSuccessDialog() async {
+    return await showDefaultDialog(
+      context: context,
+      title: 'Game has been finished',
+      actions: <Widget>[
+        TextButton(
+          child: const Text('Go to results'),
+          onPressed: () {
+            Navigator.of(context).pop();
+            Navigator.of(context).pushNamed(AppRouter.gameResultsPage);
+          },
+        ),
+        TextButton(
+          child: const Text('Remove game and exit'),
+          onPressed: () {
+            gameBloc.add(RemoveGameDataEvent());
+            Navigator.of(context).popUntil((route) => route.settings.name == AppRouter.clubDetailsPage);
           },
         ),
       ],

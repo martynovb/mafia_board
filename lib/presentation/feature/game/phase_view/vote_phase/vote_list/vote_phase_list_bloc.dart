@@ -28,8 +28,8 @@ class VotePhaseListBloc extends Bloc<VotePhaseListEvent, VotePhaseListState> {
   Future<void> _listenToNewDayInfo() async {
     await _dayInfoSubscription?.cancel();
     _dayInfoSubscription = null;
-    _dayInfoSubscription = gameManager.dayInfoStream.listen((dayInfo) {
-      if (dayInfo.currentPhase != PhaseType.vote) {
+    _dayInfoSubscription = gameManager.gameStream.listen((game) {
+      if (game?.currentDayInfo.currentPhase != PhaseType.vote) {
         voteList.clear();
         _voteListSubject.add(voteList);
       }
@@ -41,9 +41,11 @@ class VotePhaseListBloc extends Bloc<VotePhaseListEvent, VotePhaseListState> {
     _gamePhaseSubscription = null;
     _gamePhaseSubscription =
         votePhaseManager.currentVotePhaseStream.listen((newVotePhase) {
-      voteList
-          .add(VoteItem(playerNumber: newVotePhase.playerOnVote.seatNumber));
-      _voteListSubject.add(voteList);
+      if (newVotePhase != null) {
+        voteList
+            .add(VoteItem(playerNumber: newVotePhase.playerOnVote.seatNumber));
+        _voteListSubject.add(voteList);
+      }
     });
   }
 

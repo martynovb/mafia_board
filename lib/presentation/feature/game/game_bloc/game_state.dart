@@ -3,9 +3,11 @@ import 'package:mafia_board/domain/model/game_model.dart';
 
 abstract class GameState {}
 
-class InitialBoardState extends GameState {}
+class InitialGameState extends GameState {}
 
 class GoToGameResults extends GameState {}
+
+class CloseGameState extends GameState {}
 
 class ErrorBoardState extends GameState {
   final String errorMessage;
