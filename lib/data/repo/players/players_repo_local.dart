@@ -72,4 +72,8 @@ class PlayersRepoLocal extends PlayersRepo {
   Future<PlayerModel?> getPlayerById(String id) async {
     return _players.firstWhereOrNull((player) => player.id == id);
   }
+
+  @override
+  Future<List<PlayerModel>> getAllPlayersByRole(List<Role> roles) async => _players.where((player) => roles.any((role) => player.role == role)).toList();
+
 }

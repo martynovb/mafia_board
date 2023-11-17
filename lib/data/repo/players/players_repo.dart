@@ -10,6 +10,8 @@ abstract class PlayersRepo {
 
   List<PlayerModel> getAllPlayers();
 
+  Future<List<PlayerModel>> getAllPlayersByRole(List<Role> roles);
+
   List<PlayerModel> getAllAvailablePlayers();
 
   Future<PlayerModel?> getPlayerById(String id);

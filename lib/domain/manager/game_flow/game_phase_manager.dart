@@ -32,7 +32,7 @@ class GameManager {
   static const _tag = 'GameManager';
 
   final GameRepo dayInfoRepo;
-  final PlayersRepo boardRepository;
+  final PlayersRepo playersRepository;
   final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
   final GamePhaseRepo<VotePhaseAction> voteGamePhaseRepo;
   final GamePhaseRepo<NightPhaseAction> nightGamePhaseRepo;
@@ -54,7 +54,7 @@ class GameManager {
   final BehaviorSubject<GameModel?> _gameSubject = BehaviorSubject();
 
   GameManager({
-    required this.boardRepository,
+    required this.playersRepository,
     required this.dayInfoRepo,
     required this.gameHistoryManager,
     required this.votePhaseGameManager,
@@ -173,7 +173,7 @@ class GameManager {
     if (game.gameStatus == GameStatus.finished) {
       return true;
     }
-    final allPlayers = boardRepository.getAllAvailablePlayers();
+    final allPlayers = playersRepository.getAllAvailablePlayers();
     int mafsCount = allPlayers
         .where((player) => player.role == Role.MAFIA || player.role == Role.DON)
         .length;

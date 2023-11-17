@@ -70,12 +70,15 @@ class _GamePageState extends State<GamePage>
             bloc: gameBloc,
             listener: (context, GameState state) {
               if (state is GoToGameResults) {
-                Navigator.pushNamed(context, AppRouter.gameResultsPage);
+                Navigator.pushNamed(
+                  context,
+                  AppRouter.gameResultsPage,
+                  arguments: {'clubId': clubId},
+                );
               } else if (state is GamePhaseState) {
                 _isGameStarted =
                     state.currentGame?.gameStatus == GameStatus.inProgress;
-              }
-              else if (state is CloseGameState) {
+              } else if (state is CloseGameState) {
                 Navigator.pop(context);
               }
             },
@@ -160,14 +163,18 @@ class _GamePageState extends State<GamePage>
           child: const Text('Go to results'),
           onPressed: () {
             Navigator.of(context).pop();
-            Navigator.of(context).pushNamed(AppRouter.gameResultsPage);
+            Navigator.of(context).pushNamed(
+              AppRouter.gameResultsPage,
+              arguments: {'clubId': clubId},
+            );
           },
         ),
         TextButton(
           child: const Text('Remove game and exit'),
           onPressed: () {
             gameBloc.add(RemoveGameDataEvent());
-            Navigator.of(context).popUntil((route) => route.settings.name == AppRouter.clubDetailsPage);
+            Navigator.of(context).popUntil(
+                (route) => route.settings.name == AppRouter.clubDetailsPage);
           },
         ),
       ],

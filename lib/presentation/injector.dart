@@ -239,7 +239,7 @@ class Injector {
         voteGamePhaseRepo: _getIt.get(instanceName: votePhaseRepoLocalTag),
         speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
         nightGamePhaseRepo: _getIt.get(instanceName: nightPhaseRepoLocalTag),
-        boardRepository: _getIt.get(),
+        playersRepository: _getIt.get(),
         dayInfoRepo: _getIt.get(),
         gameHistoryManager: _getIt.get(),
         votePhaseGameManager: _getIt.get(),

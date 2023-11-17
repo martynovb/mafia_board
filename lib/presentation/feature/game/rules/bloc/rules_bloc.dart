@@ -38,6 +38,8 @@ class GameRulesBloc extends Bloc<RulesEvent, RulesState> {
         defaultBonus: event.defaultBonus,
         ppkLoss: event.ppkLoss,
         gameLoss: event.gameLoss,
+        twoBestMove: event.twoBestMove,
+        threeBestMove: event.threeBestMove,
       ));
       emit(UpdateRulesSuccessState());
     } catch (e) {

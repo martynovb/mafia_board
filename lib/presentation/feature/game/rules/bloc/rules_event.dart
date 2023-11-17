@@ -17,6 +17,8 @@ class UpdateRulesEvent extends RulesEvent {
   final double defaultBonus;
   final double ppkLoss;
   final double gameLoss;
+  final double twoBestMove;
+  final double threeBestMove;
 
   UpdateRulesEvent({
     required this.clubId,
@@ -28,5 +30,7 @@ class UpdateRulesEvent extends RulesEvent {
     required this.defaultBonus,
     required this.ppkLoss,
     required this.gameLoss,
+    required this.twoBestMove,
+    required this.threeBestMove,
   });
 }

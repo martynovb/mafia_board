@@ -29,6 +29,8 @@ class _RulesPageState extends State<RulesPage> {
   final defaultBonusController = TextEditingController();
   final ppkLossController = TextEditingController();
   final defaultGameLossController = TextEditingController();
+  final twoBestMoveController = TextEditingController();
+  final threeBestMoveController = TextEditingController();
   bool changesFlag = false;
 
   @override
@@ -250,6 +252,48 @@ class _RulesPageState extends State<RulesPage> {
                   ),
                 ),
               ],
+            ), //
+            const Divider(
+              height: Dimensions.defaultSidePadding,
+            ),
+            Row(
+              children: [
+                const SizedBox(
+                    width: Dimensions.inputTextHeight * 2,
+                    child: Text('Best move (2):')),
+                const SizedBox(
+                  width: Dimensions.sidePadding0_5x,
+                ),
+                SizedBox(
+                  width: Dimensions.inputTextRuleWidth,
+                  child: InputTextField(
+                    textInputType: TextInputType.number,
+                    controller: twoBestMoveController,
+                    preText: rules.twoBestMove.toString(),
+                  ),
+                ),
+              ],
+            ), //
+            const Divider(
+              height: Dimensions.defaultSidePadding,
+            ),
+            Row(
+              children: [
+                const SizedBox(
+                    width: Dimensions.inputTextHeight * 2,
+                    child: Text('Best move (3):')),
+                const SizedBox(
+                  width: Dimensions.sidePadding0_5x,
+                ),
+                SizedBox(
+                  width: Dimensions.inputTextRuleWidth,
+                  child: InputTextField(
+                    textInputType: TextInputType.number,
+                    controller: threeBestMoveController,
+                    preText: rules.threeBestMove.toString(),
+                  ),
+                ),
+              ],
             ),
           ],
         ));
@@ -297,6 +341,14 @@ class _RulesPageState extends State<RulesPage> {
                 gameLoss:
                     double.tryParse(defaultGameLossController.text.trim()) ??
                         rules?.defaultGameLoss ??
+                        0.0,
+                twoBestMove:
+                    double.tryParse(twoBestMoveController.text.trim()) ??
+                        rules?.twoBestMove ??
+                        0.0,
+                threeBestMove:
+                    double.tryParse(threeBestMoveController.text.trim()) ??
+                        rules?.threeBestMove ??
                         0.0,
               ),
             );

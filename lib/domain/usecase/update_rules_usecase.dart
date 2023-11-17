@@ -19,6 +19,8 @@ class UpdateRulesUseCase extends BaseUseCase<void, UpdateRulesParams> {
       defaultBonus: params.defaultBonus,
       ppkLoss: params.ppkLoss,
       gameLoss: params.gameLoss,
+      twoBestMove: params.twoBestMove,
+      threeBestMove: params.threeBestMove,
     );
   }
 }
@@ -34,6 +36,8 @@ class UpdateRulesParams {
   final double defaultBonus;
   final double ppkLoss;
   final double gameLoss;
+  final double twoBestMove;
+  final double threeBestMove;
 
   UpdateRulesParams({
     required this.clubId,
@@ -45,5 +49,7 @@ class UpdateRulesParams {
     required this.defaultBonus,
     required this.ppkLoss,
     required this.gameLoss,
+    required this.twoBestMove,
+    required this.threeBestMove,
   });
 }

@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:mafia_board/data/entity/club_entity.dart';
-import 'package:mafia_board/data/entity/rules_model.dart';
+import 'package:mafia_board/data/entity/rules_entity.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
 import 'package:mafia_board/data/repo/rules/rules_repo.dart';
 import 'package:uuid/uuid.dart';
@@ -28,6 +28,8 @@ class RulesLocalRepo extends RulesRepo {
         defaultBonus: 0.4,
         ppkLoss: 0.7,
         defaultGameLoss: 0,
+        twoBestMove: 0.3,
+        threeBestMove: 0.4,
       ));
     }
   }
@@ -47,6 +49,8 @@ class RulesLocalRepo extends RulesRepo {
     required double defaultBonus,
     required double ppkLoss,
     required double gameLoss,
+    required double twoBestMove,
+    required double threeBestMove,
   }) async {
     int indexOf = clubsRules.indexWhere((rules) => rules.clubId == clubId);
     if (indexOf != -1) {
@@ -61,6 +65,8 @@ class RulesLocalRepo extends RulesRepo {
         defaultBonus: defaultBonus,
         ppkLoss: ppkLoss,
         defaultGameLoss: gameLoss,
+        twoBestMove: twoBestMove,
+        threeBestMove: threeBestMove,
       );
     }
   }

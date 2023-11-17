@@ -1,4 +1,4 @@
-import 'package:mafia_board/data/entity/rules_model.dart';
+import 'package:mafia_board/data/entity/rules_entity.dart';
 
 class RulesModel {
   final String id;
@@ -12,6 +12,8 @@ class RulesModel {
   final double defaultBonus;
   final double ppkLoss;
   final double defaultGameLoss;
+  final double twoBestMove;
+  final double threeBestMove;
 
   RulesModel({
     required this.id,
@@ -24,6 +26,8 @@ class RulesModel {
     required this.defaultBonus,
     required this.ppkLoss,
     required this.defaultGameLoss,
+    required this.twoBestMove,
+    required this.threeBestMove,
   });
 
   RulesModel.fromEntity(RulesEntity entity)
@@ -36,7 +40,9 @@ class RulesModel {
         kickLoss = entity.kickLoss ?? 0.0,
         defaultBonus = entity.defaultBonus ?? 0.0,
         ppkLoss = entity.ppkLoss ?? 0.0,
-        defaultGameLoss = entity.defaultGameLoss ?? 0.0;
+        defaultGameLoss = entity.defaultGameLoss ?? 0.0,
+        twoBestMove = entity.twoBestMove ?? 0.0,
+        threeBestMove = entity.threeBestMove ?? 0.0;
 
   RulesEntity toEntity() => RulesEntity(
         id: id,
@@ -49,5 +55,7 @@ class RulesModel {
         defaultBonus: defaultBonus,
         ppkLoss: ppkLoss,
         defaultGameLoss: defaultGameLoss,
+        twoBestMove: twoBestMove,
+        threeBestMove: threeBestMove,
       );
 }

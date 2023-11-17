@@ -10,6 +10,8 @@ class RulesEntity {
   final double? defaultBonus;
   final double? ppkLoss;
   final double? defaultGameLoss;
+  final double? twoBestMove;
+  final double? threeBestMove;
 
   RulesEntity({
     required this.id,
@@ -22,6 +24,8 @@ class RulesEntity {
     required this.defaultBonus,
     required this.ppkLoss,
     required this.defaultGameLoss,
+    required this.twoBestMove,
+    required this.threeBestMove,
   });
 
   static RulesEntity fromJson(Map<dynamic, dynamic> json) {
@@ -36,6 +40,8 @@ class RulesEntity {
       defaultBonus: json['default_bonus'] as double?,
       ppkLoss: json['ppkLoss'] as double?,
       defaultGameLoss: json['default_game_loss'] as double?,
+      twoBestMove: json['two_best_move'] as double?,
+      threeBestMove: json['three_best_move'] as double?,
     );
   }
 }

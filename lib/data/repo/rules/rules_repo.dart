@@ -1,4 +1,4 @@
-import 'package:mafia_board/data/entity/rules_model.dart';
+import 'package:mafia_board/data/entity/rules_entity.dart';
 
 abstract class RulesRepo {
   Future<RulesEntity?> getClubRules(String clubId);
@@ -13,5 +13,7 @@ abstract class RulesRepo {
     required double defaultBonus,
     required double ppkLoss,
     required double gameLoss,
+    required double twoBestMove,
+    required double threeBestMove,
   });
 }
