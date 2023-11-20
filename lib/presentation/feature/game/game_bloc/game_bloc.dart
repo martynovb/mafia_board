@@ -15,7 +15,7 @@ import 'package:mafia_board/presentation/maf_logger.dart';
 
 class GameBloc extends Bloc<GameEvent, GameState> {
   static const String _tag = 'GameBloc';
-  final PlayersRepo boardRepository;
+  final PlayersRepo playersRepository;
   final PlayerValidator playerValidator;
   final GameManager gameManager;
   final VotePhaseManager votePhaseManager;
@@ -24,7 +24,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   GameBloc({
     required this.votePhaseManager,
     required this.gameManager,
-    required this.boardRepository,
+    required this.playersRepository,
     required this.playerValidator,
     required this.getCurrentGameUseCase,
   }) : super(InitialGameState()) {
@@ -50,7 +50,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
   void _startGameEventHandler(StartGameEvent event, emit) async {
     try {
-      boardRepository.getAllPlayers().forEach(
+      playersRepository.getAllPlayers().forEach(
             (player) => playerValidator.validate(player),
           );
       await gameManager.startGame(event.clubId);
@@ -68,6 +68,9 @@ class GameBloc extends Bloc<GameEvent, GameState> {
 
   void _finishGameEventHandler(FinishGameEvent event, emit) async {
     try {
+      if(event.finishGameType == FinishGameType.ppk && event.playerId != null){
+        await playersRepository.updatePlayer(event.playerId!, isPPK: true);
+      }
       await gameManager.finishGame(event.finishGameType);
       if (event.finishGameType == FinishGameType.reset) {
         await gameManager.resetGameData();

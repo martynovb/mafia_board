@@ -8,10 +8,11 @@ class PlayerModel {
   int fouls;
   Role role;
   double score;
-  bool isRemoved;
+  bool isDisqualified;
   bool isKilled;
   bool isMuted;
   bool isKicked;
+  bool isPPK;
   int seatNumber;
 
   PlayerModel(
@@ -20,10 +21,11 @@ class PlayerModel {
     this.seatNumber, {
     this.fouls = 0,
     this.score = 0,
-    this.isRemoved = false,
+    this.isDisqualified = false,
     this.isKilled = false,
     this.isMuted = false,
     this.isKicked = false,
+    this.isPPK = false,
   });
 
   PlayerModel.empty(this.seatNumber)
@@ -31,10 +33,11 @@ class PlayerModel {
         role = Role.NONE,
         fouls = 0,
         score = 0,
-        isRemoved = false,
+        isDisqualified = false,
         isKilled = false,
         isMuted = false,
-        isKicked = false;
+        isKicked = false,
+        isPPK = false;
 
   PlayerModel.fromEntity(PlayerEntity? entity)
       : _user = UserModel.fromEntity(entity?.user),
@@ -42,10 +45,11 @@ class PlayerModel {
         role = roleMapper(entity?.role),
         fouls = entity?.fouls ?? -1,
         score = entity?.score ?? -1,
-        isRemoved = entity?.isRemoved ?? false,
+        isDisqualified = entity?.isRemoved ?? false,
         isKilled = entity?.isKilled ?? false,
         isMuted = entity?.isMuted ?? false,
-        isKicked = entity?.isKicked ?? false;
+        isKicked = entity?.isKicked ?? false,
+        isPPK = entity?.isKicked ?? false;
 
   PlayerEntity toEntity() {
     return PlayerEntity(
@@ -54,10 +58,11 @@ class PlayerModel {
       seatNumber: seatNumber,
       fouls: fouls,
       score: score,
-      isRemoved: isRemoved,
+      isRemoved: isDisqualified,
       isKilled: isKilled,
       isMuted: isMuted,
       isKicked: isKicked,
+      isPPK: isPPK,
     );
   }
 
@@ -66,10 +71,11 @@ class PlayerModel {
     role = Role.NONE;
     fouls = 0;
     score = 0;
-    isRemoved = false;
+    isDisqualified = false;
     isKilled = false;
     isMuted = false;
     isKicked = false;
+    isPPK = false;
   }
 
   set user(UserModel? user) => _user = user;
@@ -78,7 +84,7 @@ class PlayerModel {
 
   String get nickname => _user?.nickname ?? '';
 
-  bool isInGame() => !isRemoved && !isKilled && !isKicked;
+  bool isInGame() => !isDisqualified && !isKilled && !isKicked && !isPPK;
 
   @override
   String toString() {
@@ -89,10 +95,11 @@ class PlayerModel {
           ..add('role', role)
           ..add('score', score)
           ..add('seatNumber', seatNumber)
-          ..add('isRemoved', isRemoved)
+          ..add('isDisqualified', isDisqualified)
           ..add('isMuted', isMuted)
           ..add('isKicked', isKicked)
-          ..add('isAvailable', isInGame()))
+          ..add('isPPK', isPPK)
+          ..add('isInGame', isInGame()))
         .toString();
   }
 }

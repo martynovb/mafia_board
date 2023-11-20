@@ -7,6 +7,7 @@ import 'package:mafia_board/data/api/network_manager.dart';
 import 'package:mafia_board/data/api/token_provider.dart';
 import 'package:mafia_board/data/repo/rules/rules_local_repo.dart';
 import 'package:mafia_board/data/repo/rules/rules_repo.dart';
+import 'package:mafia_board/domain/manager/game_results_manager.dart';
 import 'package:mafia_board/domain/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
@@ -256,6 +257,14 @@ class Injector {
       ),
     );
 
+    _getIt.registerSingleton(
+      GameResultsManager(
+        playersRepo: _getIt.get(),
+        getRulesUseCase: _getIt.get(),
+        speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
+      ),
+    );
+
     //validation
     _getIt.registerSingleton<NicknameFieldValidator>(NicknameFieldValidator());
     _getIt.registerSingleton<RepeatPasswordFieldValidator>(
@@ -269,7 +278,7 @@ class Injector {
       GameBloc(
         votePhaseManager: _getIt.get(),
         gameManager: _getIt.get(),
-        boardRepository: _getIt.get(),
+        playersRepository: _getIt.get(),
         playerValidator: _getIt.get(),
         getCurrentGameUseCase: _getIt.get(),
       ),
@@ -344,6 +353,6 @@ class Injector {
       ),
     );
 
-    _getIt.registerSingleton(GameResultsBloc());
+    _getIt.registerSingleton(GameResultsBloc(gameResultsManager: _getIt.get()));
   }
 }

@@ -271,7 +271,7 @@ class _NightPhaseViewState extends State<NightPhaseView> {
     final currentNightPhaseRole =
         nightPhaseState.nightPhaseAction?.role ?? Role.NONE;
 
-    if (currentPlayer.isKicked || currentPlayer.isRemoved) {
+    if (currentPlayer.isKicked || currentPlayer.isDisqualified) {
       return Colors.grey;
     } else if (currentNightPhaseRole == Role.MAFIA && currentPlayer.isKilled) {
       return Colors.red;

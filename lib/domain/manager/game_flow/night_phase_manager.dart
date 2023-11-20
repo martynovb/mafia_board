@@ -101,7 +101,7 @@ class NightPhaseManager {
         playerModel.isKilled ||
         await _isPlayerAlreadyKilledBefore(playerModel) ||
         playerModel.isKicked ||
-        playerModel.isRemoved) {
+        playerModel.isDisqualified) {
       gameHistoryManager.logKillPlayer(nightPhaseAction: currentNightPhase);
       return;
     }

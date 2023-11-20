@@ -1,16 +1,8 @@
-enum FinishGameType {
-  ppkCiv,
-  ppkMaf,
-  reset,
-  normalFinish,
-  none
-}
+enum FinishGameType { ppk, reset, normalFinish, none }
 
 FinishGameType finishGameTypeMapper(String? type) {
-  if (type == FinishGameType.ppkCiv.name) {
-    return FinishGameType.ppkCiv;
-  } else if (type == FinishGameType.ppkMaf.name) {
-    return FinishGameType.ppkMaf;
+  if (type == FinishGameType.ppk.name) {
+    return FinishGameType.ppk;
   } else if (type == FinishGameType.reset.name) {
     return FinishGameType.reset;
   } else if (type == FinishGameType.normalFinish.name) {

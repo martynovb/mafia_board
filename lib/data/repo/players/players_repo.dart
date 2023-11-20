@@ -27,6 +27,7 @@ abstract class PlayersRepo {
     bool? isKilled,
     bool? isKicked,
     bool? isMuted,
+    bool? isPPK,
   });
 
   void resetAll();

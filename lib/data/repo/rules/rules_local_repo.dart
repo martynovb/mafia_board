@@ -29,7 +29,7 @@ class RulesLocalRepo extends RulesRepo {
         ppkLoss: 0.7,
         defaultGameLoss: 0,
         twoBestMove: 0.3,
-        threeBestMove: 0.4,
+        threeBestMove: 0.5,
       ));
     }
   }

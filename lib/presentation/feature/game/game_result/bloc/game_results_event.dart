@@ -1,7 +1,9 @@
-abstract class GameResultsEvent {
+abstract class GameResultsEvent {}
 
+class CalculateResultsEvent extends GameResultsEvent {
+  final String clubId;
+
+  CalculateResultsEvent(this.clubId);
 }
 
-class SaveResultsEvent extends GameResultsEvent {
-
-}
+class SaveResultsEvent extends GameResultsEvent {}

@@ -21,9 +21,11 @@ class GameResultsManager {
     required this.speakGamePhaseRepo,
   });
 
-  Future<List<GameResultsModel>> getPlayersResults(
-      {required String clubId}) async {
-    WinnerType winner = _getWinner();
+  Future<GameResultsModel> getPlayersResults({required String clubId}) async {
+    WinnerType winnerIfPPK = _getWinnerIfPPK();
+    WinnerType winner =
+        winnerIfPPK == WinnerType.none ? _getWinner() : winnerIfPPK;
+
     RulesModel clubRules = await getRulesUseCase.execute(params: clubId);
     final allPlayers = playersRepo.getAllPlayers();
     SpeakPhaseAction? speakPhaseWithBestMove = speakGamePhaseRepo
@@ -33,7 +35,9 @@ class GameResultsManager {
     for (PlayerModel player in allPlayers) {
       double score = 0;
 
-      if (winner == WinnerType.mafia &&
+      if (player.isPPK) {
+        score -= clubRules.ppkLoss;
+      } else if (winner == WinnerType.mafia &&
           (player.role == Role.MAFIA || player.role == Role.DON)) {
         score += clubRules.mafWin;
       } else if (winner == WinnerType.mafia &&
@@ -49,15 +53,37 @@ class GameResultsManager {
         score += clubRules.defaultBonus;
       }
 
-      if (player.isRemoved) {
-        score -= clubRules.kickLoss;
+      if (!player.isPPK) {
+        if (player.isDisqualified) {
+          score -= clubRules.kickLoss;
+        } else if (speakPhaseWithBestMove != null &&
+            player.id == speakPhaseWithBestMove.playerId &&
+            !mafiaRoles().contains(player.role)) {
+          score += await _calculateBestMove(
+            clubRules,
+            speakPhaseWithBestMove.bestMove,
+          );
+        }
       }
+
+      await playersRepo.updatePlayer(player.id, score: score);
     }
-    return [];
+
+    return GameResultsModel(
+      winnerType: winner,
+      players: (playersRepo.getAllPlayers())
+          .sorted((a, b) => b.score.compareTo(a.score)),
+      isPPK: winnerIfPPK != WinnerType.none,
+    );
   }
 
   Future<double> _calculateBestMove(
-      RulesModel rulesModel, List<int> bestMove) async {
+    RulesModel rulesModel,
+    List<int> bestMove,
+  ) async {
+    if (bestMove.isEmpty) {
+      return 0;
+    }
     final mafiaPlayersSeats =
         (await playersRepo.getAllPlayersByRole([Role.MAFIA, Role.DON]))
             .map((player) => player.seatNumber);
@@ -71,6 +97,24 @@ class GameResultsManager {
       return rulesModel.threeBestMove;
     }
     return 0;
+  }
+
+  WinnerType _getWinnerIfPPK() {
+    final allPlayers = playersRepo.getAllPlayers();
+    Role ppkRole =
+        allPlayers.firstWhereOrNull((player) => player.isPPK)?.role ??
+            Role.NONE;
+    if (ppkRole == Role.NONE) {
+      return WinnerType.none;
+    }
+
+    if (civilianRoles().contains(ppkRole)) {
+      return WinnerType.mafia;
+    } else if (mafiaRoles().contains(ppkRole)) {
+      return WinnerType.mafia;
+    }
+
+    return WinnerType.none;
   }
 
   WinnerType _getWinner() {

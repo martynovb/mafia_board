@@ -12,6 +12,7 @@ class PlayerEntity {
   final bool? isKilled;
   final bool? isMuted;
   final bool? isKicked;
+  final bool? isPPK;
   final int? seatNumber;
 
   PlayerEntity({
@@ -24,6 +25,7 @@ class PlayerEntity {
     required this.isKilled,
     required this.isMuted,
     required this.isKicked,
+    required this.isPPK,
   });
 
   static PlayerEntity fromJson(Map<dynamic, dynamic> json) {
@@ -36,6 +38,7 @@ class PlayerEntity {
       isKilled: json['isKilled'] as bool?,
       isMuted: json['isMuted'] as bool?,
       isKicked: json['isKicked'] as bool?,
+      isPPK: json['isPPK'] as bool?,
       seatNumber: json['seatNumber'] as int?,
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
+import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_event.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_state.dart';
@@ -43,6 +44,7 @@ class _GamePageState extends State<GamePage>
     _tabList = [
       PlayersSheetPage(
           clubId: clubId,
+          onPPKGameFinished: _showFinishConfirmationPPKDialog,
           nextPage: () {
             if (_pageController.index < 2) {
               _pageController.animateTo(_pageController.index + 1);
@@ -124,21 +126,7 @@ class _GamePageState extends State<GamePage>
       title: 'Do you want to finish the game?',
       actions: <Widget>[
         TextButton(
-          child: const Text('PPK - Civilians won'),
-          onPressed: () {
-            gameBloc.add(FinishGameEvent(FinishGameType.ppkCiv));
-            Navigator.of(context).pop();
-          },
-        ),
-        TextButton(
-          child: const Text('PPK - Mafia won'),
-          onPressed: () {
-            gameBloc.add(FinishGameEvent(FinishGameType.ppkMaf));
-            Navigator.of(context).pop();
-          },
-        ),
-        TextButton(
-          child: const Text("Just finish and don't save results"),
+          child: const Text("Stop the game and close"),
           onPressed: () {
             gameBloc.add(FinishGameEvent(FinishGameType.reset));
             Navigator.of(context).pop();
@@ -175,6 +163,29 @@ class _GamePageState extends State<GamePage>
             gameBloc.add(RemoveGameDataEvent());
             Navigator.of(context).popUntil(
                 (route) => route.settings.name == AppRouter.clubDetailsPage);
+          },
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showFinishConfirmationPPKDialog(PlayerModel player) async {
+    await showDefaultDialog(
+      context: context,
+      title:
+      'Do you want to finish the game with PPK for (#${player.seatNumber}: ${player.nickname})?',
+      actions: <Widget>[
+        TextButton(
+          child: const Text("Finish game"),
+          onPressed: () {
+            gameBloc.add(FinishGameEvent(FinishGameType.ppk, player.id));
+            Navigator.of(context).pop();
+          },
+        ),
+        TextButton(
+          child: const Text('Cancel'),
+          onPressed: () {
+            Navigator.of(context).pop();
           },
         ),
       ],

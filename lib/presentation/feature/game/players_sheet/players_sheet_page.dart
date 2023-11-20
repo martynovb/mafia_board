@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
@@ -15,16 +16,19 @@ import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/ro
 import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/role_event.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/role_state.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/widgets/blur_widget.dart';
+import 'package:mafia_board/presentation/feature/widgets/dialogs.dart';
 import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 
 class PlayersSheetPage extends StatefulWidget {
   final String clubId;
   final Function()? nextPage;
+  final Function(PlayerModel playerModel) onPPKGameFinished;
 
   const PlayersSheetPage({
     super.key,
     this.nextPage,
     required this.clubId,
+    required this.onPPKGameFinished,
   });
 
   @override
@@ -278,6 +282,12 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
               playerModel.role,
             )),
           ),
+          if (isGameStarted) ...[
+            const VerticalDivider(
+              color: Colors.white,
+            ),
+            Center(child: contextMenu(playerModel))
+          ],
         ],
       ),
     );
@@ -371,4 +381,43 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
         'Start Game',
         style: TextStyle(fontSize: 32),
       ));
+
+  Widget contextMenu(PlayerModel player) => PopupMenuButton<String>(
+        onSelected: (String value) {
+          if (value == 'PPK') {
+            _showFinishConfirmationPPKDialog(player, context);
+          }
+        },
+        itemBuilder: (BuildContext context) => [
+          const PopupMenuItem<String>(
+            value: 'PPK',
+            child: Text('PPK'),
+          ),
+        ],
+        icon: const Icon(Icons.more_vert),
+      );
+
+  Future<void> _showFinishConfirmationPPKDialog(
+      PlayerModel player, BuildContext context) async {
+    await showDefaultDialog(
+      context: context,
+      title:
+          'PPK for (#${player.seatNumber}: ${player.nickname})?',
+      actions: <Widget>[
+        TextButton(
+          child: const Text("Finish game"),
+          onPressed: () {
+            _gameBloc.add(FinishGameEvent(FinishGameType.ppk, player.id));
+            Navigator.of(context).pop();
+          },
+        ),
+        TextButton(
+          child: const Text('Cancel'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+  }
 }

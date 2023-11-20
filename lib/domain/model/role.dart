@@ -9,6 +9,19 @@ enum Role {
   NONE,
 }
 
+Set<Role> civilianRoles() => {
+      Role.SHERIFF,
+      Role.CIVILIAN,
+      Role.DOCTOR,
+      Role.PUTANA,
+      Role.MANIAC,
+    };
+
+Set<Role> mafiaRoles() => {
+      Role.DON,
+      Role.MAFIA,
+    };
+
 Role roleMapper(String? role) {
   if (role == Role.DON.name) {
     return Role.DON;

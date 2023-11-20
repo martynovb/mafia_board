@@ -10,9 +10,10 @@ class StartGameEvent extends GameEvent {
 }
 
 class FinishGameEvent extends GameEvent {
+  final String? playerId;
   final FinishGameType finishGameType;
 
-  FinishGameEvent(this.finishGameType);
+  FinishGameEvent(this.finishGameType, [this.playerId]);
 }
 
 class RemoveGameDataEvent extends GameEvent {}

@@ -30,7 +30,7 @@ class PlayersRepoLocal extends PlayersRepo {
   @override
   List<PlayerModel> getAllAvailablePlayers() => _players
       .where(
-          (player) => !player.isKilled && !player.isRemoved && !player.isKicked)
+          (player) => !player.isKilled && !player.isDisqualified && !player.isKicked)
       .toList();
 
   @override
@@ -47,17 +47,18 @@ class PlayersRepoLocal extends PlayersRepo {
     bool? isKilled,
     bool? isKicked,
     bool? isMuted,
+    bool? isPPK,
   }) async {
     int playerIndex = _players.indexWhere((player) => player.id == id);
     PlayerModel player = _players[playerIndex];
     player.fouls = fouls ?? player.fouls;
     player.role = role ?? player.role;
     player.score = score ?? player.score;
-    player.score = score ?? player.score;
-    player.isRemoved = isRemoved ?? player.isRemoved;
+    player.isDisqualified = isRemoved ?? player.isDisqualified;
     player.isKilled = isKilled ?? player.isKilled;
     player.isKicked = isKicked ?? player.isKicked;
     player.isMuted = isMuted ?? player.isMuted;
+    player.isPPK = isPPK ?? player.isPPK;
     _players[playerIndex] = player;
   }
 
