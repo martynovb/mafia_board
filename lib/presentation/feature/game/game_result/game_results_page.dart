@@ -3,11 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/domain/model/game_results_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
+import 'package:mafia_board/domain/model/player_score_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/game/game_result/bloc/game_results_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_result/bloc/game_results_event.dart';
 import 'package:mafia_board/presentation/feature/game/game_result/bloc/game_results_state.dart';
+import 'package:mafia_board/presentation/feature/router.dart';
+import 'package:mafia_board/presentation/feature/widgets/dialogs.dart';
 
 class GameResultsPage extends StatefulWidget {
   const GameResultsPage({Key? key}) : super(key: key);
@@ -17,6 +20,7 @@ class GameResultsPage extends StatefulWidget {
 }
 
 class _GameResultsPageState extends State<GameResultsPage> {
+  GameResultsModel? gameResultsModel;
   late GameResultsBloc gameResultsBloc;
   late String clubId;
 
@@ -42,42 +46,45 @@ class _GameResultsPageState extends State<GameResultsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Game Results'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-              onPressed: () {
-                gameResultsBloc.add(CalculateResultsEvent(clubId));
-              },
-              icon: const Icon(
-                Icons.refresh,
-              ))
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(Dimensions.defaultSidePadding),
-        child: BlocConsumer(
-          bloc: gameResultsBloc,
-          listener: (context, GameResultsState state) {},
-          builder: (context, GameResultsState state) {
-            if (state is ShowGameResultsState) {
-              return Column(
-                children: [
-                  _tableHeader(),
-                  _playersTable(state.gameResultsModel),
-                ],
-              );
-            }
+    return WillPopScope(
+        onWillPop: _showExitConfirmationDialog,
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Game Results'),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                  onPressed: () {
+                    gameResultsBloc.add(SaveResultsEvent(gameResultsModel: gameResultsModel));
+                  },
+                  icon: const Icon(
+                    Icons.refresh,
+                  ))
+            ],
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(Dimensions.defaultSidePadding),
+            child: BlocConsumer(
+              bloc: gameResultsBloc,
+              listener: (context, GameResultsState state) {},
+              builder: (context, GameResultsState state) {
+                if (state is ShowGameResultsState) {
+                  gameResultsModel = state.gameResultsModel;
+                  return Column(
+                    children: [
+                      _tableHeader(),
+                      _playersTable(state.gameResultsModel),
+                    ],
+                  );
+                }
 
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          },
-        ),
-      ),
-    );
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
+            ),
+          ),
+        ));
   }
 
   Widget _tableHeader() {
@@ -116,6 +123,20 @@ class _GameResultsPageState extends State<GameResultsPage> {
             ),
             Expanded(
               flex: _scoreColumnFlex,
+              child: const Center(child: Text('BM')),
+            ),
+            const VerticalDivider(
+              color: Colors.transparent,
+            ),
+            Expanded(
+              flex: _scoreColumnFlex,
+              child: const Center(child: Text('points')),
+            ),
+            const VerticalDivider(
+              color: Colors.transparent,
+            ),
+            Expanded(
+              flex: _scoreColumnFlex,
               child: const Center(child: Text('total')),
             ),
           ],
@@ -130,18 +151,18 @@ class _GameResultsPageState extends State<GameResultsPage> {
         child: ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: results.players.length,
+          itemCount: results.scoreList.length,
           separatorBuilder: (context, index) => const Divider(
             height: Dimensions.sidePadding0_5x,
           ),
           itemBuilder: (__, index) => _playerItem(
             index,
-            results.players[index],
+            results.scoreList[index],
           ),
         ),
       );
 
-  Widget _playerItem(int index, PlayerModel player) {
+  Widget _playerItem(int index, PlayerScoreModel scoreModel) {
     return SizedBox(
       height: Dimensions.playerItemHeight,
       child: Row(
@@ -161,21 +182,41 @@ class _GameResultsPageState extends State<GameResultsPage> {
           ),
           Expanded(
             flex: _nicknameColumnFlex,
-            child: Text(player.nickname),
+            child: Text(scoreModel.player.nickname),
           ),
           const VerticalDivider(
             color: Colors.white,
           ),
           Expanded(
             flex: _roleColumnFlex,
-            child: Center(child: _roleIndicator(player.role)),
+            child: Center(child: _roleIndicator(scoreModel.player.role)),
           ),
           const VerticalDivider(
             color: Colors.white,
           ),
           Expanded(
             flex: _scoreColumnFlex,
-            child: Center(child: Text(player.score.toString())),
+            child: Center(
+              child: Text(scoreModel.bestMove.toString()),
+            ),
+          ),
+          const VerticalDivider(
+            color: Colors.white,
+          ),
+          Expanded(
+            flex: _scoreColumnFlex,
+            child: Center(
+              child: Text(scoreModel.gamePoints.toString()),
+            ),
+          ),
+          const VerticalDivider(
+            color: Colors.white,
+          ),
+          Expanded(
+            flex: _scoreColumnFlex,
+            child: Center(
+              child: Text(scoreModel.total().toString()),
+            ),
           ),
         ],
       ),
@@ -184,5 +225,28 @@ class _GameResultsPageState extends State<GameResultsPage> {
 
   Widget _roleIndicator(Role role) {
     return Text(role.name);
+  }
+
+  Future<bool> _showExitConfirmationDialog() async {
+    return await showDefaultDialog(
+      context: context,
+      title: 'Do you want to save the game results?',
+      actions: <Widget>[
+        TextButton(
+          child: const Text('No'),
+          onPressed: () {
+            Navigator.of(context).popUntil(
+              (route) => route.settings.name == AppRouter.clubDetailsPage,
+            );
+          },
+        ),
+        TextButton(
+          child: const Text('Yes'),
+          onPressed: () {
+            gameResultsBloc.add(SaveResultsEvent(gameResultsModel: gameResultsModel));
+          },
+        ),
+      ],
+    );
   }
 }

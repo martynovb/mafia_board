@@ -9,3 +9,7 @@ class ShowGameResultsState extends GameResultsState {
 
   ShowGameResultsState(this.gameResultsModel);
 }
+
+class GameResultsUploaded extends GameResultsState {
+
+}

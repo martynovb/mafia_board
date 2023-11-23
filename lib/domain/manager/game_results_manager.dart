@@ -1,24 +1,30 @@
 import 'package:collection/collection.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
+import 'package:mafia_board/domain/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/domain/model/game_results_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
+import 'package:mafia_board/domain/model/player_score_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
-import 'package:mafia_board/domain/model/role_model.dart';
 import 'package:mafia_board/domain/model/rules_model.dart';
 import 'package:mafia_board/domain/model/winner_type.dart';
 import 'package:mafia_board/domain/usecase/get_rules_usecase.dart';
+import 'package:mafia_board/domain/usecase/save_game_results_usecase.dart';
 
 class GameResultsManager {
   final PlayersRepo playersRepo;
   final GetRulesUseCase getRulesUseCase;
+  final SaveGameResultsUseCase saveGameResultsUseCase;
   final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
+  final GamePhaseRepo<NightPhaseAction> nightGamePhaseRepo;
 
   GameResultsManager({
     required this.playersRepo,
     required this.getRulesUseCase,
+    required this.saveGameResultsUseCase,
     required this.speakGamePhaseRepo,
+    required this.nightGamePhaseRepo,
   });
 
   Future<GameResultsModel> getPlayersResults({required String clubId}) async {
@@ -31,51 +37,62 @@ class GameResultsManager {
     SpeakPhaseAction? speakPhaseWithBestMove = speakGamePhaseRepo
         .getAllPhases()
         .firstWhereOrNull((speakPhase) => speakPhase.bestMove.isNotEmpty);
+    final firstKilledPlayer = _findFirstKilledPlayer();
+
+    final List<PlayerScoreModel> scoreList = [];
 
     for (PlayerModel player in allPlayers) {
-      double score = 0;
-
+      final playerScore = PlayerScoreModel(player: player);
       if (player.isPPK) {
-        score -= clubRules.ppkLoss;
+        playerScore.isPPK = true;
+        playerScore.gamePoints -= clubRules.ppkLoss;
       } else if (winner == WinnerType.mafia &&
           (player.role == Role.MAFIA || player.role == Role.DON)) {
-        score += clubRules.mafWin;
+        playerScore.gamePoints += clubRules.mafWin;
       } else if (winner == WinnerType.mafia &&
           (player.role == Role.CIVILIAN || player.role == Role.SHERIFF)) {
-        score -= clubRules.civilLoss;
-        score += clubRules.defaultBonus;
+        playerScore.gamePoints -= clubRules.civilLoss;
+        playerScore.gamePoints += clubRules.defaultBonus;
       } else if (winner == WinnerType.civilian &&
           (player.role == Role.CIVILIAN || player.role == Role.SHERIFF)) {
-        score += clubRules.civilWin;
+        playerScore.gamePoints += clubRules.civilWin;
       } else if (winner == WinnerType.civilian &&
           (player.role == Role.MAFIA || player.role == Role.DON)) {
-        score -= clubRules.mafLoss;
-        score += clubRules.defaultBonus;
+        playerScore.gamePoints -= clubRules.mafLoss;
+        playerScore.gamePoints += clubRules.defaultBonus;
       }
 
       if (!player.isPPK) {
         if (player.isDisqualified) {
-          score -= clubRules.kickLoss;
+          playerScore.gamePoints -= clubRules.kickLoss;
         } else if (speakPhaseWithBestMove != null &&
             player.id == speakPhaseWithBestMove.playerId &&
             !mafiaRoles().contains(player.role)) {
-          score += await _calculateBestMove(
+          playerScore.bestMove += await _calculateBestMove(
             clubRules,
             speakPhaseWithBestMove.bestMove,
           );
         }
       }
 
-      await playersRepo.updatePlayer(player.id, score: score);
+      if (player.id == firstKilledPlayer?.id) {
+        playerScore.isFirstKilled = true;
+      }
+
+      scoreList.add(playerScore);
     }
 
     return GameResultsModel(
+      clubId: clubId,
       winnerType: winner,
-      players: (playersRepo.getAllPlayers())
-          .sorted((a, b) => b.score.compareTo(a.score)),
-      isPPK: winnerIfPPK != WinnerType.none,
+      scoreList: scoreList.sorted((a, b) => b.total().compareTo(a.total())),
     );
   }
+
+  Future<void> saveResults({
+    required GameResultsModel gameResultsModel,
+  }) async =>
+      saveGameResultsUseCase.execute(params: gameResultsModel);
 
   Future<double> _calculateBestMove(
     RulesModel rulesModel,
@@ -143,5 +160,18 @@ class GameResultsManager {
     }
 
     return winner;
+  }
+
+  PlayerModel? _findFirstKilledPlayer() {
+    return nightGamePhaseRepo
+        .getAllPhases()
+        .sorted((a, b) =>
+            a.createdAt.millisecond.compareTo(b.createdAt.millisecond))
+        .firstWhereOrNull((nightPhase) => nightPhase.killedPlayer != null)
+        ?.killedPlayer;
+  }
+
+  double _calculateCompensation() {
+    return 0;
   }
 }

@@ -8,7 +8,6 @@ import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/domain/usecase/create_day_info_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_current_game_usecase.dart';
-import 'package:mafia_board/domain/usecase/get_last_valid_day_info_usecase.dart';
 import 'package:mafia_board/domain/usecase/update_day_info_usecase.dart';
 
 class PlayerManager {

@@ -1,5 +1,3 @@
-import 'package:mafia_board/data/entity/game/game_history_entity.dart';
-import 'package:mafia_board/data/entity/game/game_info_entity.dart';
 import 'package:mafia_board/data/entity/game/player_entity.dart';
 
 class GameEntity {

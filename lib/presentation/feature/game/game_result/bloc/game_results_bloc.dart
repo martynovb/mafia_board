@@ -17,7 +17,14 @@ class GameResultsBloc extends Bloc<GameResultsEvent, GameResultsState> {
   Future<void> _saveGameResultsEventHandler(
     SaveResultsEvent event,
     emit,
-  ) async {}
+  ) async {
+    final results = event.gameResultsModel;
+    if(results != null) {
+      await gameResultsManager.saveResults(
+          gameResultsModel: results);
+    }
+    emit(GameResultsUploaded());
+  }
 
   Future<void> _calculateGameResultsEventHandler(
     CalculateResultsEvent event,

@@ -1,3 +1,5 @@
+import 'package:mafia_board/domain/model/game_results_model.dart';
+
 abstract class GameResultsEvent {}
 
 class CalculateResultsEvent extends GameResultsEvent {
@@ -6,4 +8,8 @@ class CalculateResultsEvent extends GameResultsEvent {
   CalculateResultsEvent(this.clubId);
 }
 
-class SaveResultsEvent extends GameResultsEvent {}
+class SaveResultsEvent extends GameResultsEvent {
+  final GameResultsModel? gameResultsModel;
+
+  SaveResultsEvent({this.gameResultsModel});
+}

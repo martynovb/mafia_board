@@ -1,9 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:mafia_board/data/entity/game/game_entity.dart';
-import 'package:mafia_board/data/entity/game/game_info_entity.dart';
+import 'package:mafia_board/data/entity/game/day_info_entity.dart';
 import 'package:mafia_board/data/entity/game/player_entity.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
+import 'package:mafia_board/domain/model/game_results_model.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
@@ -145,5 +146,12 @@ class GameRepoLocal extends GameRepo {
     _currentGame = null;
     _dayInfoList.clear();
     return true;
+  }
+
+  @override
+  Future<void> saveGameResults({
+    required GameResultsModel gameResultsModel,
+  }) async {
+
   }
 }

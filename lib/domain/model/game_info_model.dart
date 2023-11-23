@@ -1,5 +1,5 @@
 import 'package:class_to_string/class_to_string.dart';
-import 'package:mafia_board/data/entity/game/game_info_entity.dart';
+import 'package:mafia_board/data/entity/game/day_info_entity.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 

@@ -38,6 +38,7 @@ import 'package:mafia_board/domain/manager/game_flow/night_phase_manager.dart';
 import 'package:mafia_board/domain/manager/game_flow/speaking_phase_manager.dart';
 import 'package:mafia_board/domain/manager/game_flow/vote_phase_manager.dart';
 import 'package:mafia_board/domain/manager/player_manager.dart';
+import 'package:mafia_board/domain/usecase/save_game_results_usecase.dart';
 import 'package:mafia_board/domain/validator/player_validator.dart';
 import 'package:mafia_board/domain/manager/role_manager.dart';
 import 'package:mafia_board/domain/usecase/create_day_info_usecase.dart';
@@ -143,6 +144,9 @@ class Injector {
 
   static void _injectDomainLayer() {
     //usecase
+    _getIt.registerSingleton<SaveGameResultsUseCase>(
+      SaveGameResultsUseCase(gameRepo: _getIt.get()),
+    );
     _getIt.registerSingleton<GetCurrentGameUseCase>(
       GetCurrentGameUseCase(gameRepo: _getIt.get()),
     );
@@ -261,7 +265,9 @@ class Injector {
       GameResultsManager(
         playersRepo: _getIt.get(),
         getRulesUseCase: _getIt.get(),
+        saveGameResultsUseCase: _getIt.get(),
         speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
+        nightGamePhaseRepo: _getIt.get(instanceName: nightPhaseRepoLocalTag),
       ),
     );
 
