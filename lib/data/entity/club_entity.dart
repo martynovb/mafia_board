@@ -2,8 +2,8 @@ import 'package:mafia_board/data/entity/user_entity.dart';
 
 class ClubEntity {
   final String? id;
-  final String? title;
-  final String? description;
+  String? title;
+  String? description;
   final List<UserEntity>? members;
   final List<UserEntity>? admins;
   final List<UserEntity>? waitList;

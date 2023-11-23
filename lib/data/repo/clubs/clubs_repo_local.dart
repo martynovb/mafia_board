@@ -188,4 +188,37 @@ class ClubsRepoLocal extends ClubsRepo {
       waitList: [],
     ),
   ];
+
+  @override
+  Future<ClubEntity> createClub({
+    required String name,
+    required String description,
+  }) async {
+    final ClubEntity clubEntity = ClubEntity(
+      id: const Uuid().v1(),
+      title: name,
+      description: description,
+      members: [await authRepo.me()],
+      admins: [await authRepo.me()],
+      waitList: [],
+    );
+    _clubs.add(clubEntity);
+    return clubEntity;
+  }
+
+  @override
+  Future<ClubEntity> updateClub({
+    required String id,
+    required String name,
+    required String description,
+  }) async {
+    final ClubEntity? clubEntity =
+        _clubs.firstWhereOrNull((club) => club.id == id);
+    if (clubEntity == null) {
+      throw Exception('no club id');
+    }
+    clubEntity.title = name;
+    clubEntity.description = description;
+    return clubEntity;
+  }
 }
