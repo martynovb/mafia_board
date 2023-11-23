@@ -8,14 +8,18 @@ class InputTextField extends StatelessWidget {
   final TextInputType textInputType;
   final List<TextInputFormatter> inputFormatters;
   final int? maxLength;
+  final int? maxLines;
   final String preText;
+  final double? height;
 
   InputTextField({
     Key? key,
     required this.controller,
+    this.height,
     this.obscureText = false,
     this.textInputType = TextInputType.text,
     this.maxLength,
+    this.maxLines,
     this.inputFormatters = const [],
     this.preText = '',
   }) : super(key: key) {
@@ -28,7 +32,7 @@ class InputTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
         child: SizedBox(
-      height: Dimensions.inputTextHeight,
+      height: height ?? Dimensions.inputTextHeight,
       child: TextField(
         keyboardType: textInputType,
         obscureText: obscureText,
@@ -37,6 +41,7 @@ class InputTextField extends StatelessWidget {
         controller: controller,
         style: const TextStyle(fontSize: 14),
         maxLength: maxLength,
+        maxLines: maxLines ?? 1,
         inputFormatters: inputFormatters,
         decoration: InputDecoration(
           counterText: '',

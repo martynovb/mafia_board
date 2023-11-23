@@ -221,4 +221,15 @@ class ClubsRepoLocal extends ClubsRepo {
     clubEntity.description = description;
     return clubEntity;
   }
+
+  @override
+  Future<ClubEntity> setClub({required ClubEntity clubEntity}) async {
+    final index = _clubs.indexWhere((club) => club.id == clubEntity.id);
+    if(index != -1) {
+      _clubs[index] = clubEntity;
+    } else {
+      _clubs.add(clubEntity);
+    }
+    return clubEntity;
+  }
 }

@@ -38,6 +38,8 @@ import 'package:mafia_board/domain/manager/game_flow/night_phase_manager.dart';
 import 'package:mafia_board/domain/manager/game_flow/speaking_phase_manager.dart';
 import 'package:mafia_board/domain/manager/game_flow/vote_phase_manager.dart';
 import 'package:mafia_board/domain/manager/player_manager.dart';
+import 'package:mafia_board/domain/usecase/create_club_usecase.dart';
+import 'package:mafia_board/domain/usecase/create_rules_usecase.dart';
 import 'package:mafia_board/domain/usecase/save_game_results_usecase.dart';
 import 'package:mafia_board/domain/validator/player_validator.dart';
 import 'package:mafia_board/domain/manager/role_manager.dart';
@@ -57,6 +59,7 @@ import 'package:mafia_board/presentation/feature/app/bloc/app_bloc.dart';
 import 'package:mafia_board/presentation/feature/auth/bloc/auth_bloc.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_bloc.dart';
 import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_bloc.dart';
+import 'package:mafia_board/presentation/feature/clubs/create_club/bloc/create_club_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_result/bloc/game_results_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/history/game_history_bloc.dart';
@@ -144,6 +147,12 @@ class Injector {
 
   static void _injectDomainLayer() {
     //usecase
+    _getIt.registerSingleton<CreateRulesUseCase>(
+      CreateRulesUseCase(rulesRepo: _getIt.get()),
+    );
+    _getIt.registerSingleton<CreateClubUseCase>(
+      CreateClubUseCase(authRepo: _getIt.get(), clubsRepo: _getIt.get()),
+    );
     _getIt.registerSingleton<SaveGameResultsUseCase>(
       SaveGameResultsUseCase(gameRepo: _getIt.get()),
     );
@@ -356,9 +365,11 @@ class Injector {
       GameRulesBloc(
         updateRulesUseCase: _getIt.get(),
         getRulesUseCase: _getIt.get(),
+        createRulesUseCase: _getIt.get(),
       ),
     );
 
     _getIt.registerSingleton(GameResultsBloc(gameResultsManager: _getIt.get()));
+    _getIt.registerSingleton(CreateClubBloc(createClubUseCase: _getIt.get()));
   }
 }

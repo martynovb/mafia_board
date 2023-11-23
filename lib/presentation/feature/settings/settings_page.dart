@@ -35,13 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-        child: Scaffold(
-            appBar: AppBar(
-              title: const Text('Settings'),
-              centerTitle: true,
-            ),
-            body: WillPopScope(onWillPop: () async {
+    return WillPopScope(onWillPop: () async {
               final currentWidth = MediaQuery.of(context).size.width;
               if (_currentSettingsContent != null && currentWidth < _minWidth) {
                 _currentSettingsContent = null;
@@ -93,27 +87,27 @@ class _SettingsPageState extends State<SettingsPage> {
                               ],
                             )));
                   });
-            }))));
+            }));
   }
 
   Widget _menuList() => ListView(
         children: [
           ListTile(
-            leading: Icon(Icons.person),
-            title: Text('Account'),
+            leading: const Icon(Icons.person),
+            title: const Text('Account'),
             titleTextStyle:
-                TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
             onTap: () {
               _currentSettingsContent = _accountSettingsList();
               setState(() {});
             },
           ),
           ListTile(
-            leading: Icon(Icons.logout),
+            leading: const Icon(Icons.logout),
             iconColor: Colors.redAccent,
             textColor: Colors.redAccent,
-            titleTextStyle: TextStyle(fontWeight: FontWeight.bold),
-            title: Text('Logout'),
+            titleTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+            title: const Text('Logout'),
             onTap: () => _authBloc.add(LogoutAuthEvent()),
           ),
         ],
@@ -127,7 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
             onPressed: () {},
             btnText: 'Change',
           ),
-          Divider(),
+          const Divider(),
           SettingsItem(
             title: 'Email',
             description: 'magic@magic.com',

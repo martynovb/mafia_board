@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:mafia_board/domain/usecase/create_rules_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_rules_usecase.dart';
 import 'package:mafia_board/domain/usecase/update_rules_usecase.dart';
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_event.dart';
@@ -7,13 +8,15 @@ import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_state.dar
 class GameRulesBloc extends Bloc<RulesEvent, RulesState> {
   final GetRulesUseCase getRulesUseCase;
   final UpdateRulesUseCase updateRulesUseCase;
+  final CreateRulesUseCase createRulesUseCase;
 
   GameRulesBloc({
     required this.getRulesUseCase,
     required this.updateRulesUseCase,
+    required this.createRulesUseCase,
   }) : super(InitialRulesState()) {
     on<LoadRulesEvent>(_loadRulesEventHandler);
-    on<UpdateRulesEvent>(_updateRulesEventHandler);
+    on<CreateOrUpdateRulesEvent>(_updateRulesEventHandler);
   }
 
   void _loadRulesEventHandler(LoadRulesEvent event, emit) async {
@@ -25,22 +28,42 @@ class GameRulesBloc extends Bloc<RulesEvent, RulesState> {
     }
   }
 
-  void _updateRulesEventHandler(UpdateRulesEvent event, emit) async {
+  void _updateRulesEventHandler(CreateOrUpdateRulesEvent event, emit) async {
     try {
-      await updateRulesUseCase.execute(
+      final rulesId = event.id;
+      if (rulesId != null) {
+        await updateRulesUseCase.execute(
           params: UpdateRulesParams(
-        clubId: event.clubId,
-        civilWin: event.civilWin,
-        mafWin: event.mafWin,
-        civilLoss: event.civilLoss,
-        mafLoss: event.mafLoss,
-        kickLoss: event.kickLoss,
-        defaultBonus: event.defaultBonus,
-        ppkLoss: event.ppkLoss,
-        gameLoss: event.gameLoss,
-        twoBestMove: event.twoBestMove,
-        threeBestMove: event.threeBestMove,
-      ));
+            id: rulesId,
+            civilWin: event.civilWin,
+            mafWin: event.mafWin,
+            civilLoss: event.civilLoss,
+            mafLoss: event.mafLoss,
+            kickLoss: event.kickLoss,
+            defaultBonus: event.defaultBonus,
+            ppkLoss: event.ppkLoss,
+            gameLoss: event.gameLoss,
+            twoBestMove: event.twoBestMove,
+            threeBestMove: event.threeBestMove,
+          ),
+        );
+      } else {
+        await createRulesUseCase.execute(
+          params: CreateRulesParams(
+            clubId: event.clubId,
+            civilWin: event.civilWin,
+            mafWin: event.mafWin,
+            civilLoss: event.civilLoss,
+            mafLoss: event.mafLoss,
+            kickLoss: event.kickLoss,
+            defaultBonus: event.defaultBonus,
+            ppkLoss: event.ppkLoss,
+            gameLoss: event.gameLoss,
+            twoBestMove: event.twoBestMove,
+            threeBestMove: event.threeBestMove,
+          ),
+        );
+      }
       emit(UpdateRulesSuccessState());
     } catch (e) {
       emit(ErrorRulesState('Something went wrong'));

@@ -13,6 +13,10 @@ abstract class ClubsRepo {
     required String description,
   });
 
+  Future<ClubEntity> setClub({
+    required ClubEntity clubEntity,
+  });
+
   Future<List<ClubEntity>> getClubs({String? id, int limit = 10});
 
   Future<ClubEntity?> getClubDetails({required String id});

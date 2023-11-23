@@ -1,6 +1,5 @@
 class RulesEntity {
   final String? id;
-  final String? clubId;
 
   final double? civilWin;
   final double? mafWin;
@@ -15,7 +14,6 @@ class RulesEntity {
 
   RulesEntity({
     required this.id,
-    required this.clubId,
     required this.civilWin,
     required this.mafWin,
     required this.civilLoss,
@@ -31,7 +29,6 @@ class RulesEntity {
   static RulesEntity fromJson(Map<dynamic, dynamic> json) {
     return RulesEntity(
       id: json['id'] as String?,
-      clubId: json['clubId'] as String?,
       civilWin: json['civilWin'] as double?,
       mafWin: json['mafWin'] as double?,
       civilLoss: json['civilLoss'] as double?,

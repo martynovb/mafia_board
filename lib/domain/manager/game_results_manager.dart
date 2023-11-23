@@ -32,7 +32,7 @@ class GameResultsManager {
     WinnerType winner =
         winnerIfPPK == WinnerType.none ? _getWinner() : winnerIfPPK;
 
-    RulesModel clubRules = await getRulesUseCase.execute(params: clubId);
+    RulesModel clubRules = (await getRulesUseCase.execute(params: clubId)) ?? RulesModel.empty();
     final allPlayers = playersRepo.getAllPlayers();
     SpeakPhaseAction? speakPhaseWithBestMove = speakGamePhaseRepo
         .getAllPhases()

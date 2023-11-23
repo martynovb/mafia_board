@@ -5,7 +5,7 @@ abstract class RulesState {}
 class InitialRulesState extends RulesState {}
 
 class LoadedRulesState extends RulesState {
-  final RulesModel rules;
+  final RulesModel? rules;
 
   LoadedRulesState(this.rules);
 }

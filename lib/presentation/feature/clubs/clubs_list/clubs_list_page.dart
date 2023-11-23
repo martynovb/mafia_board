@@ -32,9 +32,7 @@ class _ClubsPageState extends State<ClubsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(),
-        body: Padding(
+    return Padding(
             padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
             child: BlocBuilder(
                 bloc: clubsListBloc,
@@ -45,7 +43,7 @@ class _ClubsPageState extends State<ClubsPage> {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
-                })));
+                }));
   }
 
   Widget _clubsList(List<ClubModel> clubs) => ListView.separated(

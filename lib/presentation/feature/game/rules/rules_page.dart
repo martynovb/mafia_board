@@ -6,8 +6,6 @@ import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_event.dart';
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_state.dart';
-import 'package:mafia_board/presentation/feature/router.dart';
-import 'package:mafia_board/presentation/feature/widgets/dialogs.dart';
 import 'package:mafia_board/presentation/feature/widgets/input_text_field.dart';
 
 class RulesPage extends StatefulWidget {
@@ -20,6 +18,7 @@ class RulesPage extends StatefulWidget {
 class _RulesPageState extends State<RulesPage> {
   late GameRulesBloc gameRulesBloc;
   late String clubId;
+  String? rulesId;
   RulesModel? rules;
   final civilWinController = TextEditingController();
   final mafWinController = TextEditingController();
@@ -50,36 +49,34 @@ class _RulesPageState extends State<RulesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _showExitConfirmationDialog,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Club rules'),
-          centerTitle: true,
-        ),
-        body: BlocConsumer(
-          listener: (context, RulesState state) {
-            if (state is UpdateRulesSuccessState) {
-              Navigator.of(context).popUntil(
-                (route) => route.settings.name == AppRouter.gamePage,
-              );
-            }
-          },
-          bloc: gameRulesBloc,
-          builder: (context, RulesState state) {
-            if (state is LoadedRulesState) {
-              //return Center(child: Text('LoadedRulesState'),);
-              rules = state.rules;
-              return _body(state.rules);
-            }
-            return const Center(child: CircularProgressIndicator());
-          },
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Club rules'),
+        centerTitle: true,
+        actions: [
+          TextButton(onPressed: () => _save(), child: const Text('Save'))
+        ],
+      ),
+      body: BlocConsumer(
+        listener: (context, RulesState state) {
+          if (state is UpdateRulesSuccessState) {
+            Navigator.of(context).pop();
+          }
+        },
+        bloc: gameRulesBloc,
+        builder: (context, RulesState state) {
+          if (state is LoadedRulesState) {
+            rules = state.rules;
+            return _body(state.rules);
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
       ),
     );
   }
 
-  Widget _body(RulesModel rules) {
+  Widget _body(RulesModel? rules) {
+    rulesId = rules?.id;
     return Padding(
         padding: const EdgeInsets.all(Dimensions.defaultSidePadding),
         child: Column(
@@ -98,7 +95,7 @@ class _RulesPageState extends State<RulesPage> {
                     child: InputTextField(
                       textInputType: TextInputType.number,
                       controller: civilWinController,
-                      preText: rules.civilWin.toString(),
+                      preText: rules?.civilWin.toString() ?? '',
                     )),
               ],
             ),
@@ -120,7 +117,7 @@ class _RulesPageState extends State<RulesPage> {
                     child: InputTextField(
                       textInputType: TextInputType.number,
                       controller: mafWinController,
-                      preText: rules.mafWin.toString(),
+                      preText: rules?.mafWin.toString() ?? '',
                     )),
               ],
             ),
@@ -141,7 +138,7 @@ class _RulesPageState extends State<RulesPage> {
                   child: InputTextField(
                     textInputType: TextInputType.number,
                     controller: civilLossController,
-                    preText: rules.civilLoss.toString(),
+                    preText: rules?.civilLoss.toString() ?? '',
                   ),
                 ),
               ],
@@ -163,7 +160,7 @@ class _RulesPageState extends State<RulesPage> {
                     child: InputTextField(
                       textInputType: TextInputType.number,
                       controller: mafLossController,
-                      preText: rules.mafLoss.toString(),
+                      preText: rules?.mafLoss.toString() ?? '',
                     )),
               ],
             ),
@@ -184,7 +181,7 @@ class _RulesPageState extends State<RulesPage> {
                     child: InputTextField(
                       textInputType: TextInputType.number,
                       controller: kickLossController,
-                      preText: rules.kickLoss.toString(),
+                      preText: rules?.kickLoss.toString() ?? '',
                     )),
               ],
             ),
@@ -205,7 +202,7 @@ class _RulesPageState extends State<RulesPage> {
                     child: InputTextField(
                       textInputType: TextInputType.number,
                       controller: defaultBonusController,
-                      preText: rules.defaultBonus.toString(),
+                      preText: rules?.defaultBonus.toString() ?? '',
                     )),
               ],
             ),
@@ -226,7 +223,7 @@ class _RulesPageState extends State<RulesPage> {
                   child: InputTextField(
                     textInputType: TextInputType.number,
                     controller: ppkLossController,
-                    preText: rules.ppkLoss.toString(),
+                    preText: rules?.ppkLoss.toString() ?? '',
                   ),
                 ),
               ],
@@ -248,7 +245,7 @@ class _RulesPageState extends State<RulesPage> {
                   child: InputTextField(
                     textInputType: TextInputType.number,
                     controller: defaultGameLossController,
-                    preText: rules.defaultGameLoss.toString(),
+                    preText: rules?.defaultGameLoss.toString() ?? '',
                   ),
                 ),
               ],
@@ -269,7 +266,7 @@ class _RulesPageState extends State<RulesPage> {
                   child: InputTextField(
                     textInputType: TextInputType.number,
                     controller: twoBestMoveController,
-                    preText: rules.twoBestMove.toString(),
+                    preText: rules?.twoBestMove.toString() ?? '',
                   ),
                 ),
               ],
@@ -290,7 +287,7 @@ class _RulesPageState extends State<RulesPage> {
                   child: InputTextField(
                     textInputType: TextInputType.number,
                     controller: threeBestMoveController,
-                    preText: rules.threeBestMove.toString(),
+                    preText: rules?.threeBestMove.toString() ?? '',
                   ),
                 ),
               ],
@@ -299,62 +296,42 @@ class _RulesPageState extends State<RulesPage> {
         ));
   }
 
-  Future<bool> _showExitConfirmationDialog() async {
-    return await showDefaultDialog(
-      context: context,
-      title: 'Do you want to save the changes before leaving?',
-      actions: <Widget>[
-        TextButton(
-          child: const Text('No'),
-          onPressed: () {
-            Navigator.of(context).pop(true);
-          },
-        ),
-        TextButton(
-          child: const Text('Yes'),
-          onPressed: () {
-            gameRulesBloc.add(
-              UpdateRulesEvent(
-                clubId: clubId,
-                civilWin: double.tryParse(civilWinController.text.trim()) ??
-                    rules?.civilWin ??
-                    0.0,
-                mafWin: double.tryParse(mafWinController.text.trim()) ??
-                    rules?.mafWin ??
-                    0.0,
-                civilLoss: double.tryParse(civilLossController.text.trim()) ??
-                    rules?.civilLoss ??
-                    0.0,
-                mafLoss: double.tryParse(mafLossController.text.trim()) ??
-                    rules?.mafLoss ??
-                    0.0,
-                kickLoss: double.tryParse(kickLossController.text.trim()) ??
-                    rules?.kickLoss ??
-                    0.0,
-                defaultBonus:
-                    double.tryParse(defaultBonusController.text.trim()) ??
-                        rules?.defaultBonus ??
-                        0.0,
-                ppkLoss: double.tryParse(ppkLossController.text.trim()) ??
-                    rules?.ppkLoss ??
-                    0.0,
-                gameLoss:
-                    double.tryParse(defaultGameLossController.text.trim()) ??
-                        rules?.defaultGameLoss ??
-                        0.0,
-                twoBestMove:
-                    double.tryParse(twoBestMoveController.text.trim()) ??
-                        rules?.twoBestMove ??
-                        0.0,
-                threeBestMove:
-                    double.tryParse(threeBestMoveController.text.trim()) ??
-                        rules?.threeBestMove ??
-                        0.0,
-              ),
-            );
-          },
-        ),
-      ],
+  void _save() {
+    gameRulesBloc.add(
+      CreateOrUpdateRulesEvent(
+        id: rulesId,
+        clubId: clubId,
+        civilWin: double.tryParse(civilWinController.text.trim()) ??
+            rules?.civilWin ??
+            0.0,
+        mafWin: double.tryParse(mafWinController.text.trim()) ??
+            rules?.mafWin ??
+            0.0,
+        civilLoss: double.tryParse(civilLossController.text.trim()) ??
+            rules?.civilLoss ??
+            0.0,
+        mafLoss: double.tryParse(mafLossController.text.trim()) ??
+            rules?.mafLoss ??
+            0.0,
+        kickLoss: double.tryParse(kickLossController.text.trim()) ??
+            rules?.kickLoss ??
+            0.0,
+        defaultBonus: double.tryParse(defaultBonusController.text.trim()) ??
+            rules?.defaultBonus ??
+            0.0,
+        ppkLoss: double.tryParse(ppkLossController.text.trim()) ??
+            rules?.ppkLoss ??
+            0.0,
+        gameLoss: double.tryParse(defaultGameLossController.text.trim()) ??
+            rules?.defaultGameLoss ??
+            0.0,
+        twoBestMove: double.tryParse(twoBestMoveController.text.trim()) ??
+            rules?.twoBestMove ??
+            0.0,
+        threeBestMove: double.tryParse(threeBestMoveController.text.trim()) ??
+            rules?.threeBestMove ??
+            0.0,
+      ),
     );
   }
 }

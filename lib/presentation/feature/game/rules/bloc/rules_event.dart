@@ -6,7 +6,8 @@ class LoadRulesEvent extends RulesEvent {
   LoadRulesEvent(this.clubId);
 }
 
-class UpdateRulesEvent extends RulesEvent {
+class CreateOrUpdateRulesEvent extends RulesEvent {
+  final String? id;
   final String clubId;
 
   final double civilWin;
@@ -20,7 +21,8 @@ class UpdateRulesEvent extends RulesEvent {
   final double twoBestMove;
   final double threeBestMove;
 
-  UpdateRulesEvent({
+  CreateOrUpdateRulesEvent({
+    this.id,
     required this.clubId,
     required this.civilWin,
     required this.mafWin,
