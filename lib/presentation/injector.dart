@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/data/api/auth_api.dart';
 import 'package:mafia_board/data/api/base_url_provider.dart';
@@ -5,6 +7,8 @@ import 'package:mafia_board/data/api/error_handler.dart';
 import 'package:mafia_board/data/api/http_client.dart';
 import 'package:mafia_board/data/api/network_manager.dart';
 import 'package:mafia_board/data/api/token_provider.dart';
+import 'package:mafia_board/data/repo/auth/auth_repo_firebase.dart';
+import 'package:mafia_board/data/repo/clubs/clubs_repo_firebase.dart';
 import 'package:mafia_board/data/repo/rules/rules_local_repo.dart';
 import 'package:mafia_board/data/repo/rules/rules_repo.dart';
 import 'package:mafia_board/domain/manager/game_results_manager.dart';
@@ -78,8 +82,8 @@ class Injector {
   static const speakPhaseRepoLocalTag = 'speak-phase-repo-local';
   static const nightPhaseRepoLocalTag = 'night-phase-repo-local';
 
-  static void inject(bool isLocalDataBase) {
-    _injectDataLayer(isLocalDataBase);
+  static void inject({bool mockDb = false}) {
+    _injectDataLayer(mockDb);
     _injectDomainLayer();
     _injectBloC();
   }
@@ -107,9 +111,9 @@ class Injector {
     _getIt.registerSingleton<AuthRepo>(
       isLocalDataBase
           ? AuthRepoLocal()
-          : AuthRepoRemote(
-              api: _getIt.get(),
-              tokenProvider: _getIt.get(),
+          : AutRepoFirebase(
+              firebaseAuth: FirebaseAuth.instance,
+              firestore: FirebaseFirestore.instance,
             ),
     );
 
@@ -135,10 +139,15 @@ class Injector {
     _getIt
         .registerSingleton<GameRepo>(GameRepoLocal(playersRepo: _getIt.get()));
     _getIt.registerSingleton<UsersRepo>(UsersRepoLocal(authRepo: _getIt.get()));
-    _getIt.registerSingleton<ClubsRepo>(ClubsRepoLocal(
-      authRepo: _getIt.get(),
-      usersRepo: _getIt.get(),
-    ));
+    _getIt.registerSingleton<ClubsRepo>(isLocalDataBase
+        ? ClubsRepoLocal(
+            authRepo: _getIt.get(),
+            usersRepo: _getIt.get(),
+          )
+        : ClubsRepoFirebase(
+            firebaseAuth: FirebaseAuth.instance,
+            firestore: FirebaseFirestore.instance,
+          ));
 
     _getIt.registerSingleton<RulesRepo>(RulesLocalRepo(
       _getIt.get(),

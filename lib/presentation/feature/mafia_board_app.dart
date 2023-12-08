@@ -71,7 +71,7 @@ class _MafiaBoardAppState extends State<MafiaBoardApp> {
             return MaterialApp(
               debugShowCheckedModeBanner: false,
               title: 'Mafia board',
-              theme: ThemeData(brightness: Brightness.dark),
+              theme: ThemeData(brightness: Brightness.dark, useMaterial3: true),
               home: state is InitialAppState
                   ? Container()
                   : state.isAuthorized

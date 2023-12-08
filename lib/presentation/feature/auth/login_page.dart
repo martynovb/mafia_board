@@ -49,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
                 listener: (context, AuthState state) {
                   if (state is SuccessAuthState) {
                     Navigator.pushNamedAndRemoveUntil(
-                        context, AppRouter.gamePage, (route) => false);
+                        context, AppRouter.homePage, (route) => false);
                   }
                 },
                 bloc: _authBloc,

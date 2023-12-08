@@ -6,7 +6,7 @@ import 'package:mafia_board/domain/field_validation/validation_error_code.dart';
 import 'package:mafia_board/domain/field_validation/validator.dart';
 
 class EmailFieldValidator extends FieldValidator {
-  static const maxSymbols = 24;
+  static const maxSymbols = 50;
   static const minSymbols = 6;
   final _emailPattern = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
 

@@ -6,6 +6,7 @@ class ClubModel {
   final String id;
   final String title;
   final String description;
+  final String googleSheetLink;
   final List<UserModel> members;
   final List<UserModel> admins;
   final List<UserModel> waitList;
@@ -19,6 +20,7 @@ class ClubModel {
     required this.members,
     required this.admins,
     required this.waitList,
+    required this.googleSheetLink,
     this.games = const [],
     this.isAdmin = false,
   });
@@ -27,6 +29,7 @@ class ClubModel {
       : id = entity.id ?? '',
         title = entity.title ?? '',
         description = entity.description ?? '',
+        googleSheetLink = entity.googleSheetLink ?? '',
         members = entity.members
                 ?.map((user) => UserModel.fromEntity(user))
                 .toList() ??

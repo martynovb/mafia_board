@@ -61,7 +61,7 @@ class HomePageState extends State<HomePage> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: 'Club list',
+            label: 'My clubs',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add),

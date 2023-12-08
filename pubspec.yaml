@@ -11,9 +11,15 @@ dependencies:
   flutter:
     sdk: flutter
 
+  #ui
+  cupertino_icons: ^1.0.2
+  fl_chart: ^0.64.0
+
+  #bloc
   bloc: ^8.1.0
   flutter_bloc: ^8.1.1
-  cupertino_icons: ^1.0.2
+
+  #common
   get_it: ^7.3.0
   rxdart: ^0.27.7
   collection: ^1.16.0
@@ -21,8 +27,12 @@ dependencies:
   http: ^1.1.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  fl_chart: ^0.64.0
   uuid: ^4.1.0
+
+  #firebase
+  cloud_firestore: ^4.13.5
+  firebase_auth: ^4.15.2
+  firebase_core: ^2.24.2
 
 dev_dependencies:
   flutter_test:

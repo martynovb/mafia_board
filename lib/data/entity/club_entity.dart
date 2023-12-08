@@ -4,19 +4,21 @@ class ClubEntity {
   final String? id;
   String? title;
   String? description;
+  String? googleSheetLink;
   final List<UserEntity>? members;
   final List<UserEntity>? admins;
   final List<UserEntity>? waitList;
   String? rulesId;
 
   ClubEntity({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.members,
-    required this.admins,
-    required this.waitList,
+    this.id,
+    this.title,
+    this.description,
+    this.members,
+    this.admins,
+    this.waitList,
     this.rulesId,
+    this.googleSheetLink,
   });
 
   static ClubEntity fromJson(Map<dynamic, dynamic> json) {

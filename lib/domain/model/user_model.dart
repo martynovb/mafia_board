@@ -18,8 +18,8 @@ class UserModel {
 
   UserModel.fromEntity(UserEntity? entity)
       : id = entity?.id ?? '',
-        nickname = entity?.username ?? '',
+        nickname = entity?.nickname ?? '',
         email = entity?.email ?? '';
 
-  UserEntity toEntity() => UserEntity(id: id, username: nickname, email: email);
+  UserEntity toEntity() => UserEntity(id: id, nickname: nickname, email: email);
 }

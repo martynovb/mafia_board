@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/domain/model/user_model.dart';
-import 'package:mafia_board/data/constants.dart';
+import 'package:mafia_board/data/constants/constants.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/manager/game_history_manager.dart';

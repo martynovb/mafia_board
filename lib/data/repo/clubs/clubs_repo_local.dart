@@ -23,12 +23,12 @@ class ClubsRepoLocal extends ClubsRepo {
 
     club.waitList?.add(UserEntity(
       id: const Uuid().v1(),
-      username: 'Flash',
+      nickname: 'Flash',
       email: 'flash@gmail.com',
     ));
     club.waitList?.add(UserEntity(
       id: const Uuid().v1(),
-      username: 'Samorityanka',
+      nickname: 'Samorityanka',
       email: 'samorityanka@gmail.com',
     ));
 
@@ -231,5 +231,10 @@ class ClubsRepoLocal extends ClubsRepo {
       _clubs.add(clubEntity);
     }
     return clubEntity;
+  }
+
+  @override
+  Future<ClubEntity> createClubsGoogleTable({required String name, required String googleSheetLink}) {
+    throw UnimplementedError();
   }
 }

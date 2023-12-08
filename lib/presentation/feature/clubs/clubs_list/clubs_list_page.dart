@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
@@ -33,17 +34,17 @@ class _ClubsPageState extends State<ClubsPage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-            padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
-            child: BlocBuilder(
-                bloc: clubsListBloc,
-                builder: (context, ClubsListState state) {
-                  if (state is AllClubsState) {
-                    return _clubsList(state.clubs);
-                  }
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }));
+        padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
+        child: BlocBuilder(
+            bloc: clubsListBloc,
+            builder: (context, ClubsListState state) {
+              if (state is AllClubsState) {
+                return _clubsList(state.clubs);
+              }
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }));
   }
 
   Widget _clubsList(List<ClubModel> clubs) => ListView.separated(
@@ -56,20 +57,38 @@ class _ClubsPageState extends State<ClubsPage> {
       );
 
   Widget _clubItem(int index, ClubModel club) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(
-          context,
-          AppRouter.clubDetailsPage,
-          arguments: {'clubId': club.id},
-        );
-      },
-      child: Column(
-        children: [
-          Text(club.title),
-          Text(club.description),
-        ],
-      ),
+    return Row(
+      children: [
+        const SizedBox(
+          width: Dimensions.defaultSidePadding,
+        ),
+        Text(
+          club.title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const Spacer(),
+        IconButton(
+          onPressed: () {},
+          icon: const Icon(Icons.open_in_new),
+        ),
+        const SizedBox(
+          width: Dimensions.defaultSidePadding,
+        ),
+        IconButton(
+          onPressed: () {
+            Clipboard.setData(ClipboardData(text: club.googleSheetLink));
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Copied')),
+            );
+          },
+          icon: const Icon(Icons.copy),
+        ),
+        const SizedBox(
+          width: Dimensions.defaultSidePadding,
+        ),
+      ],
     );
   }
 }

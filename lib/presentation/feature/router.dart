@@ -8,6 +8,7 @@ import 'package:mafia_board/presentation/feature/clubs/create_club/create_club_p
 import 'package:mafia_board/presentation/feature/game/game_page.dart';
 import 'package:mafia_board/presentation/feature/game/game_result/game_results_page.dart';
 import 'package:mafia_board/presentation/feature/game/rules/rules_page.dart';
+import 'package:mafia_board/presentation/feature/home/home_page.dart';
 import 'package:mafia_board/presentation/feature/settings/settings_page.dart';
 
 class AppRouter {
@@ -23,6 +24,7 @@ class AppRouter {
   static const gameRulesPage = '/gameRules';
   static const gameResultsPage = '/gameResults';
   static const createClubPage = '/createClub';
+  static const homePage = '/home';
 
   static final Map<String, WidgetBuilder> routes = {
     gamePage: (context) => const GamePage(),
@@ -35,5 +37,6 @@ class AppRouter {
     gameRulesPage: (context) => const RulesPage(),
     gameResultsPage: (context) => const GameResultsPage(),
     createClubPage: (context) => const CreateClubPage(),
+    homePage: (context) => const HomePage(),
   };
 }

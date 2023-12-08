@@ -49,7 +49,10 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
               listener: (context, AuthState state) {
                 if (state is SuccessAuthState) {
                   Navigator.pushNamedAndRemoveUntil(
-                      context, AppRouter.gamePage, (route) => false);
+                    context,
+                    AppRouter.homePage,
+                    (route) => false,
+                  );
                 }
               },
               builder: (context, AuthState state) {

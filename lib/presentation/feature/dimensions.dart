@@ -1,4 +1,4 @@
-import 'package:mafia_board/data/constants.dart';
+import 'package:mafia_board/data/constants/constants.dart';
 
 class Dimensions {
   static const double dividerHeight = 1;

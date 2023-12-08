@@ -1,9 +1,9 @@
 class CreateClubEvent {
   final String name;
-  final String description;
+  final String googleSheetId;
 
   CreateClubEvent({
     required this.name,
-    required this.description,
+    required this.googleSheetId,
   });
 }

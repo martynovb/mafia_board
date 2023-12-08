@@ -17,7 +17,7 @@ class CreateClubPage extends StatefulWidget {
 
 class _CreateClubPageState extends State<CreateClubPage> {
   final _clubNameController = TextEditingController();
-  final _clubDescriptionController = TextEditingController();
+  final _clubGoogleSheetIdController = TextEditingController();
 
   late CreateClubBloc _createClubBloc;
 
@@ -35,11 +35,12 @@ class _CreateClubPageState extends State<CreateClubPage> {
           bloc: _createClubBloc,
           listener: (context, state) {
             if (state is ClubCreatedState) {
-              Navigator.pushReplacementNamed(
+              Navigator.pop(context);
+/*              Navigator.pushReplacementNamed(
                 context,
                 AppRouter.gameRulesPage,
                 arguments: {'clubId': state.clubId},
-              );
+              );*/
             }
           },
           child: Padding(
@@ -77,7 +78,7 @@ class _CreateClubPageState extends State<CreateClubPage> {
                     padding:
                         EdgeInsets.only(bottom: Dimensions.sidePadding0_5x),
                     child: Text(
-                      'Description',
+                      'Google sheet link',
                       style: TextStyle(
                           fontSize: 14,
                           color: Colors.white,
@@ -87,7 +88,7 @@ class _CreateClubPageState extends State<CreateClubPage> {
                 ),
                 InputTextField(
                   height: 70,
-                  controller: _clubDescriptionController,
+                  controller: _clubGoogleSheetIdController,
                 ),
                 const SizedBox(height: Dimensions.defaultSidePadding),
 
@@ -98,7 +99,7 @@ class _CreateClubPageState extends State<CreateClubPage> {
                     child: ElevatedButton(
                       onPressed: () => _createClubBloc.add(CreateClubEvent(
                         name: _clubNameController.text.trim(),
-                        description: _clubDescriptionController.text.trim(),
+                        googleSheetId: _clubGoogleSheetIdController.text.trim(),
                       )),
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(Colors.red),

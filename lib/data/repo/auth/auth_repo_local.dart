@@ -7,7 +7,7 @@ class AuthRepoLocal extends AuthRepo {
   bool _isAuthorized = true;
 
   final UserEntity currentUser = UserEntity(
-      id: const Uuid().v1(), username: 'Magic', email: 'magic@gmail.com');
+      id: const Uuid().v1(), nickname: 'Magic', email: 'magic@gmail.com');
 
   AuthRepoLocal();
 

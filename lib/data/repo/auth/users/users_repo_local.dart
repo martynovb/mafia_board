@@ -25,52 +25,52 @@ class UsersRepoLocal extends UsersRepo {
   final List<UserEntity> _users = [
     UserEntity(
       id: const Uuid().v1(),
-      username: 'Doc',
+      nickname: 'Doc',
       email: 'doc@gmail.com',
     ),
     UserEntity(
       id: const Uuid().v1(),
-      username: 'Veritas',
+      nickname: 'Veritas',
       email: 'veritas@gmail.com',
     ),
     UserEntity(
       id: const Uuid().v1(),
-      username: 'Kolpak',
+      nickname: 'Kolpak',
       email: 'kolpak@gmail.com',
     ),
     UserEntity(
       id: const Uuid().v1(),
-      username: 'Masyanya',
+      nickname: 'Masyanya',
       email: 'masyanya@gmail.com',
     ),
     UserEntity(
       id: const Uuid().v1(),
-      username: 'L',
+      nickname: 'L',
       email: 'l@gmail.com',
     ),
     UserEntity(
       id: const Uuid().v1(),
-      username: 'Diavolonok',
+      nickname: 'Diavolonok',
       email: 'diavolonok@gmail.com',
     ),
     UserEntity(
       id: const Uuid().v1(),
-      username: 'Sifer',
+      nickname: 'Sifer',
       email: 'sifer@gmail.com',
     ),
     UserEntity(
       id: const Uuid().v1(),
-      username: 'Greshnik',
+      nickname: 'Greshnik',
       email: 'greshnik@gmail.com',
     ),
     UserEntity(
       id: const Uuid().v1(),
-      username: 'Lastochka',
+      nickname: 'Lastochka',
       email: 'lastochka@gmail.com',
     ),
     UserEntity(
       id: const Uuid().v1(),
-      username: 'F1boy',
+      nickname: 'F1boy',
       email: 'f1boy@gmail.com',
     ),
   ];

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:mafia_board/data/constants.dart';
+import 'package:mafia_board/data/constants/constants.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/domain/model/game_info_model.dart';
 import 'package:mafia_board/domain/model/game_model.dart';

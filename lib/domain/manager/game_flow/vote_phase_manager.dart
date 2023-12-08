@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:mafia_board/data/constants.dart';
+import 'package:mafia_board/data/constants/constants.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';

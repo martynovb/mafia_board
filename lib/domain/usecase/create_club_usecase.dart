@@ -15,9 +15,9 @@ class CreateClubUseCase extends BaseUseCase<ClubModel, CreateClubParams> {
   @override
   Future<ClubModel> execute({CreateClubParams? params}) async {
     final me = await authRepo.me();
-    final clubEntity = await clubsRepo.createClub(
+    final clubEntity = await clubsRepo.createClubsGoogleTable(
       name: params!.name,
-      description: params.description,
+      googleSheetLink: params.googleSheetId,
     );
     return ClubModel.fromEntity(
       clubEntity,
@@ -28,10 +28,10 @@ class CreateClubUseCase extends BaseUseCase<ClubModel, CreateClubParams> {
 
 class CreateClubParams {
   final String name;
-  final String description;
+  final String googleSheetId;
 
   CreateClubParams({
     required this.name,
-    required this.description,
+    required this.googleSheetId,
   });
 }
