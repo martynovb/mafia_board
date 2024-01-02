@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mafia_board/data/api/auth_api.dart';
 import 'package:mafia_board/data/api/base_url_provider.dart';
 import 'package:mafia_board/data/api/error_handler.dart';
@@ -114,6 +115,12 @@ class Injector {
           : AutRepoFirebase(
               firebaseAuth: FirebaseAuth.instance,
               firestore: FirebaseFirestore.instance,
+              googleSignIn: GoogleSignIn(
+                  clientId:
+                      '594061159084-kra99r4bm8nsu603vkr3bfk2hlcm7jaf.apps.googleusercontent.com',
+                  scopes: [
+                    'email',
+                  ]),
             ),
     );
 

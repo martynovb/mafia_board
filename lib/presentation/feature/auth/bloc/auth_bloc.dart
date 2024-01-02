@@ -29,6 +29,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RegistrationAuthEvent>(_registrationEventHandler);
     on<MeAuthEvent>(_meEventHandler);
     on<ClearAuthEvent>(_clearEventHandler);
+    on<GoogleLoginAuthEvent>(_authorizeWithGoogleEventHandler);
   }
 
   Future<void> _loginEventHandler(LoginAuthEvent event, emit) async {
@@ -44,6 +45,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(ErrorAuthState('Network error'));
     } catch (ex) {
       emit(ErrorAuthState('Something went wrong'));
+    }
+  }
+
+  Future<void> _authorizeWithGoogleEventHandler(event, emit) async {
+    try {
+      await authRepo.registerUserWithGoogle();
+      emit(SuccessAuthState());
+    } catch (ex) {
+      emit(ErrorAuthState('Something went wrong: $ex'));
     }
   }
 

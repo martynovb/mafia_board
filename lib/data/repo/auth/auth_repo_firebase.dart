@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mafia_board/data/api/error_handler.dart';
 import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/data/entity/user_entity.dart';
@@ -8,10 +9,12 @@ import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 class AutRepoFirebase extends AuthRepo {
   final FirebaseAuth firebaseAuth;
   final FirebaseFirestore firestore;
+  final GoogleSignIn googleSignIn;
 
   AutRepoFirebase({
     required this.firebaseAuth,
     required this.firestore,
+    required this.googleSignIn,
   });
 
   @override
@@ -73,11 +76,6 @@ class AutRepoFirebase extends AuthRepo {
       FirestoreKeys.emailFieldKey: email,
     });
 
-    await firestore
-        .collection(FirestoreKeys.nicknamesCollectionKey)
-        .doc(nickname)
-        .set({});
-
     return UserEntity(
       id: userCredential.user?.uid,
       nickname: nickname,
@@ -91,5 +89,38 @@ class AutRepoFirebase extends AuthRepo {
         .where(FirestoreKeys.nicknameFieldKey, isEqualTo: nickname)
         .get();
     return snapshot.size == 0;
+  }
+
+  @override
+  Future<UserEntity> registerUserWithGoogle() async {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    if (googleUser == null) {
+      throw InvalidCredentialsException('Google error');
+    }
+
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
+
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final userCredential = await firebaseAuth.signInWithCredential(credential);
+
+    await firestore
+        .collection(FirestoreKeys.usersCollectionKey)
+        .doc(userCredential.user?.uid)
+        .set({
+      FirestoreKeys.nicknameFieldKey: userCredential.user?.email,
+      FirestoreKeys.emailFieldKey: null,
+    });
+
+    return UserEntity(
+      id: userCredential.user?.uid,
+      nickname: null,
+      email: userCredential.user?.email,
+    );
   }
 }

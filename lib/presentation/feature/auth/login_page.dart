@@ -156,6 +156,21 @@ class _LoginPageState extends State<LoginPage> {
                                     fontSize: 14, fontWeight: FontWeight.bold)),
                           )),
                       const SizedBox(height: Dimensions.defaultSidePadding),
+                      // Sign in button
+                      SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: () => _authBloc.add(GoogleLoginAuthEvent()),
+                            style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.red),
+                            ),
+                            child: const Text('Sign in with Google',
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold)),
+                          )),
+                      const SizedBox(height: Dimensions.defaultSidePadding),
 
                       // Don't have an account? Create an account
                       Row(

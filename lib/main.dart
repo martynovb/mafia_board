@@ -11,11 +11,11 @@ void main() async {
   await TokenProvider().openBox();
   await Firebase.initializeApp(
       options: const FirebaseOptions(
-    apiKey: 'AIzaSyBxLwoighrVb1r31lfZVJKhif0j8EoRo4k',
-    appId: '1:594061159084:web:6549c1cd91afb2e9c14d09',
-    messagingSenderId: '',
-    projectId: 'mafia-board-app',
-  ));
+          apiKey: 'AIzaSyBxLwoighrVb1r31lfZVJKhif0j8EoRo4k',
+          appId: '1:594061159084:web:6549c1cd91afb2e9c14d09',
+          messagingSenderId: '',
+          projectId: 'mafia-board-app',
+      ));
   Injector.inject();
   runApp(const MafiaBoardApp());
 }

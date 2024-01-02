@@ -40,4 +40,10 @@ class AuthRepoLocal extends AuthRepo {
     _isAuthorized = true;
     return currentUser;
   }
+
+  @override
+  Future<UserEntity> registerUserWithGoogle() async {
+    _isAuthorized = true;
+    return currentUser;
+  }
 }

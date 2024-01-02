@@ -46,4 +46,9 @@ class AuthRepoRemote extends AuthRepo {
 
   @override
   Future<UserEntity> me() async => await api.me();
+
+  @override
+  Future<UserEntity> registerUserWithGoogle() {
+    throw UnimplementedError();
+  }
 }
