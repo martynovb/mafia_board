@@ -1,14 +1,16 @@
+import 'package:mafia_board/domain/model/club_model.dart';
+
 abstract class RulesEvent {}
 
 class LoadRulesEvent extends RulesEvent {
-  final String clubId;
+  final ClubModel club;
 
-  LoadRulesEvent(this.clubId);
+  LoadRulesEvent(this.club);
 }
 
 class CreateOrUpdateRulesEvent extends RulesEvent {
   final String? id;
-  final String clubId;
+  final ClubModel club;
 
   final double civilWin;
   final double mafWin;
@@ -23,7 +25,7 @@ class CreateOrUpdateRulesEvent extends RulesEvent {
 
   CreateOrUpdateRulesEvent({
     this.id,
-    required this.clubId,
+    required this.club,
     required this.civilWin,
     required this.mafWin,
     required this.civilLoss,

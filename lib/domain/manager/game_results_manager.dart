@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/domain/model/game_results_model.dart';
@@ -27,12 +28,12 @@ class GameResultsManager {
     required this.nightGamePhaseRepo,
   });
 
-  Future<GameResultsModel> getPlayersResults({required String clubId}) async {
+  Future<GameResultsModel> getPlayersResults({required ClubModel club}) async {
     WinnerType winnerIfPPK = _getWinnerIfPPK();
     WinnerType winner =
         winnerIfPPK == WinnerType.none ? _getWinner() : winnerIfPPK;
 
-    RulesModel clubRules = (await getRulesUseCase.execute(params: clubId)) ?? RulesModel.empty();
+    RulesModel clubRules = (await getRulesUseCase.execute(params: club)) ?? RulesModel.empty();
     final allPlayers = playersRepo.getAllPlayers();
     SpeakPhaseAction? speakPhaseWithBestMove = speakGamePhaseRepo
         .getAllPhases()
@@ -83,7 +84,7 @@ class GameResultsManager {
     }
 
     return GameResultsModel(
-      clubId: clubId,
+      club: club,
       winnerType: winner,
       scoreList: scoreList.sorted((a, b) => b.total().compareTo(a.total())),
     );

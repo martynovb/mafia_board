@@ -11,6 +11,8 @@ class FirestoreKeys {
 
   /// CLUBS
   static const clubTitleFieldKey = 'club_title';
+  static const clubDescriptionFieldKey = 'club_description';
   static const clubGoogleSheetIdFieldKey = 'club_google_sheet_id';
   static const clubMembersIdsFieldKey = 'club_members_ids';
+  static const clubAdminsIdsFieldKey = 'club_admins_ids';
 }

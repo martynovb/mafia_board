@@ -6,12 +6,12 @@ import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/data/entity/user_entity.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 
-class AutRepoFirebase extends AuthRepo {
+class AuthRepoFirebase extends AuthRepo {
   final FirebaseAuth firebaseAuth;
   final FirebaseFirestore firestore;
   final GoogleSignIn googleSignIn;
 
-  AutRepoFirebase({
+  AuthRepoFirebase({
     required this.firebaseAuth,
     required this.firestore,
     required this.googleSignIn,
@@ -60,7 +60,7 @@ class AutRepoFirebase extends AuthRepo {
     required String password,
   }) async {
     if (!(await isNicknameAvailable(nickname))) {
-      throw InvalidCredentialsException('Nickname is taken');
+      throw ValidationException('Nickname is taken');
     }
 
     final userCredential = await firebaseAuth.createUserWithEmailAndPassword(
@@ -92,7 +92,7 @@ class AutRepoFirebase extends AuthRepo {
   }
 
   @override
-  Future<UserEntity> registerUserWithGoogle() async {
+  Future<UserEntity> authUserWithGoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
     if (googleUser == null) {
@@ -109,18 +109,53 @@ class AutRepoFirebase extends AuthRepo {
 
     final userCredential = await firebaseAuth.signInWithCredential(credential);
 
-    await firestore
+    final user = userCredential.user;
+
+    if (user == null) {
+      throw InvalidCredentialsException('Failed to authenticate with Firebase');
+    }
+
+    // Check if the user already exists in Firestore
+    final userDoc = await firestore
         .collection(FirestoreKeys.usersCollectionKey)
-        .doc(userCredential.user?.uid)
-        .set({
-      FirestoreKeys.nicknameFieldKey: userCredential.user?.email,
-      FirestoreKeys.emailFieldKey: null,
-    });
+        .doc(user.uid)
+        .get();
+
+    if (!userDoc.exists) {
+      await firestore
+          .collection(FirestoreKeys.usersCollectionKey)
+          .doc(userCredential.user?.uid)
+          .set({
+        FirestoreKeys.nicknameFieldKey: userCredential.user?.email,
+        FirestoreKeys.emailFieldKey: userCredential.user?.email,
+      });
+    }
 
     return UserEntity(
       id: userCredential.user?.uid,
       nickname: null,
       email: userCredential.user?.email,
     );
+  }
+
+  @override
+  Future<UserEntity> changeNickname({required String nickname}) async {
+    if (!(await isNicknameAvailable(nickname))) {
+      throw ValidationException('Nickname is taken');
+    }
+
+    final id = firebaseAuth.currentUser?.uid;
+
+    if (id == null) {
+      throw InvalidCredentialsException('Unauthorized');
+    }
+
+    await firestore.collection(FirestoreKeys.usersCollectionKey).doc(id).update(
+      {
+        FirestoreKeys.nicknameFieldKey: nickname,
+      },
+    );
+
+    return me();
   }
 }

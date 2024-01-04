@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mafia_board/presentation/feature/dimensions.dart';
 
 class InfoField extends StatelessWidget {
   final String message;
@@ -14,7 +15,7 @@ class InfoField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         width: double.infinity,
-        height: 40,
+        height: Dimensions.infoFieldHeight,
         decoration: BoxDecoration(
           color: _mapInfoTypeToColor(infoFieldType).withOpacity(0.2),
           borderRadius: BorderRadius.circular(3.0),
@@ -27,10 +28,9 @@ class InfoField extends StatelessWidget {
           child: Text(
             message,
             style: TextStyle(
-              color: _mapInfoTypeToColor(infoFieldType).shade400,
-              fontSize: 14.0,
-              fontWeight: FontWeight.bold
-            ),
+                color: _mapInfoTypeToColor(infoFieldType).shade400,
+                fontSize: 14.0,
+                fontWeight: FontWeight.bold),
           ),
         ));
   }

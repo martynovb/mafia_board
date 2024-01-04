@@ -21,10 +21,10 @@ class CreateClubBloc extends Bloc<CreateClubEvent, CreateClubState> {
       final club = await createClubUseCase.execute(
         params: CreateClubParams(
           name: event.name,
-          googleSheetId: event.googleSheetId,
+          clubDescription: event.clubDescription,
         ),
       );
-      emit(ClubCreatedState(club.id));
+      emit(ClubCreatedState(club));
     } catch (e) {
       emit(ErrorClubState('Something went wrong'));
     }

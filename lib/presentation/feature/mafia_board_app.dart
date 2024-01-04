@@ -22,6 +22,7 @@ import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/ro
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_bloc.dart';
 import 'package:mafia_board/presentation/feature/home/home_page.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
+import 'package:mafia_board/presentation/feature/settings/bloc/user_bloc.dart';
 
 class MafiaBoardApp extends StatefulWidget {
   const MafiaBoardApp({Key? key}) : super(key: key);
@@ -49,6 +50,7 @@ class _MafiaBoardAppState extends State<MafiaBoardApp> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
         providers: [
+          BlocProvider(create: (context) => GetIt.instance<UserBloc>()),
           BlocProvider(create: (context) => GetIt.instance<PlayersSheetBloc>()),
           BlocProvider(create: (context) => GetIt.instance<RoleBloc>()),
           BlocProvider(create: (context) => GetIt.instance<GameBloc>()),

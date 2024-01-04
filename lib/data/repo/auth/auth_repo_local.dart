@@ -42,8 +42,14 @@ class AuthRepoLocal extends AuthRepo {
   }
 
   @override
-  Future<UserEntity> registerUserWithGoogle() async {
+  Future<UserEntity> authUserWithGoogle() async {
     _isAuthorized = true;
     return currentUser;
+  }
+
+  @override
+  Future<UserEntity> changeNickname({required String nickname}) {
+    // TODO: implement changeNickname
+    throw UnimplementedError();
   }
 }

@@ -7,29 +7,21 @@ class ClubModel {
   final String title;
   final String description;
   final String googleSheetLink;
+  final String googleSheetId;
   final List<UserModel> members;
   final List<UserModel> admins;
   final List<UserModel> waitList;
   bool isAdmin = false;
   List<GameModel> games = [];
 
-  ClubModel({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.members,
-    required this.admins,
-    required this.waitList,
-    required this.googleSheetLink,
-    this.games = const [],
-    this.isAdmin = false,
-  });
-
   ClubModel.fromEntity(ClubEntity entity, [this.isAdmin = false])
       : id = entity.id ?? '',
         title = entity.title ?? '',
         description = entity.description ?? '',
-        googleSheetLink = entity.googleSheetLink ?? '',
+        googleSheetId = entity.googleSheetId ?? '',
+        googleSheetLink = entity.googleSheetId != null
+            ? 'https://docs.google.com/spreadsheets/d/${entity.googleSheetId}'
+            : '',
         members = entity.members
                 ?.map((user) => UserModel.fromEntity(user))
                 .toList() ??

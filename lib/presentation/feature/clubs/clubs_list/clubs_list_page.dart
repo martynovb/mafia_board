@@ -8,6 +8,7 @@ import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_blo
 import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_state.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ClubsPage extends StatefulWidget {
   const ClubsPage({Key? key}) : super(key: key);
@@ -69,8 +70,25 @@ class _ClubsPageState extends State<ClubsPage> {
           ),
         ),
         const Spacer(),
+        if (club.isAdmin) ...[
+          IconButton(
+            onPressed: () async {
+              Navigator.pushNamed(
+                context,
+                AppRouter.gamePage,
+                arguments: {'club': club},
+              );
+            },
+            icon: const Icon(Icons.play_arrow_sharp),
+          ),
+          const SizedBox(
+            width: Dimensions.defaultSidePadding,
+          ),
+        ],
         IconButton(
-          onPressed: () {},
+          onPressed: () async {
+            await launchUrl(Uri.parse(club.googleSheetLink));
+          },
           icon: const Icon(Icons.open_in_new),
         ),
         const SizedBox(

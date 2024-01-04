@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/game_results_model.dart';
-import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/player_score_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
@@ -22,7 +22,7 @@ class GameResultsPage extends StatefulWidget {
 class _GameResultsPageState extends State<GameResultsPage> {
   GameResultsModel? gameResultsModel;
   late GameResultsBloc gameResultsBloc;
-  late String clubId;
+  late ClubModel club;
 
   final int _voteColumnFlex = 0;
   final int _nicknameColumnFlex = 5;
@@ -40,8 +40,8 @@ class _GameResultsPageState extends State<GameResultsPage> {
     super.didChangeDependencies();
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    clubId = args?['clubId'] ?? '';
-    gameResultsBloc.add(CalculateResultsEvent(clubId));
+    club = args?['club'] ?? '';
+    gameResultsBloc.add(CalculateResultsEvent(club));
   }
 
   @override

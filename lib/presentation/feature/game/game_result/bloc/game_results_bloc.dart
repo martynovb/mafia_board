@@ -31,7 +31,7 @@ class GameResultsBloc extends Bloc<GameResultsEvent, GameResultsState> {
     emit,
   ) async {
     GameResultsModel results = await gameResultsManager.getPlayersResults(
-      clubId: event.clubId,
+      club: event.club,
     );
     emit(ShowGameResultsState(results));
   }

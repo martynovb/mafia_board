@@ -50,7 +50,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _authorizeWithGoogleEventHandler(event, emit) async {
     try {
-      await authRepo.registerUserWithGoogle();
+      await authRepo.authUserWithGoogle();
       emit(SuccessAuthState());
     } catch (ex) {
       emit(ErrorAuthState('Something went wrong: $ex'));

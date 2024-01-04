@@ -1,8 +1,7 @@
 import 'package:mafia_board/data/entity/user_entity.dart';
 
 abstract class AuthRepo {
-
-  Future<UserEntity> registerUserWithGoogle();
+  Future<UserEntity> authUserWithGoogle();
 
   Future<UserEntity> registerUser({
     required String email,
@@ -20,4 +19,8 @@ abstract class AuthRepo {
   Future<void> logout();
 
   Future<UserEntity> me();
+
+  Future<UserEntity> changeNickname({
+    required String nickname,
+  });
 }

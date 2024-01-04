@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
@@ -20,14 +21,14 @@ import 'package:mafia_board/presentation/feature/widgets/dialogs.dart';
 import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 
 class PlayersSheetPage extends StatefulWidget {
-  final String clubId;
+  final ClubModel club;
   final Function()? nextPage;
   final Function(PlayerModel playerModel) onPPKGameFinished;
 
   const PlayersSheetPage({
     super.key,
     this.nextPage,
-    required this.clubId,
+    required this.club,
     required this.onPPKGameFinished,
   });
 
@@ -374,7 +375,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
 
   Widget _startGameButton() => GestureDetector(
       onTap: () {
-        _gameBloc.add(StartGameEvent(widget.clubId));
+        _gameBloc.add(StartGameEvent(widget.club.id));
         widget.nextPage!();
       },
       child: const Text(

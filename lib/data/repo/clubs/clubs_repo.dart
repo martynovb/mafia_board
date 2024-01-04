@@ -2,9 +2,9 @@ import 'package:mafia_board/data/entity/club_entity.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
 
 abstract class ClubsRepo {
-  Future<ClubEntity> createClubsGoogleTable({
+  Future<ClubEntity> createClubWithGoogleTable({
     required String name,
-    required String googleSheetLink,
+    required String clubDescription,
   });
 
   Future<ClubEntity> createClub({

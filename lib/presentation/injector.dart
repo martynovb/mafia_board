@@ -2,13 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:mafia_board/data/api/auth_api.dart';
-import 'package:mafia_board/data/api/base_url_provider.dart';
 import 'package:mafia_board/data/api/error_handler.dart';
-import 'package:mafia_board/data/api/http_client.dart';
-import 'package:mafia_board/data/api/network_manager.dart';
-import 'package:mafia_board/data/api/token_provider.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo_firebase.dart';
+import 'package:mafia_board/data/repo/auth/users/users_repo_firebase.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo_firebase.dart';
 import 'package:mafia_board/data/repo/rules/rules_local_repo.dart';
 import 'package:mafia_board/data/repo/rules/rules_repo.dart';
@@ -18,7 +14,6 @@ import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo_local.dart';
-import 'package:mafia_board/data/repo/auth/auth_repo_remote.dart';
 import 'package:mafia_board/data/repo/auth/users/users_repo.dart';
 import 'package:mafia_board/data/repo/auth/users/users_repo_local.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
@@ -43,8 +38,10 @@ import 'package:mafia_board/domain/manager/game_flow/night_phase_manager.dart';
 import 'package:mafia_board/domain/manager/game_flow/speaking_phase_manager.dart';
 import 'package:mafia_board/domain/manager/game_flow/vote_phase_manager.dart';
 import 'package:mafia_board/domain/manager/player_manager.dart';
+import 'package:mafia_board/domain/usecase/change_nickname_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_club_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_rules_usecase.dart';
+import 'package:mafia_board/domain/usecase/get_user_data_usecase.dart';
 import 'package:mafia_board/domain/usecase/save_game_results_usecase.dart';
 import 'package:mafia_board/domain/validator/player_validator.dart';
 import 'package:mafia_board/domain/manager/role_manager.dart';
@@ -75,6 +72,7 @@ import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote
 import 'package:mafia_board/presentation/feature/game/players_sheet/players_sheet_bloc/players_sheet_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/role_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_bloc.dart';
+import 'package:mafia_board/presentation/feature/settings/bloc/user_bloc.dart';
 
 class Injector {
   static final _getIt = GetIt.instance;
@@ -91,36 +89,25 @@ class Injector {
 
   static void _injectDataLayer(bool isLocalDataBase) {
     //network
-    _getIt.registerSingleton<BaseUrlProvider>(LocalBaseUrlProvider());
-    _getIt.registerSingleton<TokenProvider>(TokenProvider());
-    _getIt.registerSingleton<ErrorHandler>(ErrorHandler(
-      tokenProvider: _getIt.get(),
-    ));
-    _getIt.registerSingleton<HttpClient>(HttpClient(
-      tokenProvider: _getIt.get(),
-      baseUrlProvider: _getIt.get(),
-    ));
+    _getIt.registerSingleton<ErrorHandler>(ErrorHandler());
 
-    _getIt.registerSingleton<NetworkManager>(NetworkManager(
-      httpClient: _getIt.get(),
-      errorHandler: _getIt.get(),
-    ));
-
-    _getIt.registerSingleton<AuthApi>(AuthApi(_getIt.get()));
+    _getIt.registerSingleton(GoogleSignIn(
+        clientId:
+            '594061159084-kra99r4bm8nsu603vkr3bfk2hlcm7jaf.apps.googleusercontent.com',
+        scopes: [
+          'email',
+          'https://www.googleapis.com/auth/spreadsheets',
+          'https://www.googleapis.com/auth/drive'
+        ]));
 
     //repo
     _getIt.registerSingleton<AuthRepo>(
       isLocalDataBase
           ? AuthRepoLocal()
-          : AutRepoFirebase(
+          : AuthRepoFirebase(
               firebaseAuth: FirebaseAuth.instance,
               firestore: FirebaseFirestore.instance,
-              googleSignIn: GoogleSignIn(
-                  clientId:
-                      '594061159084-kra99r4bm8nsu603vkr3bfk2hlcm7jaf.apps.googleusercontent.com',
-                  scopes: [
-                    'email',
-                  ]),
+              googleSignIn: _getIt.get(),
             ),
     );
 
@@ -145,16 +132,22 @@ class Injector {
     _getIt.registerSingleton(PlayerValidator());
     _getIt
         .registerSingleton<GameRepo>(GameRepoLocal(playersRepo: _getIt.get()));
-    _getIt.registerSingleton<UsersRepo>(UsersRepoLocal(authRepo: _getIt.get()));
-    _getIt.registerSingleton<ClubsRepo>(isLocalDataBase
-        ? ClubsRepoLocal(
-            authRepo: _getIt.get(),
-            usersRepo: _getIt.get(),
-          )
-        : ClubsRepoFirebase(
-            firebaseAuth: FirebaseAuth.instance,
-            firestore: FirebaseFirestore.instance,
-          ));
+    _getIt.registerSingleton<UsersRepo>(UsersRepoFirebase(
+      firestore: FirebaseFirestore.instance,
+    ));
+    _getIt.registerSingleton<ClubsRepo>(
+      isLocalDataBase
+          ? ClubsRepoLocal(
+              authRepo: _getIt.get(),
+              usersRepo: _getIt.get(),
+            )
+          : ClubsRepoFirebase(
+              firebaseAuth: FirebaseAuth.instance,
+              firestore: FirebaseFirestore.instance,
+              googleSignIn: _getIt.get(),
+              usersRepo: _getIt.get(),
+            ),
+    );
 
     _getIt.registerSingleton<RulesRepo>(RulesLocalRepo(
       _getIt.get(),
@@ -163,6 +156,9 @@ class Injector {
 
   static void _injectDomainLayer() {
     //usecase
+    _getIt.registerSingleton<ChangeNicknameUseCase>(
+      ChangeNicknameUseCase(authRepo: _getIt.get()),
+    );
     _getIt.registerSingleton<CreateRulesUseCase>(
       CreateRulesUseCase(rulesRepo: _getIt.get()),
     );
@@ -194,13 +190,19 @@ class Injector {
       CreateDayInfoUseCase(_getIt.get()),
     );
     _getIt.registerSingleton<GetAllClubsUseCase>(
-      GetAllClubsUseCase(clubsRepo: _getIt.get()),
+      GetAllClubsUseCase(
+        clubsRepo: _getIt.get(),
+        authRepo: _getIt.get(),
+      ),
     );
     _getIt.registerSingleton<GetClubDetailsUseCase>(
       GetClubDetailsUseCase(authRepo: _getIt.get(), clubsRepo: _getIt.get()),
     );
     _getIt.registerSingleton<GetRulesUseCase>(
       GetRulesUseCase(rulesRepo: _getIt.get()),
+    );
+    _getIt.registerSingleton<GetUserDataUseCase>(
+      GetUserDataUseCase(authRepo: _getIt.get()),
     );
     _getIt.registerSingleton<UpdateRulesUseCase>(
       UpdateRulesUseCase(rulesRepo: _getIt.get()),
@@ -305,6 +307,12 @@ class Injector {
   }
 
   static void _injectBloC() {
+    _getIt.registerSingleton(
+      UserBloc(
+          getUserDataUseCase: _getIt.get(),
+          changeNicknameUseCase: _getIt.get()),
+    );
+
     _getIt.registerSingleton(
       GameBloc(
         votePhaseManager: _getIt.get(),

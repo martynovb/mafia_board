@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
@@ -23,7 +24,7 @@ class GamePage extends StatefulWidget {
 class _GamePageState extends State<GamePage>
     with SingleTickerProviderStateMixin {
   late TabController _pageController;
-  late String clubId;
+  late ClubModel club;
   late List<Widget> _tabList;
   late GameBloc gameBloc;
   bool _isGameStarted = false;
@@ -38,12 +39,12 @@ class _GamePageState extends State<GamePage>
   void didChangeDependencies() {
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    clubId = args?['clubId'] ?? '';
+    club = args?['club'] ?? '';
 
     _pageController = TabController(initialIndex: 0, vsync: this, length: 3);
     _tabList = [
       PlayersSheetPage(
-          clubId: clubId,
+          club: club,
           onPPKGameFinished: _showFinishConfirmationPPKDialog,
           nextPage: () {
             if (_pageController.index < 2) {
@@ -75,7 +76,7 @@ class _GamePageState extends State<GamePage>
                 Navigator.pushNamed(
                   context,
                   AppRouter.gameResultsPage,
-                  arguments: {'clubId': clubId},
+                  arguments: {'club': club},
                 );
               } else if (state is GamePhaseState) {
                 _isGameStarted =
@@ -111,7 +112,7 @@ class _GamePageState extends State<GamePage>
               onPressed: () => Navigator.pushNamed(
                     context,
                     AppRouter.gameRulesPage,
-                    arguments: {'clubId': clubId},
+                    arguments: {'club': club},
                   ),
               icon: const Icon(Icons.settings))
         ],
@@ -153,7 +154,7 @@ class _GamePageState extends State<GamePage>
             Navigator.of(context).pop();
             Navigator.of(context).pushNamed(
               AppRouter.gameResultsPage,
-              arguments: {'clubId': clubId},
+              arguments: {'club': club},
             );
           },
         ),

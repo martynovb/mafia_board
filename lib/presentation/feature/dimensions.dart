@@ -20,4 +20,5 @@ class Dimensions {
   static const double foulsViewWidth = foulItemWidth * Constants.maxFouls;
   static const double inputTextHeight = 40;
   static const double inputTextRuleWidth = 60;
+  static const double infoFieldHeight  = 40;
 }

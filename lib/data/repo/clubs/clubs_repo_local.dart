@@ -234,7 +234,7 @@ class ClubsRepoLocal extends ClubsRepo {
   }
 
   @override
-  Future<ClubEntity> createClubsGoogleTable({required String name, required String googleSheetLink}) {
+  Future<ClubEntity> createClubWithGoogleTable({required String name, required String clubDescription}) {
     throw UnimplementedError();
   }
 }

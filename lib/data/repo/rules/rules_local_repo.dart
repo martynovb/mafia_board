@@ -3,6 +3,7 @@ import 'package:mafia_board/data/entity/club_entity.dart';
 import 'package:mafia_board/data/entity/rules_entity.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
 import 'package:mafia_board/data/repo/rules/rules_repo.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:uuid/uuid.dart';
 
 class RulesLocalRepo extends RulesRepo {
@@ -32,13 +33,13 @@ class RulesLocalRepo extends RulesRepo {
       );
       clubsRules.add(rules);
       club.rulesId = rules.id;
-      await clubsRepo.setClub(clubEntity: club);
+      //await clubsRepo.setClub(clubEntity: club);
     }
   }
 
   @override
-  Future<RulesEntity?> getClubRules(String clubId) async {
-    final club = await clubsRepo.getClubDetails(id: clubId);
+  Future<RulesEntity?> getClubRules(ClubModel clubModel) async {
+    final club = await clubsRepo.getClubDetails(id: clubModel.id);
     return clubsRules.firstWhereOrNull((rules) => rules.id == club?.rulesId);
   }
 
@@ -76,7 +77,7 @@ class RulesLocalRepo extends RulesRepo {
 
   @override
   Future<void> createClubRules({
-    required String clubId,
+    required ClubModel clubModel,
     required double civilWin,
     required double mafWin,
     required double civilLoss,
@@ -102,7 +103,7 @@ class RulesLocalRepo extends RulesRepo {
       threeBestMove: threeBestMove,
     );
     clubsRules.add(rules);
-    final club = await clubsRepo.getClubDetails(id: clubId);
+    final club = await clubsRepo.getClubDetails(id: clubModel.id);
     if (club != null) {
       club.rulesId = rules.id;
       await clubsRepo.setClub(clubEntity: club);

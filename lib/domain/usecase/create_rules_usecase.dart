@@ -1,4 +1,5 @@
 import 'package:mafia_board/data/repo/rules/rules_repo.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/rules_model.dart';
 import 'package:mafia_board/domain/usecase/base_usecase.dart';
 
@@ -10,7 +11,7 @@ class CreateRulesUseCase extends BaseUseCase<void, CreateRulesParams> {
   @override
   Future<void> execute({CreateRulesParams? params}) async {
     await rulesRepo.createClubRules(
-      clubId: params!.clubId,
+      clubModel: params!.club,
       civilWin: params.civilWin,
       mafWin: params.mafWin,
       civilLoss: params.civilLoss,
@@ -26,7 +27,7 @@ class CreateRulesUseCase extends BaseUseCase<void, CreateRulesParams> {
 }
 
 class CreateRulesParams {
-  final String clubId;
+  final ClubModel club;
   final double civilWin;
   final double mafWin;
   final double civilLoss;
@@ -39,7 +40,7 @@ class CreateRulesParams {
   final double threeBestMove;
 
   CreateRulesParams({
-    required this.clubId,
+    required this.club,
     required this.civilWin,
     required this.mafWin,
     required this.civilLoss,

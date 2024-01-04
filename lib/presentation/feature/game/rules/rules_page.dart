@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/rules_model.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_bloc.dart';
@@ -17,7 +18,7 @@ class RulesPage extends StatefulWidget {
 
 class _RulesPageState extends State<RulesPage> {
   late GameRulesBloc gameRulesBloc;
-  late String clubId;
+  late ClubModel club;
   String? rulesId;
   RulesModel? rules;
   final civilWinController = TextEditingController();
@@ -42,8 +43,8 @@ class _RulesPageState extends State<RulesPage> {
   void didChangeDependencies() {
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    clubId = args?['clubId'] ?? '';
-    gameRulesBloc.add(LoadRulesEvent(clubId));
+    club = args?['club'] ?? '';
+    gameRulesBloc.add(LoadRulesEvent(club));
     super.didChangeDependencies();
   }
 
@@ -300,7 +301,7 @@ class _RulesPageState extends State<RulesPage> {
     gameRulesBloc.add(
       CreateOrUpdateRulesEvent(
         id: rulesId,
-        clubId: clubId,
+        club: club,
         civilWin: double.tryParse(civilWinController.text.trim()) ??
             rules?.civilWin ??
             0.0,

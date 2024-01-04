@@ -4,7 +4,7 @@ class ClubEntity {
   final String? id;
   String? title;
   String? description;
-  String? googleSheetLink;
+  String? googleSheetId;
   final List<UserEntity>? members;
   final List<UserEntity>? admins;
   final List<UserEntity>? waitList;
@@ -18,7 +18,7 @@ class ClubEntity {
     this.admins,
     this.waitList,
     this.rulesId,
-    this.googleSheetLink,
+    this.googleSheetId,
   });
 
   static ClubEntity fromJson(Map<dynamic, dynamic> json) {

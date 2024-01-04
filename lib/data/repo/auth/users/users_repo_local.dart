@@ -74,4 +74,10 @@ class UsersRepoLocal extends UsersRepo {
       email: 'f1boy@gmail.com',
     ),
   ];
+
+  @override
+  Future<List<UserEntity>?> getUsersByIds(List<String> ids) {
+    // TODO: implement getUsersByIds
+    throw UnimplementedError();
+  }
 }

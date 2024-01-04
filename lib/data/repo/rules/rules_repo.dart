@@ -1,7 +1,8 @@
 import 'package:mafia_board/data/entity/rules_entity.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
 
 abstract class RulesRepo {
-  Future<RulesEntity?> getClubRules(String clubId);
+  Future<RulesEntity?> getClubRules(ClubModel club);
 
   Future<void> updateClubRules({
     required String id,
@@ -18,7 +19,7 @@ abstract class RulesRepo {
   });
 
   Future<void> createClubRules({
-    required String clubId,
+    required ClubModel clubModel,
     required double civilWin,
     required double mafWin,
     required double civilLoss,

@@ -17,7 +17,7 @@ class CreateClubPage extends StatefulWidget {
 
 class _CreateClubPageState extends State<CreateClubPage> {
   final _clubNameController = TextEditingController();
-  final _clubGoogleSheetIdController = TextEditingController();
+  final _clubDescriptionController = TextEditingController();
 
   late CreateClubBloc _createClubBloc;
 
@@ -35,12 +35,11 @@ class _CreateClubPageState extends State<CreateClubPage> {
           bloc: _createClubBloc,
           listener: (context, state) {
             if (state is ClubCreatedState) {
-              Navigator.pop(context);
-/*              Navigator.pushReplacementNamed(
+              Navigator.pushReplacementNamed(
                 context,
                 AppRouter.gameRulesPage,
-                arguments: {'clubId': state.clubId},
-              );*/
+                arguments: {'club': state.club},
+              );
             }
           },
           child: Padding(
@@ -60,9 +59,10 @@ class _CreateClubPageState extends State<CreateClubPage> {
                     child: Text(
                       'Club name',
                       style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold),
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -78,17 +78,18 @@ class _CreateClubPageState extends State<CreateClubPage> {
                     padding:
                         EdgeInsets.only(bottom: Dimensions.sidePadding0_5x),
                     child: Text(
-                      'Google sheet link',
+                      'Club description',
                       style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold),
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
                 InputTextField(
                   height: 70,
-                  controller: _clubGoogleSheetIdController,
+                  controller: _clubDescriptionController,
                 ),
                 const SizedBox(height: Dimensions.defaultSidePadding),
 
@@ -99,7 +100,7 @@ class _CreateClubPageState extends State<CreateClubPage> {
                     child: ElevatedButton(
                       onPressed: () => _createClubBloc.add(CreateClubEvent(
                         name: _clubNameController.text.trim(),
-                        googleSheetId: _clubGoogleSheetIdController.text.trim(),
+                        clubDescription: _clubDescriptionController.text.trim(),
                       )),
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(Colors.red),

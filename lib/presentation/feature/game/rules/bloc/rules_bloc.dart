@@ -21,7 +21,7 @@ class GameRulesBloc extends Bloc<RulesEvent, RulesState> {
 
   void _loadRulesEventHandler(LoadRulesEvent event, emit) async {
     try {
-      final rules = await getRulesUseCase.execute(params: event.clubId);
+      final rules = await getRulesUseCase.execute(params: event.club);
       emit(LoadedRulesState(rules));
     } catch (e) {
       emit(ErrorRulesState('Something went wrong'));
@@ -50,7 +50,7 @@ class GameRulesBloc extends Bloc<RulesEvent, RulesState> {
       } else {
         await createRulesUseCase.execute(
           params: CreateRulesParams(
-            clubId: event.clubId,
+            club: event.club,
             civilWin: event.civilWin,
             mafWin: event.mafWin,
             civilLoss: event.civilLoss,
