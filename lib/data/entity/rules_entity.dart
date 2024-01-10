@@ -26,6 +26,19 @@ class RulesEntity {
     required this.threeBestMove,
   });
 
+  static RulesEntity? fromSheetValues(List<List<dynamic>> values) {
+    if(values.isEmpty){
+      return null;
+    }
+    Map<String, dynamic> json = {};
+    for (var row in values) {
+      if (row.length >= 2) {
+        json[row[0]] = double.tryParse(row[1].toString());
+      }
+    }
+    return RulesEntity.fromJson(json);
+  }
+
   static RulesEntity fromJson(Map<dynamic, dynamic> json) {
     return RulesEntity(
       id: json['id'] as String?,

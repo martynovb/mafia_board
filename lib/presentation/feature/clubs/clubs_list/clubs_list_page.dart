@@ -19,6 +19,8 @@ class ClubsPage extends StatefulWidget {
 
 class _ClubsPageState extends State<ClubsPage> {
   late ClubsListBloc clubsListBloc;
+  static const String _updateRulesOption = 'update_rules';
+  static const String _managePermissionsOption = 'manage_permissions';
 
   @override
   void initState() {
@@ -58,6 +60,7 @@ class _ClubsPageState extends State<ClubsPage> {
       );
 
   Widget _clubItem(int index, ClubModel club) {
+    final GlobalKey menuKey = GlobalKey();
     return Row(
       children: [
         const SizedBox(
@@ -106,7 +109,55 @@ class _ClubsPageState extends State<ClubsPage> {
         const SizedBox(
           width: Dimensions.defaultSidePadding,
         ),
+        IconButton(
+          key: menuKey,
+          onPressed: () async => _showMoreMenu(menuKey, club),
+          icon: const Icon(Icons.more_vert),
+        ),
+        const SizedBox(
+          width: Dimensions.defaultSidePadding,
+        ),
       ],
     );
+  }
+
+  Future<void> _showMoreMenu(GlobalKey menuKey, ClubModel club) async {
+    final RenderBox button =
+        menuKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        button.localToGlobal(Offset.zero, ancestor: overlay),
+        button.localToGlobal(button.size.bottomRight(Offset.zero),
+            ancestor: overlay),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    final String? selectedValue = await showMenu<String>(
+      context: context,
+      position: position,
+      items: [
+        const PopupMenuItem<String>(
+          value: _updateRulesOption,
+          child: Text('Update club rules'),
+        ),
+        const PopupMenuItem<String>(
+          value: _managePermissionsOption,
+          child: Text('Manage permissions'),
+        ),
+      ],
+    );
+
+    if (selectedValue == _updateRulesOption) {
+      Navigator.pushNamed(
+        context,
+        AppRouter.gameRulesPage,
+        arguments: {'club': club},
+      );
+    } else if (selectedValue == _managePermissionsOption) {
+
+    }
   }
 }

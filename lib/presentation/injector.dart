@@ -3,11 +3,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mafia_board/data/api/error_handler.dart';
+import 'package:mafia_board/data/api/google_client_manager.dart';
+import 'package:mafia_board/data/repo/access_token_provider.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo_firebase.dart';
 import 'package:mafia_board/data/repo/auth/users/users_repo_firebase.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo_firebase.dart';
-import 'package:mafia_board/data/repo/rules/rules_local_repo.dart';
 import 'package:mafia_board/data/repo/rules/rules_repo.dart';
+import 'package:mafia_board/data/repo/rules/rules_repo_google_table.dart';
+import 'package:mafia_board/data/repo/spreadsheet/spreadsheet_repo.dart';
+import 'package:mafia_board/data/repo/spreadsheet/spreadsheet_repo_impl.dart';
 import 'package:mafia_board/domain/manager/game_results_manager.dart';
 import 'package:mafia_board/domain/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
@@ -15,7 +19,6 @@ import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo_local.dart';
 import 'package:mafia_board/data/repo/auth/users/users_repo.dart';
-import 'package:mafia_board/data/repo/auth/users/users_repo_local.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo_local.dart';
 import 'package:mafia_board/data/repo/game_phase/base_phase_repo_local.dart';
@@ -73,6 +76,7 @@ import 'package:mafia_board/presentation/feature/game/players_sheet/players_shee
 import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/role_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_bloc.dart';
 import 'package:mafia_board/presentation/feature/settings/bloc/user_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Injector {
   static final _getIt = GetIt.instance;
@@ -81,13 +85,13 @@ class Injector {
   static const speakPhaseRepoLocalTag = 'speak-phase-repo-local';
   static const nightPhaseRepoLocalTag = 'night-phase-repo-local';
 
-  static void inject({bool mockDb = false}) {
-    _injectDataLayer(mockDb);
+  static Future<void> inject({bool mockDb = false}) async {
+    await _injectDataLayer(mockDb);
     _injectDomainLayer();
     _injectBloC();
   }
 
-  static void _injectDataLayer(bool isLocalDataBase) {
+  static Future<void> _injectDataLayer(bool isLocalDataBase) async {
     //network
     _getIt.registerSingleton<ErrorHandler>(ErrorHandler());
 
@@ -99,8 +103,19 @@ class Injector {
           'https://www.googleapis.com/auth/spreadsheets',
           'https://www.googleapis.com/auth/drive'
         ]));
+    _getIt.registerSingleton(
+      AccessTokenProvider(await SharedPreferences.getInstance()),
+    );
+
+    _getIt.registerSingleton(GoogleClientManager(
+      googleSignIn: _getIt.get(),
+      accessTokenProvider: _getIt.get(),
+    ));
 
     //repo
+    _getIt.registerSingleton<SpreadsheetRepo>(
+      SpreadsheetRepoImpl(googleClientManager: _getIt.get()),
+    );
     _getIt.registerSingleton<AuthRepo>(
       isLocalDataBase
           ? AuthRepoLocal()
@@ -146,11 +161,13 @@ class Injector {
               firestore: FirebaseFirestore.instance,
               googleSignIn: _getIt.get(),
               usersRepo: _getIt.get(),
+              googleClientManager: _getIt.get(),
+              spreadSheepRepo: _getIt.get(),
             ),
     );
 
-    _getIt.registerSingleton<RulesRepo>(RulesLocalRepo(
-      _getIt.get(),
+    _getIt.registerSingleton<RulesRepo>(RulesRepoGoogleTable(
+      spreadsheetRepo: _getIt.get(),
     ));
   }
 
@@ -380,11 +397,16 @@ class Injector {
       ),
     );
 
-    _getIt.registerSingleton(AppBloc(authRepo: _getIt.get()));
+    _getIt.registerSingleton(AppBloc(
+      authRepo: _getIt.get(),
+      googleClientManager: _getIt.get(),
+    ));
+
     _getIt.registerSingleton(ClubsListBloc(getAllClubsUseCase: _getIt.get()));
     _getIt.registerSingleton(
       ClubsDetailsBloc(getClubDetailsUseCase: _getIt.get()),
     );
+
     _getIt.registerSingleton(
       GameRulesBloc(
         updateRulesUseCase: _getIt.get(),

@@ -93,7 +93,7 @@ class AuthRepoFirebase extends AuthRepo {
 
   @override
   Future<UserEntity> authUserWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
     if (googleUser == null) {
       throw InvalidCredentialsException('Google error');

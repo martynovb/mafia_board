@@ -7,4 +7,5 @@ class Constants {
   static const gunfightTimeForSpeak = Duration(seconds: 30);
   static const timeForNight = Duration(seconds: 10);
   static const maxInputSymbols = 100;
+
 }

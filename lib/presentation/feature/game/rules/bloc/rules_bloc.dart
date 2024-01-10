@@ -34,7 +34,7 @@ class GameRulesBloc extends Bloc<RulesEvent, RulesState> {
       if (rulesId != null) {
         await updateRulesUseCase.execute(
           params: UpdateRulesParams(
-            id: rulesId,
+            clubModel: event.club,
             civilWin: event.civilWin,
             mafWin: event.mafWin,
             civilLoss: event.civilLoss,

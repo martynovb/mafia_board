@@ -5,7 +5,7 @@ abstract class RulesRepo {
   Future<RulesEntity?> getClubRules(ClubModel club);
 
   Future<void> updateClubRules({
-    required String id,
+    required ClubModel clubModel,
     required double civilWin,
     required double mafWin,
     required double civilLoss,
