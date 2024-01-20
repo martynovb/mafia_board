@@ -10,6 +10,10 @@ class ShowGameResultsState extends GameResultsState {
   ShowGameResultsState(this.gameResultsModel);
 }
 
-class GameResultsUploaded extends GameResultsState {
+class GameResultsUploaded extends GameResultsState {}
 
+class GameResultsErrorState extends GameResultsState {
+  final String? errorMessage;
+
+  GameResultsErrorState({this.errorMessage});
 }

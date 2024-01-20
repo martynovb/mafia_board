@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:mafia_board/domain/manager/game_flow_simulator.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/exceptions/exception.dart';
@@ -20,6 +21,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   final GameManager gameManager;
   final VotePhaseManager votePhaseManager;
   final GetCurrentGameUseCase getCurrentGameUseCase;
+  final GameFlowSimulator gameFlowSimulator;
 
   GameBloc({
     required this.votePhaseManager,
@@ -27,6 +29,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     required this.playersRepository,
     required this.playerValidator,
     required this.getCurrentGameUseCase,
+    required this.gameFlowSimulator,
   }) : super(InitialGameState()) {
     on<StartGameEvent>(_startGameEventHandler);
     on<FinishGameEvent>(_finishGameEventHandler);
@@ -35,9 +38,21 @@ class GameBloc extends Bloc<GameEvent, GameState> {
     on<PutOnVoteEvent>(_putOnVoteEventHandler);
     on<RemoveGameDataEvent>(_removeGameDataEventHandler);
     on<ResetGameDataEvent>(_resetGameDataEventHandler);
+    on<SimulateFastGameCivilWinEvent>(_simulateFastGameCivilWin);
   }
 
   Stream<GameModel?> get gameStream => gameManager.gameStream;
+
+  void _simulateFastGameCivilWin(SimulateFastGameCivilWinEvent event, emit) async {
+    await gameFlowSimulator.simulateFastGameCivilWin();
+    final currentGame = await getCurrentGameUseCase.execute();
+    emit(
+      GamePhaseState(
+        currentGame,
+        currentGame.currentDayInfo.currentPhase.name,
+      ),
+    );
+  }
 
   void _resetGameDataEventHandler(ResetGameDataEvent event, emit) async {
     emit(InitialGameState);

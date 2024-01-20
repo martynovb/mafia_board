@@ -33,7 +33,8 @@ class GameResultsManager {
     WinnerType winner =
         winnerIfPPK == WinnerType.none ? _getWinner() : winnerIfPPK;
 
-    RulesModel clubRules = (await getRulesUseCase.execute(params: club)) ?? RulesModel.empty();
+    RulesModel clubRules =
+        (await getRulesUseCase.execute(params: club)) ?? RulesModel.empty();
     final allPlayers = playersRepo.getAllPlayers();
     SpeakPhaseAction? speakPhaseWithBestMove = speakGamePhaseRepo
         .getAllPhases()
@@ -91,9 +92,15 @@ class GameResultsManager {
   }
 
   Future<void> saveResults({
+    required ClubModel clubModel,
     required GameResultsModel gameResultsModel,
   }) async =>
-      saveGameResultsUseCase.execute(params: gameResultsModel);
+      saveGameResultsUseCase.execute(
+        params: SaveGameResultsParams(
+          gameResults: gameResultsModel,
+          clubModel: clubModel,
+        ),
+      );
 
   Future<double> _calculateBestMove(
     RulesModel rulesModel,

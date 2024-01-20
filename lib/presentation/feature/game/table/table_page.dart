@@ -59,6 +59,10 @@ class _TableState extends State<TablePage> with AutomaticKeepAliveClientMixin {
           return Column(
             children: [
               _header(state),
+              ElevatedButton(
+                onPressed: () => gameBloc.add(SimulateFastGameCivilWinEvent()),
+                child: const Text('Civil win'),
+              ),
               const Divider(),
               _centerTableContent(),
             ],
@@ -73,14 +77,17 @@ class _TableState extends State<TablePage> with AutomaticKeepAliveClientMixin {
         bloc: gameBloc,
         builder: (BuildContext context, GameState state) {
           if (state is GamePhaseState) {
-            if (state.currentGame?.currentDayInfo.currentPhase == PhaseType.speak) {
+            if (state.currentGame?.currentDayInfo.currentPhase ==
+                PhaseType.speak) {
               speakingPhaseBloc.add(GetCurrentSpeakPhaseEvent());
               return SpeakingPhaseTableView(
                   onSpeechFinished: () => gameBloc.add(NextPhaseEvent()));
-            } else if (state.currentGame?.currentDayInfo.currentPhase == PhaseType.vote) {
+            } else if (state.currentGame?.currentDayInfo.currentPhase ==
+                PhaseType.vote) {
               return VotePhaseTableView(
                   onVoteFinished: () => gameBloc.add(NextPhaseEvent()));
-            } else if (state.currentGame?.currentDayInfo.currentPhase == PhaseType.night) {
+            } else if (state.currentGame?.currentDayInfo.currentPhase ==
+                PhaseType.night) {
               return NightPhaseTableView(
                   onNightPhaseFinished: () => gameBloc.add(NextPhaseEvent()));
             }
@@ -90,7 +97,8 @@ class _TableState extends State<TablePage> with AutomaticKeepAliveClientMixin {
   }
 
   Widget _header(GameState state) {
-    if (state is GamePhaseState && state.currentGame?.gameStatus == GameStatus.inProgress) {
+    if (state is GamePhaseState &&
+        state.currentGame?.gameStatus == GameStatus.inProgress) {
       return SizedBox(
           height: Dimensions.headerHeight,
           child: Row(

@@ -1,8 +1,12 @@
 import 'package:collection/collection.dart';
+import 'package:googleapis/sheets/v4.dart';
 import 'package:mafia_board/data/entity/game/game_entity.dart';
 import 'package:mafia_board/data/entity/game/day_info_entity.dart';
 import 'package:mafia_board/data/entity/game/player_entity.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
+import 'package:mafia_board/data/repo/spreadsheet/spreadsheet_app_consts.dart';
+import 'package:mafia_board/data/repo/spreadsheet/spreadsheet_repo.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/domain/model/game_results_model.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
@@ -15,8 +19,12 @@ class GameRepoLocal extends GameRepo {
   GameEntity? _currentGame;
   final List<DayInfoEntity> _dayInfoList = [];
   final PlayersRepo playersRepo;
+  final SpreadsheetRepo spreadsheetRepo;
 
-  GameRepoLocal({required this.playersRepo});
+  GameRepoLocal({
+    required this.spreadsheetRepo,
+    required this.playersRepo,
+  });
 
   @override
   Future<GameEntity> createGame({
@@ -150,8 +158,21 @@ class GameRepoLocal extends GameRepo {
 
   @override
   Future<void> saveGameResults({
+    required ClubModel clubModel,
     required GameResultsModel gameResultsModel,
   }) async {
+    final gameResultsMatrix = [
+      ['game '],
+      [],
+      [],
+    ];
 
+    spreadsheetRepo.updateFieldsInRange(
+      spreadsheetId: clubModel.googleSheetId,
+      sheetName: SpreadsheetAppConsts.resultsSheetName,
+      startRange: SpreadsheetAppConsts.rulesStartRange,
+      endRange: SpreadsheetAppConsts.rulesEndRange,
+      valueRange: ValueRange(values: gameResultsMatrix),
+    );
   }
 }

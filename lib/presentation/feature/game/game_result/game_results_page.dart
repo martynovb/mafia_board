@@ -11,6 +11,7 @@ import 'package:mafia_board/presentation/feature/game/game_result/bloc/game_resu
 import 'package:mafia_board/presentation/feature/game/game_result/bloc/game_results_state.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
 import 'package:mafia_board/presentation/feature/widgets/dialogs.dart';
+import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 
 class GameResultsPage extends StatefulWidget {
   const GameResultsPage({Key? key}) : super(key: key);
@@ -22,7 +23,7 @@ class GameResultsPage extends StatefulWidget {
 class _GameResultsPageState extends State<GameResultsPage> {
   GameResultsModel? gameResultsModel;
   late GameResultsBloc gameResultsBloc;
-  late ClubModel club;
+  late ClubModel? club;
 
   final int _voteColumnFlex = 0;
   final int _nicknameColumnFlex = 5;
@@ -40,7 +41,7 @@ class _GameResultsPageState extends State<GameResultsPage> {
     super.didChangeDependencies();
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    club = args?['club'] ?? ClubModel.empty();
+    club = args?['club'];
     gameResultsBloc.add(CalculateResultsEvent(club));
   }
 
@@ -55,7 +56,7 @@ class _GameResultsPageState extends State<GameResultsPage> {
             actions: [
               IconButton(
                   onPressed: () {
-                    gameResultsBloc.add(SaveResultsEvent(gameResultsModel: gameResultsModel));
+                    gameResultsBloc.add(CalculateResultsEvent(club));
                   },
                   icon: const Icon(
                     Icons.refresh,
@@ -75,6 +76,15 @@ class _GameResultsPageState extends State<GameResultsPage> {
                       _tableHeader(),
                       _playersTable(state.gameResultsModel),
                     ],
+                  );
+                } else if (state is GameResultsErrorState) {
+                  return Center(
+                    child: InfoField(
+                      message: state.errorMessage == null
+                          ? 'Error during game results calculating'
+                          : state.errorMessage!,
+                      infoFieldType: InfoFieldType.error,
+                    ),
                   );
                 }
 
@@ -243,7 +253,8 @@ class _GameResultsPageState extends State<GameResultsPage> {
         TextButton(
           child: const Text('Yes'),
           onPressed: () {
-            gameResultsBloc.add(SaveResultsEvent(gameResultsModel: gameResultsModel));
+            gameResultsBloc
+                .add(SaveResultsEvent(gameResultsModel: gameResultsModel));
           },
         ),
       ],

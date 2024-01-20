@@ -9,6 +9,9 @@ class StartGameEvent extends GameEvent {
   StartGameEvent(this.clubId);
 }
 
+class SimulateFastGameCivilWinEvent extends GameEvent {
+}
+
 class FinishGameEvent extends GameEvent {
   final String? playerId;
   final FinishGameType finishGameType;

@@ -74,7 +74,7 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
 
   Future<void> _voteAgainstEventHandler(VoteAgainstEvent event, emit) async {
     try {
-      votePhaseManager.voteAgainst(
+      await votePhaseManager.voteAgainst(
         currentPlayer: event.currentPlayer,
         voteAgainstPlayer: event.voteAgainstPlayer,
       );

@@ -12,6 +12,7 @@ import 'package:mafia_board/data/repo/rules/rules_repo.dart';
 import 'package:mafia_board/data/repo/rules/rules_repo_google_table.dart';
 import 'package:mafia_board/data/repo/spreadsheet/spreadsheet_repo.dart';
 import 'package:mafia_board/data/repo/spreadsheet/spreadsheet_repo_impl.dart';
+import 'package:mafia_board/domain/manager/game_flow_simulator.dart';
 import 'package:mafia_board/domain/manager/game_results_manager.dart';
 import 'package:mafia_board/domain/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
@@ -326,6 +327,15 @@ class Injector {
         RepeatPasswordFieldValidator());
     _getIt.registerSingleton<PasswordFieldValidator>(PasswordFieldValidator());
     _getIt.registerSingleton<EmailFieldValidator>(EmailFieldValidator());
+
+    _getIt.registerSingleton(
+      GameFlowSimulator(
+        gameManager: _getIt.get(),
+        playersRepo: _getIt.get(),
+        speakingPhaseManager: _getIt.get(),
+        votePhaseManager: _getIt.get(),
+      ),
+    );
   }
 
   static void _injectBloC() {
@@ -342,6 +352,7 @@ class Injector {
         playersRepository: _getIt.get(),
         playerValidator: _getIt.get(),
         getCurrentGameUseCase: _getIt.get(),
+        gameFlowSimulator: _getIt.get(),
       ),
     );
 

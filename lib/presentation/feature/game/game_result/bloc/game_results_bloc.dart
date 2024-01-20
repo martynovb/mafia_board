@@ -18,10 +18,11 @@ class GameResultsBloc extends Bloc<GameResultsEvent, GameResultsState> {
     SaveResultsEvent event,
     emit,
   ) async {
-    final results = event.gameResultsModel;
-    if(results != null) {
+    if (event.gameResultsModel != null && event.clubModel != null) {
       await gameResultsManager.saveResults(
-          gameResultsModel: results);
+        clubModel: event.clubModel!,
+        gameResultsModel: event.gameResultsModel!,
+      );
     }
     emit(GameResultsUploaded());
   }
@@ -30,9 +31,17 @@ class GameResultsBloc extends Bloc<GameResultsEvent, GameResultsState> {
     CalculateResultsEvent event,
     emit,
   ) async {
-    GameResultsModel results = await gameResultsManager.getPlayersResults(
-      club: event.club,
-    );
-    emit(ShowGameResultsState(results));
+    try {
+      if (event.club == null) {
+        emit(GameResultsErrorState());
+      } else {
+        GameResultsModel results = await gameResultsManager.getPlayersResults(
+          club: event.club!,
+        );
+        emit(ShowGameResultsState(results));
+      }
+    } catch (ex) {
+      emit(GameResultsErrorState(errorMessage: ex.toString()));
+    }
   }
 }
