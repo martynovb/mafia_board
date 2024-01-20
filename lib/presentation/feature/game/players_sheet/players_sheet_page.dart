@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -6,6 +8,7 @@ import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
+import 'package:mafia_board/domain/model/user_model.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_event.dart';
@@ -17,6 +20,9 @@ import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/ro
 import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/role_event.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/role_state.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/widgets/blur_widget.dart';
+import 'package:mafia_board/presentation/feature/game/users/bloc/user_list_bloc.dart';
+import 'package:mafia_board/presentation/feature/game/users/bloc/user_list_event.dart';
+import 'package:mafia_board/presentation/feature/game/users/bloc/user_list_state.dart';
 import 'package:mafia_board/presentation/feature/widgets/dialogs.dart';
 import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 
@@ -47,6 +53,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
   late PlayersSheetBloc _playersSheetBloc;
   late RoleBloc _roleBloc;
   late GameBloc _gameBloc;
+  late UserListBloc _userListBloc;
 
   @override
   bool get wantKeepAlive => true;
@@ -56,6 +63,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
     _playersSheetBloc = GetIt.instance<PlayersSheetBloc>();
     _roleBloc = GetIt.instance<RoleBloc>();
     _gameBloc = GetIt.instance<GameBloc>();
+    _userListBloc = GetIt.instance();
     super.initState();
   }
 
@@ -243,16 +251,30 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
             child: playerModel.id.isEmpty
                 ? IconButton(
                     icon: const Icon(Icons.add),
-                    onPressed: () {
-                      _playersSheetBloc.add(
-                          FindUserEvent(seatNumber: playerModel.seatNumber));
+                    onPressed: () async {
+                      final user = await _showUsersBottomSheet(context);
+                      if (user != null) {
+                        _playersSheetBloc.add(
+                          SetUserEvent(
+                            seatNumber: playerModel.seatNumber,
+                            user: user,
+                          ),
+                        );
+                      }
                     },
                   )
                 : GestureDetector(
                     child: Text(playerModel.nickname),
-                    onTap: () {
-                      _playersSheetBloc.add(
-                          FindUserEvent(seatNumber: playerModel.seatNumber));
+                    onTap: () async {
+                      final user = await _showUsersBottomSheet(context);
+                      if (user != null) {
+                        _playersSheetBloc.add(
+                          SetUserEvent(
+                            seatNumber: playerModel.seatNumber,
+                            user: user,
+                          ),
+                        );
+                      }
                     },
                   ),
           ),
@@ -402,8 +424,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
       PlayerModel player, BuildContext context) async {
     await showDefaultDialog(
       context: context,
-      title:
-          'PPK for (#${player.seatNumber}: ${player.nickname})?',
+      title: 'PPK for (#${player.seatNumber}: ${player.nickname})?',
       actions: <Widget>[
         TextButton(
           child: const Text("Finish game"),
@@ -420,5 +441,38 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
         ),
       ],
     );
+  }
+
+  Future<UserModel?> _showUsersBottomSheet(BuildContext context) {
+    final Completer<UserModel?> selectedUserCompleter = Completer();
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return BlocBuilder(
+            bloc: _userListBloc,
+            builder: (context, UserListState state) {
+              return Padding(
+                  padding: const EdgeInsets.only(
+                    top: Dimensions.defaultSidePadding,
+                  ),
+                  child: ListView.builder(
+                    itemCount: state.users.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(state.users[index].nickname),
+                        subtitle: Text(state.users[index].email),
+                        onTap: () {
+                          Navigator.pop(context);
+                          selectedUserCompleter.complete(state.users[index]);
+                        },
+                      );
+                    },
+                  ));
+            });
+      },
+    );
+    _userListBloc.add(FetchUserListEvent());
+    return selectedUserCompleter.future;
   }
 }

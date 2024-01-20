@@ -11,8 +11,20 @@ class UsersRepoFirebase extends UsersRepo {
   });
 
   @override
-  Future<List<UserEntity>> getAllUsers() {
-    throw UnimplementedError();
+  Future<List<UserEntity>> getAllUsers() async {
+    var adminDocs =
+        await firestore.collection(FirestoreKeys.usersCollectionKey).get();
+
+    return adminDocs.docs.map(
+      (doc) {
+        final userData = doc.data();
+        return UserEntity(
+          id: doc.id,
+          nickname: userData[FirestoreKeys.nicknameFieldKey],
+          email: userData[FirestoreKeys.emailFieldKey],
+        );
+      },
+    ).toList();
   }
 
   @override

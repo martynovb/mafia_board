@@ -18,6 +18,10 @@ class PlayersRepoLocal extends PlayersRepo {
 
   @override
   void setUser(int seatNumber, UserModel user) {
+    final userIndexIfAlreadySet = _players.indexWhere((player) => player.id == user.id);
+    if(userIndexIfAlreadySet != -1){
+      _players[userIndexIfAlreadySet] = PlayerModel.empty(_players[userIndexIfAlreadySet].seatNumber);
+    }
     final playerIndex =
         _players.indexWhere((player) => player.seatNumber == seatNumber);
     PlayerModel player = PlayerModel(user, Role.NONE, seatNumber);

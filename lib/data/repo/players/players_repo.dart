@@ -1,3 +1,4 @@
+import 'package:mafia_board/data/entity/user_entity.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/domain/model/user_model.dart';

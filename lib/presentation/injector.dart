@@ -44,6 +44,7 @@ import 'package:mafia_board/domain/manager/player_manager.dart';
 import 'package:mafia_board/domain/usecase/change_nickname_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_club_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_rules_usecase.dart';
+import 'package:mafia_board/domain/usecase/get_all_users_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_user_data_usecase.dart';
 import 'package:mafia_board/domain/usecase/save_game_results_usecase.dart';
 import 'package:mafia_board/domain/validator/player_validator.dart';
@@ -75,6 +76,7 @@ import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote
 import 'package:mafia_board/presentation/feature/game/players_sheet/players_sheet_bloc/players_sheet_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/role_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_bloc.dart';
+import 'package:mafia_board/presentation/feature/game/users/bloc/user_list_bloc.dart';
 import 'package:mafia_board/presentation/feature/settings/bloc/user_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -173,6 +175,9 @@ class Injector {
 
   static void _injectDomainLayer() {
     //usecase
+    _getIt.registerSingleton<GetAllUsersUsecase>(
+      GetAllUsersUsecase(usersRepo: _getIt.get()),
+    );
     _getIt.registerSingleton<ChangeNicknameUseCase>(
       ChangeNicknameUseCase(authRepo: _getIt.get()),
     );
@@ -343,7 +348,7 @@ class Injector {
     _getIt.registerSingleton(
       PlayersSheetBloc(
         gamePhaseManager: _getIt.get(),
-        boardRepository: _getIt.get(),
+        playersRepository: _getIt.get(),
         gameHistoryManager: _getIt.get(),
         playerManager: _getIt.get(),
         roleManager: _getIt.get(),
@@ -417,5 +422,6 @@ class Injector {
 
     _getIt.registerSingleton(GameResultsBloc(gameResultsManager: _getIt.get()));
     _getIt.registerSingleton(CreateClubBloc(createClubUseCase: _getIt.get()));
+    _getIt.registerSingleton(UserListBloc(getAllUsersUsecase: _getIt.get()));
   }
 }

@@ -45,7 +45,7 @@ class RulesLocalRepo extends RulesRepo {
 
   @override
   Future<void> updateClubRules({
-    required String id,
+    required ClubModel clubModel,
     required double civilWin,
     required double mafWin,
     required double civilLoss,
@@ -57,7 +57,7 @@ class RulesLocalRepo extends RulesRepo {
     required double twoBestMove,
     required double threeBestMove,
   }) async {
-    int indexOf = clubsRules.indexWhere((rules) => rules.id == id);
+    int indexOf = clubsRules.indexWhere((rules) => rules.id == clubModel.id);
     if (indexOf != -1) {
       clubsRules[indexOf] = RulesEntity(
         id: const Uuid().v1(),

@@ -1,9 +1,21 @@
+import 'package:mafia_board/domain/model/user_model.dart';
+
 abstract class SheetEvent {}
 
 class FindUserEvent extends SheetEvent {
   final int seatNumber;
 
   FindUserEvent({required this.seatNumber});
+}
+
+class SetUserEvent extends SheetEvent {
+  final int seatNumber;
+  final UserModel user;
+
+  SetUserEvent({
+    required this.seatNumber,
+    required this.user,
+  });
 }
 
 class AddFoulEvent extends SheetEvent {
@@ -36,8 +48,7 @@ class ChangeNicknameEvent extends SheetEvent {
   });
 }
 
-class SetTestDataEvent extends SheetEvent {
-}
+class SetTestDataEvent extends SheetEvent {}
 
 class KillPlayerHandler extends SheetEvent {
   final String playerId;
