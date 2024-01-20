@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/domain/model/player_model.dart';
+import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote_list/vote_item.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote_list/vote_phase_list_bloc.dart';
 
@@ -22,7 +24,6 @@ class _VotePhaseListViewState extends State<VotePhaseListView> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-        height: 24,
         child: StreamBuilder(
             stream: _votePhaseListBloc.voteListStream,
             builder: (context, snapshot) {
@@ -30,9 +31,12 @@ class _VotePhaseListViewState extends State<VotePhaseListView> {
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Icon(Icons.thumb_up, size: 24,),
-                    const Text(': '),
-                    Expanded(child: _voteList(snapshot.data ?? []))
+                    const Icon(
+                      Icons.thumb_up,
+                      size: 24,
+                    ),
+                    const SizedBox(width: Dimensions.sidePadding0_5x),
+                    Expanded(child: _voteListTable(snapshot.data ?? []))
                   ],
                 );
               } else {
@@ -41,14 +45,34 @@ class _VotePhaseListViewState extends State<VotePhaseListView> {
             }));
   }
 
-  Widget _voteList(List<VoteItem> voteList) {
-    return  ListView.separated(
-      shrinkWrap: true,
-            separatorBuilder: (context, index) => const Center(child:Text(', ')),
-            scrollDirection: Axis.horizontal,
-            itemCount: voteList.length,
-            itemBuilder: (context, index) {
-              return  Center(child: Text('${voteList[index].playerNumber}'));
-            });
+  Widget _voteListTable(List<VoteItem> voteList) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: voteList
+            .map(
+              (vote) => _buildSquare(vote.playerOnVote),
+            )
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildSquare(PlayerModel playerOnVote) {
+    return InkWell(
+      onTap: () {
+        _votePhaseListBloc.add(UnVotePhaseEvent(playerOnVote));
+      },
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey, width: 1),
+        ),
+        child: Center(
+            child: Text(
+              playerOnVote.seatNumber.toString(),
+        )),
+      ),
+    );
   }
 }

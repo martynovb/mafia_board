@@ -34,8 +34,12 @@ class VotePhaseManager {
   Stream<VotePhaseAction?> get currentVotePhaseStream =>
       _currentVoteSubject.stream;
 
-  List<VotePhaseAction> getAllPhases(int day) =>
-      voteGamePhaseRepo.getAllPhasesByDay(day: day);
+  Future<List<VotePhaseAction>> getAllTodaysPhases() async {
+    final game = await getCurrentGameUseCase.execute();
+    final dayInfo = game.currentDayInfo;
+    final currentDay = dayInfo.day;
+    return voteGamePhaseRepo.getAllPhasesByDay(day: currentDay);
+  }
 
   Future<VotePhaseAction?> getCurrentPhase([int? currentDay]) async {
     final game = await getCurrentGameUseCase.execute();
@@ -134,6 +138,23 @@ class VotePhaseManager {
       return true;
     }
     return false;
+  }
+
+  Future<bool> revokePutOnVote(PlayerModel player) async {
+    final game = await getCurrentGameUseCase.execute();
+    final dayInfo = game.currentDayInfo;
+    final currentDay = dayInfo.day;
+    final votePhaseWithThisPlayer =
+        voteGamePhaseRepo.getAllPhasesByDay(day: currentDay).firstWhereOrNull(
+              (votePhase) => votePhase.playerOnVote.id == player.id,
+            );
+    if (votePhaseWithThisPlayer == null) {
+      return false;
+    }
+    voteGamePhaseRepo.remove(gamePhase: votePhaseWithThisPlayer);
+    gameHistoryManager.removePutOnVoteLog(votePhaseAction: votePhaseWithThisPlayer);
+    _currentVoteSubject.add(voteGamePhaseRepo.getLastPhase());
+    return true;
   }
 
   Future<bool> voteAgainst({

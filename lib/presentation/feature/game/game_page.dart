@@ -39,7 +39,7 @@ class _GamePageState extends State<GamePage>
   void didChangeDependencies() {
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    club = args?['club'] ?? '';
+    club = args?['club'] ?? ClubModel.empty();
 
     _pageController = TabController(initialIndex: 0, vsync: this, length: 3);
     _tabList = [

@@ -69,6 +69,14 @@ class GameHistoryManager {
     ));
   }
 
+  void removePutOnVoteLog({
+    required VotePhaseAction votePhaseAction,
+  }) {
+    repository
+        .deleteWhere((model) => model.gamePhaseAction == votePhaseAction);
+    _notifyListeners();
+  }
+
   Future<void> logPlayerSpeech(
       {required SpeakPhaseAction speakPhaseAction}) async {
     final speakerId = speakPhaseAction.playerId;

@@ -14,6 +14,16 @@ class ClubModel {
   bool isAdmin = false;
   List<GameModel> games = [];
 
+  ClubModel.empty()
+      : id = '',
+        title = '',
+        description = '',
+        googleSheetLink = '',
+        googleSheetId = '',
+        members = [],
+        admins = [],
+        waitList = [];
+
   ClubModel.fromEntity(ClubEntity entity, [this.isAdmin = false])
       : id = entity.id ?? '',
         title = entity.title ?? '',

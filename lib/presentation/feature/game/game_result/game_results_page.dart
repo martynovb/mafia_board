@@ -40,7 +40,7 @@ class _GameResultsPageState extends State<GameResultsPage> {
     super.didChangeDependencies();
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    club = args?['club'] ?? '';
+    club = args?['club'] ?? ClubModel.empty();
     gameResultsBloc.add(CalculateResultsEvent(club));
   }
 
