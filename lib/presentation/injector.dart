@@ -148,8 +148,10 @@ class Injector {
     _getIt.registerSingleton<PlayersRepo>(PlayersRepoLocal());
     _getIt.registerSingleton(RoleManager.classic(_getIt.get()));
     _getIt.registerSingleton(PlayerValidator());
-    _getIt
-        .registerSingleton<GameRepo>(GameRepoLocal(playersRepo: _getIt.get()));
+    _getIt.registerSingleton<GameRepo>(GameRepoLocal(
+      playersRepo: _getIt.get(),
+      spreadsheetRepo: _getIt.get(),
+    ));
     _getIt.registerSingleton<UsersRepo>(UsersRepoFirebase(
       firestore: FirebaseFirestore.instance,
     ));

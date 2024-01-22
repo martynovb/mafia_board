@@ -13,6 +13,7 @@ import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/data/repo/game_info/game_repo.dart';
+import 'package:mafia_board/domain/model/role.dart';
 import 'package:uuid/uuid.dart';
 
 class GameRepoLocal extends GameRepo {
@@ -161,13 +162,57 @@ class GameRepoLocal extends GameRepo {
     required ClubModel clubModel,
     required GameResultsModel gameResultsModel,
   }) async {
+    // create createSpreadsheet if needed
+    await spreadsheetRepo.addNewSheet(
+      spreadsheetId: clubModel.googleSheetId,
+      sheetName: SpreadsheetAppConsts.resultsSheetName,
+    );
+
+    // find the last game record
+    // increment game count
+
+    // save this game
+    final mafsLeft = playersRepo
+        .getAllAvailablePlayers()
+        .where((player) => player.role == Role.MAFIA || player.role == Role.DON)
+        .toList()
+        .length;
+
     final gameResultsMatrix = [
-      ['game '],
-      [],
-      [],
+      ['game 1', 'game id', 'time', 'win role', 'mafs left'],
+      [
+        '',
+        _currentGame?.id,
+        '99:99',
+        gameResultsModel.winnerType.name,
+        mafsLeft
+      ],
+      [
+        'sit',
+        'user_id',
+        'nickname',
+        'role',
+        'total',
+        'score',
+        'best move',
+        'Ci'
+      ],
     ];
 
-    spreadsheetRepo.updateFieldsInRange(
+    for (var scoreItem in gameResultsModel.scoreList) {
+      gameResultsMatrix.add([
+        scoreItem.player.seatNumber,
+        scoreItem.player.id,
+        scoreItem.player.nickname,
+        scoreItem.player.role.name,
+        scoreItem.gamePoints,
+        scoreItem.bonus,
+        scoreItem.bestMove,
+        scoreItem.compensation,
+      ]);
+    }
+
+    await spreadsheetRepo.updateFieldsInRange(
       spreadsheetId: clubModel.googleSheetId,
       sheetName: SpreadsheetAppConsts.resultsSheetName,
       startRange: SpreadsheetAppConsts.rulesStartRange,

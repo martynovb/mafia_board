@@ -253,8 +253,10 @@ class _GameResultsPageState extends State<GameResultsPage> {
         TextButton(
           child: const Text('Yes'),
           onPressed: () {
-            gameResultsBloc
-                .add(SaveResultsEvent(gameResultsModel: gameResultsModel));
+            gameResultsBloc.add(SaveResultsEvent(
+              gameResultsModel: gameResultsModel,
+              clubModel: club,
+            ));
           },
         ),
       ],

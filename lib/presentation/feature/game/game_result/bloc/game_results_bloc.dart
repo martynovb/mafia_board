@@ -18,13 +18,19 @@ class GameResultsBloc extends Bloc<GameResultsEvent, GameResultsState> {
     SaveResultsEvent event,
     emit,
   ) async {
-    if (event.gameResultsModel != null && event.clubModel != null) {
-      await gameResultsManager.saveResults(
-        clubModel: event.clubModel!,
-        gameResultsModel: event.gameResultsModel!,
-      );
+    try {
+      if (event.gameResultsModel != null && event.clubModel != null) {
+        await gameResultsManager.saveResults(
+          clubModel: event.clubModel!,
+          gameResultsModel: event.gameResultsModel!,
+        );
+        emit(GameResultsUploaded());
+      } else {
+        emit(GameResultsErrorState(errorMessage: 'Not enough data to save results'));
+      }
+    } catch (ex) {
+      emit(GameResultsErrorState(errorMessage: ex.toString()));
     }
-    emit(GameResultsUploaded());
   }
 
   Future<void> _calculateGameResultsEventHandler(
