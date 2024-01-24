@@ -6,7 +6,6 @@ import 'package:mafia_board/domain/model/game_phase/night_phase_action.dart';
 import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
 import 'package:mafia_board/domain/model/game_results_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
-import 'package:mafia_board/domain/model/player_score_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/domain/model/rules_model.dart';
 import 'package:mafia_board/domain/model/winner_type.dart';
@@ -35,42 +34,39 @@ class GameResultsManager {
 
     RulesModel clubRules =
         (await getRulesUseCase.execute(params: club)) ?? RulesModel.empty();
-    final allPlayers = playersRepo.getAllPlayers();
+    var allPlayers = playersRepo.getAllPlayers();
     SpeakPhaseAction? speakPhaseWithBestMove = speakGamePhaseRepo
         .getAllPhases()
         .firstWhereOrNull((speakPhase) => speakPhase.bestMove.isNotEmpty);
     final firstKilledPlayer = _findFirstKilledPlayer();
 
-    final List<PlayerScoreModel> scoreList = [];
-
     for (PlayerModel player in allPlayers) {
-      final playerScore = PlayerScoreModel(player: player);
       if (player.isPPK) {
-        playerScore.isPPK = true;
-        playerScore.gamePoints -= clubRules.ppkLoss;
+        player.isPPK = true;
+        player.gamePoints -= clubRules.ppkLoss;
       } else if (winner == WinnerType.mafia &&
-          (player.role == Role.MAFIA || player.role == Role.DON)) {
-        playerScore.gamePoints += clubRules.mafWin;
+          (player.role == Role.mafia || player.role == Role.don)) {
+        player.gamePoints += clubRules.mafWin;
       } else if (winner == WinnerType.mafia &&
-          (player.role == Role.CIVILIAN || player.role == Role.SHERIFF)) {
-        playerScore.gamePoints -= clubRules.civilLoss;
-        playerScore.gamePoints += clubRules.defaultBonus;
+          (player.role == Role.civilian || player.role == Role.sheriff)) {
+        player.gamePoints -= clubRules.civilLoss;
+        player.gamePoints += clubRules.defaultBonus;
       } else if (winner == WinnerType.civilian &&
-          (player.role == Role.CIVILIAN || player.role == Role.SHERIFF)) {
-        playerScore.gamePoints += clubRules.civilWin;
+          (player.role == Role.civilian || player.role == Role.sheriff)) {
+        player.gamePoints += clubRules.civilWin;
       } else if (winner == WinnerType.civilian &&
-          (player.role == Role.MAFIA || player.role == Role.DON)) {
-        playerScore.gamePoints -= clubRules.mafLoss;
-        playerScore.gamePoints += clubRules.defaultBonus;
+          (player.role == Role.mafia || player.role == Role.don)) {
+        player.gamePoints -= clubRules.mafLoss;
+        player.gamePoints += clubRules.defaultBonus;
       }
 
       if (!player.isPPK) {
         if (player.isDisqualified) {
-          playerScore.gamePoints -= clubRules.kickLoss;
+          player.gamePoints -= clubRules.kickLoss;
         } else if (speakPhaseWithBestMove != null &&
             player.id == speakPhaseWithBestMove.playerId &&
             !mafiaRoles().contains(player.role)) {
-          playerScore.bestMove += await _calculateBestMove(
+          player.bestMove += await _calculateBestMove(
             clubRules,
             speakPhaseWithBestMove.bestMove,
           );
@@ -78,16 +74,17 @@ class GameResultsManager {
       }
 
       if (player.id == firstKilledPlayer?.id) {
-        playerScore.isFirstKilled = true;
+        player.isFirstKilled = true;
       }
 
-      scoreList.add(playerScore);
+      await playersRepo.updateAllPlayerData(player);
     }
 
+    allPlayers = playersRepo.getAllPlayers();
     return GameResultsModel(
       club: club,
       winnerType: winner,
-      scoreList: scoreList.sorted((a, b) => b.total().compareTo(a.total())),
+      allPlayers: allPlayers.sorted((a, b) => b.total().compareTo(a.total())),
     );
   }
 
@@ -110,7 +107,7 @@ class GameResultsManager {
       return 0;
     }
     final mafiaPlayersSeats =
-        (await playersRepo.getAllPlayersByRole([Role.MAFIA, Role.DON]))
+        (await playersRepo.getAllPlayersByRole([Role.mafia, Role.don]))
             .map((player) => player.seatNumber);
     int count = bestMove
         .where((seatNumber) => mafiaPlayersSeats.contains(seatNumber))
@@ -128,8 +125,8 @@ class GameResultsManager {
     final allPlayers = playersRepo.getAllPlayers();
     Role ppkRole =
         allPlayers.firstWhereOrNull((player) => player.isPPK)?.role ??
-            Role.NONE;
-    if (ppkRole == Role.NONE) {
+            Role.none;
+    if (ppkRole == Role.none) {
       return WinnerType.none;
     }
 
@@ -147,17 +144,17 @@ class GameResultsManager {
 
     final allAvailablePlayers = playersRepo.getAllAvailablePlayers();
     int mafsCount = allAvailablePlayers
-        .where((player) => player.role == Role.MAFIA || player.role == Role.DON)
+        .where((player) => player.role == Role.mafia || player.role == Role.don)
         .length;
 
     int civilianCount = allAvailablePlayers
         .where(
           (player) =>
-              player.role == Role.CIVILIAN ||
-              player.role == Role.SHERIFF ||
-              player.role == Role.DOCTOR ||
-              player.role == Role.PUTANA ||
-              player.role == Role.MANIAC,
+              player.role == Role.civilian ||
+              player.role == Role.sheriff ||
+              player.role == Role.doctor ||
+              player.role == Role.putana ||
+              player.role == Role.maniac,
         )
         .length;
 

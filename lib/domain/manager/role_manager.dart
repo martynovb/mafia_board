@@ -11,23 +11,23 @@ class RoleManager {
 
   RoleManager.classic(this._boardRepository)
       : _allRoles = [
-          RoleModel(role: Role.NONE, count: 10),
-          RoleModel(role: Role.DON, count: 1, nightPriority: 2),
-          RoleModel(role: Role.MAFIA, count: 2, nightPriority: 1),
-          RoleModel(role: Role.CIVILIAN, count: 6),
-          RoleModel(role: Role.SHERIFF, count: 1, nightPriority: 3),
+          RoleModel(role: Role.none, count: 10),
+          RoleModel(role: Role.don, count: 1, nightPriority: 2),
+          RoleModel(role: Role.mafia, count: 2, nightPriority: 1),
+          RoleModel(role: Role.civilian, count: 6),
+          RoleModel(role: Role.sheriff, count: 1, nightPriority: 3),
         ],
         _availableRoles = [
-          Role.MAFIA,
-          Role.MAFIA,
-          Role.CIVILIAN,
-          Role.CIVILIAN,
-          Role.CIVILIAN,
-          Role.CIVILIAN,
-          Role.CIVILIAN,
-          Role.CIVILIAN,
-          Role.SHERIFF,
-          Role.DON,
+          Role.mafia,
+          Role.mafia,
+          Role.civilian,
+          Role.civilian,
+          Role.civilian,
+          Role.civilian,
+          Role.civilian,
+          Role.civilian,
+          Role.sheriff,
+          Role.don,
         ] {
     _calculateAvailableRoles();
     _createPlayers();
@@ -40,7 +40,7 @@ class RoleManager {
   void recalculateAvailableRoles(int seatNumber, Role selectedRole) {
     _selectedRoles[seatNumber] = selectedRole;
     for (RoleModel roleModel in _allRoles) {
-      if (roleModel.role == Role.NONE) {
+      if (roleModel.role == Role.none) {
         continue;
       }
       final selectedRoleCount = _selectedRoles
@@ -56,15 +56,15 @@ class RoleManager {
   }
 
   void _calculateAvailableRoles() {
-    final List<Role> allAvailableRoles = [Role.NONE];
-    _selectedRoles = [Role.NONE];
+    final List<Role> allAvailableRoles = [Role.none];
+    _selectedRoles = [Role.none];
     for (RoleModel roleModel in _allRoles) {
-      if (roleModel.role == Role.NONE) {
+      if (roleModel.role == Role.none) {
         continue;
       }
       for (var i = 0; i < roleModel.count; i++) {
         allAvailableRoles.add(roleModel.role);
-        _selectedRoles.add(Role.NONE);
+        _selectedRoles.add(Role.none);
       }
     }
 
@@ -76,7 +76,7 @@ class RoleManager {
   void _createPlayers() {
     int playersCount = 0;
     for (var roleModel in _allRoles) {
-      if (roleModel.role != Role.NONE) {
+      if (roleModel.role != Role.none) {
         playersCount += roleModel.count;
       }
     }

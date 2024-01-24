@@ -195,9 +195,9 @@ class GameHistoryManager {
         ? 'No one has been checked'
         : '${nightPhaseAction.role.name} (${nightPhaseAction.playersForWakeUp.firstOrNull?.nickname}) CHECKED ${nightPhaseAction.checkedPlayer?.nickname} - ${nightPhaseAction.checkedPlayer?.role.name}';
     var type = GameHistoryType.none;
-    if (nightPhaseAction.role == Role.DON) {
+    if (nightPhaseAction.role == Role.don) {
       type = GameHistoryType.donCheck;
-    } else if (nightPhaseAction.role == Role.SHERIFF) {
+    } else if (nightPhaseAction.role == Role.sheriff) {
       type = GameHistoryType.sheriffCheck;
     }
 

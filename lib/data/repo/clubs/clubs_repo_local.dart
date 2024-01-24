@@ -4,6 +4,7 @@ import 'package:mafia_board/data/entity/user_entity.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 import 'package:mafia_board/data/repo/auth/users/users_repo.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:uuid/uuid.dart';
 
 class ClubsRepoLocal extends ClubsRepo {
@@ -192,12 +193,12 @@ class ClubsRepoLocal extends ClubsRepo {
   @override
   Future<ClubEntity> createClub({
     required String name,
-    required String description,
+    required String clubDescription,
   }) async {
     final ClubEntity clubEntity = ClubEntity(
       id: const Uuid().v1(),
       title: name,
-      description: description,
+      description: clubDescription,
       members: [await authRepo.me()],
       admins: [await authRepo.me()],
       waitList: [],
@@ -225,7 +226,7 @@ class ClubsRepoLocal extends ClubsRepo {
   @override
   Future<ClubEntity> setClub({required ClubEntity clubEntity}) async {
     final index = _clubs.indexWhere((club) => club.id == clubEntity.id);
-    if(index != -1) {
+    if (index != -1) {
       _clubs[index] = clubEntity;
     } else {
       _clubs.add(clubEntity);
@@ -234,7 +235,18 @@ class ClubsRepoLocal extends ClubsRepo {
   }
 
   @override
-  Future<ClubEntity> createClubWithGoogleTable({required String name, required String clubDescription}) {
+  Future<ClubEntity> createClubWithGoogleTable({
+    required String name,
+    required String clubDescription,
+  }) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> addNewMembers({
+    required ClubModel clubModel,
+    required List<String> userIds,
+  }) {
     throw UnimplementedError();
   }
 }

@@ -175,17 +175,17 @@ class GameManager {
     }
     final allPlayers = playersRepository.getAllAvailablePlayers();
     int mafsCount = allPlayers
-        .where((player) => player.role == Role.MAFIA || player.role == Role.DON)
+        .where((player) => player.role == Role.mafia || player.role == Role.don)
         .length;
 
     int civilianCount = allPlayers
         .where(
           (player) =>
-              player.role == Role.CIVILIAN ||
-              player.role == Role.SHERIFF ||
-              player.role == Role.DOCTOR ||
-              player.role == Role.PUTANA ||
-              player.role == Role.MANIAC,
+              player.role == Role.civilian ||
+              player.role == Role.sheriff ||
+              player.role == Role.doctor ||
+              player.role == Role.putana ||
+              player.role == Role.maniac,
         )
         .length;
 

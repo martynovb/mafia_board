@@ -1,4 +1,5 @@
 import 'package:mafia_board/data/entity/club_entity.dart';
+import 'package:mafia_board/data/entity/user_entity.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
 
 abstract class ClubsRepo {
@@ -9,7 +10,7 @@ abstract class ClubsRepo {
 
   Future<ClubEntity> createClub({
     required String name,
-    required String description,
+    required String clubDescription,
   });
 
   Future<ClubEntity> updateClub({
@@ -47,5 +48,10 @@ abstract class ClubsRepo {
     required String clubId,
     required String currentUserId,
     required String participantUserId,
+  });
+
+  Future<void> addNewMembers({
+    required ClubModel clubModel,
+    required List<String> userIds,
   });
 }

@@ -4,7 +4,6 @@ import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/domain/model/user_model.dart';
 
 abstract class PlayersRepo {
-
   List<PlayerModel> createPlayers(int count);
 
   void setUser(int seatNumber, UserModel user);
@@ -30,6 +29,8 @@ abstract class PlayersRepo {
     bool? isMuted,
     bool? isPPK,
   });
+
+  Future<void> updateAllPlayerData(PlayerModel playerToUpdate);
 
   void resetAll();
 }

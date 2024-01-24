@@ -54,7 +54,16 @@ class _ClubsPageState extends State<ClubsPage> {
         separatorBuilder: (context, index) => const Divider(),
         shrinkWrap: true,
         itemBuilder: (context, index) {
-          return _clubItem(index, clubs[index]);
+          return GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                AppRouter.clubDetailsPage,
+                arguments: {'club': clubs[index]},
+              );
+            },
+            child: _clubItem(index, clubs[index]),
+          );
         },
         itemCount: clubs.length,
       );
@@ -88,35 +97,19 @@ class _ClubsPageState extends State<ClubsPage> {
             width: Dimensions.defaultSidePadding,
           ),
         ],
-        IconButton(
-          onPressed: () async {
-            await launchUrl(Uri.parse(club.googleSheetLink));
-          },
-          icon: const Icon(Icons.open_in_new),
-        ),
-        const SizedBox(
-          width: Dimensions.defaultSidePadding,
-        ),
-        IconButton(
-          onPressed: () {
-            Clipboard.setData(ClipboardData(text: club.googleSheetLink));
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Copied')),
-            );
-          },
-          icon: const Icon(Icons.copy),
-        ),
-        const SizedBox(
-          width: Dimensions.defaultSidePadding,
-        ),
-        IconButton(
-          key: menuKey,
-          onPressed: () async => _showMoreMenu(menuKey, club),
-          icon: const Icon(Icons.more_vert),
-        ),
-        const SizedBox(
-          width: Dimensions.defaultSidePadding,
-        ),
+        if (club.isAdmin) ...[
+          const SizedBox(
+            width: Dimensions.defaultSidePadding,
+          ),
+          IconButton(
+            key: menuKey,
+            onPressed: () async => _showMoreMenu(menuKey, club),
+            icon: const Icon(Icons.more_vert),
+          ),
+          const SizedBox(
+            width: Dimensions.defaultSidePadding,
+          ),
+        ]
       ],
     );
   }
@@ -147,6 +140,10 @@ class _ClubsPageState extends State<ClubsPage> {
           value: _managePermissionsOption,
           child: Text('Manage permissions'),
         ),
+        const PopupMenuItem<String>(
+          value: _managePermissionsOption,
+          child: Text('Delete club'),
+        ),
       ],
     );
 
@@ -156,8 +153,6 @@ class _ClubsPageState extends State<ClubsPage> {
         AppRouter.gameRulesPage,
         arguments: {'club': club},
       );
-    } else if (selectedValue == _managePermissionsOption) {
-
-    }
+    } else if (selectedValue == _managePermissionsOption) {}
   }
 }

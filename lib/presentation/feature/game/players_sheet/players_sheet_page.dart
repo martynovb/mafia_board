@@ -368,7 +368,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
                         );
                         _roleBloc.add(
                           RecalculateRolesEvent(
-                              seatNumber, newRole ?? Role.NONE.name),
+                              seatNumber, newRole ?? Role.none.name),
                         );
                       },
                 items: state.roles.entries.map((entry) {

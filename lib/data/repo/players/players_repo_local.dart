@@ -24,7 +24,7 @@ class PlayersRepoLocal extends PlayersRepo {
     }
     final playerIndex =
         _players.indexWhere((player) => player.seatNumber == seatNumber);
-    PlayerModel player = PlayerModel(user, Role.NONE, seatNumber);
+    PlayerModel player = PlayerModel(user, Role.none, seatNumber);
     _players[playerIndex] = player;
   }
 
@@ -54,6 +54,10 @@ class PlayersRepoLocal extends PlayersRepo {
     bool? isPPK,
   }) async {
     int playerIndex = _players.indexWhere((player) => player.id == id);
+    if(playerIndex == -1){
+      return;
+    }
+
     PlayerModel player = _players[playerIndex];
     player.fouls = fouls ?? player.fouls;
     player.role = role ?? player.role;
@@ -80,5 +84,14 @@ class PlayersRepoLocal extends PlayersRepo {
 
   @override
   Future<List<PlayerModel>> getAllPlayersByRole(List<Role> roles) async => _players.where((player) => roles.any((role) => player.role == role)).toList();
+
+  @override
+  Future<void> updateAllPlayerData(PlayerModel playerToUpdate) async {
+    int playerIndex = _players.indexWhere((player) => player.id == playerToUpdate.id);
+    if(playerIndex == -1){
+      return;
+    }
+    _players[playerIndex] = playerToUpdate;
+  }
 
 }

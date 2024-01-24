@@ -56,29 +56,29 @@ class _NightPhaseTableViewState extends State<NightPhaseTableView> {
             judgeSide: _nightJudgeViewMapper(state),
             highlightedPlayerList: _highlightedPlayerDataMapper(state),
             onPlayerClicked: (player) {
-              if (state.nightPhaseAction?.role == Role.SHERIFF ||
-                  state.nightPhaseAction?.role == Role.DON) {
+              if (state.nightPhaseAction?.role == Role.sheriff ||
+                  state.nightPhaseAction?.role == Role.don) {
                 nightPhaseBloc.add(CheckEvent(
-                  role: state.nightPhaseAction?.role ?? Role.NONE,
+                  role: state.nightPhaseAction?.role ?? Role.none,
                   playerToCheck: player,
                 ));
-              } else if (state.nightPhaseAction?.role == Role.MAFIA) {
+              } else if (state.nightPhaseAction?.role == Role.mafia) {
                 nightPhaseBloc.add(KillEvent(
-                  role: Role.MAFIA,
+                  role: Role.mafia,
                   killedPlayer: player,
                 ));
               }
             },
             onPlayerLongPress: (player) {
-              if (state.nightPhaseAction?.role == Role.SHERIFF ||
-                  state.nightPhaseAction?.role == Role.DON) {
+              if (state.nightPhaseAction?.role == Role.sheriff ||
+                  state.nightPhaseAction?.role == Role.don) {
                 nightPhaseBloc.add(CancelCheckEvent(
-                  role: state.nightPhaseAction?.role ?? Role.NONE,
+                  role: state.nightPhaseAction?.role ?? Role.none,
                   playerToCheck: player,
                 ));
-              } else if (state.nightPhaseAction?.role == Role.MAFIA) {
+              } else if (state.nightPhaseAction?.role == Role.mafia) {
                 nightPhaseBloc.add(CancelKillEvent(
-                  role: Role.MAFIA,
+                  role: Role.mafia,
                   killedPlayer: player,
                 ));
               }
@@ -90,14 +90,14 @@ class _NightPhaseTableViewState extends State<NightPhaseTableView> {
   List<HighlightedPlayerData> _highlightedPlayerDataMapper(
     NightPhaseState state,
   ) {
-    if (state.nightPhaseAction?.role == Role.MAFIA) {
+    if (state.nightPhaseAction?.role == Role.mafia) {
       return state.allPlayers
           .where((player) => player.isKilled)
           .map((player) => HighlightedPlayerData(
               phaseType: PhaseType.night, player: player, selectedToKill: true))
           .toList();
-    } else if (state.nightPhaseAction?.role == Role.DON ||
-        state.nightPhaseAction?.role == Role.SHERIFF &&
+    } else if (state.nightPhaseAction?.role == Role.don ||
+        state.nightPhaseAction?.role == Role.sheriff &&
             state.nightPhaseAction?.checkedPlayer != null) {
       final checkedPlayer = state.nightPhaseAction?.checkedPlayer;
       if (checkedPlayer != null) {
@@ -115,11 +115,11 @@ class _NightPhaseTableViewState extends State<NightPhaseTableView> {
   }
 
   Widget _nightJudgeViewMapper(NightPhaseState state) {
-    if (state.nightPhaseAction?.role == Role.MAFIA) {
+    if (state.nightPhaseAction?.role == Role.mafia) {
       return _mafiaView(state);
-    } else if (state.nightPhaseAction?.role == Role.DON) {
+    } else if (state.nightPhaseAction?.role == Role.don) {
       return _donView(state);
-    } else if (state.nightPhaseAction?.role == Role.SHERIFF) {
+    } else if (state.nightPhaseAction?.role == Role.sheriff) {
       return _sheriffView(state);
     } else {
       return Container();

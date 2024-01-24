@@ -6,10 +6,12 @@ import 'package:mafia_board/data/api/google_api_error.dart';
 import 'package:mafia_board/data/api/google_client_manager.dart';
 import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/data/entity/club_entity.dart';
+import 'package:mafia_board/data/entity/user_entity.dart';
 import 'package:mafia_board/data/repo/auth/users/users_repo.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
 import 'package:googleapis/sheets/v4.dart' as sheets;
 import 'package:mafia_board/data/repo/spreadsheet/spreadsheet_repo.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
 
 class ClubsRepoFirebase extends ClubsRepo {
   final FirebaseAuth firebaseAuth;
@@ -39,10 +41,17 @@ class ClubsRepoFirebase extends ClubsRepo {
         .get();
 
     for (var doc in querySnapshot.docs) {
-      final dynamicList =
-          doc.data()[FirestoreKeys.clubAdminsIdsFieldKey] as List<dynamic>?;
       List<String> adminIds =
-          dynamicList?.map((item) => item.toString()).toList() ?? [];
+          (doc.data()[FirestoreKeys.clubAdminsIdsFieldKey] as List<dynamic>?)
+                  ?.map((item) => item.toString())
+                  .toList() ??
+              [];
+
+      List<String> membersIds =
+          (doc.data()[FirestoreKeys.clubMembersIdsFieldKey] as List<dynamic>?)
+                  ?.map((item) => item.toString())
+                  .toList() ??
+              [];
 
       var club = ClubEntity(
         id: doc.id,
@@ -50,7 +59,9 @@ class ClubsRepoFirebase extends ClubsRepo {
         googleSheetId: doc.data()[FirestoreKeys.clubGoogleSheetIdFieldKey],
         description: doc.data()[FirestoreKeys.clubDescriptionFieldKey],
         admins: await usersRepo.getUsersByIds(adminIds),
+        members: await usersRepo.getUsersByIds(membersIds),
       );
+
       clubs.add(club);
     }
 
@@ -91,20 +102,54 @@ class ClubsRepoFirebase extends ClubsRepo {
   }
 
   @override
-  Future<bool> acceptUserToJoinClub({
-    required String clubId,
-    required String currentUserId,
-    required String participantUserId,
-  }) {
-    throw UnimplementedError();
-  }
-
-  @override
   Future<ClubEntity> createClub({
     required String name,
-    required String description,
-  }) {
-    throw UnimplementedError();
+    required String clubDescription,
+  }) async {
+    final userId = firebaseAuth.currentUser?.uid;
+    if (userId == null) {
+      throw InvalidCredentialsException('User is not authorized');
+    }
+
+    final doc =
+        await firestore.collection(FirestoreKeys.clubsCollectionKey).add(
+      {
+        FirestoreKeys.clubTitleFieldKey: name,
+        FirestoreKeys.clubDescriptionFieldKey: clubDescription,
+        FirestoreKeys.clubMembersIdsFieldKey: [userId],
+        FirestoreKeys.clubAdminsIdsFieldKey: [userId],
+      },
+    );
+
+    return ClubEntity(
+      id: doc.id,
+      title: name,
+      description: clubDescription,
+    );
+  }
+
+  // it is needed to display club details with all members
+  // add new members when a game for this club is finished
+  @override
+  Future<void> addNewMembers({
+    required ClubModel clubModel,
+    required List<String> userIds,
+  }) async {
+    final alreadyMembersIds =
+        clubModel.members.map((member) => member.id).toSet();
+    final membersSize = alreadyMembersIds.length;
+    //add new ids to set
+    alreadyMembersIds.addAll(userIds);
+
+    if (membersSize == alreadyMembersIds.length) {
+      // no new members, do not call firestore update
+      return;
+    }
+
+    await firestore
+        .collection(FirestoreKeys.clubsCollectionKey)
+        .doc(clubModel.id)
+        .update({FirestoreKeys.clubMembersIdsFieldKey: alreadyMembersIds});
   }
 
   @override
@@ -142,6 +187,15 @@ class ClubsRepoFirebase extends ClubsRepo {
   @override
   Future<ClubEntity> updateClub(
       {required String id, required String name, required String description}) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> acceptUserToJoinClub(
+      {required String clubId,
+      required String currentUserId,
+      required String participantUserId}) {
+    // TODO: implement acceptUserToJoinClub
     throw UnimplementedError();
   }
 }

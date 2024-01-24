@@ -8,7 +8,7 @@ class PlayerValidator {
       throw InvalidPlayerDataException('Some player has empty nickname');
     }
 
-    if (player.role == Role.NONE) {
+    if (player.role == Role.none) {
       throw InvalidPlayerDataException("Some player doesn't have a role");
     }
 

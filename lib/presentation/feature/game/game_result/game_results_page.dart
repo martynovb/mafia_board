@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/game_results_model.dart';
-import 'package:mafia_board/domain/model/player_score_model.dart';
+import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/game/game_result/bloc/game_results_bloc.dart';
@@ -161,18 +161,18 @@ class _GameResultsPageState extends State<GameResultsPage> {
         child: ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: results.scoreList.length,
+          itemCount: results.allPlayers.length,
           separatorBuilder: (context, index) => const Divider(
             height: Dimensions.sidePadding0_5x,
           ),
           itemBuilder: (__, index) => _playerItem(
             index,
-            results.scoreList[index],
+            results.allPlayers[index],
           ),
         ),
       );
 
-  Widget _playerItem(int index, PlayerScoreModel scoreModel) {
+  Widget _playerItem(int index, PlayerModel player) {
     return SizedBox(
       height: Dimensions.playerItemHeight,
       child: Row(
@@ -192,14 +192,14 @@ class _GameResultsPageState extends State<GameResultsPage> {
           ),
           Expanded(
             flex: _nicknameColumnFlex,
-            child: Text(scoreModel.player.nickname),
+            child: Text(player.nickname),
           ),
           const VerticalDivider(
             color: Colors.white,
           ),
           Expanded(
             flex: _roleColumnFlex,
-            child: Center(child: _roleIndicator(scoreModel.player.role)),
+            child: Center(child: _roleIndicator(player.role)),
           ),
           const VerticalDivider(
             color: Colors.white,
@@ -207,7 +207,7 @@ class _GameResultsPageState extends State<GameResultsPage> {
           Expanded(
             flex: _scoreColumnFlex,
             child: Center(
-              child: Text(scoreModel.bestMove.toString()),
+              child: Text(player.bestMove.toString()),
             ),
           ),
           const VerticalDivider(
@@ -216,7 +216,7 @@ class _GameResultsPageState extends State<GameResultsPage> {
           Expanded(
             flex: _scoreColumnFlex,
             child: Center(
-              child: Text(scoreModel.gamePoints.toString()),
+              child: Text(player.gamePoints.toString()),
             ),
           ),
           const VerticalDivider(
@@ -225,7 +225,7 @@ class _GameResultsPageState extends State<GameResultsPage> {
           Expanded(
             flex: _scoreColumnFlex,
             child: Center(
-              child: Text(scoreModel.total().toString()),
+              child: Text(player.total().toString()),
             ),
           ),
         ],

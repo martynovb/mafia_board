@@ -50,10 +50,10 @@ class NightPhaseManager {
           .toList();
 
       // workaround to add DON in MAFIA phase
-      if (roleModel.role == Role.MAFIA) {
+      if (roleModel.role == Role.mafia) {
         final donPlayer = boardRepository
             .getAllAvailablePlayers()
-            .firstWhereOrNull((player) => player.role == Role.DON);
+            .firstWhereOrNull((player) => player.role == Role.don);
         if (donPlayer != null) {
           playersByRole.add(donPlayer);
         }
@@ -202,14 +202,14 @@ class NightPhaseManager {
     final game = await getCurrentGameUseCase.execute();
     final currentDay = game.currentDayInfo.day;
     final nextDay = currentDay + 1;
-    if (whoIsVisiting == Role.DOCTOR) {
+    if (whoIsVisiting == Role.doctor) {
       final lastWordSpeakingPhase =
           speakGamePhaseRepo.getCurrentPhase(day: nextDay);
       if (lastWordSpeakingPhase != null && lastWordSpeakingPhase.isLastWord) {
         boardRepository.updatePlayer(playerModel.id, isKilled: false);
         speakGamePhaseRepo.remove(gamePhase: lastWordSpeakingPhase);
       }
-    } else if (whoIsVisiting == Role.PUTANA) {
+    } else if (whoIsVisiting == Role.putana) {
       boardRepository.updatePlayer(playerModel.id, isMuted: true);
     } else {
       // this role can't visit players

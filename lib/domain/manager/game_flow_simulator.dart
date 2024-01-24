@@ -22,16 +22,16 @@ class GameFlowSimulator {
     //first day
     var allPlayers = playersRepo.getAllPlayers();
 
-    allPlayers[0] = allPlayers[0]..role = Role.DON;
-    allPlayers[1] = allPlayers[1]..role = Role.MAFIA;
-    allPlayers[2] = allPlayers[2]..role = Role.MAFIA;
-    allPlayers[3] = allPlayers[3]..role = Role.SHERIFF;
-    allPlayers[4] = allPlayers[4]..role = Role.CIVILIAN;
-    allPlayers[5] = allPlayers[5]..role = Role.CIVILIAN;
-    allPlayers[6] = allPlayers[6]..role = Role.CIVILIAN;
-    allPlayers[7] = allPlayers[7]..role = Role.CIVILIAN;
-    allPlayers[8] = allPlayers[8]..role = Role.CIVILIAN;
-    allPlayers[9] = allPlayers[9]..role = Role.CIVILIAN;
+    allPlayers[0] = allPlayers[0]..role = Role.don;
+    allPlayers[1] = allPlayers[1]..role = Role.mafia;
+    allPlayers[2] = allPlayers[2]..role = Role.mafia;
+    allPlayers[3] = allPlayers[3]..role = Role.sheriff;
+    allPlayers[4] = allPlayers[4]..role = Role.civilian;
+    allPlayers[5] = allPlayers[5]..role = Role.civilian;
+    allPlayers[6] = allPlayers[6]..role = Role.civilian;
+    allPlayers[7] = allPlayers[7]..role = Role.civilian;
+    allPlayers[8] = allPlayers[8]..role = Role.civilian;
+    allPlayers[9] = allPlayers[9]..role = Role.civilian;
 
     for (var i = 0; i < allPlayers.length; i++) {
       if (i < 5) {

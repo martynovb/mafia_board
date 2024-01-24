@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:googleapis/sheets/v4.dart';
+import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/data/entity/game/game_entity.dart';
 import 'package:mafia_board/data/entity/game/day_info_entity.dart';
 import 'package:mafia_board/data/entity/game/player_entity.dart';
+import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/data/repo/spreadsheet/spreadsheet_app_consts.dart';
 import 'package:mafia_board/data/repo/spreadsheet/spreadsheet_repo.dart';
@@ -16,15 +19,17 @@ import 'package:mafia_board/data/repo/game_info/game_repo.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:uuid/uuid.dart';
 
-class GameRepoLocal extends GameRepo {
+class GameRepoImpl extends GameRepo {
   GameEntity? _currentGame;
   final List<DayInfoEntity> _dayInfoList = [];
   final PlayersRepo playersRepo;
-  final SpreadsheetRepo spreadsheetRepo;
+  final ClubsRepo clubsRepo;
+  final FirebaseFirestore firestore;
 
-  GameRepoLocal({
-    required this.spreadsheetRepo,
+  GameRepoImpl({
     required this.playersRepo,
+    required this.clubsRepo,
+    required this.firestore,
   });
 
   @override
@@ -34,9 +39,7 @@ class GameRepoLocal extends GameRepo {
   }) async {
     final players = playersRepo.getAllPlayers();
     _currentGame = GameEntity(
-        id: const Uuid().v1(),
         clubId: clubId,
-        players: players.map((playerModel) => playerModel.toEntity()).toList(),
         gameStatus: gameStatus.name,
         finishGameType: FinishGameType.none.name);
     return _currentGame!;
@@ -162,62 +165,23 @@ class GameRepoLocal extends GameRepo {
     required ClubModel clubModel,
     required GameResultsModel gameResultsModel,
   }) async {
-    // create createSpreadsheet if needed
-    await spreadsheetRepo.addNewSheet(
-      spreadsheetId: clubModel.googleSheetId,
-      sheetName: SpreadsheetAppConsts.resultsSheetName,
+
+    await clubsRepo.addNewMembers(
+      clubModel: clubModel,
+      userIds: gameResultsModel.allPlayers.map((player) => player.id).toList(),
     );
 
-    // find the last game record
-    // increment game count
-
-    // save this game
-    final mafsLeft = playersRepo
-        .getAllAvailablePlayers()
-        .where((player) => player.role == Role.MAFIA || player.role == Role.DON)
-        .toList()
-        .length;
-
-    final gameResultsMatrix = [
-      ['game 1', 'game id', 'time', 'win role', 'mafs left'],
-      [
-        '',
-        _currentGame?.id,
-        '99:99',
-        gameResultsModel.winnerType.name,
-        mafsLeft
-      ],
-      [
-        'sit',
-        'user_id',
-        'nickname',
-        'role',
-        'total',
-        'score',
-        'best move',
-        'Ci'
-      ],
-    ];
-
-    for (var scoreItem in gameResultsModel.scoreList) {
-      gameResultsMatrix.add([
-        scoreItem.player.seatNumber,
-        scoreItem.player.id,
-        scoreItem.player.nickname,
-        scoreItem.player.role.name,
-        scoreItem.gamePoints,
-        scoreItem.bonus,
-        scoreItem.bestMove,
-        scoreItem.compensation,
-      ]);
-    }
-
-    await spreadsheetRepo.updateFieldsInRange(
-      spreadsheetId: clubModel.googleSheetId,
-      sheetName: SpreadsheetAppConsts.resultsSheetName,
-      startRange: SpreadsheetAppConsts.rulesStartRange,
-      endRange: SpreadsheetAppConsts.rulesEndRange,
-      valueRange: ValueRange(values: gameResultsMatrix),
+    //create game
+    final doc =
+    await firestore.collection(FirestoreKeys.gamesCollectionKey).add(
+      {
+        FirestoreKeys.clubTitleFieldKey: name,
+        FirestoreKeys.clubDescriptionFieldKey: clubDescription,
+        FirestoreKeys.clubMembersIdsFieldKey: [userId],
+        FirestoreKeys.clubAdminsIdsFieldKey: [userId],
+      },
     );
+
+
   }
 }

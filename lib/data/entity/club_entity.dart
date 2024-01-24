@@ -1,3 +1,4 @@
+import 'package:mafia_board/data/entity/club_member_entity.dart';
 import 'package:mafia_board/data/entity/user_entity.dart';
 
 class ClubEntity {
@@ -5,10 +6,12 @@ class ClubEntity {
   String? title;
   String? description;
   String? googleSheetId;
-  final List<UserEntity>? members;
-  final List<UserEntity>? admins;
-  final List<UserEntity>? waitList;
+  final List<ClubMemberEntity>? members;
+  final List<ClubMemberEntity>? admins;
   String? rulesId;
+  double? civilWinRate;
+  double? mafWinRate;
+  int? createdAt;
 
   ClubEntity({
     this.id,
@@ -16,9 +19,11 @@ class ClubEntity {
     this.description,
     this.members,
     this.admins,
-    this.waitList,
     this.rulesId,
     this.googleSheetId,
+    this.civilWinRate,
+    this.mafWinRate,
+    this.createdAt,
   });
 
   static ClubEntity fromJson(Map<dynamic, dynamic> json) {
@@ -27,9 +32,11 @@ class ClubEntity {
       title: json['title'] as String?,
       description: json['description'] as String?,
       rulesId: json['rulesId'] as String?,
-      members: UserEntity.parseUserEntities(json['members']),
-      admins: UserEntity.parseUserEntities(json['admins']),
-      waitList: UserEntity.parseUserEntities(json['waitList']),
+      civilWinRate: json['civilWinRate'] as double?,
+      mafWinRate: json['mafWinRate'] as double?,
+      createdAt: json['createdAt'] as int?,
+      members: ClubMemberEntity.parseUserEntities(json['members']),
+      admins: ClubMemberEntity.parseUserEntities(json['admins']),
     );
   }
 }

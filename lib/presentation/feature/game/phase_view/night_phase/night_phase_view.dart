@@ -61,11 +61,11 @@ class _NightPhaseViewState extends State<NightPhaseView> {
   }
 
   Widget _nightViewMapper(NightPhaseState state) {
-    if (state.nightPhaseAction?.role == Role.MAFIA) {
+    if (state.nightPhaseAction?.role == Role.mafia) {
       return _mafiaView(state);
-    } else if (state.nightPhaseAction?.role == Role.DON) {
+    } else if (state.nightPhaseAction?.role == Role.don) {
       return _donView(state);
-    } else if (state.nightPhaseAction?.role == Role.SHERIFF) {
+    } else if (state.nightPhaseAction?.role == Role.sheriff) {
       return _sheriffView(state);
     } else {
       return Container();
@@ -200,13 +200,13 @@ class _NightPhaseViewState extends State<NightPhaseView> {
             ),
             onLongPress: () {
               nightPhaseBloc.add(CancelCheckEvent(
-                role: state.nightPhaseAction?.role ?? Role.NONE,
+                role: state.nightPhaseAction?.role ?? Role.none,
                 playerToCheck: player,
               ));
             },
             onPressed: () {
               nightPhaseBloc.add(CheckEvent(
-                role: state.nightPhaseAction?.role ?? Role.NONE,
+                role: state.nightPhaseAction?.role ?? Role.none,
                 playerToCheck: player,
               ));
             },
@@ -238,13 +238,13 @@ class _NightPhaseViewState extends State<NightPhaseView> {
             ),
             onLongPress: () {
               nightPhaseBloc.add(CancelKillEvent(
-                role: Role.MAFIA,
+                role: Role.mafia,
                 killedPlayer: player,
               ));
             },
             onPressed: () {
               nightPhaseBloc.add(KillEvent(
-                role: Role.MAFIA,
+                role: Role.mafia,
                 killedPlayer: player,
               ));
             },
@@ -255,11 +255,11 @@ class _NightPhaseViewState extends State<NightPhaseView> {
   }
 
   IconData _mapIconByRole(Role? role) {
-    if (role == Role.DON || role == Role.MAFIA) {
+    if (role == Role.don || role == Role.mafia) {
       return Icons.thumb_down;
-    } else if (role == Role.CIVILIAN) {
+    } else if (role == Role.civilian) {
       return Icons.thumb_up;
-    } else if (role == Role.SHERIFF) {
+    } else if (role == Role.sheriff) {
       return Icons.local_police_outlined;
     }
 
@@ -269,16 +269,16 @@ class _NightPhaseViewState extends State<NightPhaseView> {
   Color? _mapBackgroundColor(
       NightPhaseState nightPhaseState, PlayerModel currentPlayer) {
     final currentNightPhaseRole =
-        nightPhaseState.nightPhaseAction?.role ?? Role.NONE;
+        nightPhaseState.nightPhaseAction?.role ?? Role.none;
 
     if (currentPlayer.isKicked || currentPlayer.isDisqualified) {
       return Colors.grey;
-    } else if (currentNightPhaseRole == Role.MAFIA && currentPlayer.isKilled) {
+    } else if (currentNightPhaseRole == Role.mafia && currentPlayer.isKilled) {
       return Colors.red;
-    } else if (currentNightPhaseRole == Role.MAFIA && !currentPlayer.isKilled) {
+    } else if (currentNightPhaseRole == Role.mafia && !currentPlayer.isKilled) {
       return Colors.blueAccent;
-    } else if ((currentNightPhaseRole == Role.DON ||
-        currentNightPhaseRole == Role.SHERIFF) &&
+    } else if ((currentNightPhaseRole == Role.don ||
+        currentNightPhaseRole == Role.sheriff) &&
             nightPhaseState.nightPhaseAction?.checkedPlayer?.id ==
                 currentPlayer.id) {
       return _mapBackgroundColorByRole(currentPlayer.role);
@@ -288,11 +288,11 @@ class _NightPhaseViewState extends State<NightPhaseView> {
   }
 
   Color? _mapBackgroundColorByRole(Role role) {
-    if (role == Role.DON || role == Role.MAFIA) {
+    if (role == Role.don || role == Role.mafia) {
       return Colors.black;
-    } else if (role == Role.CIVILIAN) {
+    } else if (role == Role.civilian) {
       return Colors.red.shade300;
-    } else if (role == Role.SHERIFF) {
+    } else if (role == Role.sheriff) {
       return Colors.green.withOpacity(0.3);
     }
 

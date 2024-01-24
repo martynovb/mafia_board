@@ -183,11 +183,11 @@ class _TableWidgetState extends State<TableWidget> {
   }
 
   IconData _mapIconByRole(Role? role) {
-    if (role == Role.DON || role == Role.MAFIA) {
+    if (role == Role.don || role == Role.mafia) {
       return Icons.thumb_down;
-    } else if (role == Role.CIVILIAN) {
+    } else if (role == Role.civilian) {
       return Icons.thumb_up;
-    } else if (role == Role.SHERIFF) {
+    } else if (role == Role.sheriff) {
       return Icons.local_police_outlined;
     }
 
@@ -195,11 +195,11 @@ class _TableWidgetState extends State<TableWidget> {
   }
 
   Color _mapBackgroundColorByRole(Role role) {
-    if (role == Role.DON || role == Role.MAFIA) {
+    if (role == Role.don || role == Role.mafia) {
       return Colors.black;
-    } else if (role == Role.CIVILIAN) {
+    } else if (role == Role.civilian) {
       return Colors.red.shade300;
-    } else if (role == Role.SHERIFF) {
+    } else if (role == Role.sheriff) {
       return Colors.green.withOpacity(0.3);
     }
 

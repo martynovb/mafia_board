@@ -18,7 +18,7 @@ class ClubDetailsPage extends StatefulWidget {
 
 class _ClubDetailsPageState extends State<ClubDetailsPage> {
   late ClubsDetailsBloc clubDetailsBloc;
-  late String clubId;
+  ClubModel? club;
 
   @override
   void initState() {
@@ -30,27 +30,45 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
   void didChangeDependencies() {
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    clubId = args?['clubId'] ?? '';
-    clubDetailsBloc.add(GetClubDetailsEvent(clubId));
+    club = args?['club'];
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: BlocBuilder(
-        bloc: clubDetailsBloc,
-        builder: (BuildContext context, ClubDetailsState state) {
-          if (state is DetailsState) {
-            return _clubDetails(state.club);
-          }
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      ),
-    );
+    if (club == null) {
+      return Scaffold(
+        appBar: AppBar(),
+        body: const Center(
+          child: Text('No club info'),
+        ),
+      );
+    } else {
+      return Scaffold(
+        appBar: AppBar(),
+        body: Column(
+          children: [
+            Row(
+              children: [
+                Column(
+                  children: [
+                    Text(club!.title),
+                    Text(club!.description),
+                  ],
+                ),
+                Spacer(),
+                Column(
+                  children: [
+                    Text('Civil WIN rate:'),
+                    Text(club!.description),
+                  ],
+                ),
+              ],
+            )
+          ],
+        ),
+      );
+    }
   }
 
   Widget _clubDetails(ClubModel club) {
@@ -86,7 +104,7 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
                 arguments: {'clubId': club.id},
               );
             },
-            child: Text('Start new game'),
+            child: const Text('Start new game'),
           ),
       ],
     );

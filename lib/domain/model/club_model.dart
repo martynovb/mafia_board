@@ -1,4 +1,5 @@
 import 'package:mafia_board/data/entity/club_entity.dart';
+import 'package:mafia_board/domain/model/club_member_model.dart';
 import 'package:mafia_board/domain/model/game_model.dart';
 import 'package:mafia_board/domain/model/user_model.dart';
 
@@ -8,11 +9,13 @@ class ClubModel {
   final String description;
   final String googleSheetLink;
   final String googleSheetId;
-  final List<UserModel> members;
-  final List<UserModel> admins;
-  final List<UserModel> waitList;
+  final List<ClubMemberModel> members;
+  final List<ClubMemberModel> admins;
   bool isAdmin = false;
   List<GameModel> games = [];
+  double civilWinRate;
+  double mafWinRate;
+  DateTime createdAt;
 
   ClubModel.empty()
       : id = '',
@@ -20,9 +23,11 @@ class ClubModel {
         description = '',
         googleSheetLink = '',
         googleSheetId = '',
+        civilWinRate = 0.0,
+        mafWinRate = 0.0,
+        createdAt = DateTime.fromMillisecondsSinceEpoch(0),
         members = [],
-        admins = [],
-        waitList = [];
+        admins = [];
 
   ClubModel.fromEntity(ClubEntity entity, [this.isAdmin = false])
       : id = entity.id ?? '',
@@ -33,14 +38,15 @@ class ClubModel {
             ? 'https://docs.google.com/spreadsheets/d/${entity.googleSheetId}'
             : '',
         members = entity.members
-                ?.map((user) => UserModel.fromEntity(user))
+                ?.map((member) => ClubMemberModel.fromEntity(member))
                 .toList() ??
             [],
         admins =
-            entity.admins?.map((user) => UserModel.fromEntity(user)).toList() ??
+            entity.admins?.map((member) => ClubMemberModel.fromEntity(member)).toList() ??
                 [],
-        waitList = entity.waitList
-                ?.map((user) => UserModel.fromEntity(user))
-                .toList() ??
-            [];
+        civilWinRate = entity.civilWinRate ?? 0.0,
+        mafWinRate = entity.mafWinRate ?? 0.0,
+        createdAt = entity.createdAt != null
+            ? DateTime.fromMillisecondsSinceEpoch(entity.createdAt!)
+            : DateTime.fromMillisecondsSinceEpoch(0);
 }

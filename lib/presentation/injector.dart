@@ -29,7 +29,7 @@ import 'package:mafia_board/data/repo/game_phase/vote_phase_repo/vote_phase_repo
 import 'package:mafia_board/data/repo/history/history_repository.dart';
 import 'package:mafia_board/data/repo/history/history_repository_local.dart';
 import 'package:mafia_board/data/repo/game_info/game_repo.dart';
-import 'package:mafia_board/data/repo/game_info/game_repo_local.dart';
+import 'package:mafia_board/data/repo/game_info/game_repo_impl.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/data/repo/players/players_repo_local.dart';
 import 'package:mafia_board/domain/field_validation/email_validator.dart';
@@ -44,6 +44,7 @@ import 'package:mafia_board/domain/manager/game_flow/vote_phase_manager.dart';
 import 'package:mafia_board/domain/manager/player_manager.dart';
 import 'package:mafia_board/domain/usecase/change_nickname_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_club_usecase.dart';
+import 'package:mafia_board/domain/usecase/create_club_with_spreadsheet_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_rules_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_all_users_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_user_data_usecase.dart';
@@ -148,9 +149,10 @@ class Injector {
     _getIt.registerSingleton<PlayersRepo>(PlayersRepoLocal());
     _getIt.registerSingleton(RoleManager.classic(_getIt.get()));
     _getIt.registerSingleton(PlayerValidator());
-    _getIt.registerSingleton<GameRepo>(GameRepoLocal(
+    _getIt.registerSingleton<GameRepo>(GameRepoImpl(
       playersRepo: _getIt.get(),
-      spreadsheetRepo: _getIt.get(),
+      clubsRepo: _getIt.get(),
+      firestore: FirebaseFirestore.instance,
     ));
     _getIt.registerSingleton<UsersRepo>(UsersRepoFirebase(
       firestore: FirebaseFirestore.instance,
@@ -189,6 +191,10 @@ class Injector {
     );
     _getIt.registerSingleton<CreateClubUseCase>(
       CreateClubUseCase(authRepo: _getIt.get(), clubsRepo: _getIt.get()),
+    );
+    _getIt.registerSingleton<CreateClubWithSpreadSheetUseCase>(
+      CreateClubWithSpreadSheetUseCase(
+          authRepo: _getIt.get(), clubsRepo: _getIt.get()),
     );
     _getIt.registerSingleton<SaveGameResultsUseCase>(
       SaveGameResultsUseCase(gameRepo: _getIt.get()),
