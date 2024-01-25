@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:mafia_board/domain/model/club_member_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/domain/model/user_model.dart';
@@ -17,14 +18,14 @@ class PlayersRepoLocal extends PlayersRepo {
   }
 
   @override
-  void setUser(int seatNumber, UserModel user) {
-    final userIndexIfAlreadySet = _players.indexWhere((player) => player.id == user.id);
+  void setUser(int seatNumber, ClubMemberModel clubMember) {
+    final userIndexIfAlreadySet = _players.indexWhere((player) => player.id == clubMember.id);
     if(userIndexIfAlreadySet != -1){
       _players[userIndexIfAlreadySet] = PlayerModel.empty(_players[userIndexIfAlreadySet].seatNumber);
     }
     final playerIndex =
         _players.indexWhere((player) => player.seatNumber == seatNumber);
-    PlayerModel player = PlayerModel(user, Role.none, seatNumber);
+    PlayerModel player = PlayerModel(clubMember, Role.none, seatNumber);
     _players[playerIndex] = player;
   }
 

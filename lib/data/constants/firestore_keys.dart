@@ -3,6 +3,7 @@ class FirestoreKeys {
   static const usersCollectionKey = 'users';
   static const clubsCollectionKey = 'clubs';
   static const gamesCollectionKey = 'games';
+  static const clubMembersCollectionKey = 'club_members';
 
   static const idFieldKey = 'id';
 
@@ -26,5 +27,5 @@ class FirestoreKeys {
   static const playerClubIdFieldKey = 'club_id';
 
   /// CLUB_MEMBER
-  static const clubMemberUserIdFieldKey = 'club_member_user_id';
+  static const clubMemberUserIdFieldKey = 'user_id';
 }

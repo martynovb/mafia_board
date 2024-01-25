@@ -180,8 +180,8 @@ class Injector {
 
   static void _injectDomainLayer() {
     //usecase
-    _getIt.registerSingleton<GetAllUsersUsecase>(
-      GetAllUsersUsecase(usersRepo: _getIt.get()),
+    _getIt.registerSingleton<GetAllClubMembersUsecase>(
+      GetAllClubMembersUsecase(clubsRepo: _getIt.get()),
     );
     _getIt.registerSingleton<ChangeNicknameUseCase>(
       ChangeNicknameUseCase(authRepo: _getIt.get()),

@@ -1,10 +1,7 @@
-import 'package:class_to_string/class_to_string.dart';
-import 'package:mafia_board/data/entity/user_entity.dart';
-import 'package:mafia_board/domain/model/role.dart';
-import 'package:mafia_board/domain/model/user_model.dart';
+import 'package:mafia_board/data/entity/club_member_entity.dart';
 
 class PlayerEntity {
-  final UserEntity? user;
+  final ClubMemberEntity? clubMember;
   final int? fouls;
   final String? role;
   final double? score;
@@ -22,7 +19,7 @@ class PlayerEntity {
   final bool? isFirstKilled;
 
   PlayerEntity({
-    required this.user,
+    required this.clubMember,
     required this.role,
     required this.seatNumber,
     required this.fouls,
@@ -41,7 +38,7 @@ class PlayerEntity {
 
   static PlayerEntity fromJson(Map<dynamic, dynamic> json) {
     return PlayerEntity(
-      user: UserEntity.fromJson(json['user']),
+      clubMember: ClubMemberEntity.fromJson(json['club_member']),
       role: json['role'] as String?,
       fouls: json['fouls'] as int?,
       score: json['score'] as double?,

@@ -1,20 +1,26 @@
+import 'package:mafia_board/domain/model/club_member_model.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/user_model.dart';
 
 abstract class SheetEvent {}
 
 class FindUserEvent extends SheetEvent {
+  final ClubModel club;
   final int seatNumber;
 
-  FindUserEvent({required this.seatNumber});
+  FindUserEvent({
+    required this.seatNumber,
+    required this.club,
+  });
 }
 
-class SetUserEvent extends SheetEvent {
+class SetClubMemberEvent extends SheetEvent {
   final int seatNumber;
-  final UserModel user;
+  final ClubMemberModel clubMember;
 
-  SetUserEvent({
+  SetClubMemberEvent({
     required this.seatNumber,
-    required this.user,
+    required this.clubMember,
   });
 }
 

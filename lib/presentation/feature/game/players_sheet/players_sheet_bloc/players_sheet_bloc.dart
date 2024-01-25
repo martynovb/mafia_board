@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
+import 'package:mafia_board/domain/model/club_member_model.dart';
 import 'package:mafia_board/domain/model/user_model.dart';
 import 'package:mafia_board/data/constants/constants.dart';
 import 'package:mafia_board/domain/model/role.dart';
@@ -40,7 +41,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     on<ChangeRoleEvent>(_changeRoleHandler);
     on<KillPlayerHandler>(_killPlayerHandler);
     on<SetTestDataEvent>(_setTestDataHandler);
-    on<SetUserEvent>(_setUserHandler);
+    on<SetClubMemberEvent>(_setUserHandler);
     _playersSubject
         .add(SheetDataState(players: playersRepository.getAllPlayers()));
     _listenToGamePhase();
@@ -49,12 +50,12 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
   void _listenToGamePhase() {
     _gamePhaseSubscription =
         gamePhaseManager.gameStream.listen((gameModel) async {
-          if(gameModel != null) {
-            _playersSubject.add(SheetDataState(
-              players: playersRepository.getAllPlayers(),
-              currentGame: await getCurrentGameUseCase.execute(),
-            ));
-          }
+      if (gameModel != null) {
+        _playersSubject.add(SheetDataState(
+          players: playersRepository.getAllPlayers(),
+          currentGame: await getCurrentGameUseCase.execute(),
+        ));
+      }
     });
   }
 
@@ -63,8 +64,12 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
   void _findUserHandler(FindUserEvent event, emit) async {
     final nick = String.fromCharCodes(
         List.generate(6, (index) => Random().nextInt(33) + 89));
-    final newUser = UserModel(
-        id: const Uuid().v1(), nickname: nick, email: '$nick@mail.com');
+    final newUser = ClubMemberModel(
+      id: const Uuid().v1(),
+      user: UserModel(
+          id: const Uuid().v1(), nickname: nick, email: '$nick@mail.com'),
+      clubId: event.club.id,
+    );
     playersRepository.setUser(event.seatNumber, newUser);
 
     _playersSubject.add(SheetDataState(
@@ -73,8 +78,8 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     ));
   }
 
-  void _setUserHandler(SetUserEvent event, emit) async {
-    playersRepository.setUser(event.seatNumber, event.user);
+  void _setUserHandler(SetClubMemberEvent event, emit) async {
+    playersRepository.setUser(event.seatNumber, event.clubMember);
 
     _playersSubject.add(SheetDataState(
       players: playersRepository.getAllPlayers(),
@@ -128,11 +133,15 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
       final nick = String.fromCharCodes(
           List.generate(6, (index) => Random().nextInt(33) + 89));
 
-      final newUser = UserModel(
-          id: const Uuid().v1(), nickname: nick, email: '$nick@mail.com');
+      final newUser = ClubMemberModel(
+        id: const Uuid().v1(),
+        user: UserModel(
+            id: const Uuid().v1(), nickname: nick, email: '$nick@mail.com'),
+        clubId: event.club.id,
+      );
 
       playersRepository.setUser(i, newUser);
-      await playersRepository.updatePlayer(newUser.id, role: role);
+      await playersRepository.updatePlayer(newUser.user.id, role: role);
       roleManager.recalculateAvailableRoles(i, role);
     }
 

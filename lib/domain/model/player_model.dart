@@ -1,10 +1,10 @@
 import 'package:class_to_string/class_to_string.dart';
 import 'package:mafia_board/data/entity/game/player_entity.dart';
+import 'package:mafia_board/domain/model/club_member_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
-import 'package:mafia_board/domain/model/user_model.dart';
 
 class PlayerModel {
-  UserModel? _user;
+  ClubMemberModel? _clubMember;
   int fouls;
   Role role;
   double score;
@@ -22,7 +22,7 @@ class PlayerModel {
   bool isFirstKilled;
 
   PlayerModel(
-    this._user,
+    this._clubMember,
     this.role,
     this.seatNumber, {
     this.fouls = 0,
@@ -42,7 +42,7 @@ class PlayerModel {
   double total() => bestMove + compensation + gamePoints + bonus;
 
   PlayerModel.empty(this.seatNumber)
-      : _user = UserModel.empty(),
+      : _clubMember = ClubMemberModel.empty(),
         role = Role.none,
         fouls = 0,
         score = 0,
@@ -58,7 +58,7 @@ class PlayerModel {
         isFirstKilled = false;
 
   PlayerModel.fromEntity(PlayerEntity? entity)
-      : _user = UserModel.fromEntity(entity?.user),
+      : _clubMember = ClubMemberModel.fromEntity(entity?.clubMember),
         seatNumber = entity?.seatNumber ?? -1,
         role = roleMapper(entity?.role),
         fouls = entity?.fouls ?? -1,
@@ -76,7 +76,7 @@ class PlayerModel {
 
   PlayerEntity toEntity() {
     return PlayerEntity(
-      user: _user?.toEntity(),
+      clubMember: _clubMember?.toEntity(),
       role: role.name,
       seatNumber: seatNumber,
       fouls: fouls,
@@ -95,7 +95,7 @@ class PlayerModel {
   }
 
   void reset() {
-    _user = null;
+    _clubMember = null;
     role = Role.none;
     fouls = 0;
     score = 0;
@@ -111,11 +111,11 @@ class PlayerModel {
     isFirstKilled = false;
   }
 
-  set user(UserModel? user) => _user = user;
+  set user(ClubMemberModel? clubMember) => _clubMember = clubMember;
 
-  String get id => _user?.id ?? '';
+  String get id => _clubMember?.user.id ?? '';
 
-  String get nickname => _user?.nickname ?? '';
+  String get nickname => _clubMember?.user.nickname ?? '';
 
   bool isInGame() => !isDisqualified && !isKilled && !isKicked && !isPPK;
 
@@ -124,7 +124,7 @@ class PlayerModel {
     return (
       ClassToString('PlayerModel')
         ..add('id', id)
-        ..add('user', _user)
+        ..add('clubMember', _clubMember)
         ..add('fouls', fouls)
         ..add('role', role)
         ..add('score', score)

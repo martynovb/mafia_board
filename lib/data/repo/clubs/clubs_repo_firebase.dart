@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:collection/collection.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mafia_board/data/api/error_handler.dart';
@@ -6,6 +7,7 @@ import 'package:mafia_board/data/api/google_api_error.dart';
 import 'package:mafia_board/data/api/google_client_manager.dart';
 import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/data/entity/club_entity.dart';
+import 'package:mafia_board/data/entity/club_member_entity.dart';
 import 'package:mafia_board/data/entity/user_entity.dart';
 import 'package:mafia_board/data/repo/auth/users/users_repo.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
@@ -18,6 +20,7 @@ class ClubsRepoFirebase extends ClubsRepo {
   final FirebaseFirestore firestore;
   final GoogleSignIn googleSignIn;
   final UsersRepo usersRepo;
+  final ClubsRepo clubsRepo;
   final GoogleClientManager googleClientManager;
   final SpreadsheetRepo spreadSheepRepo;
 
@@ -26,6 +29,7 @@ class ClubsRepoFirebase extends ClubsRepo {
     required this.firestore,
     required this.googleSignIn,
     required this.usersRepo,
+    required this.clubsRepo,
     required this.googleClientManager,
     required this.spreadSheepRepo,
   });
@@ -152,6 +156,37 @@ class ClubsRepoFirebase extends ClubsRepo {
         .update({FirestoreKeys.clubMembersIdsFieldKey: alreadyMembersIds});
   }
 
+  // get all users map to clubMember
+  // left clubMember id is null if there is no clubMember with this user
+  // create clubMember where id is null after a game will be finished
+  @override
+  Future<List<ClubMemberEntity>> getExistedAndNotExistedClubMembers({
+    required ClubModel clubModel,
+  }) async {
+    final allUsers = await usersRepo.getAllUsers();
+
+    var membersDoc = await firestore
+        .collection(FirestoreKeys.clubMembersCollectionKey)
+        .where(FirestoreKeys.gameClubIdFieldKey, isEqualTo: clubModel.id)
+        .get();
+
+    final existedAndNonExistedMembers = <ClubMemberEntity>[];
+
+    for (var user in allUsers) {
+      final memberDocForThisUser = membersDoc.docs.firstWhereOrNull(
+        (doc) => doc.data()[FirestoreKeys.clubMemberUserIdFieldKey] == user.id,
+      );
+      existedAndNonExistedMembers.add(
+        ClubMemberEntity(
+          id: memberDocForThisUser?.id,
+          clubId: clubModel.id,
+          user: user,
+        ),
+      );
+    }
+    return existedAndNonExistedMembers;
+  }
+
   @override
   Future<ClubEntity?> getClubDetails({required String id}) {
     throw UnimplementedError();
@@ -196,6 +231,12 @@ class ClubsRepoFirebase extends ClubsRepo {
       required String currentUserId,
       required String participantUserId}) {
     // TODO: implement acceptUserToJoinClub
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<ClubMemberEntity>> getExistedClubMembers({required String clubId}) {
+    // TODO: implement getExistedClubMembers
     throw UnimplementedError();
   }
 }

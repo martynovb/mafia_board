@@ -1,8 +1,8 @@
-import 'package:mafia_board/domain/model/user_model.dart';
+import 'package:mafia_board/domain/model/club_member_model.dart';
 
 class UserListState {
-  final List<UserModel> users;
+  final List<ClubMemberModel> clubMember;
 
-  UserListState({this.users = const []});
+  UserListState({this.clubMember = const []});
 }
 

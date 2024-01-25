@@ -172,7 +172,7 @@ class GameRepoImpl extends GameRepo {
     );
 
     //create game
-    final doc =
+    /*final doc =
     await firestore.collection(FirestoreKeys.gamesCollectionKey).add(
       {
         FirestoreKeys.clubTitleFieldKey: name,
@@ -180,7 +180,7 @@ class GameRepoImpl extends GameRepo {
         FirestoreKeys.clubMembersIdsFieldKey: [userId],
         FirestoreKeys.clubAdminsIdsFieldKey: [userId],
       },
-    );
+    );*/
 
 
   }

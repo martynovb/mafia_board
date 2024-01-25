@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/domain/model/club_member_model.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
-import 'package:mafia_board/domain/model/user_model.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_event.dart';
@@ -252,12 +252,12 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
                 ? IconButton(
                     icon: const Icon(Icons.add),
                     onPressed: () async {
-                      final user = await _showUsersBottomSheet(context);
-                      if (user != null) {
+                      final clubMember = await _showUsersBottomSheet(context);
+                      if (clubMember != null) {
                         _playersSheetBloc.add(
-                          SetUserEvent(
+                          SetClubMemberEvent(
                             seatNumber: playerModel.seatNumber,
-                            user: user,
+                            clubMember: clubMember,
                           ),
                         );
                       }
@@ -269,9 +269,9 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
                       final user = await _showUsersBottomSheet(context);
                       if (user != null) {
                         _playersSheetBloc.add(
-                          SetUserEvent(
+                          SetClubMemberEvent(
                             seatNumber: playerModel.seatNumber,
-                            user: user,
+                            clubMember: user,
                           ),
                         );
                       }
@@ -443,8 +443,8 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
     );
   }
 
-  Future<UserModel?> _showUsersBottomSheet(BuildContext context) {
-    final Completer<UserModel?> selectedUserCompleter = Completer();
+  Future<ClubMemberModel?> _showUsersBottomSheet(BuildContext context) {
+    final Completer<ClubMemberModel?> selectedUserCompleter = Completer();
 
     showModalBottomSheet(
       context: context,
@@ -457,14 +457,14 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
                     top: Dimensions.defaultSidePadding,
                   ),
                   child: ListView.builder(
-                    itemCount: state.users.length,
+                    itemCount: state.clubMember.length,
                     itemBuilder: (context, index) {
                       return ListTile(
-                        title: Text(state.users[index].nickname),
-                        subtitle: Text(state.users[index].email),
+                        title: Text(state.clubMember[index].user.nickname),
+                        subtitle: Text(state.clubMember[index].user.email),
                         onTap: () {
                           Navigator.pop(context);
-                          selectedUserCompleter.complete(state.users[index]);
+                          selectedUserCompleter.complete(state.clubMember[index]);
                         },
                       );
                     },

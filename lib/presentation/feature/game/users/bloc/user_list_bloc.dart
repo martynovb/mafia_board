@@ -4,7 +4,7 @@ import 'package:mafia_board/presentation/feature/game/users/bloc/user_list_event
 import 'package:mafia_board/presentation/feature/game/users/bloc/user_list_state.dart';
 
 class UserListBloc extends Bloc<FetchUserListEvent, UserListState> {
-  final GetAllUsersUsecase getAllUsersUsecase;
+  final GetAllClubMembersUsecase getAllUsersUsecase;
 
   UserListBloc({
     required this.getAllUsersUsecase,
@@ -14,7 +14,7 @@ class UserListBloc extends Bloc<FetchUserListEvent, UserListState> {
 
   Future<void> _fetchUserListEventHandler(event, emit) async {
     try {
-      emit(UserListState(users: await getAllUsersUsecase.execute()));
+      emit(UserListState(clubMember: await getAllUsersUsecase.execute()));
     } catch (ex){
       emit(UserListState());
     }

@@ -1,4 +1,5 @@
 import 'package:mafia_board/data/entity/user_entity.dart';
+import 'package:mafia_board/domain/model/club_member_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/domain/model/user_model.dart';
@@ -6,7 +7,7 @@ import 'package:mafia_board/domain/model/user_model.dart';
 abstract class PlayersRepo {
   List<PlayerModel> createPlayers(int count);
 
-  void setUser(int seatNumber, UserModel user);
+  void setUser(int seatNumber, ClubMemberModel clubMember);
 
   List<PlayerModel> getAllPlayers();
 
