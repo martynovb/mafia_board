@@ -29,12 +29,12 @@ class PlayerManager {
 
   Future<void> refreshMuteIfNeeded(DayInfoModel dayInfo) async {
     final allActivePlayers = boardRepo.getAllAvailablePlayers();
-    final mutedPlayerIds = dayInfo.getMutedPlayers.map((p) => p.id).toSet();
+    final mutedPlayerIds = dayInfo.getMutedPlayers.map((p) => p.tempId).toSet();
 
     for (PlayerModel player in allActivePlayers) {
-      bool muted = mutedPlayerIds.contains(player.id);
+      bool muted = mutedPlayerIds.contains(player.tempId);
       boardRepo.updatePlayer(
-        player.id,
+        player.tempId,
         isMuted: muted,
       );
     }
@@ -78,7 +78,7 @@ class PlayerManager {
       final speakPhases = speakGamePhaseRepo.getAllPhases();
       List<SpeakPhaseAction> todayAndFutureSpeakPhases = speakPhases
           .where((phase) =>
-              phase.currentDay >= dayInfo.day && phase.playerId == player.id)
+              phase.currentDay >= dayInfo.day && phase.playerId == player.tempId)
           .toList();
       for (var speakPhase in todayAndFutureSpeakPhases) {
         speakPhase.status = PhaseStatus.notStarted;
@@ -89,7 +89,7 @@ class PlayerManager {
       List<VotePhaseAction> todayAndFutureVotePhases = votePhases
           .where((phase) =>
               phase.currentDay >= dayInfo.day &&
-              phase.playerOnVote.id == player.id)
+              phase.playerOnVote.tempId == player.tempId)
           .toList();
       for (var votePhase in todayAndFutureVotePhases) {
         votePhase.status = PhaseStatus.notStarted;
@@ -146,7 +146,7 @@ class PlayerManager {
     final speakPhases = speakGamePhaseRepo.getAllPhases();
     List<SpeakPhaseAction> todayAndFutureSpeakPhases = speakPhases
         .where((phase) =>
-            phase.currentDay >= dayInfo.day && phase.playerId == player.id)
+            phase.currentDay >= dayInfo.day && phase.playerId == player.tempId)
         .toList();
     for (var speakPhase in todayAndFutureSpeakPhases) {
       if (speakPhase.status != PhaseStatus.finished) {
@@ -160,7 +160,7 @@ class PlayerManager {
     List<VotePhaseAction> todayAndFutureVotePhases = votePhases
         .where((phase) =>
             phase.currentDay >= dayInfo.day &&
-            phase.playerOnVote.id == player.id)
+            phase.playerOnVote.tempId == player.tempId)
         .toList();
     for (var votePhase in todayAndFutureVotePhases) {
       if (votePhase.status != PhaseStatus.finished) {

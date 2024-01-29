@@ -179,7 +179,7 @@ class _GamePageState extends State<GamePage>
         TextButton(
           child: const Text("Finish game"),
           onPressed: () {
-            gameBloc.add(FinishGameEvent(FinishGameType.ppk, player.id));
+            gameBloc.add(FinishGameEvent(FinishGameType.ppk, player.tempId));
             Navigator.of(context).pop();
           },
         ),

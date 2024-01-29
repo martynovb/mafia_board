@@ -21,7 +21,6 @@ import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo_local.dart';
 import 'package:mafia_board/data/repo/auth/users/users_repo.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
-import 'package:mafia_board/data/repo/clubs/clubs_repo_local.dart';
 import 'package:mafia_board/data/repo/game_phase/base_phase_repo_local.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/speak_phase_repo/speak_phase_repo_local.dart';
@@ -31,7 +30,7 @@ import 'package:mafia_board/data/repo/history/history_repository_local.dart';
 import 'package:mafia_board/data/repo/game_info/game_repo.dart';
 import 'package:mafia_board/data/repo/game_info/game_repo_impl.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
-import 'package:mafia_board/data/repo/players/players_repo_local.dart';
+import 'package:mafia_board/data/repo/players/players_repo_impl.dart';
 import 'package:mafia_board/domain/field_validation/email_validator.dart';
 import 'package:mafia_board/domain/field_validation/nickname_field_validator.dart';
 import 'package:mafia_board/domain/field_validation/password_validator.dart';
@@ -43,12 +42,13 @@ import 'package:mafia_board/domain/manager/game_flow/speaking_phase_manager.dart
 import 'package:mafia_board/domain/manager/game_flow/vote_phase_manager.dart';
 import 'package:mafia_board/domain/manager/player_manager.dart';
 import 'package:mafia_board/domain/usecase/change_nickname_usecase.dart';
+import 'package:mafia_board/domain/usecase/create_club_members_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_club_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_club_with_spreadsheet_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_rules_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_all_users_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_user_data_usecase.dart';
-import 'package:mafia_board/domain/usecase/save_game_results_usecase.dart';
+import 'package:mafia_board/domain/usecase/save_game_usecase.dart';
 import 'package:mafia_board/domain/validator/player_validator.dart';
 import 'package:mafia_board/domain/manager/role_manager.dart';
 import 'package:mafia_board/domain/usecase/create_day_info_usecase.dart';
@@ -146,31 +146,27 @@ class Injector {
     );
 
     _getIt.registerSingleton<HistoryRepo>(HistoryRepoLocal());
-    _getIt.registerSingleton<PlayersRepo>(PlayersRepoLocal());
+    _getIt.registerSingleton<PlayersRepo>(PlayersRepoImpl(
+      firestore: FirebaseFirestore.instance,
+    ));
     _getIt.registerSingleton(RoleManager.classic(_getIt.get()));
     _getIt.registerSingleton(PlayerValidator());
     _getIt.registerSingleton<GameRepo>(GameRepoImpl(
-      playersRepo: _getIt.get(),
-      clubsRepo: _getIt.get(),
       firestore: FirebaseFirestore.instance,
     ));
     _getIt.registerSingleton<UsersRepo>(UsersRepoFirebase(
       firestore: FirebaseFirestore.instance,
     ));
     _getIt.registerSingleton<ClubsRepo>(
-      isLocalDataBase
-          ? ClubsRepoLocal(
-              authRepo: _getIt.get(),
-              usersRepo: _getIt.get(),
-            )
-          : ClubsRepoFirebase(
-              firebaseAuth: FirebaseAuth.instance,
-              firestore: FirebaseFirestore.instance,
-              googleSignIn: _getIt.get(),
-              usersRepo: _getIt.get(),
-              googleClientManager: _getIt.get(),
-              spreadSheepRepo: _getIt.get(),
-            ),
+      ClubsRepoFirebase(
+        firebaseAuth: FirebaseAuth.instance,
+        firestore: FirebaseFirestore.instance,
+        googleSignIn: _getIt.get(),
+        usersRepo: _getIt.get(),
+        googleClientManager: _getIt.get(),
+        spreadSheepRepo: _getIt.get(),
+        clubsRepo: _getIt.get(),
+      ),
     );
 
     _getIt.registerSingleton<RulesRepo>(RulesRepoGoogleTable(
@@ -180,6 +176,10 @@ class Injector {
 
   static void _injectDomainLayer() {
     //usecase
+    _getIt.registerSingleton(CreateClubMembersUseCase(
+      playersRepo: _getIt.get(),
+      clubsRepo: _getIt.get(),
+    ));
     _getIt.registerSingleton<GetAllClubMembersUsecase>(
       GetAllClubMembersUsecase(clubsRepo: _getIt.get()),
     );
@@ -190,14 +190,17 @@ class Injector {
       CreateRulesUseCase(rulesRepo: _getIt.get()),
     );
     _getIt.registerSingleton<CreateClubUseCase>(
-      CreateClubUseCase(authRepo: _getIt.get(), clubsRepo: _getIt.get()),
+      CreateClubUseCase(clubsRepo: _getIt.get()),
     );
     _getIt.registerSingleton<CreateClubWithSpreadSheetUseCase>(
-      CreateClubWithSpreadSheetUseCase(
-          authRepo: _getIt.get(), clubsRepo: _getIt.get()),
+      CreateClubWithSpreadSheetUseCase(clubsRepo: _getIt.get()),
     );
-    _getIt.registerSingleton<SaveGameResultsUseCase>(
-      SaveGameResultsUseCase(gameRepo: _getIt.get()),
+    _getIt.registerSingleton<SaveGameUseCase>(
+      SaveGameUseCase(
+        gameRepo: _getIt.get(),
+        createClubMembersUseCase: _getIt.get(),
+        playersRepo: _getIt.get(),
+      ),
     );
     _getIt.registerSingleton<GetCurrentGameUseCase>(
       GetCurrentGameUseCase(gameRepo: _getIt.get()),
@@ -220,11 +223,8 @@ class Injector {
     _getIt.registerSingleton<CreateDayInfoUseCase>(
       CreateDayInfoUseCase(_getIt.get()),
     );
-    _getIt.registerSingleton<GetAllClubsUseCase>(
-      GetAllClubsUseCase(
-        clubsRepo: _getIt.get(),
-        authRepo: _getIt.get(),
-      ),
+    _getIt.registerSingleton(
+      GetAllClubsUseCase(clubsRepo: _getIt.get()),
     );
     _getIt.registerSingleton<GetClubDetailsUseCase>(
       GetClubDetailsUseCase(authRepo: _getIt.get(), clubsRepo: _getIt.get()),

@@ -55,7 +55,7 @@ class _VotePhaseTableViewState extends State<VotePhaseTableView> {
                           phaseType: PhaseType.vote,
                           player: entry.key,
                           isVoted: entry.value,
-                          onVote: state.playerOnVote?.id == entry.key.id,
+                          onVote: state.playerOnVote?.tempId == entry.key.tempId,
                         ),
                       )
                       .toList(),

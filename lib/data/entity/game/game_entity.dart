@@ -1,24 +1,29 @@
 import 'package:mafia_board/data/constants/firestore_keys.dart';
-import 'package:mafia_board/data/entity/game/player_entity.dart';
 
 class GameEntity {
-  final String? id;
+  String? id;
   final String? clubId;
-  final List<PlayerEntity>? players;
   String? gameStatus;
   String? finishGameType;
+  String? winRole;
+  int? mafsLeft;
+  final int startedInMills;
+  int? finishedInMills;
 
   GameEntity({
     this.id,
     required this.clubId,
-    this.players,
     required this.gameStatus,
     required this.finishGameType,
+    required this.startedInMills,
   });
 
-  Map<dynamic, dynamic> toFirestoreMap() => {
+  Map<String, dynamic> toFirestoreMap() => {
     FirestoreKeys.gameClubIdFieldKey : clubId,
-    FirestoreKeys.gamePlayersIdsFieldKey : players?.map((player) => player.id),
     FirestoreKeys.gameFinishTypeFieldKey : finishGameType,
+    FirestoreKeys.gameWinRoleFieldKey : winRole,
+    FirestoreKeys.gameMafsLeftFieldKey : mafsLeft,
+    FirestoreKeys.startedInMillsFieldKey : startedInMills,
+    FirestoreKeys.finishedInMillsFieldKey : finishedInMills,
   };
 }

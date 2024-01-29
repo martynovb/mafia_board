@@ -185,7 +185,7 @@ class _NightPhaseViewState extends State<NightPhaseView> {
                 padding: const EdgeInsets.all(3),
                 backgroundColor: _mapBackgroundColor(state, player)),
             icon: state.nightPhaseAction?.checkedPlayer == null ||
-                    state.nightPhaseAction?.checkedPlayer?.id != player.id
+                    state.nightPhaseAction?.checkedPlayer?.tempId != player.tempId
                 ? const Icon(
                     Icons.search,
                     size: 10,
@@ -279,8 +279,8 @@ class _NightPhaseViewState extends State<NightPhaseView> {
       return Colors.blueAccent;
     } else if ((currentNightPhaseRole == Role.don ||
         currentNightPhaseRole == Role.sheriff) &&
-            nightPhaseState.nightPhaseAction?.checkedPlayer?.id ==
-                currentPlayer.id) {
+            nightPhaseState.nightPhaseAction?.checkedPlayer?.tempId ==
+                currentPlayer.tempId) {
       return _mapBackgroundColorByRole(currentPlayer.role);
     }
 

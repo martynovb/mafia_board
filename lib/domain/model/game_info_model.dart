@@ -65,10 +65,10 @@ class DayInfoModel {
   List<PlayerModel> get getMutedPlayers => mutedPlayers;
 
   void removedMutedPlayer(String id) =>
-      mutedPlayers.removeWhere((player) => player.id == id);
+      mutedPlayers.removeWhere((player) => player.tempId == id);
 
   void removedRemovedPlayer(String id) =>
-      removedPlayers.removeWhere((player) => player.id == id);
+      removedPlayers.removeWhere((player) => player.tempId == id);
 
   @override
   String toString() {

@@ -137,7 +137,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
         id: const Uuid().v1(),
         user: UserModel(
             id: const Uuid().v1(), nickname: nick, email: '$nick@mail.com'),
-        clubId: event.club.id,
+        clubId: event.club.tempId,
       );
 
       playersRepository.setUser(i, newUser);

@@ -31,3 +31,8 @@ class InvalidPlayerDataException implements Exception {
 
   InvalidPlayerDataException(this.errorMessage);
 }
+
+class InvalidDataError extends BaseException {
+
+  InvalidDataError(super.errorMessage);
+}

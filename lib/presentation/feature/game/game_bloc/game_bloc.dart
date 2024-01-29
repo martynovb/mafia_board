@@ -120,7 +120,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   void _putOnVoteEventHandler(PutOnVoteEvent event, emit) async {
     MafLogger.d(_tag, '_putOnVoteEventHandler');
     try {
-      await votePhaseManager.putOnVote(event.playerOnVote.id);
+      await votePhaseManager.putOnVote(event.playerOnVote.tempId);
       final currentGame = await getCurrentGameUseCase.execute();
       emit(GamePhaseState(
         currentGame,

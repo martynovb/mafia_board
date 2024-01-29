@@ -43,7 +43,7 @@ class SpeakingPhaseManager {
       speakPhaseList.add(
         SpeakPhaseAction(
           currentDay: currentDay,
-          playerId: player.id,
+          playerId: player.tempId,
           timeForSpeakInSec: player.isMuted
               ? Constants.mutedTimeForSpeak
               : Constants.defaultTimeForSpeak,

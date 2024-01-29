@@ -98,7 +98,7 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
       CancelVoteAgainstEvent event, emit) async {
     try {
       var currentVotePhase = await votePhaseManager.getCurrentPhase();
-      if (currentVotePhase?.playerOnVote.id == event.voteAgainstPlayer.id) {
+      if (currentVotePhase?.playerOnVote.tempId == event.voteAgainstPlayer.tempId) {
         votePhaseManager.cancelVoteAgainst(
           currentPlayer: event.currentPlayer,
           voteAgainstPlayer: event.voteAgainstPlayer,

@@ -4,10 +4,11 @@ import 'package:mafia_board/domain/model/club_member_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
 
 class PlayerModel {
-  ClubMemberModel? _clubMember;
+  String? id;
+  String tempId;
+  ClubMemberModel? clubMember;
   int fouls;
   Role role;
-  double score;
   bool isDisqualified;
   bool isKilled;
   bool isMuted;
@@ -21,12 +22,12 @@ class PlayerModel {
   double bonus;
   bool isFirstKilled;
 
-  PlayerModel(
-    this._clubMember,
-    this.role,
-    this.seatNumber, {
+  PlayerModel({
+    required this.tempId,
+    required this.clubMember,
+    required this.role,
+    required this.seatNumber,
     this.fouls = 0,
-    this.score = 0,
     this.isDisqualified = false,
     this.isKilled = false,
     this.isMuted = false,
@@ -42,10 +43,10 @@ class PlayerModel {
   double total() => bestMove + compensation + gamePoints + bonus;
 
   PlayerModel.empty(this.seatNumber)
-      : _clubMember = ClubMemberModel.empty(),
+      : tempId = '',
+        clubMember = ClubMemberModel.empty(),
         role = Role.none,
         fouls = 0,
-        score = 0,
         isDisqualified = false,
         isKilled = false,
         isMuted = false,
@@ -58,11 +59,11 @@ class PlayerModel {
         isFirstKilled = false;
 
   PlayerModel.fromEntity(PlayerEntity? entity)
-      : _clubMember = ClubMemberModel.fromEntity(entity?.clubMember),
+      : tempId = '',
+        clubMember = ClubMemberModel.fromEntity(entity?.clubMember),
         seatNumber = entity?.seatNumber ?? -1,
         role = roleMapper(entity?.role),
         fouls = entity?.fouls ?? -1,
-        score = entity?.score ?? -1,
         isDisqualified = entity?.isRemoved ?? false,
         isKilled = entity?.isKilled ?? false,
         isMuted = entity?.isMuted ?? false,
@@ -76,11 +77,11 @@ class PlayerModel {
 
   PlayerEntity toEntity() {
     return PlayerEntity(
-      clubMember: _clubMember?.toEntity(),
+      tempId: tempId,
+      clubMember: clubMember?.toEntity(),
       role: role.name,
       seatNumber: seatNumber,
       fouls: fouls,
-      score: score,
       isRemoved: isDisqualified,
       isKilled: isKilled,
       isMuted: isMuted,
@@ -95,10 +96,9 @@ class PlayerModel {
   }
 
   void reset() {
-    _clubMember = null;
+    clubMember = null;
     role = Role.none;
     fouls = 0;
-    score = 0;
     isDisqualified = false;
     isKilled = false;
     isMuted = false;
@@ -111,11 +111,11 @@ class PlayerModel {
     isFirstKilled = false;
   }
 
-  set user(ClubMemberModel? clubMember) => _clubMember = clubMember;
+  set user(ClubMemberModel? clubMember) => clubMember = clubMember;
 
-  String get id => _clubMember?.user.id ?? '';
+  String? get clubMemberId => clubMember?.id;
 
-  String get nickname => _clubMember?.user.nickname ?? '';
+  String get nickname => clubMember?.user.nickname ?? '';
 
   bool isInGame() => !isDisqualified && !isKilled && !isKicked && !isPPK;
 
@@ -123,11 +123,10 @@ class PlayerModel {
   String toString() {
     return (
       ClassToString('PlayerModel')
-        ..add('id', id)
-        ..add('clubMember', _clubMember)
+        ..add('id', tempId)
+        ..add('clubMember', clubMember)
         ..add('fouls', fouls)
         ..add('role', role)
-        ..add('score', score)
         ..add('seatNumber', seatNumber)
         ..add('isDisqualified', isDisqualified)
         ..add('isMuted', isMuted)

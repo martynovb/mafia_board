@@ -248,7 +248,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
           ),
           Expanded(
             flex: _nicknameColumnFlex,
-            child: playerModel.id.isEmpty
+            child: playerModel.tempId.isEmpty
                 ? IconButton(
                     icon: const Icon(Icons.add),
                     onPressed: () async {
@@ -287,7 +287,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
               child: SizedBox(
                   width: Dimensions.foulsViewWidth,
                   child: _foulsBuilder(
-                    playerModel.id,
+                    playerModel.tempId,
                     playerModel.fouls,
                     isGameStarted,
                   )),
@@ -300,7 +300,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
             flex: _roleColumnFlex,
             child: Center(
                 child: _roleDropdown(
-              playerModel.id,
+              playerModel.tempId,
               playerModel.seatNumber,
               playerModel.role,
             )),
@@ -429,7 +429,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
         TextButton(
           child: const Text("Finish game"),
           onPressed: () {
-            _gameBloc.add(FinishGameEvent(FinishGameType.ppk, player.id));
+            _gameBloc.add(FinishGameEvent(FinishGameType.ppk, player.tempId));
             Navigator.of(context).pop();
           },
         ),

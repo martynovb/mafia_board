@@ -17,13 +17,13 @@ class ClubsDetailsBloc extends Bloc<ClubsDetailsEvent, ClubDetailsState> {
     GetClubDetailsEvent event,
     emit,
   ) async {
-    if (event.clubId.isEmpty) {
+    if (event.club.id.isEmpty) {
       emit(InitialState());
       return;
     }
 
     try {
-      final result = await getClubDetailsUseCase.execute(params: event.clubId);
+      final result = await getClubDetailsUseCase.execute(params: event.club);
       emit(DetailsState(result));
     } catch (e) {
       emit(ErrorClubState('Something went wrong'));

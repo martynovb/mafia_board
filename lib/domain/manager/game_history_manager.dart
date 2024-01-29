@@ -126,7 +126,7 @@ class GameHistoryManager {
     if (votePhaseAction.votedPlayers.isNotEmpty) {
       votedPlayers = votePhaseAction.votedPlayers
           .toList()
-          .sorted((a, b) => a.id.compareTo(b.id))
+          .sorted((a, b) => a.tempId.compareTo(b.tempId))
           .map((player) => player.nickname)
           .join(', ');
     } else {

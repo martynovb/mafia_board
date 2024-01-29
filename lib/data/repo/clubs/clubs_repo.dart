@@ -51,9 +51,9 @@ abstract class ClubsRepo {
     required String participantUserId,
   });
 
-  Future<void> addNewMembers({
-    required ClubModel clubModel,
-    required List<String> userIds,
+  Future<List<ClubMemberEntity>> addNewMembers({
+    required String clubId,
+    required List<ClubMemberEntity> newMembers,
   });
 
   Future<List<ClubMemberEntity>> getExistedAndNotExistedClubMembers({

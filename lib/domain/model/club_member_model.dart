@@ -2,7 +2,7 @@ import 'package:mafia_board/data/entity/club_member_entity.dart';
 import 'package:mafia_board/domain/model/user_model.dart';
 
 class ClubMemberModel {
-  final String? id;
+  String? id;
   final UserModel user;
   final String clubId;
   final Map<String, double>? winRateByRoleTypeMap;

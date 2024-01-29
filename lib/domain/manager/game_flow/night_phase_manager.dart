@@ -108,13 +108,13 @@ class NightPhaseManager {
 
     await cancelKillPlayer(currentNightPhase.killedPlayer);
 
-    boardRepository.updatePlayer(playerModel.id, isKilled: true);
-    final updatedPlayer = await boardRepository.getPlayerById(playerModel.id);
+    boardRepository.updatePlayer(playerModel.tempId, isKilled: true);
+    final updatedPlayer = await boardRepository.getPlayerById(playerModel.tempId);
     final nextDay = currentDay + 1;
     await speakGamePhaseRepo.add(
       gamePhase: SpeakPhaseAction(
           currentDay: nextDay,
-          playerId: updatedPlayer?.id,
+          playerId: updatedPlayer?.tempId,
           isLastWord: true,
           isBestMove: currentDay == Constants.firstDay),
     );
@@ -149,8 +149,8 @@ class NightPhaseManager {
       return;
     }
 
-    await boardRepository.updatePlayer(killedPlayer.id, isKilled: false);
-    if (speakPhase.isLastWord && speakPhase.playerId == playerModel.id) {
+    await boardRepository.updatePlayer(killedPlayer.tempId, isKilled: false);
+    if (speakPhase.isLastWord && speakPhase.playerId == playerModel.tempId) {
       speakGamePhaseRepo.remove(gamePhase: speakPhase);
     }
     gameHistoryManager.removeLogKillPlayer(
@@ -206,11 +206,11 @@ class NightPhaseManager {
       final lastWordSpeakingPhase =
           speakGamePhaseRepo.getCurrentPhase(day: nextDay);
       if (lastWordSpeakingPhase != null && lastWordSpeakingPhase.isLastWord) {
-        boardRepository.updatePlayer(playerModel.id, isKilled: false);
+        boardRepository.updatePlayer(playerModel.tempId, isKilled: false);
         speakGamePhaseRepo.remove(gamePhase: lastWordSpeakingPhase);
       }
     } else if (whoIsVisiting == Role.putana) {
-      boardRepository.updatePlayer(playerModel.id, isMuted: true);
+      boardRepository.updatePlayer(playerModel.tempId, isMuted: true);
     } else {
       // this role can't visit players
       return;
@@ -223,7 +223,7 @@ class NightPhaseManager {
     bool result = false;
     nightGamePhaseRepo.getAllPhases().forEach((phase) {
       if (currentDay < phase.currentDay &&
-          phase.killedPlayer?.id == playerModel.id) {
+          phase.killedPlayer?.tempId == playerModel.tempId) {
         result = true;
         return;
       }

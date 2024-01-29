@@ -9,9 +9,9 @@ class ClubModel {
   final String description;
   final String googleSheetLink;
   final String googleSheetId;
-  final List<ClubMemberModel> members;
-  final List<ClubMemberModel> admins;
-  bool isAdmin = false;
+  List<ClubMemberModel> members;
+  List<ClubMemberModel> admins;
+  bool isAdmin;
   List<GameModel> games = [];
   double civilWinRate;
   double mafWinRate;
@@ -26,10 +26,11 @@ class ClubModel {
         civilWinRate = 0.0,
         mafWinRate = 0.0,
         createdAt = DateTime.fromMillisecondsSinceEpoch(0),
+        isAdmin = false,
         members = [],
         admins = [];
 
-  ClubModel.fromEntity(ClubEntity entity, [this.isAdmin = false])
+  ClubModel.fromEntity(ClubEntity entity)
       : id = entity.id ?? '',
         title = entity.title ?? '',
         description = entity.description ?? '',
@@ -37,16 +38,12 @@ class ClubModel {
         googleSheetLink = entity.googleSheetId != null
             ? 'https://docs.google.com/spreadsheets/d/${entity.googleSheetId}'
             : '',
-        members = entity.members
-                ?.map((member) => ClubMemberModel.fromEntity(member))
-                .toList() ??
-            [],
-        admins =
-            entity.admins?.map((member) => ClubMemberModel.fromEntity(member)).toList() ??
-                [],
         civilWinRate = entity.civilWinRate ?? 0.0,
         mafWinRate = entity.mafWinRate ?? 0.0,
         createdAt = entity.createdAt != null
             ? DateTime.fromMillisecondsSinceEpoch(entity.createdAt!)
-            : DateTime.fromMillisecondsSinceEpoch(0);
+            : DateTime.fromMillisecondsSinceEpoch(0),
+        isAdmin = entity.isAdmin ?? false,
+        members = [],
+        admins = [];
 }

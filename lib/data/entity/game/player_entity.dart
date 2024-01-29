@@ -1,10 +1,15 @@
+import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/data/entity/club_member_entity.dart';
 
 class PlayerEntity {
+  String? id;
+  // pre id for each player.
+  // we save players only when game is finished but we need some ids to manage game flow
+  // send to firestore to watch game history
+  final String? tempId;
   final ClubMemberEntity? clubMember;
   final int? fouls;
   final String? role;
-  final double? score;
   final bool? isRemoved;
   final bool? isKilled;
   final bool? isMuted;
@@ -19,11 +24,12 @@ class PlayerEntity {
   final bool? isFirstKilled;
 
   PlayerEntity({
+    this.id,
+    this.tempId,
     required this.clubMember,
     required this.role,
     required this.seatNumber,
     required this.fouls,
-    required this.score,
     required this.isRemoved,
     required this.isKilled,
     required this.isMuted,
@@ -38,10 +44,10 @@ class PlayerEntity {
 
   static PlayerEntity fromJson(Map<dynamic, dynamic> json) {
     return PlayerEntity(
+      id: json['id'] as String?,
       clubMember: ClubMemberEntity.fromJson(json['club_member']),
       role: json['role'] as String?,
       fouls: json['fouls'] as int?,
-      score: json['score'] as double?,
       isRemoved: json['isRemoved'] as bool?,
       isKilled: json['isKilled'] as bool?,
       isMuted: json['isMuted'] as bool?,
@@ -55,6 +61,20 @@ class PlayerEntity {
       isFirstKilled: json['isFirstKilled'] as bool?,
     );
   }
+
+  Map<String, dynamic> toFirestoreMap() => {
+    FirestoreKeys.playerTempIdFieldKey : tempId,
+    FirestoreKeys.clubMemberIdFieldKey : clubMember?.id,
+    FirestoreKeys.foulsFieldKey : fouls,
+    FirestoreKeys.roleFieldKey : role,
+    FirestoreKeys.isRemovedFieldKey : isRemoved,
+    FirestoreKeys.isPpkFieldKey : isPPK,
+    FirestoreKeys.seatNumberFieldKey : seatNumber,
+    FirestoreKeys.bestMoveFieldKey : bestMove,
+    FirestoreKeys.compensationFieldKey : compensation,
+    FirestoreKeys.gamePointsFieldKey : gamePoints,
+    FirestoreKeys.bonusPointsFieldKey : bonus,
+  };
 
   static List<PlayerEntity> parsePlayerEntities(dynamic data) {
     if (data is! List) {

@@ -146,7 +146,7 @@ class VotePhaseManager {
     final currentDay = dayInfo.day;
     final votePhaseWithThisPlayer =
         voteGamePhaseRepo.getAllPhasesByDay(day: currentDay).firstWhereOrNull(
-              (votePhase) => votePhase.playerOnVote.id == player.id,
+              (votePhase) => votePhase.playerOnVote.tempId == player.tempId,
             );
     if (votePhaseWithThisPlayer == null) {
       return false;
@@ -169,7 +169,7 @@ class VotePhaseManager {
     final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay(day: currentDay);
     return allVotePhases
             .lastWhereOrNull(
-              (phase) => phase.playerOnVote.id == voteAgainstPlayer.id,
+              (phase) => phase.playerOnVote.tempId == voteAgainstPlayer.tempId,
             )
             ?.vote(currentPlayer) ??
         false;
@@ -184,7 +184,7 @@ class VotePhaseManager {
     final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay(day: currentDay);
     return allVotePhases
             .lastWhereOrNull(
-              (phase) => phase.playerOnVote.id == voteAgainstPlayer.id,
+              (phase) => phase.playerOnVote.tempId == voteAgainstPlayer.tempId,
             )
             ?.removeVote(currentPlayer) ??
         false;
@@ -255,7 +255,7 @@ class VotePhaseManager {
     List<VotePhaseAction> allUniqueTodayVotePhases,
   ) {
     for (var phase in allUniqueTodayVotePhases) {
-      if (phase.whoPutOnVote?.id == playerModel.id) {
+      if (phase.whoPutOnVote?.tempId == playerModel.tempId) {
         return true;
       }
     }
@@ -267,7 +267,7 @@ class VotePhaseManager {
     List<VotePhaseAction> allUniqueTodayVotePhases,
   ) {
     for (var phase in allUniqueTodayVotePhases) {
-      if (phase.playerOnVote.id == playerModel.id) {
+      if (phase.playerOnVote.tempId == playerModel.tempId) {
         return true;
       }
     }
@@ -369,10 +369,10 @@ class VotePhaseManager {
     for (var playerModel in playersOnVote) {
       final speakPhase = SpeakPhaseAction(
         currentDay: currentDay,
-        playerId: playerModel.id,
+        playerId: playerModel.tempId,
         isLastWord: true,
       );
-      await boardRepository.updatePlayer(playerModel.id, isKicked: true);
+      await boardRepository.updatePlayer(playerModel.tempId, isKicked: true);
       await speakGamePhaseRepo.add(gamePhase: speakPhase);
     }
     await _finishAllTodaysUnvotePhases();
@@ -395,7 +395,7 @@ class VotePhaseManager {
         await speakGamePhaseRepo.add(
             gamePhase: SpeakPhaseAction(
           currentDay: currentDay,
-          playerId: player.id,
+          playerId: player.tempId,
           timeForSpeakInSec: Constants.gunfightTimeForSpeak,
           isGunfight: true,
         ));

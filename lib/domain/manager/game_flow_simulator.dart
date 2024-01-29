@@ -37,7 +37,7 @@ class GameFlowSimulator {
       if (i < 5) {
         await speakingPhaseManager.startSpeech();
         await Future.delayed(const Duration(seconds: 1));
-        await votePhaseManager.putOnVote(allPlayers[i].id);
+        await votePhaseManager.putOnVote(allPlayers[i].tempId);
         await speakingPhaseManager.finishSpeech();
       } else {
         await speakingPhaseManager.startSpeech();

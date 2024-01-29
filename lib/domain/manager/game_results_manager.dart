@@ -10,12 +10,12 @@ import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/domain/model/rules_model.dart';
 import 'package:mafia_board/domain/model/winner_type.dart';
 import 'package:mafia_board/domain/usecase/get_rules_usecase.dart';
-import 'package:mafia_board/domain/usecase/save_game_results_usecase.dart';
+import 'package:mafia_board/domain/usecase/save_game_usecase.dart';
 
 class GameResultsManager {
   final PlayersRepo playersRepo;
   final GetRulesUseCase getRulesUseCase;
-  final SaveGameResultsUseCase saveGameResultsUseCase;
+  final SaveGameUseCase saveGameResultsUseCase;
   final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
   final GamePhaseRepo<NightPhaseAction> nightGamePhaseRepo;
 
@@ -64,7 +64,7 @@ class GameResultsManager {
         if (player.isDisqualified) {
           player.gamePoints -= clubRules.kickLoss;
         } else if (speakPhaseWithBestMove != null &&
-            player.id == speakPhaseWithBestMove.playerId &&
+            player.tempId == speakPhaseWithBestMove.playerId &&
             !mafiaRoles().contains(player.role)) {
           player.bestMove += await _calculateBestMove(
             clubRules,
@@ -73,7 +73,7 @@ class GameResultsManager {
         }
       }
 
-      if (player.id == firstKilledPlayer?.id) {
+      if (player.tempId == firstKilledPlayer?.tempId) {
         player.isFirstKilled = true;
       }
 

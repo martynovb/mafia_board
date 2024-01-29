@@ -14,10 +14,14 @@ abstract class GameRepo {
     required GameResultsModel gameResultsModel,
   });
 
+  Future<GameEntity> saveGame();
+
   Future<bool> removeGameData();
 
-  Future<GameEntity> createGame(
-      {required String clubId, required GameStatus gameStatus});
+  Future<GameEntity> createGame({
+    required String clubId,
+    required GameStatus gameStatus,
+  });
 
   Future<GameEntity?> finishCurrentGame(FinishGameType finishGameType);
 

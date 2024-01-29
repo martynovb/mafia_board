@@ -63,7 +63,7 @@ class _TableWidgetState extends State<TableWidget> {
       } else {
         final player = widget.players[i - 1];
         final highlightedPlayer = widget.highlightedPlayerList
-            .firstWhereOrNull((hgData) => hgData.player.id == player.id);
+            .firstWhereOrNull((hgData) => hgData.player.tempId == player.tempId);
         sections.add(PieChartSectionData(
           badgeWidget: _playerSectorBadgeMapper(player, highlightedPlayer),
           badgePositionPercentageOffset: 0.8,

@@ -51,19 +51,12 @@ class ClubsRepoFirebase extends ClubsRepo {
                   .toList() ??
               [];
 
-      List<String> membersIds =
-          (doc.data()[FirestoreKeys.clubMembersIdsFieldKey] as List<dynamic>?)
-                  ?.map((item) => item.toString())
-                  .toList() ??
-              [];
-
       var club = ClubEntity(
         id: doc.id,
         title: doc.data()[FirestoreKeys.clubTitleFieldKey],
         googleSheetId: doc.data()[FirestoreKeys.clubGoogleSheetIdFieldKey],
         description: doc.data()[FirestoreKeys.clubDescriptionFieldKey],
-        admins: await usersRepo.getUsersByIds(adminIds),
-        members: await usersRepo.getUsersByIds(membersIds),
+        isAdmin: adminIds.any((id) => id == userId),
       );
 
       clubs.add(club);
@@ -129,36 +122,40 @@ class ClubsRepoFirebase extends ClubsRepo {
       id: doc.id,
       title: name,
       description: clubDescription,
+      isAdmin: true
     );
   }
 
   // it is needed to display club details with all members
   // add new members when a game for this club is finished
   @override
-  Future<void> addNewMembers({
-    required ClubModel clubModel,
-    required List<String> userIds,
+  Future<List<ClubMemberEntity>> addNewMembers({
+    required String clubId,
+    required List<ClubMemberEntity> newMembers,
   }) async {
-    final alreadyMembersIds =
-        clubModel.members.map((member) => member.id).toSet();
-    final membersSize = alreadyMembersIds.length;
-    //add new ids to set
-    alreadyMembersIds.addAll(userIds);
 
-    if (membersSize == alreadyMembersIds.length) {
-      // no new members, do not call firestore update
-      return;
+    CollectionReference clubMembersRef =
+    firestore.collection(FirestoreKeys.clubMembersCollectionKey);
+
+    // Batch write to optimize performance and ensure consistency
+    WriteBatch batch = firestore.batch();
+    final createdMembers = [];
+
+    for (ClubMemberEntity member in newMembers) {
+      DocumentReference memberDocRef = clubMembersRef.doc();
+      batch.set(memberDocRef, member.toFirestoreMap());
+      member.id = memberDocRef.id;
+      createdMembers.add(member);
     }
 
-    await firestore
-        .collection(FirestoreKeys.clubsCollectionKey)
-        .doc(clubModel.id)
-        .update({FirestoreKeys.clubMembersIdsFieldKey: alreadyMembersIds});
+    await batch.commit();
+
+    return newMembers;
   }
 
-  // get all users map to clubMember
+  // get all users and map to clubMember
   // left clubMember id is null if there is no clubMember with this user
-  // create clubMember where id is null after a game will be finished
+  // create new clubMembers where id is null after a game will be finished
   @override
   Future<List<ClubMemberEntity>> getExistedAndNotExistedClubMembers({
     required ClubModel clubModel,
