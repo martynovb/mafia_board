@@ -15,13 +15,13 @@ class ClubMemberModel {
   });
 
   ClubMemberModel.fromEntity(ClubMemberEntity? entity)
-      : id = entity?.id ?? '',
+      : id = entity?.id,
         user = UserModel.fromEntity(entity?.user),
         clubId = entity?.clubId ?? '',
         winRateByRoleTypeMap = entity?.winRateByRoleTypeMap ?? {};
 
   ClubMemberModel.empty()
-      : id = '',
+      : id = null,
         user = UserModel.empty(),
         clubId = '',
         winRateByRoleTypeMap = {};

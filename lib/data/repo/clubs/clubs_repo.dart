@@ -4,10 +4,6 @@ import 'package:mafia_board/data/entity/user_entity.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
 
 abstract class ClubsRepo {
-  Future<ClubEntity> createClubWithGoogleTable({
-    required String name,
-    required String clubDescription,
-  });
 
   Future<ClubEntity> createClub({
     required String name,
@@ -57,7 +53,7 @@ abstract class ClubsRepo {
   });
 
   Future<List<ClubMemberEntity>> getExistedAndNotExistedClubMembers({
-    required ClubModel clubModel,
+    required String clubId,
   });
 
   Future<List<ClubMemberEntity>> getExistedClubMembers({

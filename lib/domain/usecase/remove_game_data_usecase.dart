@@ -2,16 +2,16 @@ import 'package:mafia_board/data/repo/game_info/game_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/data/repo/history/history_repository.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
-import 'package:mafia_board/domain/model/game_phase/night_phase_action.dart';
-import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
-import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
+import 'package:mafia_board/domain/model/game_phase/night_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/vote_phase_model.dart';
 import 'package:mafia_board/domain/usecase/base_usecase.dart';
 
 class RemoveGameDataUseCase extends BaseUseCase<void, void> {
   final GameRepo gameRepo;
-  final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
-  final GamePhaseRepo<VotePhaseAction> voteGamePhaseRepo;
-  final GamePhaseRepo<NightPhaseAction> nightGamePhaseRepo;
+  final GamePhaseRepo<SpeakPhaseModel> speakGamePhaseRepo;
+  final GamePhaseRepo<VotePhaseModel> voteGamePhaseRepo;
+  final GamePhaseRepo<NightPhaseModel> nightGamePhaseRepo;
   final PlayersRepo playersRepo;
   final HistoryRepo historyRepo;
 

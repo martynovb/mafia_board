@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:mafia_board/domain/model/rules_model.dart';
 import 'package:mafia_board/domain/usecase/create_rules_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_rules_usecase.dart';
 import 'package:mafia_board/domain/usecase/update_rules_usecase.dart';
@@ -21,7 +22,7 @@ class GameRulesBloc extends Bloc<RulesEvent, RulesState> {
 
   void _loadRulesEventHandler(LoadRulesEvent event, emit) async {
     try {
-      final rules = await getRulesUseCase.execute(params: event.club);
+      final rules = await getRulesUseCase.execute(params: event.club.id);
       emit(LoadedRulesState(rules));
     } catch (e) {
       emit(ErrorRulesState('Something went wrong'));
@@ -33,8 +34,8 @@ class GameRulesBloc extends Bloc<RulesEvent, RulesState> {
       final rulesId = event.id;
       if (rulesId != null) {
         await updateRulesUseCase.execute(
-          params: UpdateRulesParams(
-            clubModel: event.club,
+          params: RulesModel(
+            clubId: event.club.id,
             civilWin: event.civilWin,
             mafWin: event.mafWin,
             civilLoss: event.civilLoss,
@@ -42,15 +43,15 @@ class GameRulesBloc extends Bloc<RulesEvent, RulesState> {
             kickLoss: event.kickLoss,
             defaultBonus: event.defaultBonus,
             ppkLoss: event.ppkLoss,
-            gameLoss: event.gameLoss,
             twoBestMove: event.twoBestMove,
             threeBestMove: event.threeBestMove,
+            defaultGameLoss: event.defaultGameLoss,
           ),
         );
       } else {
         await createRulesUseCase.execute(
-          params: CreateRulesParams(
-            club: event.club,
+          params: RulesModel(
+            clubId: event.club.id,
             civilWin: event.civilWin,
             mafWin: event.mafWin,
             civilLoss: event.civilLoss,
@@ -58,9 +59,9 @@ class GameRulesBloc extends Bloc<RulesEvent, RulesState> {
             kickLoss: event.kickLoss,
             defaultBonus: event.defaultBonus,
             ppkLoss: event.ppkLoss,
-            gameLoss: event.gameLoss,
             twoBestMove: event.twoBestMove,
             threeBestMove: event.threeBestMove,
+            defaultGameLoss: event.defaultGameLoss,
           ),
         );
       }

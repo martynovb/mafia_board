@@ -2,8 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
-import 'package:mafia_board/domain/model/game_phase/night_phase_action.dart';
-import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
+import 'package:mafia_board/domain/model/game_phase/night_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
 import 'package:mafia_board/domain/model/game_results_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
@@ -16,8 +16,8 @@ class GameResultsManager {
   final PlayersRepo playersRepo;
   final GetRulesUseCase getRulesUseCase;
   final SaveGameUseCase saveGameResultsUseCase;
-  final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
-  final GamePhaseRepo<NightPhaseAction> nightGamePhaseRepo;
+  final GamePhaseRepo<SpeakPhaseModel> speakGamePhaseRepo;
+  final GamePhaseRepo<NightPhaseModel> nightGamePhaseRepo;
 
   GameResultsManager({
     required this.playersRepo,
@@ -33,9 +33,9 @@ class GameResultsManager {
         winnerIfPPK == WinnerType.none ? _getWinner() : winnerIfPPK;
 
     RulesModel clubRules =
-        (await getRulesUseCase.execute(params: club)) ?? RulesModel.empty();
+        (await getRulesUseCase.execute(params: club.id)) ?? RulesModel.empty();
     var allPlayers = playersRepo.getAllPlayers();
-    SpeakPhaseAction? speakPhaseWithBestMove = speakGamePhaseRepo
+    SpeakPhaseModel? speakPhaseWithBestMove = speakGamePhaseRepo
         .getAllPhases()
         .firstWhereOrNull((speakPhase) => speakPhase.bestMove.isNotEmpty);
     final firstKilledPlayer = _findFirstKilledPlayer();
@@ -64,7 +64,7 @@ class GameResultsManager {
         if (player.isDisqualified) {
           player.gamePoints -= clubRules.kickLoss;
         } else if (speakPhaseWithBestMove != null &&
-            player.tempId == speakPhaseWithBestMove.playerId &&
+            player.tempId == speakPhaseWithBestMove.playerTempId &&
             !mafiaRoles().contains(player.role)) {
           player.bestMove += await _calculateBestMove(
             clubRules,
@@ -101,16 +101,20 @@ class GameResultsManager {
 
   Future<double> _calculateBestMove(
     RulesModel rulesModel,
-    List<int> bestMove,
+    List<PlayerModel> bestMove,
   ) async {
     if (bestMove.isEmpty) {
       return 0;
     }
-    final mafiaPlayersSeats =
-        (await playersRepo.getAllPlayersByRole([Role.mafia, Role.don]))
-            .map((player) => player.seatNumber);
+    final mafiaPlayersTempIds =
+        (await playersRepo.getAllPlayersByRole([Role.mafia, Role.don])).map(
+      (player) => player.tempId,
+    );
     int count = bestMove
-        .where((seatNumber) => mafiaPlayersSeats.contains(seatNumber))
+        .where(
+          (player) =>
+              mafiaPlayersTempIds.any((tempId) => tempId == player.tempId),
+        )
         .length;
 
     if (count == 2) {
@@ -171,7 +175,7 @@ class GameResultsManager {
     return nightGamePhaseRepo
         .getAllPhases()
         .sorted((a, b) =>
-            a.createdAt.millisecond.compareTo(b.createdAt.millisecond))
+            a.updatedAt.millisecond.compareTo(b.updatedAt.millisecond))
         .firstWhereOrNull((nightPhase) => nightPhase.killedPlayer != null)
         ?.killedPlayer;
   }

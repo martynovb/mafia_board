@@ -1,9 +1,11 @@
+import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/data/entity/game/player_entity.dart';
 import 'package:mafia_board/domain/utils/date_format_util.dart';
 
 class DayInfoEntity {
-  final String? id;
-  final String? gameId;
+  String? id;
+  final String? tempId;
+  String? gameId;
   final int? day;
   final DateTime? createdAt;
   final List<PlayerEntity>? removedPlayers;
@@ -12,8 +14,9 @@ class DayInfoEntity {
   String? currentPhase;
 
   DayInfoEntity({
-    required this.id,
-    required this.gameId,
+    this.id,
+    required this.tempId,
+    this.gameId,
     required this.day,
     required this.createdAt,
     required this.removedPlayers,
@@ -22,9 +25,32 @@ class DayInfoEntity {
     required this.currentPhase,
   });
 
+  Map<String, dynamic> toFirestoreMap() => {
+        FirestoreKeys.tempIdFieldKey: tempId,
+        FirestoreKeys.gameIdFieldKey: gameId,
+        FirestoreKeys.dayInfoDayFieldKey: day,
+        FirestoreKeys.createdAtFieldKey: createdAt?.millisecondsSinceEpoch,
+        FirestoreKeys.removedPlayersTempIdsFieldKey: removedPlayers
+            ?.map(
+              (player) => player.tempId,
+            )
+            .toList(),
+        FirestoreKeys.mutedPlayersTempIdsFieldKey: mutedPlayers
+            ?.map(
+              (player) => player.tempId,
+            )
+            .toList(),
+        FirestoreKeys.playersWithFoulTempIdsFieldKey: playersWithFoul
+            ?.map(
+              (player) => player.tempId,
+            )
+            .toList(),
+      };
+
   static DayInfoEntity fromJson(Map<dynamic, dynamic> json) {
     return DayInfoEntity(
       id: json['id'] as String?,
+      tempId: json['tempId'] as String?,
       gameId: json['gameId'] as String?,
       day: json['day'] as int?,
       createdAt: DateFormatUtil.convertStringToDate(json['createdAt']),
@@ -41,7 +67,8 @@ class DayInfoEntity {
       return [];
     }
     return data
-        .map<DayInfoEntity>((e) => DayInfoEntity.fromJson(e as Map<String, dynamic>))
+        .map<DayInfoEntity>(
+            (e) => DayInfoEntity.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 }

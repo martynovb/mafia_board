@@ -7,6 +7,7 @@ import 'package:mafia_board/domain/model/game_results_model.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
+import 'package:mafia_board/domain/model/role.dart';
 
 abstract class GameRepo {
   Future<void> saveGameResults({
@@ -14,7 +15,11 @@ abstract class GameRepo {
     required GameResultsModel gameResultsModel,
   });
 
-  Future<GameEntity> saveGame();
+  Future<GameEntity> saveGame({
+    required Role winRole,
+  });
+
+  Future<List<DayInfoEntity>> saveDayInfoList();
 
   Future<bool> removeGameData();
 

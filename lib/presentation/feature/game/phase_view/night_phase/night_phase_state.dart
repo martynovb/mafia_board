@@ -1,8 +1,8 @@
-import 'package:mafia_board/domain/model/game_phase/night_phase_action.dart';
+import 'package:mafia_board/domain/model/game_phase/night_phase_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 
 class NightPhaseState {
-  final NightPhaseAction? nightPhaseAction;
+  final NightPhaseModel? nightPhaseAction;
   final List<PlayerModel> allPlayers;
   final bool isFinished;
 
@@ -17,7 +17,7 @@ class CheckResultState extends NightPhaseState {
   final PlayerModel? playerModel;
 
   CheckResultState({
-    required NightPhaseAction? nightPhaseAction,
+    required NightPhaseModel? nightPhaseAction,
     required this.playerModel,
     List<PlayerModel>? allPlayers,
     bool? isFinished,

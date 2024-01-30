@@ -1,11 +1,12 @@
-import 'package:mafia_board/domain/model/game_phase/game_phase_action.dart';
+import 'package:mafia_board/domain/model/game_phase/game_phase_model.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
+import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 
-class PickRolePhaseAction extends GamePhaseAction {
+class PickRolePhaseModel extends GamePhaseModel {
   final List<PlayerModel> allPlayers;
 
-  PickRolePhaseAction({
+  PickRolePhaseModel({
     required int currentDay,
     required this.allPlayers,
     PhaseStatus phaseStatus = PhaseStatus.notStarted,
@@ -13,4 +14,7 @@ class PickRolePhaseAction extends GamePhaseAction {
           currentDay: currentDay,
           status: phaseStatus,
         );
+
+  @override
+  PhaseType get phaseType => PhaseType.info;
 }

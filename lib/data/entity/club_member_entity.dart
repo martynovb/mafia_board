@@ -14,9 +14,9 @@ class ClubMemberEntity {
     this.winRateByRoleTypeMap,
   });
 
-  Map<dynamic, dynamic> toFirestoreMap() => {
+  Map<String, dynamic> toFirestoreMap() => {
         FirestoreKeys.clubMemberUserIdFieldKey: user?.id,
-        FirestoreKeys.gameClubIdFieldKey: clubId,
+        FirestoreKeys.clubIdFieldKey: clubId,
       };
 
   static ClubMemberEntity fromFirestoreMap({
@@ -26,7 +26,7 @@ class ClubMemberEntity {
   }) =>
       ClubMemberEntity(
         id: id,
-        clubId: json[FirestoreKeys.gameClubIdFieldKey],
+        clubId: json[FirestoreKeys.clubIdFieldKey],
         user: user,
       );
 

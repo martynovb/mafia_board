@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:mafia_board/data/constants/constants.dart';
-import 'package:mafia_board/domain/model/game_phase/night_phase_action.dart';
-import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
+import 'package:mafia_board/domain/model/game_phase/night_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
@@ -14,9 +14,9 @@ import 'package:mafia_board/presentation/maf_logger.dart';
 
 class NightPhaseManager {
   static const _tag = 'NightPhaseManager';
-  final GamePhaseRepo<NightPhaseAction> nightGamePhaseRepo;
-  final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
-  final PlayersRepo boardRepository;
+  final GamePhaseRepo<NightPhaseModel> nightGamePhaseRepo;
+  final GamePhaseRepo<SpeakPhaseModel> speakGamePhaseRepo;
+  final PlayersRepo playersRepository;
   final GameHistoryManager gameHistoryManager;
   final RoleManager roleManager;
   final GetCurrentGameUseCase getCurrentGameUseCase;
@@ -25,12 +25,12 @@ class NightPhaseManager {
     required this.nightGamePhaseRepo,
     required this.speakGamePhaseRepo,
     required this.roleManager,
-    required this.boardRepository,
+    required this.playersRepository,
     required this.gameHistoryManager,
     required this.getCurrentGameUseCase,
   });
 
-  Future<NightPhaseAction?> getCurrentPhase([int? day]) async {
+  Future<NightPhaseModel?> getCurrentPhase([int? day]) async {
     final game = await getCurrentGameUseCase.execute();
     final currentDay = game.currentDayInfo.day;
     return nightGamePhaseRepo.getCurrentPhase(
@@ -39,19 +39,19 @@ class NightPhaseManager {
   }
 
   Future<void> preparedNightPhases(int currentDay) async {
-    final List<NightPhaseAction> phases = [];
+    final List<NightPhaseModel> phases = [];
     roleManager.allRoles
         .where((roleModel) => roleModel.nightPriority >= 0)
         .sorted((a, b) => a.nightPriority.compareTo(b.nightPriority))
         .forEach((roleModel) {
-      final playersByRole = boardRepository
+      final playersByRole = playersRepository
           .getAllAvailablePlayers()
           .where((player) => player.role == roleModel.role)
           .toList();
 
       // workaround to add DON in MAFIA phase
       if (roleModel.role == Role.mafia) {
-        final donPlayer = boardRepository
+        final donPlayer = playersRepository
             .getAllAvailablePlayers()
             .firstWhereOrNull((player) => player.role == Role.don);
         if (donPlayer != null) {
@@ -59,7 +59,7 @@ class NightPhaseManager {
         }
       }
 
-      phases.add(NightPhaseAction(
+      phases.add(NightPhaseModel(
         currentDay: currentDay,
         role: roleModel.role,
         playersForWakeUp: playersByRole,
@@ -91,34 +91,34 @@ class NightPhaseManager {
     nightGamePhaseRepo.update(gamePhase: phase);
   }
 
-  Future<void> killPlayer(PlayerModel? playerModel) async {
+  Future<void> killPlayer(PlayerModel? player) async {
     final game = await getCurrentGameUseCase.execute();
     final currentDay = game.currentDayInfo.day;
     final currentNightPhase =
         nightGamePhaseRepo.getCurrentPhase(day: currentDay);
     if (currentNightPhase == null ||
-        playerModel == null ||
-        playerModel.isKilled ||
-        await _isPlayerAlreadyKilledBefore(playerModel) ||
-        playerModel.isKicked ||
-        playerModel.isDisqualified) {
+        player == null ||
+        player.isKilled ||
+        await _isPlayerAlreadyKilledBefore(player) ||
+        player.isKicked ||
+        player.isDisqualified) {
       gameHistoryManager.logKillPlayer(nightPhaseAction: currentNightPhase);
       return;
     }
 
     await cancelKillPlayer(currentNightPhase.killedPlayer);
 
-    boardRepository.updatePlayer(playerModel.tempId, isKilled: true);
-    final updatedPlayer = await boardRepository.getPlayerById(playerModel.tempId);
+    playersRepository.updatePlayer(player.tempId, isKilled: true);
+    final updatedPlayer = await playersRepository.getPlayerById(player.tempId);
     final nextDay = currentDay + 1;
     await speakGamePhaseRepo.add(
-      gamePhase: SpeakPhaseAction(
+      gamePhase: SpeakPhaseModel(
           currentDay: nextDay,
-          playerId: updatedPlayer?.tempId,
+          playerTempId: updatedPlayer?.tempId,
           isLastWord: true,
           isBestMove: currentDay == Constants.firstDay),
     );
-    currentNightPhase.killedPlayer = updatedPlayer;
+    currentNightPhase.kill(updatedPlayer);
     gameHistoryManager.logKillPlayer(
       player: updatedPlayer,
       nightPhaseAction: currentNightPhase,
@@ -126,15 +126,15 @@ class NightPhaseManager {
     nightGamePhaseRepo.update(gamePhase: currentNightPhase);
   }
 
-  Future<void> cancelKillPlayer(PlayerModel? playerModel) async {
+  Future<void> cancelKillPlayer(PlayerModel? player) async {
     final game = await getCurrentGameUseCase.execute();
     final currentDay = game.currentDayInfo.day;
     final currentNightPhase =
         nightGamePhaseRepo.getCurrentPhase(day: currentDay);
     if (currentNightPhase == null ||
-        playerModel == null ||
-        !playerModel.isKilled ||
-        await _isPlayerAlreadyKilledBefore(playerModel)) {
+        player == null ||
+        !player.isKilled ||
+        await _isPlayerAlreadyKilledBefore(player)) {
       MafLogger.d(_tag, "Can't cancel kill");
       gameHistoryManager.removeLogKillPlayer(
         nightPhaseAction: currentNightPhase,
@@ -149,21 +149,21 @@ class NightPhaseManager {
       return;
     }
 
-    await boardRepository.updatePlayer(killedPlayer.tempId, isKilled: false);
-    if (speakPhase.isLastWord && speakPhase.playerId == playerModel.tempId) {
+    await playersRepository.updatePlayer(killedPlayer.tempId, isKilled: false);
+    if (speakPhase.isLastWord && speakPhase.playerTempId == player.tempId) {
       speakGamePhaseRepo.remove(gamePhase: speakPhase);
     }
     gameHistoryManager.removeLogKillPlayer(
       nightPhaseAction: currentNightPhase,
     );
-    currentNightPhase.killedPlayer = null;
+    currentNightPhase.revokeKill();
     nightGamePhaseRepo.update(gamePhase: currentNightPhase);
   }
 
-  Future<void> checkPlayer(PlayerModel? playerModel) async {
+  Future<void> checkPlayer(PlayerModel? player) async {
     final game = await getCurrentGameUseCase.execute();
     final currentDay = game.currentDayInfo.day;
-    await cancelCheckPlayer(playerModel);
+    await cancelCheckPlayer(player);
     final currentNightPhase = nightGamePhaseRepo.getCurrentPhase(
       day: currentDay,
     );
@@ -171,15 +171,15 @@ class NightPhaseManager {
       return;
     }
 
-    if (playerModel != null) {
-      currentNightPhase.checkedPlayer = playerModel;
+    if (player != null) {
+      currentNightPhase.check(player);
     }
 
     gameHistoryManager.logCheckPlayer(nightPhaseAction: currentNightPhase);
     nightGamePhaseRepo.update(gamePhase: currentNightPhase);
   }
 
-  Future<void> cancelCheckPlayer(PlayerModel? playerModel) async {
+  Future<void> cancelCheckPlayer(PlayerModel? player) async {
     final game = await getCurrentGameUseCase.execute();
     final currentDay = game.currentDayInfo.day;
     final currentNightPhase =
@@ -187,15 +187,15 @@ class NightPhaseManager {
     if (currentNightPhase == null) {
       return;
     }
-    currentNightPhase.checkedPlayer = null;
+    currentNightPhase.revokeCheck();
     gameHistoryManager.removeLogCheckPlayer(
         nightPhaseAction: currentNightPhase);
     nightGamePhaseRepo.update(gamePhase: currentNightPhase);
   }
 
   //todo: in progress
-  Future<void> visitPlayer(PlayerModel? playerModel, Role whoIsVisiting) async {
-    if (playerModel == null) {
+  Future<void> visitPlayer(PlayerModel? player, Role whoIsVisiting) async {
+    if (player == null) {
       // didn't check OR no players with this role $whoIsChecking in game
       return;
     }
@@ -206,24 +206,24 @@ class NightPhaseManager {
       final lastWordSpeakingPhase =
           speakGamePhaseRepo.getCurrentPhase(day: nextDay);
       if (lastWordSpeakingPhase != null && lastWordSpeakingPhase.isLastWord) {
-        boardRepository.updatePlayer(playerModel.tempId, isKilled: false);
+        playersRepository.updatePlayer(player.tempId, isKilled: false);
         speakGamePhaseRepo.remove(gamePhase: lastWordSpeakingPhase);
       }
     } else if (whoIsVisiting == Role.putana) {
-      boardRepository.updatePlayer(playerModel.tempId, isMuted: true);
+      playersRepository.updatePlayer(player.tempId, isMuted: true);
     } else {
       // this role can't visit players
       return;
     }
   }
 
-  Future<bool> _isPlayerAlreadyKilledBefore(PlayerModel playerModel) async {
+  Future<bool> _isPlayerAlreadyKilledBefore(PlayerModel player) async {
     final game = await getCurrentGameUseCase.execute();
     final currentDay = game.currentDayInfo.day;
     bool result = false;
     nightGamePhaseRepo.getAllPhases().forEach((phase) {
       if (currentDay < phase.currentDay &&
-          phase.killedPlayer?.tempId == playerModel.tempId) {
+          phase.killedPlayer?.tempId == player.tempId) {
         result = true;
         return;
       }

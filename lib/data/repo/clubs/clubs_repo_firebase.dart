@@ -18,20 +18,12 @@ import 'package:mafia_board/domain/model/club_model.dart';
 class ClubsRepoFirebase extends ClubsRepo {
   final FirebaseAuth firebaseAuth;
   final FirebaseFirestore firestore;
-  final GoogleSignIn googleSignIn;
   final UsersRepo usersRepo;
-  final ClubsRepo clubsRepo;
-  final GoogleClientManager googleClientManager;
-  final SpreadsheetRepo spreadSheepRepo;
 
   ClubsRepoFirebase({
     required this.firebaseAuth,
     required this.firestore,
-    required this.googleSignIn,
     required this.usersRepo,
-    required this.clubsRepo,
-    required this.googleClientManager,
-    required this.spreadSheepRepo,
   });
 
   @override
@@ -65,38 +57,6 @@ class ClubsRepoFirebase extends ClubsRepo {
     return clubs;
   }
 
-  @override
-  Future<ClubEntity> createClubWithGoogleTable({
-    required String name,
-    required String clubDescription,
-  }) async {
-    final userId = firebaseAuth.currentUser?.uid;
-    if (userId == null) {
-      throw InvalidCredentialsException('User is not authorized');
-    }
-
-    // Use Google Sheets API to create a new sheet
-
-    final spreadsheet = await spreadSheepRepo.createSpreadsheet(name);
-
-    final doc =
-        await firestore.collection(FirestoreKeys.clubsCollectionKey).add(
-      {
-        FirestoreKeys.clubTitleFieldKey: name,
-        FirestoreKeys.clubDescriptionFieldKey: clubDescription,
-        FirestoreKeys.clubGoogleSheetIdFieldKey: spreadsheet.spreadsheetId,
-        FirestoreKeys.clubMembersIdsFieldKey: [userId],
-        FirestoreKeys.clubAdminsIdsFieldKey: [userId],
-      },
-    );
-
-    return ClubEntity(
-      id: doc.id,
-      title: name,
-      description: clubDescription,
-      googleSheetId: spreadsheet.spreadsheetId,
-    );
-  }
 
   @override
   Future<ClubEntity> createClub({
@@ -158,13 +118,13 @@ class ClubsRepoFirebase extends ClubsRepo {
   // create new clubMembers where id is null after a game will be finished
   @override
   Future<List<ClubMemberEntity>> getExistedAndNotExistedClubMembers({
-    required ClubModel clubModel,
+    required String clubId,
   }) async {
     final allUsers = await usersRepo.getAllUsers();
 
     var membersDoc = await firestore
         .collection(FirestoreKeys.clubMembersCollectionKey)
-        .where(FirestoreKeys.gameClubIdFieldKey, isEqualTo: clubModel.id)
+        .where(FirestoreKeys.clubIdFieldKey, isEqualTo: clubId)
         .get();
 
     final existedAndNonExistedMembers = <ClubMemberEntity>[];
@@ -176,7 +136,7 @@ class ClubsRepoFirebase extends ClubsRepo {
       existedAndNonExistedMembers.add(
         ClubMemberEntity(
           id: memberDocForThisUser?.id,
-          clubId: clubModel.id,
+          clubId: clubId,
           user: user,
         ),
       );

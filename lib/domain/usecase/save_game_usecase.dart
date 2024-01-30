@@ -1,18 +1,31 @@
 import 'package:collection/collection.dart';
 import 'package:mafia_board/data/repo/game_info/game_repo.dart';
+import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/exceptions/exception.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
+import 'package:mafia_board/domain/model/game_phase/night_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/vote_phase_model.dart';
 import 'package:mafia_board/domain/model/game_results_model.dart';
 import 'package:mafia_board/domain/usecase/base_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_club_members_usecase.dart';
+import 'package:mafia_board/presentation/maf_logger.dart';
 
 class SaveGameUseCase extends BaseUseCase<void, SaveGameResultsParams> {
+  static const tag = 'SaveGameUseCase';
+
   final CreateClubMembersUseCase createClubMembersUseCase;
   final GameRepo gameRepo;
   final PlayersRepo playersRepo;
+  final GamePhaseRepo<SpeakPhaseModel> speakGamePhaseRepo;
+  final GamePhaseRepo<VotePhaseModel> voteGamePhaseRepo;
+  final GamePhaseRepo<NightPhaseModel> nightGamePhaseRepo;
 
   SaveGameUseCase({
+    required this.speakGamePhaseRepo,
+    required this.voteGamePhaseRepo,
+    required this.nightGamePhaseRepo,
     required this.createClubMembersUseCase,
     required this.gameRepo,
     required this.playersRepo,
@@ -20,12 +33,14 @@ class SaveGameUseCase extends BaseUseCase<void, SaveGameResultsParams> {
 
   @override
   Future<void> execute({SaveGameResultsParams? params}) async {
-    // 1. add new members if it is not
+
+    MafLogger.d(tag, '1. [START] Create new members');
     final newMembers = await createClubMembersUseCase.execute(
       params: params!.clubModel.id,
     );
+    MafLogger.d(tag, '[FINISHED] Create new members');
 
-    // 2. update players with created members
+    MafLogger.d(tag, '2. [START] update players with created members');
     playersRepo
         .getAllPlayers()
         .where((player) => player.clubMember?.id == null)
@@ -38,18 +53,27 @@ class SaveGameUseCase extends BaseUseCase<void, SaveGameResultsParams> {
         playersRepo.updateAllPlayerData(player);
       },
     );
+    MafLogger.d(tag, '[FINISHED] update players with created members');
 
-    // 3. save game to get game id
+    MafLogger.d(tag, '3. [START] Save current game');
     final game = await gameRepo.saveGame();
-    if(game.id != null) {
-      await playersRepo.savePlayers(gameId: game.id!);
-    } else {
+    MafLogger.d(tag, '[FINISHED] Save current game (id: ${game.id})');
+    if(game.id == null) {
       throw InvalidDataError('Game saving error');
     }
+    MafLogger.d(tag, '4. [START] Save players');
+    await playersRepo.savePlayers(gameId: game.id!);
+    MafLogger.d(tag, '[FISHED] Save players');
 
-    // 4. save day info with created gameId
+    MafLogger.d(tag, '5. [START] Save dayInfo list');
+    final dayInfoList = await gameRepo.saveDayInfoList();
+    MafLogger.d(tag, '[FINISHED] Save dayInfo list');
 
-    // 5. save game phases with dayInfoId
+    MafLogger.d(tag, '6. [START] Save game phases');
+    await speakGamePhaseRepo.saveGamePhases(dayInfoList);
+    await voteGamePhaseRepo.saveGamePhases(dayInfoList);
+    await nightGamePhaseRepo.saveGamePhases(dayInfoList);
+    MafLogger.d(tag, '[FINISHED] Save game phases');
 
     // 6. recalculate win rate for club
 

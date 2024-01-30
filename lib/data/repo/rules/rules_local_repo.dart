@@ -24,12 +24,13 @@ class RulesLocalRepo extends RulesRepo {
         mafWin: 1,
         civilLoss: 0,
         mafLoss: 0,
-        kickLoss: 0.4,
+        disqualificationLoss: 0.4,
         defaultBonus: 0.4,
         ppkLoss: 0.7,
         defaultGameLoss: 0,
         twoBestMove: 0.3,
         threeBestMove: 0.5,
+        clubId: '',
       );
       clubsRules.add(rules);
       club.rulesId = rules.id;
@@ -38,72 +39,23 @@ class RulesLocalRepo extends RulesRepo {
   }
 
   @override
-  Future<RulesEntity?> getClubRules(ClubModel clubModel) async {
-    final club = await clubsRepo.getClubDetails(id: clubModel.id);
+  Future<RulesEntity?> getClubRules({required String clubId}) async {
+    final club = await clubsRepo.getClubDetails(id: clubId);
     return clubsRules.firstWhereOrNull((rules) => rules.id == club?.rulesId);
   }
 
   @override
-  Future<void> updateClubRules({
-    required ClubModel clubModel,
-    required double civilWin,
-    required double mafWin,
-    required double civilLoss,
-    required double mafLoss,
-    required double kickLoss,
-    required double defaultBonus,
-    required double ppkLoss,
-    required double gameLoss,
-    required double twoBestMove,
-    required double threeBestMove,
-  }) async {
-    int indexOf = clubsRules.indexWhere((rules) => rules.id == clubModel.id);
+  Future<void> updateClubRules({required RulesEntity rules}) async {
+    int indexOf = clubsRules.indexWhere((savedRules) => savedRules.id == rules.id);
     if (indexOf != -1) {
-      clubsRules[indexOf] = RulesEntity(
-        id: const Uuid().v1(),
-        civilWin: civilWin,
-        mafWin: mafWin,
-        civilLoss: civilLoss,
-        mafLoss: mafLoss,
-        kickLoss: kickLoss,
-        defaultBonus: defaultBonus,
-        ppkLoss: ppkLoss,
-        defaultGameLoss: gameLoss,
-        twoBestMove: twoBestMove,
-        threeBestMove: threeBestMove,
-      );
+      clubsRules[indexOf] = rules;
     }
   }
 
   @override
-  Future<void> createClubRules({
-    required ClubModel clubModel,
-    required double civilWin,
-    required double mafWin,
-    required double civilLoss,
-    required double mafLoss,
-    required double kickLoss,
-    required double defaultBonus,
-    required double ppkLoss,
-    required double gameLoss,
-    required double twoBestMove,
-    required double threeBestMove,
-  }) async {
-    final rules = RulesEntity(
-      id: const Uuid().v1(),
-      civilWin: civilWin,
-      mafWin: mafWin,
-      civilLoss: civilLoss,
-      mafLoss: mafLoss,
-      kickLoss: kickLoss,
-      defaultBonus: defaultBonus,
-      ppkLoss: ppkLoss,
-      defaultGameLoss: gameLoss,
-      twoBestMove: twoBestMove,
-      threeBestMove: threeBestMove,
-    );
+  Future<void> createClubRules({required RulesEntity rules}) async {
     clubsRules.add(rules);
-    final club = await clubsRepo.getClubDetails(id: clubModel.id);
+    final club = await clubsRepo.getClubDetails(id: rules.clubId!);
     if (club != null) {
       club.rulesId = rules.id;
       await clubsRepo.setClub(clubEntity: club);

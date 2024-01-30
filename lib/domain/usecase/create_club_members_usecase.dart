@@ -19,8 +19,11 @@ class CreateClubMembersUseCase
     final membersToAdd = playersRepo
         .getAllPlayers()
         .where((player) => player.clubMember != null)
+        .toList()
         .map((player) => player.clubMember!)
+        .toList()
         .where((member) => member.id == null)
+        .toList()
         .map((member) => member.toEntity())
         .toList();
     return clubsRepo.addNewMembers(

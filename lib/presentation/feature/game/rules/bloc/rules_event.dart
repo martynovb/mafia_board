@@ -19,9 +19,9 @@ class CreateOrUpdateRulesEvent extends RulesEvent {
   final double kickLoss;
   final double defaultBonus;
   final double ppkLoss;
-  final double gameLoss;
   final double twoBestMove;
   final double threeBestMove;
+  final double defaultGameLoss;
 
   CreateOrUpdateRulesEvent({
     this.id,
@@ -33,8 +33,8 @@ class CreateOrUpdateRulesEvent extends RulesEvent {
     required this.kickLoss,
     required this.defaultBonus,
     required this.ppkLoss,
-    required this.gameLoss,
     required this.twoBestMove,
     required this.threeBestMove,
+    required this.defaultGameLoss,
   });
 }

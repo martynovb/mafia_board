@@ -1,14 +1,16 @@
-import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
-import 'package:mafia_board/data/repo/game_phase/base_phase_repo_local.dart';
+import 'package:mafia_board/domain/model/game_phase/vote_phase_model.dart';
+import 'package:mafia_board/data/repo/game_phase/base_phase_repo.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
 
-class VotePhaseRepoLocal extends BasePhaseRepoLocal<VotePhaseAction> {
+class VotePhaseRepo extends BasePhaseRepo<VotePhaseModel> {
+  VotePhaseRepo({required super.firestore});
+
   @override
-  List<VotePhaseAction> getAllPhasesByDay({required int day}) {
-    List<VotePhaseAction> todaysPhases = super.getAllPhasesByDay(day: day);
-    List<VotePhaseAction> votePhases = [];
-    List<VotePhaseAction> gunfightVotePhases = [];
-    VotePhaseAction? askToKickAllPlayers;
+  List<VotePhaseModel> getAllPhasesByDay({required int day}) {
+    List<VotePhaseModel> todaysPhases = super.getAllPhasesByDay(day: day);
+    List<VotePhaseModel> votePhases = [];
+    List<VotePhaseModel> gunfightVotePhases = [];
+    VotePhaseModel? askToKickAllPlayers;
     final seenIds = <int>{};
     for (var votePhase in todaysPhases) {
       final hashCode = votePhase.hashCode;

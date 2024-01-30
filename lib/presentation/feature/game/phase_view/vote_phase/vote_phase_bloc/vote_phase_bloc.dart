@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
-import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
+import 'package:mafia_board/domain/model/game_phase/vote_phase_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/manager/game_flow/game_phase_manager.dart';
@@ -123,7 +123,7 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
     }
   }
 
-  String _mapVotePageTitle(VotePhaseAction? votePhaseAction) {
+  String _mapVotePageTitle(VotePhaseModel? votePhaseAction) {
     if (votePhaseAction == null) {
       return '';
     } else if (votePhaseAction.shouldKickAllPlayers) {

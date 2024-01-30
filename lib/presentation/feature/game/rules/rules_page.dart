@@ -323,15 +323,16 @@ class _RulesPageState extends State<RulesPage> {
         ppkLoss: double.tryParse(ppkLossController.text.trim()) ??
             rules?.ppkLoss ??
             0.0,
-        gameLoss: double.tryParse(defaultGameLossController.text.trim()) ??
-            rules?.defaultGameLoss ??
-            0.0,
         twoBestMove: double.tryParse(twoBestMoveController.text.trim()) ??
             rules?.twoBestMove ??
             0.0,
         threeBestMove: double.tryParse(threeBestMoveController.text.trim()) ??
             rules?.threeBestMove ??
             0.0,
+        defaultGameLoss:
+            double.tryParse(defaultGameLossController.text.trim()) ??
+                rules?.defaultGameLoss ??
+                0.0,
       ),
     );
   }

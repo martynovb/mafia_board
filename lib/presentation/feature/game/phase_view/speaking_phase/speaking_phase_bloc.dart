@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
+import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/manager/game_flow/speaking_phase_manager.dart';
@@ -21,7 +21,7 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
   Future<void> _getCurrentSpeakingPhaseEventHandler(
       GetCurrentSpeakPhaseEvent event, emit) async {
     final currentSpeakPhase = await speakingPhaseManager.getCurrentPhase();
-    final currentSpeakerId = currentSpeakPhase?.playerId;
+    final currentSpeakerId = currentSpeakPhase?.playerTempId;
     emit(SpeakingPhaseState(
       players: boardRepo.getAllPlayers(),
       speakPhaseAction: currentSpeakPhase,
@@ -34,7 +34,7 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
   Future<void> _startSpeechEventHandler(StartSpeechEvent event, emit) async {
     await speakingPhaseManager.startSpeech();
     final currentSpeakPhase = await speakingPhaseManager.getCurrentPhase();
-    final currentSpeakerId = currentSpeakPhase?.playerId;
+    final currentSpeakerId = currentSpeakPhase?.playerTempId;
     emit(SpeakingPhaseState(
       players: boardRepo.getAllPlayers(),
       speakPhaseAction: currentSpeakPhase,
@@ -47,7 +47,7 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
   Future<void> _finishSpeechEventHandler(FinishSpeechEvent event, emit) async {
     await speakingPhaseManager.finishSpeech(_parseBestMove(event.bestMove));
     final currentSpeakPhase = await speakingPhaseManager.getCurrentPhase();
-    final currentSpeakerId = currentSpeakPhase?.playerId;
+    final currentSpeakerId = currentSpeakPhase?.playerTempId;
     emit(SpeakingPhaseState(
       players: boardRepo.getAllPlayers(),
       speakPhaseAction: currentSpeakPhase,
@@ -75,7 +75,7 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
 
 class SpeakingPhaseState {
   final List<PlayerModel> players;
-  final SpeakPhaseAction? speakPhaseAction;
+  final SpeakPhaseModel? speakPhaseAction;
   final PlayerModel? speaker;
   final bool isFinished;
 

@@ -14,7 +14,7 @@ class DayInfoModel {
   PhaseType currentPhase;
 
   DayInfoModel.fromEntity(DayInfoEntity? entity)
-      : id = entity?.id ?? '',
+      : id = entity?.tempId ?? '',
         gameId = entity?.gameId ?? '',
         day = entity?.day ?? -1,
         createdAt = entity?.createdAt ?? DateTime.now(),
@@ -39,7 +39,7 @@ class DayInfoModel {
         currentPhase = phaseTypeMapper(entity?.currentPhase);
 
   DayInfoEntity toEntity() => DayInfoEntity(
-        id: id,
+        tempId: id,
         gameId: gameId,
         day: day,
         createdAt: createdAt,

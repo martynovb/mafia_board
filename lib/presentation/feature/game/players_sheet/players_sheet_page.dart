@@ -472,7 +472,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
             });
       },
     );
-    _userListBloc.add(FetchUserListEvent());
+    _userListBloc.add(FetchUserListEvent(widget.club.id));
     return selectedUserCompleter.future;
   }
 }

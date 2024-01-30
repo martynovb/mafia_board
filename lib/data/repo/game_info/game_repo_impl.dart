@@ -12,6 +12,7 @@ import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/data/repo/game_info/game_repo.dart';
+import 'package:mafia_board/presentation/maf_logger.dart';
 import 'package:uuid/uuid.dart';
 
 class GameRepoImpl extends GameRepo {
@@ -32,7 +33,9 @@ class GameRepoImpl extends GameRepo {
       clubId: clubId,
       gameStatus: gameStatus.name,
       finishGameType: FinishGameType.none.name,
-      startedInMills: DateTime.now().millisecondsSinceEpoch,
+      startedInMills: DateTime
+          .now()
+          .millisecondsSinceEpoch,
     );
     return _currentGame!;
   }
@@ -76,8 +79,8 @@ class GameRepoImpl extends GameRepo {
       return false;
     }
 
-    final index = _dayInfoList
-        .indexWhere((existingDayInfo) => existingDayInfo.id == dayInfoModel.id);
+    final index = _dayInfoList.indexWhere(
+            (existingDayInfo) => existingDayInfo.tempId == dayInfoModel.tempId);
 
     if (index != -1) {
       _dayInfoList[index] = dayInfoModel;
@@ -113,10 +116,8 @@ class GameRepoImpl extends GameRepo {
     PhaseType? currentPhase,
     List<PlayerEntity>? mutedPlayers,
   }) async {
-    final currentGame = await getLastActiveGame();
     final entity = DayInfoEntity(
-      id: const Uuid().v1(),
-      gameId: currentGame?.id,
+      tempId: const Uuid().v1(),
       day: day,
       createdAt: DateTime.now(),
       removedPlayers: [],
@@ -142,6 +143,7 @@ class GameRepoImpl extends GameRepo {
 
     currentGame.gameStatus = GameStatus.finished.name;
     currentGame.finishGameType = finishGameType.name;
+    currentGame.finishedInMills = DateTime.now().millisecondsSinceEpoch;
     return currentGame;
   }
 
@@ -171,15 +173,39 @@ class GameRepoImpl extends GameRepo {
 
   @override
   Future<GameEntity> saveGame() async {
-    if(_currentGame != null) {
-      final doc = await firestore.collection(FirestoreKeys.gamesCollectionKey)
-          .add(
-          _currentGame?.toFirestoreMap() ?? {}
-      );
+    if (_currentGame != null) {
+      final doc = await firestore
+          .collection(FirestoreKeys.gamesCollectionKey)
+          .add(_currentGame?.toFirestoreMap() ?? {});
       _currentGame?.id = doc.id;
-      return _currentGame!;
+    } else {
+      throw InvalidDataError('Game is not saved');
     }
 
-    throw InvalidDataError('Game is not created');
+    return _currentGame!;
+  }
+
+  @override
+  Future<List<DayInfoEntity>> saveDayInfoList() async {
+    if (_currentGame == null || _currentGame?.id == null) {
+      throw InvalidDataError('Game is not saved');
+    }
+
+
+    CollectionReference dayInfoRef = firestore.collection(
+      FirestoreKeys.dayInfoCollectionKey,
+    );
+
+    WriteBatch batch = firestore.batch();
+
+    for (var dayInfo in _dayInfoList) {
+      dayInfo.gameId = _currentGame?.id;
+      DocumentReference dayInfoDocRef = dayInfoRef.doc();
+      batch.set(dayInfoDocRef, dayInfo.toFirestoreMap());
+      dayInfo.id = dayInfoDocRef.id;
+    }
+    await batch.commit();
+
+    return _dayInfoList;
   }
 }

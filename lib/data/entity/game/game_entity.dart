@@ -19,7 +19,7 @@ class GameEntity {
   });
 
   Map<String, dynamic> toFirestoreMap() => {
-    FirestoreKeys.gameClubIdFieldKey : clubId,
+    FirestoreKeys.clubIdFieldKey : clubId,
     FirestoreKeys.gameFinishTypeFieldKey : finishGameType,
     FirestoreKeys.gameWinRoleFieldKey : winRole,
     FirestoreKeys.gameMafsLeftFieldKey : mafsLeft,

@@ -1,6 +1,6 @@
 import 'package:mafia_board/data/constants/constants.dart';
 import 'package:mafia_board/data/entity/game/phase/game_phase_entity.dart';
-import 'package:mafia_board/domain/model/game_phase/game_phase_action.dart';
+import 'package:mafia_board/domain/model/game_phase/game_phase_model.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/domain/utils/date_format_util.dart';
 

@@ -86,7 +86,7 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
         if (club.isAdmin) ...[
           GestureDetector(
             onTap: () {},
-            child: Text('Pending requests (${club.waitList.length})'),
+            child: Text('Pending requests (...)'),
           ),
           const Divider(),
         ],

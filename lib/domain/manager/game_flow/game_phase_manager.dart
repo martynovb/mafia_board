@@ -4,11 +4,11 @@ import 'package:mafia_board/data/constants/constants.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/domain/model/game_info_model.dart';
 import 'package:mafia_board/domain/model/game_model.dart';
-import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
-import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
+import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/vote_phase_model.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
-import 'package:mafia_board/domain/model/game_phase/night_phase_action.dart';
+import 'package:mafia_board/domain/model/game_phase/night_phase_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/data/repo/game_info/game_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
@@ -33,9 +33,9 @@ class GameManager {
 
   final GameRepo dayInfoRepo;
   final PlayersRepo playersRepository;
-  final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
-  final GamePhaseRepo<VotePhaseAction> voteGamePhaseRepo;
-  final GamePhaseRepo<NightPhaseAction> nightGamePhaseRepo;
+  final GamePhaseRepo<SpeakPhaseModel> speakGamePhaseRepo;
+  final GamePhaseRepo<VotePhaseModel> voteGamePhaseRepo;
+  final GamePhaseRepo<NightPhaseModel> nightGamePhaseRepo;
   final GameHistoryManager gameHistoryManager;
   final VotePhaseManager votePhaseGameManager;
   final SpeakingPhaseManager speakingPhaseManager;

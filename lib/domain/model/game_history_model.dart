@@ -1,12 +1,12 @@
 import 'package:mafia_board/domain/model/game_history_type.dart';
-import 'package:mafia_board/domain/model/game_phase/game_phase_action.dart';
+import 'package:mafia_board/domain/model/game_phase/game_phase_model.dart';
 
 class GameHistoryModel {
   final int id;
   final String text;
   final String subText;
   final GameHistoryType type;
-  final GamePhaseAction? gamePhaseAction;
+  final GamePhaseModel? gamePhaseAction;
   final DateTime createdAt;
 
   GameHistoryModel({

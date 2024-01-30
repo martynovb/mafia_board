@@ -125,7 +125,7 @@ class PlayersRepoImpl extends PlayersRepo {
       final playerEntity = player.toEntity();
       DocumentReference memberDocRef = playersRef.doc();
       final playerData = playerEntity.toFirestoreMap();
-      playerData.putIfAbsent(FirestoreKeys.playerGameIdFieldKey, () => gameId);
+      playerData.putIfAbsent(FirestoreKeys.gameIdFieldKey, () => gameId);
       batch.set(memberDocRef, playerData);
       playerEntity.id = memberDocRef.id;
       player.id = memberDocRef.id;

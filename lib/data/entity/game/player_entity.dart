@@ -63,7 +63,7 @@ class PlayerEntity {
   }
 
   Map<String, dynamic> toFirestoreMap() => {
-    FirestoreKeys.playerTempIdFieldKey : tempId,
+    FirestoreKeys.tempIdFieldKey : tempId,
     FirestoreKeys.clubMemberIdFieldKey : clubMember?.id,
     FirestoreKeys.foulsFieldKey : fouls,
     FirestoreKeys.roleFieldKey : role,
