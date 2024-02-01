@@ -12,7 +12,7 @@ import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/data/repo/game_info/game_repo.dart';
-import 'package:mafia_board/presentation/maf_logger.dart';
+import 'package:mafia_board/domain/model/winner_type.dart';
 import 'package:uuid/uuid.dart';
 
 class GameRepoImpl extends GameRepo {
@@ -33,9 +33,7 @@ class GameRepoImpl extends GameRepo {
       clubId: clubId,
       gameStatus: gameStatus.name,
       finishGameType: FinishGameType.none.name,
-      startedInMills: DateTime
-          .now()
-          .millisecondsSinceEpoch,
+      startedInMills: DateTime.now().millisecondsSinceEpoch,
     );
     return _currentGame!;
   }
@@ -80,7 +78,7 @@ class GameRepoImpl extends GameRepo {
     }
 
     final index = _dayInfoList.indexWhere(
-            (existingDayInfo) => existingDayInfo.tempId == dayInfoModel.tempId);
+        (existingDayInfo) => existingDayInfo.tempId == dayInfoModel.tempId);
 
     if (index != -1) {
       _dayInfoList[index] = dayInfoModel;
@@ -155,25 +153,13 @@ class GameRepoImpl extends GameRepo {
   }
 
   @override
-  Future<void> saveGameResults({
-    required ClubModel clubModel,
-    required GameResultsModel gameResultsModel,
+  Future<GameEntity> saveGame({
+    required WinnerType winnerType,
+    required int mafsLeft,
   }) async {
-    //create game
-    /*final doc =
-    await firestore.collection(FirestoreKeys.gamesCollectionKey).add(
-      {
-        FirestoreKeys.clubTitleFieldKey: name,
-        FirestoreKeys.clubDescriptionFieldKey: clubDescription,
-        FirestoreKeys.clubMembersIdsFieldKey: [userId],
-        FirestoreKeys.clubAdminsIdsFieldKey: [userId],
-      },
-    );*/
-  }
-
-  @override
-  Future<GameEntity> saveGame() async {
     if (_currentGame != null) {
+      _currentGame?.winRole = winnerType.name;
+      _currentGame?.mafsLeft = mafsLeft;
       final doc = await firestore
           .collection(FirestoreKeys.gamesCollectionKey)
           .add(_currentGame?.toFirestoreMap() ?? {});
@@ -186,11 +172,13 @@ class GameRepoImpl extends GameRepo {
   }
 
   @override
+  Future<void> removeGame({required String gameId}) async {}
+
+  @override
   Future<List<DayInfoEntity>> saveDayInfoList() async {
     if (_currentGame == null || _currentGame?.id == null) {
       throw InvalidDataError('Game is not saved');
     }
-
 
     CollectionReference dayInfoRef = firestore.collection(
       FirestoreKeys.dayInfoCollectionKey,
@@ -207,5 +195,24 @@ class GameRepoImpl extends GameRepo {
     await batch.commit();
 
     return _dayInfoList;
+  }
+
+  @override
+  Future<List<GameEntity>> fetchAllGamesByClubId({
+    required String clubId,
+  }) async {
+    var gamesSnapshot = await FirebaseFirestore.instance
+        .collection(FirestoreKeys.gamesCollectionKey)
+        .where(FirestoreKeys.clubIdFieldKey, isEqualTo: clubId)
+        .get();
+
+    return gamesSnapshot.docs
+        .map(
+          (gameDoc) => GameEntity.fromFirestoreMap(
+            id: gameDoc.id,
+            data: gameDoc.data(),
+          ),
+        )
+        .toList();
   }
 }

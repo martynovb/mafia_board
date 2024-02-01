@@ -7,6 +7,7 @@ abstract class GamePhaseModel {
   String? id;
   final String tempId = const Uuid().v1();
   String? dayInfoId;
+  String? gameId;
   final int currentDay;
   DateTime updatedAt = DateTime.now();
   PhaseStatus status;
@@ -26,6 +27,7 @@ abstract class GamePhaseModel {
   Map<String, dynamic> toFirestoreMap() => {
         FirestoreKeys.tempIdFieldKey: tempId,
         FirestoreKeys.dayInfoIdFieldKey: dayInfoId,
+        FirestoreKeys.gameIdFieldKey: gameId,
         FirestoreKeys.gamePhaseDayFieldKey: currentDay,
         FirestoreKeys.updatedAtFieldKey: updatedAt.millisecondsSinceEpoch,
         FirestoreKeys.gamePhaseTypeFieldKey: phaseType.name,

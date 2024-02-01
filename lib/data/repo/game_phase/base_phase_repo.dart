@@ -92,7 +92,10 @@ class BasePhaseRepo<GamePhase extends GamePhaseModel>
   }
 
   @override
-  Future<void> saveGamePhases(List<DayInfoEntity> dayInfoList) async {
+  Future<void> saveGamePhases({
+    required String gameId,
+    required List<DayInfoEntity> dayInfoList,
+  }) async {
     CollectionReference ref = firestore.collection(
       FirestoreKeys.gamePhaseCollectionKey,
     );
@@ -106,6 +109,7 @@ class BasePhaseRepo<GamePhase extends GamePhaseModel>
       );
       for (var phase in phases) {
         phase.dayInfoId = dayInfo.id;
+        phase.gameId = gameId;
         DocumentReference docRef = ref.doc();
         batch.set(docRef, phase.toFirestoreMap());
       }

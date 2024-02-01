@@ -6,6 +6,7 @@ import 'package:mafia_board/domain/model/role.dart';
 class PlayerModel {
   String? id;
   String tempId;
+  String? gameId;
   ClubMemberModel? clubMember;
   int fouls;
   Role role;
@@ -27,6 +28,7 @@ class PlayerModel {
     required this.clubMember,
     required this.role,
     required this.seatNumber,
+    this.gameId,
     this.fouls = 0,
     this.isDisqualified = false,
     this.isKilled = false,

@@ -1,27 +1,25 @@
 import 'package:mafia_board/data/entity/game/game_entity.dart';
 import 'package:mafia_board/data/entity/game/day_info_entity.dart';
 import 'package:mafia_board/data/entity/game/player_entity.dart';
-import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
-import 'package:mafia_board/domain/model/game_results_model.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
-import 'package:mafia_board/domain/model/role.dart';
+import 'package:mafia_board/domain/model/winner_type.dart';
 
 abstract class GameRepo {
-  Future<void> saveGameResults({
-    required ClubModel clubModel,
-    required GameResultsModel gameResultsModel,
+  Future<GameEntity> saveGame({
+    required WinnerType winnerType,
+    required int mafsLeft,
   });
 
-  Future<GameEntity> saveGame({
-    required Role winRole,
-  });
+  Future<void> removeGame({required String gameId});
 
   Future<List<DayInfoEntity>> saveDayInfoList();
 
   Future<bool> removeGameData();
+
+  Future<List<GameEntity>> fetchAllGamesByClubId({required String clubId});
 
   Future<GameEntity> createGame({
     required String clubId,

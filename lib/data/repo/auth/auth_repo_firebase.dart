@@ -46,11 +46,7 @@ class AuthRepoFirebase extends AuthRepo {
         .doc(id)
         .get();
 
-    return UserEntity(
-      id: id,
-      email: doc.data()?[FirestoreKeys.emailFieldKey],
-      nickname: doc.data()?[FirestoreKeys.nicknameFieldKey],
-    );
+    return UserEntity.fromFirestoreMap(id: id, data: doc.data());
   }
 
   @override

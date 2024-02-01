@@ -3,10 +3,12 @@ import 'package:mafia_board/data/entity/club_member_entity.dart';
 
 class PlayerEntity {
   String? id;
+
   // pre id for each player.
   // we save players only when game is finished but we need some ids to manage game flow
   // send to firestore to watch game history
   final String? tempId;
+  String? gameId;
   final ClubMemberEntity? clubMember;
   final int? fouls;
   final String? role;
@@ -26,6 +28,7 @@ class PlayerEntity {
   PlayerEntity({
     this.id,
     this.tempId,
+    this.gameId,
     required this.clubMember,
     required this.role,
     required this.seatNumber,
@@ -45,6 +48,8 @@ class PlayerEntity {
   static PlayerEntity fromJson(Map<dynamic, dynamic> json) {
     return PlayerEntity(
       id: json['id'] as String?,
+      tempId: json['tempId'] as String?,
+      gameId: json['gameId'] as String?,
       clubMember: ClubMemberEntity.fromJson(json['club_member']),
       role: json['role'] as String?,
       fouls: json['fouls'] as int?,
@@ -63,18 +68,39 @@ class PlayerEntity {
   }
 
   Map<String, dynamic> toFirestoreMap() => {
-    FirestoreKeys.tempIdFieldKey : tempId,
-    FirestoreKeys.clubMemberIdFieldKey : clubMember?.id,
-    FirestoreKeys.foulsFieldKey : fouls,
-    FirestoreKeys.roleFieldKey : role,
-    FirestoreKeys.isRemovedFieldKey : isRemoved,
-    FirestoreKeys.isPpkFieldKey : isPPK,
-    FirestoreKeys.seatNumberFieldKey : seatNumber,
-    FirestoreKeys.bestMoveFieldKey : bestMove,
-    FirestoreKeys.compensationFieldKey : compensation,
-    FirestoreKeys.gamePointsFieldKey : gamePoints,
-    FirestoreKeys.bonusPointsFieldKey : bonus,
-  };
+        FirestoreKeys.tempIdFieldKey: tempId,
+        FirestoreKeys.gameIdFieldKey: gameId,
+        FirestoreKeys.clubMemberIdFieldKey: clubMember?.id,
+        FirestoreKeys.foulsFieldKey: fouls,
+        FirestoreKeys.roleFieldKey: role,
+        FirestoreKeys.isRemovedFieldKey: isRemoved,
+        FirestoreKeys.isPpkFieldKey: isPPK,
+        FirestoreKeys.seatNumberFieldKey: seatNumber,
+        FirestoreKeys.bestMoveFieldKey: bestMove,
+        FirestoreKeys.compensationFieldKey: compensation,
+        FirestoreKeys.gamePointsFieldKey: gamePoints,
+        FirestoreKeys.bonusPointsFieldKey: bonus,
+      };
+
+  PlayerEntity.fromFirestoreMap({
+    required this.id,
+    required this.clubMember,
+    required Map<String, dynamic> data,
+  })  : tempId = data[FirestoreKeys.tempIdFieldKey],
+        gameId = data[FirestoreKeys.gameIdFieldKey],
+        fouls = data[FirestoreKeys.foulsFieldKey],
+        role = data[FirestoreKeys.roleFieldKey],
+        isRemoved = data[FirestoreKeys.isRemovedFieldKey],
+        isPPK = data[FirestoreKeys.isPpkFieldKey],
+        seatNumber = data[FirestoreKeys.seatNumberFieldKey],
+        bestMove = data[FirestoreKeys.bestMoveFieldKey],
+        compensation = data[FirestoreKeys.compensationFieldKey],
+        gamePoints = data[FirestoreKeys.gamePointsFieldKey],
+        bonus = data[FirestoreKeys.bonusPointsFieldKey],
+        isFirstKilled = null,
+        isKicked = null,
+        isKilled = null,
+        isMuted = null;
 
   static List<PlayerEntity> parsePlayerEntities(dynamic data) {
     if (data is! List) {

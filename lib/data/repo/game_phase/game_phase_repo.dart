@@ -24,5 +24,8 @@ abstract class GamePhaseRepo<GamePhase extends GamePhaseModel> {
 
   void deleteAll();
 
-  Future<void> saveGamePhases(List<DayInfoEntity> dayInfoList);
+  Future<void> saveGamePhases({
+    required String gameId,
+    required List<DayInfoEntity> dayInfoList,
+  });
 }

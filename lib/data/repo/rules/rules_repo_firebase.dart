@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/data/entity/rules_entity.dart';
 import 'package:mafia_board/data/repo/rules/rules_repo.dart';
-import 'package:mafia_board/domain/model/club_model.dart';
 
 class RulesRepoFirebase extends RulesRepo {
   final FirebaseFirestore firestore;

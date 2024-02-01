@@ -45,6 +45,7 @@ import 'package:mafia_board/domain/usecase/change_nickname_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_club_members_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_club_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_rules_usecase.dart';
+import 'package:mafia_board/domain/usecase/get_all_games_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_all_users_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_user_data_usecase.dart';
 import 'package:mafia_board/domain/usecase/save_game_usecase.dart';
@@ -218,21 +219,14 @@ class Injector {
     _getIt.registerSingleton<CreateDayInfoUseCase>(
       CreateDayInfoUseCase(_getIt.get()),
     );
+    _getIt.registerSingleton(GetAllClubsUseCase(clubsRepo: _getIt.get()));
     _getIt.registerSingleton(
-      GetAllClubsUseCase(clubsRepo: _getIt.get()),
-    );
-    _getIt.registerSingleton<GetClubDetailsUseCase>(
-      GetClubDetailsUseCase(authRepo: _getIt.get(), clubsRepo: _getIt.get()),
-    );
-    _getIt.registerSingleton<GetRulesUseCase>(
-      GetRulesUseCase(rulesRepo: _getIt.get()),
-    );
-    _getIt.registerSingleton<GetUserDataUseCase>(
-      GetUserDataUseCase(authRepo: _getIt.get()),
-    );
+        GetClubDetailsUseCase(authRepo: _getIt.get(), clubsRepo: _getIt.get()));
+    _getIt.registerSingleton(GetRulesUseCase(rulesRepo: _getIt.get()));
+    _getIt.registerSingleton(GetUserDataUseCase(authRepo: _getIt.get()));
     _getIt.registerSingleton<UpdateRulesUseCase>(
-      UpdateRulesUseCase(rulesRepo: _getIt.get()),
-    );
+        UpdateRulesUseCase(rulesRepo: _getIt.get()));
+    _getIt.registerSingleton(GetAllGamesUsecase(gameRepo: _getIt.get()));
 
     _getIt.registerSingleton(
       GameHistoryManager(
@@ -423,7 +417,10 @@ class Injector {
 
     _getIt.registerSingleton(ClubsListBloc(getAllClubsUseCase: _getIt.get()));
     _getIt.registerSingleton(
-      ClubsDetailsBloc(getClubDetailsUseCase: _getIt.get()),
+      ClubsDetailsBloc(
+        getClubDetailsUseCase: _getIt.get(),
+        getAllGamesUsecase: _getIt.get(),
+      ),
     );
 
     _getIt.registerSingleton(

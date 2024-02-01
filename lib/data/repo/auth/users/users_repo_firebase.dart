@@ -43,11 +43,9 @@ class UsersRepoFirebase extends UsersRepo {
         .get();
 
     return adminDocs.docs.map((doc) {
-      final userData = doc.data();
-      return UserEntity(
+      return UserEntity.fromFirestoreMap(
         id: doc.id,
-        nickname: userData[FirestoreKeys.nicknameFieldKey],
-        email: userData[FirestoreKeys.emailFieldKey],
+        data: doc.data(),
       );
     }).toList();
   }

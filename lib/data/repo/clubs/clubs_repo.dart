@@ -20,7 +20,7 @@ abstract class ClubsRepo {
     required ClubEntity clubEntity,
   });
 
-  Future<List<ClubEntity>> getClubs({String? id, int limit = 10});
+  Future<List<ClubEntity>> getAllClubs();
 
   Future<ClubEntity?> getClubDetails({required String id});
 

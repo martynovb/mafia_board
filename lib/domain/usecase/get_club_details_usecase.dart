@@ -19,11 +19,7 @@ class GetClubDetailsUseCase extends BaseUseCase<ClubModel, ClubModel> {
     if(params == null){
       throw InvalidDataError('Club does not exist');
     }
-    final members = await clubsRepo.getExistedClubMembers(clubId: params.id).then(
-          (members) => members.map(
-            (entity) => ClubMemberModel.fromEntity(entity),
-          ).toList(),
-        );
+    final members = <ClubMemberModel>[];
     return params..members = members;
   }
 }

@@ -12,6 +12,8 @@ import 'package:mafia_board/domain/usecase/base_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_club_members_usecase.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
 
+import '../model/role.dart';
+
 class SaveGameUseCase extends BaseUseCase<void, SaveGameResultsParams> {
   static const tag = 'SaveGameUseCase';
 
@@ -33,7 +35,7 @@ class SaveGameUseCase extends BaseUseCase<void, SaveGameResultsParams> {
 
   @override
   Future<void> execute({SaveGameResultsParams? params}) async {
-
+    MafLogger.d(tag, '**** [START] SAVE GAME ****');
     MafLogger.d(tag, '1. [START] Create new members');
     final newMembers = await createClubMembersUseCase.execute(
       params: params!.clubModel.id,
@@ -41,10 +43,8 @@ class SaveGameUseCase extends BaseUseCase<void, SaveGameResultsParams> {
     MafLogger.d(tag, '[FINISHED] Create new members');
 
     MafLogger.d(tag, '2. [START] update players with created members');
-    playersRepo
-        .getAllPlayers()
-        .where((player) => player.clubMember?.id == null)
-        .forEach(
+    final allPlayers = playersRepo.getAllPlayers();
+    allPlayers.where((player) => player.clubMember?.id == null).forEach(
       (player) {
         player.clubMember?.id = newMembers
             .firstWhereOrNull(
@@ -56,13 +56,23 @@ class SaveGameUseCase extends BaseUseCase<void, SaveGameResultsParams> {
     MafLogger.d(tag, '[FINISHED] update players with created members');
 
     MafLogger.d(tag, '3. [START] Save current game');
-    final game = await gameRepo.saveGame();
+    final game = await gameRepo.saveGame(
+      winnerType: params.gameResults.winnerType,
+      mafsLeft: allPlayers
+          .where(
+            (player) =>
+                (player.role == Role.mafia || player.role == Role.don) &&
+                player.isInGame(),
+          )
+          .length,
+    );
     MafLogger.d(tag, '[FINISHED] Save current game (id: ${game.id})');
-    if(game.id == null) {
+    if (game.id == null) {
       throw InvalidDataError('Game saving error');
     }
+    final gameId = game.id!;
     MafLogger.d(tag, '4. [START] Save players');
-    await playersRepo.savePlayers(gameId: game.id!);
+    await playersRepo.savePlayers(gameId: gameId);
     MafLogger.d(tag, '[FISHED] Save players');
 
     MafLogger.d(tag, '5. [START] Save dayInfo list');
@@ -70,14 +80,20 @@ class SaveGameUseCase extends BaseUseCase<void, SaveGameResultsParams> {
     MafLogger.d(tag, '[FINISHED] Save dayInfo list');
 
     MafLogger.d(tag, '6. [START] Save game phases');
-    await speakGamePhaseRepo.saveGamePhases(dayInfoList);
-    await voteGamePhaseRepo.saveGamePhases(dayInfoList);
-    await nightGamePhaseRepo.saveGamePhases(dayInfoList);
+    await speakGamePhaseRepo.saveGamePhases(
+      gameId: gameId,
+      dayInfoList: dayInfoList,
+    );
+    await voteGamePhaseRepo.saveGamePhases(
+      gameId: gameId,
+      dayInfoList: dayInfoList,
+    );
+    await nightGamePhaseRepo.saveGamePhases(
+      gameId: gameId,
+      dayInfoList: dayInfoList,
+    );
     MafLogger.d(tag, '[FINISHED] Save game phases');
-
-    // 6. recalculate win rate for club
-
-    // 7. recalculate win rate for each clubMember
+    MafLogger.d(tag, '**** [FINISHED] SAVE GAME ****');
   }
 }
 

@@ -25,9 +25,6 @@ class FirestoreKeys {
   /// CLUB
   static const clubTitleFieldKey = 'club_title';
   static const clubDescriptionFieldKey = 'club_description';
-  static const clubGoogleSheetIdFieldKey = 'club_google_sheet_id';
-  static const clubMembersIdsFieldKey = 'club_members_ids';
-  static const clubAdminsIdsFieldKey = 'club_admins_ids';
 
   /// GAME
   static const gameFinishTypeFieldKey = 'finish_type';
@@ -50,6 +47,7 @@ class FirestoreKeys {
 
   /// CLUB_MEMBER
   static const clubMemberUserIdFieldKey = 'user_id';
+  static const clubMembersIsAdminFieldKey = 'is_admin';
 
   /// DAY INFO
   static const dayInfoDayFieldKey = 'day';

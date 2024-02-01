@@ -27,36 +27,39 @@ class ClubsRepoFirebase extends ClubsRepo {
   });
 
   @override
-  Future<List<ClubEntity>> getClubs({String? id, int limit = 10}) async {
+  Future<List<ClubEntity>> getAllClubs() async {
     final userId = firebaseAuth.currentUser?.uid;
-    var clubs = <ClubEntity>[];
 
-    var querySnapshot = await firestore
-        .collection(FirestoreKeys.clubsCollectionKey)
-        .where(FirestoreKeys.clubMembersIdsFieldKey, arrayContains: userId)
+    var clubsQuerySnapshot =
+        await firestore.collection(FirestoreKeys.clubsCollectionKey).get();
+
+    final clubIds = clubsQuerySnapshot.docs.map((doc) => doc.id).toList();
+
+    // get is admit records where this users is clubMember and is_admin == true
+    var isAdminSnapshot = await FirebaseFirestore.instance
+        .collection(FirestoreKeys.clubMembersCollectionKey)
+        .where(FirestoreKeys.clubIdFieldKey, whereIn: clubIds)
+        .where(FirestoreKeys.clubMemberUserIdFieldKey, isEqualTo: userId)
+        .where(FirestoreKeys.clubMembersIsAdminFieldKey, isEqualTo: true)
         .get();
 
-    for (var doc in querySnapshot.docs) {
-      List<String> adminIds =
-          (doc.data()[FirestoreKeys.clubAdminsIdsFieldKey] as List<dynamic>?)
-                  ?.map((item) => item.toString())
-                  .toList() ??
-              [];
+    final isAdminMap = isAdminSnapshot.docs.fold<Map<String, bool>>(
+      {},
+      (acc, doc) => acc
+        ..putIfAbsent(
+          doc[FirestoreKeys.clubIdFieldKey],
+          () => doc.exists,
+        ),
+    );
 
-      var club = ClubEntity(
-        id: doc.id,
-        title: doc.data()[FirestoreKeys.clubTitleFieldKey],
-        googleSheetId: doc.data()[FirestoreKeys.clubGoogleSheetIdFieldKey],
-        description: doc.data()[FirestoreKeys.clubDescriptionFieldKey],
-        isAdmin: adminIds.any((id) => id == userId),
-      );
-
-      clubs.add(club);
-    }
-
-    return clubs;
+    return clubsQuerySnapshot.docs
+        .map((clubDoc) => ClubEntity.fromFirestoreMap(
+              id: clubDoc.id,
+              data: clubDoc.data(),
+              isAdmin: isAdminMap[clubDoc.id] ?? false,
+            ))
+        .toList();
   }
-
 
   @override
   Future<ClubEntity> createClub({
@@ -73,31 +76,35 @@ class ClubsRepoFirebase extends ClubsRepo {
       {
         FirestoreKeys.clubTitleFieldKey: name,
         FirestoreKeys.clubDescriptionFieldKey: clubDescription,
-        FirestoreKeys.clubMembersIdsFieldKey: [userId],
-        FirestoreKeys.clubAdminsIdsFieldKey: [userId],
       },
     );
+
+    await addNewMembers(clubId: doc.id, newMembers: [
+      ClubMemberEntity(
+        user: UserEntity(id: userId),
+        isAdmin: true,
+        clubId: doc.id,
+      )
+    ]);
 
     return ClubEntity(
       id: doc.id,
       title: name,
       description: clubDescription,
-      isAdmin: true
     );
   }
 
   // it is needed to display club details with all members
   // add new members when a game for this club is finished
+  // or add new member when club creating
   @override
   Future<List<ClubMemberEntity>> addNewMembers({
     required String clubId,
     required List<ClubMemberEntity> newMembers,
   }) async {
-
     CollectionReference clubMembersRef =
-    firestore.collection(FirestoreKeys.clubMembersCollectionKey);
+        firestore.collection(FirestoreKeys.clubMembersCollectionKey);
 
-    // Batch write to optimize performance and ensure consistency
     WriteBatch batch = firestore.batch();
     final createdMembers = [];
 
@@ -192,7 +199,8 @@ class ClubsRepoFirebase extends ClubsRepo {
   }
 
   @override
-  Future<List<ClubMemberEntity>> getExistedClubMembers({required String clubId}) {
+  Future<List<ClubMemberEntity>> getExistedClubMembers(
+      {required String clubId}) {
     // TODO: implement getExistedClubMembers
     throw UnimplementedError();
   }

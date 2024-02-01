@@ -1,11 +1,11 @@
+import 'package:mafia_board/data/constants/firestore_keys.dart';
+import 'package:mafia_board/data/entity/club_member_entity.dart';
 
 class ClubEntity {
   final String? id;
   String? title;
   String? description;
-  String? googleSheetId;
   final bool? isAdmin;
-  String? rulesId;
   double? civilWinRate;
   double? mafWinRate;
   int? createdAt;
@@ -15,23 +15,26 @@ class ClubEntity {
     this.title,
     this.description,
     this.isAdmin,
-    this.rulesId,
-    this.googleSheetId,
     this.civilWinRate,
     this.mafWinRate,
     this.createdAt,
   });
+
+  ClubEntity.fromFirestoreMap({
+    required this.id,
+    required this.isAdmin,
+    required Map<String, dynamic>? data,
+  })  : title = data?[FirestoreKeys.clubTitleFieldKey],
+        description = data?[FirestoreKeys.clubDescriptionFieldKey];
 
   static ClubEntity fromJson(Map<dynamic, dynamic> json) {
     return ClubEntity(
       id: json['id'] as String?,
       title: json['title'] as String?,
       description: json['description'] as String?,
-      rulesId: json['rulesId'] as String?,
       civilWinRate: json['civilWinRate'] as double?,
       mafWinRate: json['mafWinRate'] as double?,
       createdAt: json['createdAt'] as int?,
-      isAdmin: json['isAdmin'] as bool?,
     );
   }
 }

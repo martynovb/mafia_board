@@ -67,7 +67,15 @@ class _GameResultsPageState extends State<GameResultsPage> {
             padding: const EdgeInsets.all(Dimensions.defaultSidePadding),
             child: BlocConsumer(
               bloc: gameResultsBloc,
-              listener: (context, GameResultsState state) {},
+              listener: (context, GameResultsState state) {
+                if (state is GameResultsUploaded) {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, AppRouter.clubDetailsPage, (route) => false,
+                      arguments: {
+                        'club': club,
+                      });
+                }
+              },
               builder: (context, GameResultsState state) {
                 if (state is ShowGameResultsState) {
                   gameResultsModel = state.gameResultsModel;
@@ -253,6 +261,7 @@ class _GameResultsPageState extends State<GameResultsPage> {
         TextButton(
           child: const Text('Yes'),
           onPressed: () {
+            Navigator.pop(context);
             gameResultsBloc.add(SaveResultsEvent(
               gameResultsModel: gameResultsModel,
               clubModel: club,

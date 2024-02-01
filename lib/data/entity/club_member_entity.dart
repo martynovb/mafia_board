@@ -5,30 +5,29 @@ class ClubMemberEntity {
   String? id;
   UserEntity? user;
   String? clubId;
+  bool isAdmin;
   Map<String, double>? winRateByRoleTypeMap;
 
   ClubMemberEntity({
     this.id,
     this.user,
+    this.isAdmin = false,
     this.clubId,
     this.winRateByRoleTypeMap,
   });
 
+  ClubMemberEntity.fromFirestoreMap({
+    required this.id,
+    required Map<dynamic, dynamic>? data,
+    required this.user,
+  })  : clubId = data?[FirestoreKeys.clubIdFieldKey],
+        isAdmin = data?[FirestoreKeys.clubMembersIsAdminFieldKey] ?? false;
+
   Map<String, dynamic> toFirestoreMap() => {
         FirestoreKeys.clubMemberUserIdFieldKey: user?.id,
         FirestoreKeys.clubIdFieldKey: clubId,
+        FirestoreKeys.clubMembersIsAdminFieldKey: isAdmin ?? false,
       };
-
-  static ClubMemberEntity fromFirestoreMap({
-    required String? id,
-    required Map<dynamic, dynamic> json,
-    required UserEntity user,
-  }) =>
-      ClubMemberEntity(
-        id: id,
-        clubId: json[FirestoreKeys.clubIdFieldKey],
-        user: user,
-      );
 
   static ClubMemberEntity fromJson(Map<dynamic, dynamic> json) {
     return ClubMemberEntity(
