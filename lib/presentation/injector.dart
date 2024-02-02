@@ -1,17 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mafia_board/data/api/error_handler.dart';
-import 'package:mafia_board/data/api/google_client_manager.dart';
-import 'package:mafia_board/data/repo/access_token_provider.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo_firebase.dart';
 import 'package:mafia_board/data/repo/auth/users/users_repo_firebase.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo_firebase.dart';
 import 'package:mafia_board/data/repo/rules/rules_repo.dart';
 import 'package:mafia_board/data/repo/rules/rules_repo_firebase.dart';
-import 'package:mafia_board/data/repo/spreadsheet/spreadsheet_repo.dart';
-import 'package:mafia_board/data/repo/spreadsheet/spreadsheet_repo_impl.dart';
 import 'package:mafia_board/domain/manager/game_flow_simulator.dart';
 import 'package:mafia_board/domain/manager/game_results_manager.dart';
 import 'package:mafia_board/domain/model/game_phase/night_phase_model.dart';
@@ -99,34 +94,12 @@ class Injector {
     //network
     _getIt.registerSingleton<ErrorHandler>(ErrorHandler());
 
-    _getIt.registerSingleton(GoogleSignIn(
-        clientId:
-            '594061159084-kra99r4bm8nsu603vkr3bfk2hlcm7jaf.apps.googleusercontent.com',
-        scopes: [
-          'email',
-          'https://www.googleapis.com/auth/spreadsheets',
-          'https://www.googleapis.com/auth/drive'
-        ]));
-    _getIt.registerSingleton(
-      AccessTokenProvider(await SharedPreferences.getInstance()),
-    );
-
-    _getIt.registerSingleton(GoogleClientManager(
-      googleSignIn: _getIt.get(),
-      accessTokenProvider: _getIt.get(),
-    ));
-
-    //repo
-    _getIt.registerSingleton<SpreadsheetRepo>(
-      SpreadsheetRepoImpl(googleClientManager: _getIt.get()),
-    );
     _getIt.registerSingleton<AuthRepo>(
       isLocalDataBase
           ? AuthRepoLocal()
           : AuthRepoFirebase(
               firebaseAuth: FirebaseAuth.instance,
               firestore: FirebaseFirestore.instance,
-              googleSignIn: _getIt.get(),
             ),
     );
 
@@ -412,7 +385,6 @@ class Injector {
 
     _getIt.registerSingleton(AppBloc(
       authRepo: _getIt.get(),
-      googleClientManager: _getIt.get(),
     ));
 
     _getIt.registerSingleton(ClubsListBloc(getAllClubsUseCase: _getIt.get()));

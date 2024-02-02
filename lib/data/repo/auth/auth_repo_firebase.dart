@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mafia_board/data/api/error_handler.dart';
 import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/data/entity/user_entity.dart';
@@ -9,12 +8,10 @@ import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 class AuthRepoFirebase extends AuthRepo {
   final FirebaseAuth firebaseAuth;
   final FirebaseFirestore firestore;
-  final GoogleSignIn googleSignIn;
 
   AuthRepoFirebase({
     required this.firebaseAuth,
     required this.firestore,
-    required this.googleSignIn,
   });
 
   @override
@@ -85,53 +82,6 @@ class AuthRepoFirebase extends AuthRepo {
         .where(FirestoreKeys.nicknameFieldKey, isEqualTo: nickname)
         .get();
     return snapshot.size == 0;
-  }
-
-  @override
-  Future<UserEntity> authUserWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-
-    if (googleUser == null) {
-      throw InvalidCredentialsException('Google error');
-    }
-
-    final GoogleSignInAuthentication googleAuth =
-        await googleUser.authentication;
-
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    final userCredential = await firebaseAuth.signInWithCredential(credential);
-
-    final user = userCredential.user;
-
-    if (user == null) {
-      throw InvalidCredentialsException('Failed to authenticate with Firebase');
-    }
-
-    // Check if the user already exists in Firestore
-    final userDoc = await firestore
-        .collection(FirestoreKeys.usersCollectionKey)
-        .doc(user.uid)
-        .get();
-
-    if (!userDoc.exists) {
-      await firestore
-          .collection(FirestoreKeys.usersCollectionKey)
-          .doc(userCredential.user?.uid)
-          .set({
-        FirestoreKeys.nicknameFieldKey: userCredential.user?.email,
-        FirestoreKeys.emailFieldKey: userCredential.user?.email,
-      });
-    }
-
-    return UserEntity(
-      id: userCredential.user?.uid,
-      nickname: null,
-      email: userCredential.user?.email,
-    );
   }
 
   @override
