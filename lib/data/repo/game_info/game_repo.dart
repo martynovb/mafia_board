@@ -8,12 +8,21 @@ import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/winner_type.dart';
 
 abstract class GameRepo {
+  Future<GameEntity> fetchGame({required String gameId});
+
+  Future<List<DayInfoEntity>> fetchAllDayInfoByGameId({
+    required String gameId,
+    required List<PlayerEntity> players,
+  });
+
   Future<GameEntity> saveGame({
     required WinnerType winnerType,
     required int mafsLeft,
   });
 
   Future<void> removeGame({required String gameId});
+
+  Future<void> removeAllDayInfoByGameId({required String gameId});
 
   Future<List<DayInfoEntity>> saveDayInfoList();
 

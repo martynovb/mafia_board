@@ -11,6 +11,7 @@ import 'package:mafia_board/domain/manager/game_history_manager.dart';
 import 'package:mafia_board/domain/manager/role_manager.dart';
 import 'package:mafia_board/domain/usecase/get_current_game_usecase.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
+import 'package:uuid/uuid.dart';
 
 class NightPhaseManager {
   static const _tag = 'NightPhaseManager';
@@ -60,6 +61,7 @@ class NightPhaseManager {
       }
 
       phases.add(NightPhaseModel(
+        tempId: const Uuid().v1(),
         currentDay: currentDay,
         role: roleModel.role,
         playersForWakeUp: playersByRole,
@@ -109,10 +111,12 @@ class NightPhaseManager {
     await cancelKillPlayer(currentNightPhase.killedPlayer);
 
     playersRepository.updatePlayer(player.tempId, isKilled: true);
-    final updatedPlayer = await playersRepository.getPlayerById(player.tempId);
+    final updatedPlayer =
+        await playersRepository.getPlayerByTempId(player.tempId);
     final nextDay = currentDay + 1;
     await speakGamePhaseRepo.add(
       gamePhase: SpeakPhaseModel(
+          tempId: const Uuid().v1(),
           currentDay: nextDay,
           playerTempId: updatedPlayer?.tempId,
           isLastWord: true,

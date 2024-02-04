@@ -3,8 +3,13 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mafia_board/data/entity/game/day_info_entity.dart';
 import 'package:mafia_board/domain/model/game_phase/game_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/night_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/vote_phase_model.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
+import 'package:mafia_board/domain/model/phase_type.dart';
+import 'package:mafia_board/domain/model/player_model.dart';
 
 import '../../constants/firestore_keys.dart';
 
@@ -116,5 +121,112 @@ class BasePhaseRepo<GamePhase extends GamePhaseModel>
     }
 
     await batch.commit();
+  }
+
+  @override
+  Future<void> deleteAllGamePhasesByGameId({
+    required String gameId,
+    required PhaseType phaseType,
+  }) async {
+    final batch = firestore.batch();
+
+    final collectionRef = FirebaseFirestore.instance
+        .collection(FirestoreKeys.gamePhaseCollectionKey)
+        .where(FirestoreKeys.gameIdFieldKey, isEqualTo: gameId)
+        .where(FirestoreKeys.gamePhaseTypeFieldKey, isEqualTo: phaseType.name);
+
+    final snapshots = await collectionRef.get();
+
+    for (final doc in snapshots.docs) {
+      batch.delete(doc.reference);
+    }
+
+    await batch.commit();
+  }
+
+  @override
+  Future<List<GamePhaseModel>> fetchAllGamePhasesByGameId({
+    required String gameId,
+    required List<PlayerModel> players,
+  }) async {
+    final gamePhasesSnapshot = await firestore
+        .collection(FirestoreKeys.gamePhaseCollectionKey)
+        .where(FirestoreKeys.gameIdFieldKey, isEqualTo: gameId)
+        .get();
+
+    final gamePhases = <GamePhaseModel>[];
+    for (var doc in gamePhasesSnapshot.docs) {
+      final data = doc.data();
+      final gamePhaseType = data[FirestoreKeys.gamePhaseTypeFieldKey];
+
+      // parse NightGamePhase
+      if (gamePhaseType == PhaseType.night.name) {
+        final killedPlayer = players.firstWhereOrNull((player) =>
+            player.tempId ==
+            data[FirestoreKeys.nightPhaseKilledPlayerTempIdFieldKey]);
+
+        final checkedPlayer = players.firstWhereOrNull((player) =>
+            player.tempId ==
+            data[FirestoreKeys.nightPhaseCheckedPlayerTempIdFieldKey]);
+
+        final playersForWakeUp = players
+            .where((player) => data[FirestoreKeys.nightPhasePlayersForWakeUpTempIdsFieldKey]?.contains(player.tempId) ?? false)
+            .toList();
+
+        gamePhases.add(
+          NightPhaseModel.fromFirebaseMap(
+            id: doc.id,
+            map: data,
+            killedPlayer: killedPlayer ?? PlayerModel.empty(-1),
+            checkedPlayer: checkedPlayer,
+            playersForWakeUp: playersForWakeUp,
+          ),
+        );
+      }
+      // parse SpeakGamePhase
+      else if (gamePhaseType == PhaseType.speak.name) {
+        final bestMove = players
+            .where((player) => data[FirestoreKeys.speakPhaseBestMoveTempIdsFieldKey]?.contains(player.tempId) ?? false)
+            .toList();
+
+        gamePhases.add(
+          SpeakPhaseModel.fromFirebaseMap(
+            id: doc.id,
+            map: data,
+            bestMove: bestMove,
+          ),
+        );
+      }
+      // parse VoteGamePhase
+      else if (gamePhaseType == PhaseType.vote.name) {
+        final votedPlayers = players
+            .where((player) => data[FirestoreKeys.votePhaseVotedPlayersTempIdsFieldKey]?.contains(player.tempId) ?? false)
+            .toSet();
+
+        final playersToKick = players
+            .where((player) => data[FirestoreKeys.votePhasePlayersToKickTempIdsFieldKey]?.contains(player.tempId) ?? false)
+            .toList();
+
+        final playerOnVote = players.firstWhereOrNull((player) =>
+            player.tempId ==
+            data[FirestoreKeys.votePhasePlayerOnVoteTempIdFieldKey]);
+
+        final whoPutOnVote = players.firstWhereOrNull((player) =>
+            player.tempId ==
+            data[FirestoreKeys.votePhaseWhoPutOnVoteTempIdFieldKey]);
+
+        gamePhases.add(
+          VotePhaseModel.fromFirebaseMap(
+            id: doc.id,
+            map: data,
+            votedPlayers: votedPlayers,
+            playersToKick: playersToKick,
+            playerOnVote: playerOnVote ?? PlayerModel.empty(-1),
+            whoPutOnVote: whoPutOnVote,
+          ),
+        );
+      }
+    }
+    return gamePhases;
   }
 }

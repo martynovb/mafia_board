@@ -10,6 +10,7 @@ class PickRolePhaseModel extends GamePhaseModel {
     required int currentDay,
     required this.allPlayers,
     PhaseStatus phaseStatus = PhaseStatus.notStarted,
+    required super.tempId,
   }) : super(
           currentDay: currentDay,
           status: phaseStatus,

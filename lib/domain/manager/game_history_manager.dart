@@ -83,7 +83,7 @@ class GameHistoryManager {
     if (speakerId == null) {
       return;
     }
-    final speaker = await boardRepo.getPlayerById(speakerId);
+    final speaker = await boardRepo.getPlayerByTempId(speakerId);
     String text;
     String subText = '';
     if (speakPhaseAction.isLastWord &&

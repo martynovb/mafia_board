@@ -1,19 +1,30 @@
 import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/game_model.dart';
+import 'package:mafia_board/presentation/common/base_bloc/base_state.dart';
 
-abstract class ClubDetailsState {}
-
-class InitialState extends ClubDetailsState {}
-
-class DetailsState extends ClubDetailsState {
-  final ClubModel club;
+class ClubState extends BaseState {
+  final ClubModel? club;
   final List<GameModel> allGames;
 
-  DetailsState({required this.club, required this.allGames});
-}
+  ClubState({
+    this.allGames = const [],
+    this.club,
+    super.errorMessage,
+    required super.status,
+  });
 
-class ErrorClubState extends ClubDetailsState {
-  final String error;
-
-  ErrorClubState(this.error);
+  @override
+  ClubState copyWith({
+    ClubModel? club,
+    List<GameModel>? allGames,
+    String? errorMessage,
+    StateStatus? status,
+  }) {
+    return ClubState(
+      club: club ?? this.club,
+      allGames: allGames ?? this.allGames,
+      errorMessage: errorMessage ?? this.errorMessage,
+      status: status ?? this.status,
+    );
+  }
 }

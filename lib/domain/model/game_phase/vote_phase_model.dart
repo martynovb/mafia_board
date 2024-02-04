@@ -1,6 +1,7 @@
 import 'package:class_to_string/class_to_string.dart';
 import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/domain/model/game_phase/game_phase_model.dart';
+import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 
@@ -8,25 +9,49 @@ class VotePhaseModel extends GamePhaseModel {
   final PlayerModel playerOnVote;
   final PlayerModel? whoPutOnVote;
   final List<PlayerModel> playersToKick;
-  Set<PlayerModel> votedPlayers = {};
+  Set<PlayerModel> votedPlayers;
   bool isGunfight;
   bool shouldKickAllPlayers;
 
   VotePhaseModel({
-    String? id,
-    required int currentDay,
+    super.id,
+    super.gameId,
+    super.status,
+    required super.tempId,
+    required super.currentDay,
     required this.playerOnVote,
     this.whoPutOnVote,
     this.isGunfight = false,
     this.shouldKickAllPlayers = false,
     this.playersToKick = const [],
-  }) : super(
-          id: id,
-          currentDay: currentDay,
-        );
+    this.votedPlayers = const {},
+  });
 
   @override
   PhaseType get phaseType => PhaseType.vote;
+
+  static VotePhaseModel fromFirebaseMap({
+    required String id,
+    required Map<String, dynamic> map,
+    required Set<PlayerModel> votedPlayers,
+    required List<PlayerModel> playersToKick,
+    required PlayerModel playerOnVote,
+    required PlayerModel? whoPutOnVote,
+  }) {
+    return VotePhaseModel(
+        id: id,
+        tempId: map[FirestoreKeys.tempIdFieldKey],
+        currentDay: map[FirestoreKeys.gamePhaseDayFieldKey],
+        gameId: map[FirestoreKeys.gameIdFieldKey],
+        status: PhaseStatus.finished,
+        playerOnVote: playerOnVote,
+        playersToKick: playersToKick,
+        whoPutOnVote: whoPutOnVote,
+        isGunfight: map[FirestoreKeys.votePhaseIsGunfightFieldKey],
+        shouldKickAllPlayers: map[FirestoreKeys.votePhaseShouldKickAllFieldKey])
+      ..updatedAt = DateTime.fromMillisecondsSinceEpoch(
+          map[FirestoreKeys.updatedAtFieldKey] ?? 0);
+  }
 
   bool vote(PlayerModel playerModel) {
     updatedAt = DateTime.now();

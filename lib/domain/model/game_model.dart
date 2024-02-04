@@ -34,6 +34,7 @@ class GameModel {
         ),
         winnerType = mapWinnerType(gameEntity?.winRole);
 
+
   @override
   String toString() {
     return (ClassToString('GameModel')

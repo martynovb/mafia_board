@@ -11,6 +11,7 @@ import 'package:mafia_board/domain/manager/game_history_manager.dart';
 import 'package:mafia_board/domain/usecase/get_current_game_usecase.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:uuid/uuid.dart';
 
 class VotePhaseManager {
   static const _tag = 'VotePhaseManager';
@@ -103,7 +104,8 @@ class VotePhaseManager {
             true) {
       return false;
     }
-    final playerToVote = await boardRepository.getPlayerById(playerToVoteId);
+    final playerToVote =
+        await boardRepository.getPlayerByTempId(playerToVoteId);
     final currentSpeakerId =
         speakGamePhaseRepo.getCurrentPhase(day: currentDay)?.playerTempId;
     if (currentSpeakerId == null ||
@@ -113,7 +115,7 @@ class VotePhaseManager {
     }
 
     final currentSpeaker =
-        await boardRepository.getPlayerById(currentSpeakerId);
+        await boardRepository.getPlayerByTempId(currentSpeakerId);
     final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay(day: currentDay);
 
     if (currentSpeaker != null &&
@@ -126,8 +128,8 @@ class VotePhaseManager {
                   playerToVote,
                   allVotePhases,
                 ))) {
-
       final votePhase = VotePhaseModel(
+        tempId: const Uuid().v1(),
         currentDay: currentDay,
         playerOnVote: playerToVote,
         whoPutOnVote: currentSpeaker,
@@ -152,7 +154,8 @@ class VotePhaseManager {
       return false;
     }
     voteGamePhaseRepo.remove(gamePhase: votePhaseWithThisPlayer);
-    gameHistoryManager.removePutOnVoteLog(votePhaseAction: votePhaseWithThisPlayer);
+    gameHistoryManager.removePutOnVoteLog(
+        votePhaseAction: votePhaseWithThisPlayer);
     _currentVoteSubject.add(voteGamePhaseRepo.getLastPhase());
     return true;
   }
@@ -368,6 +371,7 @@ class VotePhaseManager {
     MafLogger.d(_tag, 'Kick players: ${playersOnVote.toString()}');
     for (var playerModel in playersOnVote) {
       final speakPhase = SpeakPhaseModel(
+        tempId: const Uuid().v1(),
         currentDay: currentDay,
         playerTempId: playerModel.tempId,
         isLastWord: true,
@@ -394,6 +398,7 @@ class VotePhaseManager {
       for (var player in playersToKick) {
         await speakGamePhaseRepo.add(
             gamePhase: SpeakPhaseModel(
+          tempId: const Uuid().v1(),
           currentDay: currentDay,
           playerTempId: player.tempId,
           timeForSpeakInSec: Constants.gunfightTimeForSpeak,
@@ -401,6 +406,7 @@ class VotePhaseManager {
         ));
         await voteGamePhaseRepo.add(
             gamePhase: VotePhaseModel(
+          tempId: const Uuid().v1(),
           currentDay: currentDay,
           playerOnVote: player,
           isGunfight: true,
@@ -410,6 +416,7 @@ class VotePhaseManager {
     } else if (areVotePhasesAlreadyGunfighted && !shouldKickAll) {
       await voteGamePhaseRepo.add(
         gamePhase: VotePhaseModel(
+          tempId: const Uuid().v1(),
           playerOnVote: playersToKick.first,
           currentDay: currentDay,
           isGunfight: true,

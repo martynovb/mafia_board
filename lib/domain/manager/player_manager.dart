@@ -54,7 +54,7 @@ class PlayerManager {
   }
 
   Future<void> clearFouls(String id) async {
-    final player = await boardRepo.getPlayerById(id);
+    final player = await boardRepo.getPlayerByTempId(id);
     if (player == null) {
       return;
     }
@@ -99,7 +99,7 @@ class PlayerManager {
   }
 
   Future<void> _mutePlayer(String id) async {
-    final player = await boardRepo.getPlayerById(id);
+    final player = await boardRepo.getPlayerByTempId(id);
     if (player == null) {
       return;
     }
@@ -128,7 +128,7 @@ class PlayerManager {
   }
 
   Future<void> _removePlayer(String id) async {
-    final player = await boardRepo.getPlayerById(id);
+    final player = await boardRepo.getPlayerByTempId(id);
     if (player == null) {
       return;
     }

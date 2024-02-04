@@ -1,30 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mafia_board/domain/model/club_model.dart';
-import 'package:mafia_board/domain/model/game_results_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
+import 'package:mafia_board/presentation/common/base_bloc/base_state.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
-import 'package:mafia_board/presentation/feature/game/game_result/bloc/game_results_bloc.dart';
-import 'package:mafia_board/presentation/feature/game/game_result/bloc/game_results_event.dart';
-import 'package:mafia_board/presentation/feature/game/game_result/bloc/game_results_state.dart';
-import 'package:mafia_board/presentation/feature/router.dart';
-import 'package:mafia_board/presentation/feature/widgets/dialogs.dart';
+import 'package:mafia_board/presentation/feature/game/game_details/bloc/game_details_bloc.dart';
+import 'package:mafia_board/presentation/feature/game/game_details/bloc/game_details_event.dart';
+import 'package:mafia_board/presentation/feature/game/game_details/bloc/game_details_state.dart';
 import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 
-class GameResultsPage extends StatefulWidget {
-  const GameResultsPage({Key? key}) : super(key: key);
+class GameDetailsPage extends StatefulWidget {
+  const GameDetailsPage({super.key});
 
   @override
-  State<GameResultsPage> createState() => _GameResultsPageState();
+  State<GameDetailsPage> createState() => _GameDetailsPageState();
 }
 
-class _GameResultsPageState extends State<GameResultsPage> {
-  GameResultsModel? gameResultsModel;
-  late GameResultsBloc gameResultsBloc;
-  late ClubModel? club;
-
+class _GameDetailsPageState extends State<GameDetailsPage> {
+  late GameDetailsBloc gameDetailsBloc;
   final int _voteColumnFlex = 0;
   final int _nicknameColumnFlex = 5;
   final int _roleColumnFlex = 5;
@@ -32,79 +26,54 @@ class _GameResultsPageState extends State<GameResultsPage> {
 
   @override
   void initState() {
-    gameResultsBloc = GetIt.I.get();
+    gameDetailsBloc = GetIt.I.get();
     super.initState();
   }
 
   @override
   void didChangeDependencies() {
-    super.didChangeDependencies();
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    club = args?['club'];
-    gameResultsBloc.add(CalculateResultsEvent(club));
+    final gameId = args?['gameId'] ?? '';
+    gameDetailsBloc.add(GetGameDetailsEvent(gameId));
+    super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-        onWillPop: _showExitConfirmationDialog,
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Game Results'),
-            centerTitle: true,
-            actions: [
-              IconButton(
-                  onPressed: () {
-                    gameResultsBloc.add(CalculateResultsEvent(club));
-                  },
-                  icon: const Icon(
-                    Icons.refresh,
-                  ))
-            ],
-          ),
-          body: Padding(
-            padding: const EdgeInsets.all(Dimensions.defaultSidePadding),
-            child: BlocConsumer(
-              bloc: gameResultsBloc,
-              listener: (context, GameResultsState state) {
-                if (state is GameResultsUploaded) {
-                  Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      AppRouter.clubDetailsPage,
-                      (route) => route.settings.name == AppRouter.homePage,
-                      arguments: {
-                        'club': club,
-                      });
-                }
-              },
-              builder: (context, GameResultsState state) {
-                if (state is ShowGameResultsState) {
-                  gameResultsModel = state.gameResultsModel;
-                  return Column(
-                    children: [
-                      _tableHeader(),
-                      _playersTable(state.gameResultsModel),
-                    ],
-                  );
-                } else if (state is GameResultsErrorState) {
-                  return Center(
-                    child: InfoField(
-                      message: state.errorMessage == null
-                          ? 'Error during game results calculating'
-                          : state.errorMessage!,
-                      infoFieldType: InfoFieldType.error,
-                    ),
-                  );
-                }
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Game details'),
+        centerTitle: true,
+      ),
+      body: BlocBuilder(
+        bloc: gameDetailsBloc,
+        builder: (context, GameDetailsState state) {
+          if (state.status == StateStatus.data) {
+            return _gameResultsPointsTable(state.gameDetails.players);
+          } else if (state.status == StateStatus.error) {
+            return Center(
+              child: InfoField(
+                message: state.errorMessage,
+                infoFieldType: InfoFieldType.error,
+              ),
+            );
+          }
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      ),
+    );
+  }
 
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              },
-            ),
-          ),
-        ));
+  Widget _gameResultsPointsTable(List<PlayerModel> players) {
+    return Column(
+      children: [
+        _tableHeader(),
+        _playersTable(players),
+      ],
+    );
   }
 
   Widget _tableHeader() {
@@ -163,7 +132,7 @@ class _GameResultsPageState extends State<GameResultsPage> {
         ));
   }
 
-  Widget _playersTable(GameResultsModel results) => Container(
+  Widget _playersTable(List<PlayerModel> players) => Container(
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
             border: Border.all(width: 1, color: Colors.white30),
@@ -171,13 +140,13 @@ class _GameResultsPageState extends State<GameResultsPage> {
         child: ListView.separated(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: results.allPlayers.length,
+          itemCount: players.length,
           separatorBuilder: (context, index) => const Divider(
             height: Dimensions.sidePadding0_5x,
           ),
           itemBuilder: (__, index) => _playerItem(
             index,
-            results.allPlayers[index],
+            players[index],
           ),
         ),
       );
@@ -245,32 +214,5 @@ class _GameResultsPageState extends State<GameResultsPage> {
 
   Widget _roleIndicator(Role role) {
     return Text(role.name);
-  }
-
-  Future<bool> _showExitConfirmationDialog() async {
-    return await showDefaultDialog(
-      context: context,
-      title: 'Do you want to save the game results?',
-      actions: <Widget>[
-        TextButton(
-          child: const Text('No'),
-          onPressed: () {
-            Navigator.of(context).popUntil(
-              (route) => route.settings.name == AppRouter.clubDetailsPage,
-            );
-          },
-        ),
-        TextButton(
-          child: const Text('Yes'),
-          onPressed: () {
-            Navigator.pop(context);
-            gameResultsBloc.add(SaveResultsEvent(
-              gameResultsModel: gameResultsModel,
-              clubModel: club,
-            ));
-          },
-        ),
-      ],
-    );
   }
 }

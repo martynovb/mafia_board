@@ -29,6 +29,10 @@ class ClubsRepoFirebase extends ClubsRepo {
 
     final clubIds = clubsQuerySnapshot.docs.map((doc) => doc.id).toList();
 
+    if(clubIds.isEmpty){
+      return [];
+    }
+
     // get is admit records where this users is clubMember and is_admin == true
     var isAdminSnapshot = await FirebaseFirestore.instance
         .collection(FirestoreKeys.clubMembersCollectionKey)

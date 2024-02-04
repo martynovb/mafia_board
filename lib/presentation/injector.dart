@@ -40,6 +40,8 @@ import 'package:mafia_board/domain/usecase/change_nickname_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_club_members_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_club_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_rules_usecase.dart';
+import 'package:mafia_board/domain/usecase/delete_game_usecase.dart';
+import 'package:mafia_board/domain/usecase/fetch_game_details_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_all_games_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_all_users_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_user_data_usecase.dart';
@@ -64,6 +66,7 @@ import 'package:mafia_board/presentation/feature/clubs/club_details/club_details
 import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_bloc.dart';
 import 'package:mafia_board/presentation/feature/clubs/create_club/bloc/create_club_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
+import 'package:mafia_board/presentation/feature/game/game_details/bloc/game_details_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_result/bloc/game_results_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/history/game_history_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/night_phase/night_phase_bloc.dart';
@@ -75,7 +78,6 @@ import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/ro
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/users/bloc/user_list_bloc.dart';
 import 'package:mafia_board/presentation/feature/settings/bloc/user_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Injector {
   static final _getIt = GetIt.instance;
@@ -102,6 +104,9 @@ class Injector {
               firestore: FirebaseFirestore.instance,
             ),
     );
+
+    _getIt.registerSingleton<GamePhaseRepo>(
+        BasePhaseRepo(firestore: FirebaseFirestore.instance));
 
     _getIt.registerSingleton<GamePhaseRepo<VotePhaseModel>>(
       VotePhaseRepo(firestore: FirebaseFirestore.instance),
@@ -200,6 +205,19 @@ class Injector {
     _getIt.registerSingleton<UpdateRulesUseCase>(
         UpdateRulesUseCase(rulesRepo: _getIt.get()));
     _getIt.registerSingleton(GetAllGamesUsecase(gameRepo: _getIt.get()));
+    _getIt.registerSingleton(DeleteGameUseCase(
+      gameRepo: _getIt.get(),
+      playersRepo: _getIt.get(),
+      voteGamePhaseRepo: _getIt.get(instanceName: votePhaseRepoLocalTag),
+      speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
+      nightGamePhaseRepo: _getIt.get(instanceName: nightPhaseRepoLocalTag),
+    ));
+
+    _getIt.registerSingleton(FetchGameDetailsUseCase(
+      gameRepo: _getIt.get(),
+      playersRepo: _getIt.get(),
+      gamePhaseRepo: _getIt.get(),
+    ));
 
     _getIt.registerSingleton(
       GameHistoryManager(
@@ -392,6 +410,7 @@ class Injector {
       ClubsDetailsBloc(
         getClubDetailsUseCase: _getIt.get(),
         getAllGamesUsecase: _getIt.get(),
+        deleteGameUseCase: _getIt.get(),
       ),
     );
 
@@ -406,5 +425,6 @@ class Injector {
     _getIt.registerSingleton(GameResultsBloc(gameResultsManager: _getIt.get()));
     _getIt.registerSingleton(CreateClubBloc(createClubUseCase: _getIt.get()));
     _getIt.registerSingleton(UserListBloc(getAllUsersUsecase: _getIt.get()));
+    _getIt.registerSingleton(GameDetailsBloc(fetchGameDetailsUseCase: _getIt.get()));
   }
 }

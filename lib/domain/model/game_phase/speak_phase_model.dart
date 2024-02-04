@@ -11,25 +11,44 @@ class SpeakPhaseModel extends GamePhaseModel {
   bool isLastWord;
   bool isGunfight;
   bool isBestMove;
-  List<PlayerModel> bestMove = [];
+  List<PlayerModel> bestMove;
 
   SpeakPhaseModel({
-    String? id,
-    required int currentDay,
+    super.id,
+    required super.currentDay,
+    required super.tempId,
     required this.playerTempId,
+    super.gameId,
     this.timeForSpeakInSec = Constants.defaultTimeForSpeak,
-    PhaseStatus status = PhaseStatus.notStarted,
+    super.status = PhaseStatus.notStarted,
     this.isLastWord = false,
     this.isGunfight = false,
     this.isBestMove = false,
-  }) : super(
-          id: id,
-          currentDay: currentDay,
-          status: status,
-        );
+    this.bestMove = const [],
+  });
 
   @override
   PhaseType get phaseType => PhaseType.speak;
+
+  static SpeakPhaseModel fromFirebaseMap({
+    required String id,
+    required List<PlayerModel> bestMove,
+    required Map<String, dynamic> map,
+  }) {
+    return SpeakPhaseModel(
+      id: id,
+      playerTempId: map[FirestoreKeys.speakPhasePlayerTempIdFieldKey],
+      tempId: map[FirestoreKeys.tempIdFieldKey],
+      currentDay: map[FirestoreKeys.gamePhaseDayFieldKey],
+      gameId: map[FirestoreKeys.gameIdFieldKey],
+      status: PhaseStatus.finished,
+      isLastWord: map[FirestoreKeys.speakPhaseIsLastWordFieldKey],
+      isGunfight: map[FirestoreKeys.speakPhaseIsGunfightFieldKey],
+      isBestMove: map[FirestoreKeys.speakPhaseIsBestMoveFieldKey],
+      bestMove: bestMove,
+    )..updatedAt = DateTime.fromMillisecondsSinceEpoch(
+        map[FirestoreKeys.updatedAtFieldKey] ?? 0);
+  }
 
   @override
   Map<String, dynamic> toFirestoreMap() {
@@ -40,7 +59,9 @@ class SpeakPhaseModel extends GamePhaseModel {
           FirestoreKeys.speakPhaseIsLastWordFieldKey: isLastWord,
           FirestoreKeys.speakPhaseIsGunfightFieldKey: isGunfight,
           FirestoreKeys.speakPhaseIsBestMoveFieldKey: isBestMove,
-          FirestoreKeys.speakPhaseBestMoveFieldKey: bestMove,
+          FirestoreKeys.speakPhaseBestMoveTempIdsFieldKey: bestMove.map(
+            (player) => player.tempId,
+          ),
         },
       );
   }

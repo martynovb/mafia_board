@@ -98,7 +98,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
       players: playersRepository.getAllPlayers(),
       currentGame: await getCurrentGameUseCase.execute(),
     ));
-    final player = await playersRepository.getPlayerById(event.playerId);
+    final player = await playersRepository.getPlayerByTempId(event.playerId);
     if (player != null) {
       gameHistoryManager.logAddFoul(player: player);
     }

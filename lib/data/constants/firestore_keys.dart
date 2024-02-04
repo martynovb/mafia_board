@@ -68,7 +68,7 @@ class FirestoreKeys {
   static const speakPhaseIsLastWordFieldKey = 'is_last_word';
   static const speakPhaseIsGunfightFieldKey = 'is_gunfight';
   static const speakPhaseIsBestMoveFieldKey = 'is_best_move';
-  static const speakPhaseBestMoveFieldKey = 'best_move';
+  static const speakPhaseBestMoveTempIdsFieldKey = 'best_move_temp_ids';
 
   static const votePhasePlayerOnVoteTempIdFieldKey = 'player_on_vote_temp_id';
   static const votePhaseWhoPutOnVoteTempIdFieldKey = 'who_put_on_vote_temp_id';

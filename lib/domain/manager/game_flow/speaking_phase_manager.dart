@@ -7,6 +7,7 @@ import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/domain/manager/game_history_manager.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/usecase/get_current_game_usecase.dart';
+import 'package:uuid/uuid.dart';
 
 class SpeakingPhaseManager {
   final GamePhaseRepo<SpeakPhaseModel> speakGamePhaseRepo;
@@ -43,6 +44,7 @@ class SpeakingPhaseManager {
       }
       speakPhaseList.add(
         SpeakPhaseModel(
+          tempId: const Uuid().v1(),
           currentDay: currentDay,
           playerTempId: player.tempId,
           timeForSpeakInSec: player.isMuted

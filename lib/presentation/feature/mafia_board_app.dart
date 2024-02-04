@@ -11,6 +11,7 @@ import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_blo
 import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_page.dart';
 import 'package:mafia_board/presentation/feature/clubs/create_club/bloc/create_club_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
+import 'package:mafia_board/presentation/feature/game/game_details/bloc/game_details_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_result/bloc/game_results_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/history/game_history_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/night_phase/night_phase_bloc.dart';
@@ -66,6 +67,7 @@ class _MafiaBoardAppState extends State<MafiaBoardApp> {
           BlocProvider(create: (context) => GetIt.instance<GameRulesBloc>()),
           BlocProvider(create: (context) => GetIt.instance<GameResultsBloc>()),
           BlocProvider(create: (context) => GetIt.instance<CreateClubBloc>()),
+          BlocProvider(create: (context) => GetIt.instance<GameDetailsBloc>()),
         ],
         child: BlocBuilder(
           bloc: appBloc,

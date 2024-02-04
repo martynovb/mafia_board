@@ -4,11 +4,14 @@ import 'package:get_it/get_it.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/game_model.dart';
 import 'package:mafia_board/domain/model/winner_type.dart';
+import 'package:mafia_board/presentation/common/base_bloc/base_state.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_bloc.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_event.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_state.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:intl/intl.dart';
+import 'package:mafia_board/presentation/feature/router.dart';
+import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 
 class ClubDetailsPage extends StatefulWidget {
   const ClubDetailsPage({
@@ -21,7 +24,6 @@ class ClubDetailsPage extends StatefulWidget {
 
 class _ClubDetailsPageState extends State<ClubDetailsPage> {
   late ClubsDetailsBloc clubDetailsBloc;
-  late ClubModel club;
   static const String _deleteGameOption = 'delete_game';
 
   @override
@@ -34,41 +36,67 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
   void didChangeDependencies() {
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    club = args?['club'] ?? ClubModel.empty();
+    final club = args?['club'];
     clubDetailsBloc.add(GetClubDetailsEvent(club));
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(club.title),
-        centerTitle: true,
-      ),
-      body: BlocBuilder(
-        bloc: clubDetailsBloc,
-        builder: (context, ClubDetailsState state) {
-          if (state is DetailsState) {
-            return _gamesList(state.allGames);
-          }
-
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      ),
+    return BlocBuilder(
+      bloc: clubDetailsBloc,
+      builder: (context, ClubState state) {
+        return Scaffold(
+            appBar: AppBar(
+              title: Text(state.club?.title ?? 'Club details'),
+              centerTitle: true,
+            ),
+            body: LayoutBuilder(
+              builder: (context, _) {
+                if (state.status == StateStatus.data) {
+                  return _gamesList(state.allGames);
+                } else if (state.status == StateStatus.error) {
+                  return Center(
+                    child: InfoField(
+                      message: state.errorMessage,
+                      infoFieldType: InfoFieldType.error,
+                    ),
+                  );
+                }
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              },
+            ));
+      },
     );
   }
 
   Widget _gamesList(List<GameModel> games) {
+    if (games.isEmpty) {
+      return const Center(
+        child: Text('No games'),
+      );
+    }
     return ListView.separated(
       separatorBuilder: (context, index) => const Divider(),
       itemBuilder: (context, index) => Container(
         color: index % 2 == 0 ? Colors.transparent : Colors.transparent,
-        child: Padding(
+        child: GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              AppRouter.gameDetailsPage,
+              arguments: {'gameId': games[index].id},
+            );
+          },
+          child: Padding(
             padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
-            child: _gameItem(games[index])),
+            child: _gameItem(
+              games[index],
+            ),
+          ),
+        ),
       ),
       itemCount: games.length,
     );
@@ -165,6 +193,8 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
       ],
     );
 
-    if (selectedValue == _deleteGameOption) {}
+    if (selectedValue == _deleteGameOption) {
+      clubDetailsBloc.add(DeleteGameEvent(game.id));
+    }
   }
 }

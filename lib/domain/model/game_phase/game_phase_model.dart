@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 
 abstract class GamePhaseModel {
   String? id;
-  final String tempId = const Uuid().v1();
+  final String tempId;
   String? dayInfoId;
   String? gameId;
   final int currentDay;
@@ -15,7 +15,9 @@ abstract class GamePhaseModel {
 
   GamePhaseModel({
     this.id,
+    this.gameId,
     required this.currentDay,
+    required this.tempId,
     this.status = PhaseStatus.notStarted,
   });
 

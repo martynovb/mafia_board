@@ -1,5 +1,8 @@
 import 'package:mafia_board/data/entity/game/day_info_entity.dart';
+import 'package:mafia_board/data/entity/game/phase/game_phase_entity.dart';
 import 'package:mafia_board/domain/model/game_phase/game_phase_model.dart';
+import 'package:mafia_board/domain/model/phase_type.dart';
+import 'package:mafia_board/domain/model/player_model.dart';
 
 abstract class GamePhaseRepo<GamePhase extends GamePhaseModel> {
   bool isExist({required int day});
@@ -28,4 +31,12 @@ abstract class GamePhaseRepo<GamePhase extends GamePhaseModel> {
     required String gameId,
     required List<DayInfoEntity> dayInfoList,
   });
+
+  Future<void> deleteAllGamePhasesByGameId({
+    required String gameId,
+    required PhaseType phaseType,
+  });
+
+  Future<List<GamePhaseModel>> fetchAllGamePhasesByGameId(
+      {required String gameId, required List<PlayerModel> players});
 }

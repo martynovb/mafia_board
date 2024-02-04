@@ -26,7 +26,7 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
       players: boardRepo.getAllPlayers(),
       speakPhaseAction: currentSpeakPhase,
       speaker: currentSpeakerId != null
-          ? await boardRepo.getPlayerById(currentSpeakerId)
+          ? await boardRepo.getPlayerByTempId(currentSpeakerId)
           : null,
     ));
   }
@@ -39,7 +39,7 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
       players: boardRepo.getAllPlayers(),
       speakPhaseAction: currentSpeakPhase,
       speaker: currentSpeakerId != null
-          ? await boardRepo.getPlayerById(currentSpeakerId)
+          ? await boardRepo.getPlayerByTempId(currentSpeakerId)
           : null,
     ));
   }
@@ -52,7 +52,7 @@ class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
       players: boardRepo.getAllPlayers(),
       speakPhaseAction: currentSpeakPhase,
       speaker: currentSpeakerId != null
-          ? await boardRepo.getPlayerById(currentSpeakerId)
+          ? await boardRepo.getPlayerByTempId(currentSpeakerId)
           : null,
       isFinished: true,
     ));

@@ -44,7 +44,7 @@ class GameBloc extends Bloc<GameEvent, GameState> {
   Stream<GameModel?> get gameStream => gameManager.gameStream;
 
   void _simulateFastGameCivilWin(SimulateFastGameCivilWinEvent event, emit) async {
-    await gameFlowSimulator.simulateFastGameCivilWin();
+    await gameFlowSimulator.simulateFastGame();
     final currentGame = await getCurrentGameUseCase.execute();
     emit(
       GamePhaseState(

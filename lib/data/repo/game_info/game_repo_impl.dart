@@ -4,10 +4,9 @@ import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/data/entity/game/game_entity.dart';
 import 'package:mafia_board/data/entity/game/day_info_entity.dart';
 import 'package:mafia_board/data/entity/game/player_entity.dart';
+import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/exceptions/exception.dart';
-import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
-import 'package:mafia_board/domain/model/game_results_model.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
@@ -172,7 +171,12 @@ class GameRepoImpl extends GameRepo {
   }
 
   @override
-  Future<void> removeGame({required String gameId}) async {}
+  Future<void> removeGame({required String gameId}) async {
+    await FirebaseFirestore.instance
+        .collection(FirestoreKeys.gamesCollectionKey)
+        .doc(gameId)
+        .delete();
+  }
 
   @override
   Future<List<DayInfoEntity>> saveDayInfoList() async {
@@ -214,5 +218,63 @@ class GameRepoImpl extends GameRepo {
           ),
         )
         .toList();
+  }
+
+  @override
+  Future<void> removeAllDayInfoByGameId({required String gameId}) async {
+    final batch = FirebaseFirestore.instance.batch();
+
+    final collectionRef = FirebaseFirestore.instance
+        .collection(FirestoreKeys.dayInfoCollectionKey)
+        .where(FirestoreKeys.gameIdFieldKey, isEqualTo: gameId);
+    final snapshots = await collectionRef.get();
+
+    for (final doc in snapshots.docs) {
+      batch.delete(doc.reference);
+    }
+
+    await batch.commit();
+  }
+
+  @override
+  Future<GameEntity> fetchGame({required String gameId}) async {
+    final gameData = await firestore.collection(FirestoreKeys.gamesCollectionKey).doc(gameId).get();
+    return GameEntity.fromFirestoreMap(id: gameData.id, data: gameData.data());
+  }
+
+  @override
+  Future<List<DayInfoEntity>> fetchAllDayInfoByGameId({
+    required String gameId,
+    required List<PlayerEntity> players,
+  }) async {
+    final dayInfoSnapshot = await firestore
+        .collection(FirestoreKeys.dayInfoCollectionKey)
+        .where(FirestoreKeys.gameIdFieldKey, isEqualTo: gameId)
+        .get();
+
+    return dayInfoSnapshot.docs.map(
+      (doc) {
+        final docData = doc.data();
+        final removedPlayers = players
+            .where((player) => docData[FirestoreKeys.removedPlayersTempIdsFieldKey]?.contains(player.tempId) ?? false)
+            .toList();
+
+        final mutedPlayers = players
+            .where((player) => docData[FirestoreKeys.mutedPlayersTempIdsFieldKey]?.contains(player.tempId) ?? false)
+            .toList();
+
+        final playersWithFoul = players
+            .where((player) => docData[FirestoreKeys.playersWithFoulTempIdsFieldKey]?.contains(player.tempId) ?? false)
+            .toList();
+
+        return DayInfoEntity.fromFirestoreMap(
+          id: doc.id,
+          data: docData,
+          removedPlayers: removedPlayers,
+          mutedPlayers: mutedPlayers,
+          playersWithFoul: playersWithFoul,
+        );
+      },
+    ).toList();
   }
 }

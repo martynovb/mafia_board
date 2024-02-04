@@ -92,8 +92,8 @@ class PlayersRepoImpl extends PlayersRepo {
   }
 
   @override
-  Future<PlayerModel?> getPlayerById(String id) async {
-    return _players.firstWhereOrNull((player) => player.tempId == id);
+  Future<PlayerModel?> getPlayerByTempId(String tempId) async {
+    return _players.firstWhereOrNull((player) => player.tempId == tempId);
   }
 
   @override
@@ -134,5 +134,40 @@ class PlayersRepoImpl extends PlayersRepo {
     await batch.commit();
 
     return createdPlayers;
+  }
+
+  @override
+  Future<void> deleteAllPlayersByGameId({required String gameId}) async {
+    final batch = FirebaseFirestore.instance.batch();
+
+    final collectionRef = FirebaseFirestore.instance
+        .collection(FirestoreKeys.playersCollectionKey)
+        .where(FirestoreKeys.gameIdFieldKey, isEqualTo: gameId);
+    final snapshots = await collectionRef.get();
+
+    for (final doc in snapshots.docs) {
+      batch.delete(doc.reference);
+    }
+
+    await batch.commit();
+  }
+
+  @override
+  Future<List<PlayerEntity>> fetchAllPlayersByGameId(
+      {required String gameId}) async {
+    final playerSnapshot = await firestore
+        .collection(FirestoreKeys.playersCollectionKey)
+        .where(FirestoreKeys.gameIdFieldKey, isEqualTo: gameId)
+        .get();
+
+    return playerSnapshot.docs
+        .map(
+          (doc) => PlayerEntity.fromFirestoreMap(
+            id: doc.id,
+            clubMember: null,
+            data: doc.data(),
+          ),
+        )
+        .toList();
   }
 }

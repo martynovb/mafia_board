@@ -3,11 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
+import 'package:mafia_board/presentation/common/base_bloc/base_state.dart';
 import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_bloc.dart';
 import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_event.dart';
 import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_state.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
+import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ClubsPage extends StatefulWidget {
@@ -37,36 +39,57 @@ class _ClubsPageState extends State<ClubsPage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
-        child: BlocBuilder(
-            bloc: clubsListBloc,
-            builder: (context, ClubsListState state) {
-              if (state is AllClubsState) {
-                return _clubsList(state.clubs);
-              }
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }));
-  }
+      padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
+      child: BlocBuilder(
+        bloc: clubsListBloc,
+        builder: (context, ClubsListState state) {
+          if (state.status == StateStatus.data) {
+            return _clubsList(state.clubs);
+          } else if (state.status == StateStatus.data) {
+            return Padding(
+              padding: const EdgeInsets.all(Dimensions.defaultSidePadding),
+              child: Center(
+                child: InfoField(
+                  message: state.errorMessage,
+                  infoFieldType: InfoFieldType.error,
+                ),
+              ),
+            );
+          }
 
-  Widget _clubsList(List<ClubModel> clubs) => ListView.separated(
-        separatorBuilder: (context, index) => const Divider(),
-        shrinkWrap: true,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                AppRouter.clubDetailsPage,
-                arguments: {'club': clubs[index]},
-              );
-            },
-            child: _clubItem(index, clubs[index]),
+          return const Center(
+            child: CircularProgressIndicator(),
           );
         },
-        itemCount: clubs.length,
+
+      ),
+    );
+  }
+
+  Widget _clubsList(List<ClubModel> clubs) {
+    if (clubs.isEmpty) {
+      return const Center(
+        child: Text('No clubs'),
       );
+    }
+    return ListView.separated(
+      separatorBuilder: (context, index) => const Divider(),
+      shrinkWrap: true,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              AppRouter.clubDetailsPage,
+              arguments: {'club': clubs[index]},
+            );
+          },
+          child: _clubItem(index, clubs[index]),
+        );
+      },
+      itemCount: clubs.length,
+    );
+  }
 
   Widget _clubItem(int index, ClubModel club) {
     final GlobalKey menuKey = GlobalKey();

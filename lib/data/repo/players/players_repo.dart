@@ -18,7 +18,7 @@ abstract class PlayersRepo {
 
   List<PlayerModel> getAllAvailablePlayers();
 
-  Future<PlayerModel?> getPlayerById(String id);
+  Future<PlayerModel?> getPlayerByTempId(String tempId);
 
   Future<PlayerModel?> getPlayerByNumber(int index);
 
@@ -36,4 +36,8 @@ abstract class PlayersRepo {
   Future<void> updateAllPlayerData(PlayerModel playerToUpdate);
 
   void resetAll();
+
+  Future<void> deleteAllPlayersByGameId({required String gameId});
+
+  Future<List<PlayerEntity>> fetchAllPlayersByGameId({required String gameId});
 }
