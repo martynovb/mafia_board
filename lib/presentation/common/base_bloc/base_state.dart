@@ -16,6 +16,11 @@ class BaseState {
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
+
+  Map<String, dynamic> toMap() => {
+        'errorMessage': errorMessage,
+        'status': status.name,
+      };
 }
 
 enum StateStatus { inProgress, data, error, none }

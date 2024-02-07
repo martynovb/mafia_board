@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/game_model.dart';
 import 'package:mafia_board/presentation/common/base_bloc/base_state.dart';
@@ -25,6 +26,28 @@ class ClubState extends BaseState {
       allGames: allGames ?? this.allGames,
       errorMessage: errorMessage ?? this.errorMessage,
       status: status ?? this.status,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    return super.toMap()
+      ..addAll({
+        'club': club?.toMap(),
+        'allGames': allGames.map((game) => game.toMap()).toList(),
+      });
+  }
+
+  static ClubState fromMap(Map<String, dynamic> map) {
+    return ClubState(
+      status:
+          StateStatus.values.firstWhereOrNull((v) => v.name == map['status']) ??
+              StateStatus.none,
+      errorMessage: map['errorMessage'] ?? '',
+      club: ClubModel.fromMap(map['club'] ?? {}),
+      allGames: (map['allGames'] as List<dynamic>)
+          .map((v) => GameModel.fromMap(v))
+          .toList(),
     );
   }
 }

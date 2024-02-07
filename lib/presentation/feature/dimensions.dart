@@ -1,6 +1,7 @@
 import 'package:mafia_board/data/constants/constants.dart';
 
 class Dimensions {
+  static const double playerActionCellSize = 50;
   static const double dividerHeight = 1;
   static const double defaultIconSize = 24;
   static const double defaultSidePadding = 16;

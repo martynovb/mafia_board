@@ -1,4 +1,5 @@
 import 'package:class_to_string/class_to_string.dart';
+import 'package:collection/collection.dart';
 import 'package:mafia_board/data/entity/game/player_entity.dart';
 import 'package:mafia_board/domain/model/club_member_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
@@ -28,6 +29,7 @@ class PlayerModel {
     required this.clubMember,
     required this.role,
     required this.seatNumber,
+    this.id,
     this.gameId,
     this.fouls = 0,
     this.isDisqualified = false,
@@ -61,7 +63,7 @@ class PlayerModel {
         isFirstKilled = false;
 
   PlayerModel.fromEntity(PlayerEntity? entity)
-      : tempId = '',
+      : tempId = entity?.tempId ?? '',
         clubMember = ClubMemberModel.fromEntity(entity?.clubMember),
         seatNumber = entity?.seatNumber ?? -1,
         role = roleMapper(entity?.role),
@@ -76,6 +78,50 @@ class PlayerModel {
         gamePoints = entity?.gamePoints ?? 0.0,
         bonus = entity?.bonus ?? 0.0,
         isFirstKilled = entity?.isFirstKilled ?? false;
+
+  static PlayerModel fromMap(Map<String, dynamic> map) => PlayerModel(
+        id: map['id'],
+        tempId: map['tempId'],
+        gameId: map['gameId'],
+        clubMember: ClubMemberModel.fromMap(
+          (map['clubMember'] as Map<String, dynamic>?) ?? {},
+        ),
+        fouls: map['fouls'] ?? 0,
+        isDisqualified: map['isDisqualified'] ?? false,
+        isKilled: map['isKilled'] ?? false,
+        isMuted: map['isMuted'] ?? false,
+        isKicked: map['isKicked'] ?? false,
+        isPPK: map['isPPK'] ?? false,
+        seatNumber: map['seatNumber'] ?? -1,
+        bestMove: map['bestMove'] ?? 0.0,
+        compensation: map['compensation'] ?? 0.0,
+        gamePoints: map['gamePoints'] ?? 0.0,
+        bonus: map['bonus'] ?? 0.0,
+        isFirstKilled: map['isFirstKilled'] ?? false,
+        role:
+            Role.values.firstWhereOrNull((role) => map['role'] == role.name) ??
+                Role.none,
+      );
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'tempId': tempId,
+        'gameId': gameId,
+        'clubMember': clubMember?.toMap(),
+        'fouls': fouls,
+        'role': role.name,
+        'isDisqualified': isDisqualified,
+        'isKilled': isKilled,
+        'isMuted': isMuted,
+        'isKicked': isKicked,
+        'isPPK': isPPK,
+        'seatNumber': seatNumber,
+        'bestMove': bestMove,
+        'compensation': compensation,
+        'gamePoints': gamePoints,
+        'bonus': bonus,
+        'isFirstKilled': isFirstKilled,
+      };
 
   PlayerEntity toEntity() {
     return PlayerEntity(

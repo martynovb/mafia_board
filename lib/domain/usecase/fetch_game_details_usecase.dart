@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:mafia_board/data/repo/game_info/game_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
@@ -33,7 +34,7 @@ class FetchGameDetailsUseCase extends BaseUseCase<GameDetailsModel, String> {
 
     return GameDetailsModel(
       game: GameModel.fromEntity(game),
-      players: playerModels,
+      players: playerModels.sorted((a, b) => b.total().compareTo(a.total())),
       dayInfoList:
           dayInfoList.map((entity) => DayInfoModel.fromEntity(entity)).toList(),
       gamePhases: gamePhases,

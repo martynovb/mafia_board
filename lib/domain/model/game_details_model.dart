@@ -21,4 +21,11 @@ class GameDetailsModel {
         players = const [],
         dayInfoList = const [],
         gamePhases = const [];
+
+  Map<String, dynamic> toMap() => {
+    'game': game?.toMap(),
+    'players': players.map((player) => player.toMap()).toList(),
+    'dayInfoList': dayInfoList.map((dayInfo) => dayInfo.toMap()).toList(),
+    'gamePhases': gamePhases.map((gamePhase) => gamePhase.toMap()).toList(),
+  };
 }

@@ -16,6 +16,7 @@ abstract class GamePhaseModel {
   GamePhaseModel({
     this.id,
     this.gameId,
+    this.dayInfoId,
     required this.currentDay,
     required this.tempId,
     this.status = PhaseStatus.notStarted,
@@ -33,5 +34,14 @@ abstract class GamePhaseModel {
         FirestoreKeys.gamePhaseDayFieldKey: currentDay,
         FirestoreKeys.updatedAtFieldKey: updatedAt.millisecondsSinceEpoch,
         FirestoreKeys.gamePhaseTypeFieldKey: phaseType.name,
+      };
+
+  Map<String, dynamic> toMap() => {
+        'tempId': tempId,
+        'dayInfoId': dayInfoId,
+        'gameId': gameId,
+        'currentDay': currentDay,
+        'updatedAt': updatedAt.millisecondsSinceEpoch,
+        'phaseType': phaseType.name,
       };
 }

@@ -15,6 +15,7 @@ class SpeakPhaseModel extends GamePhaseModel {
 
   SpeakPhaseModel({
     super.id,
+    super.dayInfoId,
     required super.currentDay,
     required super.tempId,
     required this.playerTempId,
@@ -46,6 +47,7 @@ class SpeakPhaseModel extends GamePhaseModel {
       isGunfight: map[FirestoreKeys.speakPhaseIsGunfightFieldKey],
       isBestMove: map[FirestoreKeys.speakPhaseIsBestMoveFieldKey],
       bestMove: bestMove,
+      dayInfoId: map[FirestoreKeys.dayInfoIdFieldKey],
     )..updatedAt = DateTime.fromMillisecondsSinceEpoch(
         map[FirestoreKeys.updatedAtFieldKey] ?? 0);
   }
@@ -67,10 +69,16 @@ class SpeakPhaseModel extends GamePhaseModel {
   }
 
   @override
-  String toString() {
-    return 'SpeakPhaseAction:'
-        '\nplayerId: $playerTempId'
-        '\ntimeForSpeakInSec: $timeForSpeakInSec'
-        '\status: ${status.name}';
+  Map<String, dynamic> toMap() {
+    return super.toMap()
+      ..addAll(
+        {
+          'playerTempId': playerTempId,
+          'isLastWord': isLastWord,
+          'isGunfight': isGunfight,
+          'isBestMove': isBestMove,
+          'bestMove': bestMove.map((player) => player.toMap()).toList(),
+        },
+      );
   }
 }

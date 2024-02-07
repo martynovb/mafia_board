@@ -32,4 +32,16 @@ class ClubMemberModel {
         clubId: clubId,
         winRateByRoleTypeMap: winRateByRoleTypeMap,
       );
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'user': user.toMap(),
+        'clubId': clubId,
+      };
+
+  static ClubMemberModel fromMap(Map<String, dynamic> map) => ClubMemberModel(
+        id: map['id'],
+        user: UserModel.fromMap((['user'] as Map<String, dynamic>?) ?? {}),
+        clubId: map['clubId'],
+      );
 }

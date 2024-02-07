@@ -1,4 +1,5 @@
 import 'package:class_to_string/class_to_string.dart';
+import 'package:collection/collection.dart';
 import 'package:mafia_board/data/entity/game/day_info_entity.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
@@ -12,6 +13,17 @@ class DayInfoModel {
   final List<PlayerModel> mutedPlayers;
   final List<PlayerModel> playersWithFoul;
   PhaseType currentPhase;
+
+  DayInfoModel({
+    required this.id,
+    required this.gameId,
+    required this.day,
+    required this.createdAt,
+    required this.removedPlayers,
+    required this.mutedPlayers,
+    required this.playersWithFoul,
+    required this.currentPhase,
+  });
 
   DayInfoModel.fromEntity(DayInfoEntity? entity)
       : id = entity?.tempId ?? '',
@@ -37,6 +49,44 @@ class DayInfoModel {
                 .toList() ??
             [],
         currentPhase = phaseTypeMapper(entity?.currentPhase);
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'gameId': gameId,
+        'day': day,
+        'createdAt': createdAt.millisecondsSinceEpoch,
+        'removedPlayers':
+            removedPlayers.map((player) => player.toMap()).toList(),
+        'mutedPlayers': mutedPlayers.map((player) => player.toMap()).toList(),
+        'playersWithFoul':
+            playersWithFoul.map((player) => player.toMap()).toList(),
+        'currentPhase': currentPhase.name,
+      };
+
+  static DayInfoModel fromMap(Map<String, dynamic> map) => DayInfoModel(
+        id: map['id'] ?? '',
+        gameId: map['gameId'] ?? '',
+        day: map['day'] ?? -1,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] ?? 0),
+        removedPlayers: (map['removedPlayers'] as List<dynamic>?)
+                ?.map((map) =>
+                    PlayerModel.fromMap((map as Map<String, dynamic>? ?? {})))
+                .toList() ??
+            [],
+        mutedPlayers: (map['mutedPlayers'] as List<dynamic>?)
+                ?.map((map) =>
+                    PlayerModel.fromMap((map as Map<String, dynamic>? ?? {})))
+                .toList() ??
+            [],
+        playersWithFoul: (map['playersWithFoul'] as List<dynamic>?)
+                ?.map((map) =>
+                    PlayerModel.fromMap((map as Map<String, dynamic>? ?? {})))
+                .toList() ??
+            [],
+        currentPhase: PhaseType.values.firstWhereOrNull(
+                (phase) => map['currentPhase'] == phase.name) ??
+            PhaseType.none,
+      );
 
   DayInfoEntity toEntity() => DayInfoEntity(
         tempId: id,

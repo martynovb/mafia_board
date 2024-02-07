@@ -1,4 +1,5 @@
 import 'package:class_to_string/class_to_string.dart';
+import 'package:collection/collection.dart';
 import 'package:mafia_board/data/entity/game/game_entity.dart';
 import 'package:mafia_board/data/entity/game/day_info_entity.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
@@ -17,6 +18,18 @@ class GameModel {
   final Duration duration;
   final WinnerType winnerType;
 
+  GameModel({
+    required this.id,
+    required this.currentDayInfo,
+    required this.gameStatus,
+    required this.finishGameType,
+    required this.startedAt,
+    required this.finishedAt,
+    required this.createdAt,
+    required this.duration,
+    required this.winnerType,
+  });
+
   GameModel.fromEntity(GameEntity? gameEntity, [DayInfoEntity? dayInfoEntity])
       : id = gameEntity?.id ?? '',
         gameStatus = gameStatusMapper(gameEntity?.gameStatus),
@@ -34,6 +47,38 @@ class GameModel {
         ),
         winnerType = mapWinnerType(gameEntity?.winRole);
 
+  static GameModel fromMap(Map<String, dynamic> map) {
+    return GameModel(
+      id: map['id'] ?? '',
+      currentDayInfo: DayInfoModel.fromMap(
+          (map['currentDayInfo'] as Map<String, dynamic>?) ?? {}),
+      finishGameType: FinishGameType.values
+              .firstWhereOrNull((v) => v.name == map['finishGameType']) ??
+          FinishGameType.none,
+      winnerType: WinnerType.values
+              .firstWhereOrNull((v) => v.name == map['winnerType']) ??
+          WinnerType.none,
+      gameStatus: GameStatus.values
+              .firstWhereOrNull((v) => v.name == map['gameStatus']) ??
+          GameStatus.none,
+      startedAt: DateTime.fromMillisecondsSinceEpoch(map['startedAt'] ?? 0),
+      finishedAt: DateTime.fromMillisecondsSinceEpoch(map['finishedAt'] ?? 0),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] ?? 0),
+      duration: Duration(seconds: map['duration'] ?? 0),
+    );
+  }
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'currentDayInfo': currentDayInfo.toMap(),
+        'gameStatus': gameStatus.name,
+        'finishGameType': finishGameType.name,
+        'startedAt': startedAt.millisecondsSinceEpoch,
+        'finishedAt': finishedAt.millisecondsSinceEpoch,
+        'createdAt': createdAt.millisecondsSinceEpoch,
+        'duration': duration.inSeconds,
+        'winnerType': winnerType.name,
+      };
 
   @override
   String toString() {

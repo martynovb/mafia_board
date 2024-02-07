@@ -33,11 +33,6 @@ class VotePhaseRepo extends BasePhaseRepo<VotePhaseModel> {
       return gunfightVotePhases;
     }
 
-    MafLogger.d(
-      'VotePhaseRepoLocal',
-      'getAllPhasesByDay ${votePhases.toString()}',
-    );
-
     return votePhases;
   }
 }

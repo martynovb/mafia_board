@@ -17,14 +17,15 @@ class VotePhaseModel extends GamePhaseModel {
     super.id,
     super.gameId,
     super.status,
+    super.dayInfoId,
     required super.tempId,
     required super.currentDay,
     required this.playerOnVote,
     this.whoPutOnVote,
     this.isGunfight = false,
     this.shouldKickAllPlayers = false,
-    this.playersToKick = const [],
-    this.votedPlayers = const {},
+    required this.playersToKick,
+    required this.votedPlayers,
   });
 
   @override
@@ -39,18 +40,20 @@ class VotePhaseModel extends GamePhaseModel {
     required PlayerModel? whoPutOnVote,
   }) {
     return VotePhaseModel(
-        id: id,
-        tempId: map[FirestoreKeys.tempIdFieldKey],
-        currentDay: map[FirestoreKeys.gamePhaseDayFieldKey],
-        gameId: map[FirestoreKeys.gameIdFieldKey],
-        status: PhaseStatus.finished,
-        playerOnVote: playerOnVote,
-        playersToKick: playersToKick,
-        whoPutOnVote: whoPutOnVote,
-        isGunfight: map[FirestoreKeys.votePhaseIsGunfightFieldKey],
-        shouldKickAllPlayers: map[FirestoreKeys.votePhaseShouldKickAllFieldKey])
-      ..updatedAt = DateTime.fromMillisecondsSinceEpoch(
-          map[FirestoreKeys.updatedAtFieldKey] ?? 0);
+      id: id,
+      tempId: map[FirestoreKeys.tempIdFieldKey],
+      currentDay: map[FirestoreKeys.gamePhaseDayFieldKey],
+      gameId: map[FirestoreKeys.gameIdFieldKey],
+      status: PhaseStatus.finished,
+      playerOnVote: playerOnVote,
+      playersToKick: playersToKick,
+      whoPutOnVote: whoPutOnVote,
+      isGunfight: map[FirestoreKeys.votePhaseIsGunfightFieldKey],
+      shouldKickAllPlayers: map[FirestoreKeys.votePhaseShouldKickAllFieldKey],
+      votedPlayers: votedPlayers,
+      dayInfoId: map[FirestoreKeys.dayInfoIdFieldKey],
+    )..updatedAt = DateTime.fromMillisecondsSinceEpoch(
+        map[FirestoreKeys.updatedAtFieldKey] ?? 0);
   }
 
   bool vote(PlayerModel playerModel) {
@@ -91,18 +94,18 @@ class VotePhaseModel extends GamePhaseModel {
   }
 
   @override
-  String toString() {
-    return (ClassToString('VotePhaseAction')
-          ..add('id', tempId)
-          ..add('currentDay', currentDay)
-          ..add('createdAt', updatedAt)
-          ..add('status', status)
-          ..add('playerOnVote', playerOnVote)
-          ..add('whoPutOnVote', whoPutOnVote)
-          ..add('playersToKick', playersToKick)
-          ..add('votedPlayers', votedPlayers)
-          ..add('isGunfight', isGunfight)
-          ..add('shouldKickAllPlayers', shouldKickAllPlayers))
-        .toString();
+  Map<String, dynamic> toMap() {
+    return super.toMap()
+      ..addAll(
+        {
+          'playerOnVote': playerOnVote.toMap(),
+          'whoPutOnVote': whoPutOnVote?.toMap(),
+          'playersToKick':
+              playersToKick.map((player) => player.toMap()).toList(),
+          'votedPlayers': votedPlayers.map((player) => player.toMap()).toList(),
+          'isGunfight': isGunfight,
+          'shouldKickAllPlayers': shouldKickAllPlayers,
+        },
+      );
   }
 }

@@ -17,6 +17,7 @@ class NightPhaseModel extends GamePhaseModel {
     required super.currentDay,
     required super.tempId,
     super.id,
+    super.dayInfoId,
     super.gameId,
     super.status = PhaseStatus.notStarted,
     required this.role,
@@ -43,6 +44,7 @@ class NightPhaseModel extends GamePhaseModel {
       killedPlayer: killedPlayer,
       checkedPlayer: checkedPlayer,
       playersForWakeUp: playersForWakeUp,
+      dayInfoId: map[FirestoreKeys.dayInfoIdFieldKey],
     )..updatedAt = DateTime.fromMillisecondsSinceEpoch(
         map[FirestoreKeys.updatedAtFieldKey] ?? 0);
   }
@@ -84,6 +86,20 @@ class NightPhaseModel extends GamePhaseModel {
               killedPlayer?.tempId,
           FirestoreKeys.nightPhaseCheckedPlayerTempIdFieldKey:
               checkedPlayer?.tempId,
+        },
+      );
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    return super.toMap()
+      ..addAll(
+        {
+          'role': role.name,
+          'playersForWakeUp':
+              playersForWakeUp.map((players) => players.toMap()).toList(),
+          'killedPlayer': killedPlayer?.toMap(),
+          'checkedPlayer': checkedPlayer?.toMap(),
         },
       );
   }

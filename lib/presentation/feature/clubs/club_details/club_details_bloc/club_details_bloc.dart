@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/usecase/delete_game_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_all_games_usecase.dart';
@@ -7,7 +8,7 @@ import 'package:mafia_board/presentation/common/base_bloc/base_state.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_event.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_state.dart';
 
-class ClubsDetailsBloc extends Bloc<ClubsDetailsEvent, ClubState> {
+class ClubsDetailsBloc extends HydratedBloc<ClubsDetailsEvent, ClubState> {
   static const String _tag = 'ClubsDetailsBloc';
   final GetClubDetailsUseCase getClubDetailsUseCase;
   final GetAllGamesUsecase getAllGamesUsecase;
@@ -47,7 +48,8 @@ class ClubsDetailsBloc extends Bloc<ClubsDetailsEvent, ClubState> {
     GetClubDetailsEvent event,
     emit,
   ) async {
-    if ((event.club?.id == null || event.club?.id == '') && state.club?.id == null) {
+    if ((event.club?.id == null || event.club?.id == '') &&
+        state.club?.id == null) {
       emit(
         state.copyWith(
           status: StateStatus.error,
@@ -58,7 +60,8 @@ class ClubsDetailsBloc extends Bloc<ClubsDetailsEvent, ClubState> {
     }
 
     try {
-      final allGames = await getAllGamesUsecase.execute(params: event.club?.id ?? state.club?.id);
+      final allGames = await getAllGamesUsecase.execute(
+          params: event.club?.id ?? state.club?.id);
       emit(state.copyWith(
         status: StateStatus.data,
         club: event.club,
@@ -72,5 +75,15 @@ class ClubsDetailsBloc extends Bloc<ClubsDetailsEvent, ClubState> {
         ),
       );
     }
+  }
+
+  @override
+  ClubState? fromJson(Map<String, dynamic> json) {
+    return ClubState.fromMap(json);
+  }
+
+  @override
+  Map<String, dynamic>? toJson(ClubState state) {
+    return state.toMap();
   }
 }

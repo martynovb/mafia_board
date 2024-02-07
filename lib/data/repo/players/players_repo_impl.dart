@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:mafia_board/data/constants/firestore_keys.dart';
+import 'package:mafia_board/data/entity/club_member_entity.dart';
 import 'package:mafia_board/data/entity/game/player_entity.dart';
+import 'package:mafia_board/data/entity/user_entity.dart';
 import 'package:mafia_board/domain/model/club_member_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
@@ -28,7 +30,7 @@ class PlayersRepoImpl extends PlayersRepo {
   @override
   void setUser(int seatNumber, ClubMemberModel clubMember) {
     final userIndexIfAlreadySet =
-        _players.indexWhere((player) => player.tempId == clubMember.id);
+        _players.indexWhere((player) => player.clubMember?.user.id == clubMember.user.id);
     if (userIndexIfAlreadySet != -1) {
       _players[userIndexIfAlreadySet] =
           PlayerModel.empty(_players[userIndexIfAlreadySet].seatNumber);
@@ -138,9 +140,9 @@ class PlayersRepoImpl extends PlayersRepo {
 
   @override
   Future<void> deleteAllPlayersByGameId({required String gameId}) async {
-    final batch = FirebaseFirestore.instance.batch();
+    final batch = firestore.batch();
 
-    final collectionRef = FirebaseFirestore.instance
+    final collectionRef = firestore
         .collection(FirestoreKeys.playersCollectionKey)
         .where(FirestoreKeys.gameIdFieldKey, isEqualTo: gameId);
     final snapshots = await collectionRef.get();
@@ -160,14 +162,53 @@ class PlayersRepoImpl extends PlayersRepo {
         .where(FirestoreKeys.gameIdFieldKey, isEqualTo: gameId)
         .get();
 
-    return playerSnapshot.docs
+    final clubMemberIds = playerSnapshot.docs
+        .map(
+          (doc) => doc.data()[FirestoreKeys.clubMemberIdFieldKey],
+        )
+        .toList();
+
+    final membersSnapshot = await firestore
+        .collection(FirestoreKeys.clubMembersCollectionKey)
+        .where(FieldPath.documentId, whereIn: clubMemberIds)
+        .get();
+
+    final userIds = membersSnapshot.docs
+        .map((doc) => doc.data()[FirestoreKeys.clubMemberUserIdFieldKey])
+        .toList();
+
+    final usersSnapshot = await firestore
+        .collection(FirestoreKeys.usersCollectionKey)
+        .where(FieldPath.documentId, whereIn: userIds)
+        .get();
+
+    final users = usersSnapshot.docs
+        .map((doc) => UserEntity.fromFirestoreMap(id: doc.id, data: doc.data()))
+        .toList();
+
+    final members = membersSnapshot.docs
+        .map(
+          (doc) => ClubMemberEntity.fromFirestoreMap(
+            id: doc.id,
+            data: doc.data(),
+            user: users.firstWhereOrNull(
+              (user) =>
+                  user.id == doc.data()[FirestoreKeys.clubMemberUserIdFieldKey],
+            ),
+          ),
+        )
+        .toList();
+
+    final players = playerSnapshot.docs
         .map(
           (doc) => PlayerEntity.fromFirestoreMap(
             id: doc.id,
-            clubMember: null,
+            clubMember: members.firstWhereOrNull((member) => member.id == doc.data()[FirestoreKeys.clubMemberIdFieldKey]),
             data: doc.data(),
           ),
         )
         .toList();
+
+    return players;
   }
 }

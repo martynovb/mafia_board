@@ -1,9 +1,17 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/data/entity/game/day_info_entity.dart';
+import 'package:mafia_board/domain/model/game_details_model.dart';
+import 'package:mafia_board/domain/model/game_info_model.dart';
+import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/presentation/common/base_bloc/base_state.dart';
+import 'package:mafia_board/presentation/common/helper/game_details_view_helper.dart';
+import 'package:mafia_board/presentation/common/helper/player_action_wrapper.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/game/game_details/bloc/game_details_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_details/bloc/game_details_event.dart';
@@ -34,7 +42,7 @@ class _GameDetailsPageState extends State<GameDetailsPage> {
   void didChangeDependencies() {
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    final gameId = args?['gameId'] ?? '';
+    final gameId = args?['gameId'] ?? gameDetailsBloc.state.gameId;
     gameDetailsBloc.add(GetGameDetailsEvent(gameId));
     super.didChangeDependencies();
   }
@@ -46,24 +54,39 @@ class _GameDetailsPageState extends State<GameDetailsPage> {
         title: const Text('Game details'),
         centerTitle: true,
       ),
-      body: BlocBuilder(
-        bloc: gameDetailsBloc,
-        builder: (context, GameDetailsState state) {
-          if (state.status == StateStatus.data) {
-            return _gameResultsPointsTable(state.gameDetails.players);
-          } else if (state.status == StateStatus.error) {
-            return Center(
-              child: InfoField(
-                message: state.errorMessage,
-                infoFieldType: InfoFieldType.error,
-              ),
-            );
-          }
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      ),
+      body: Padding(
+          padding: const EdgeInsets.only(
+            left: Dimensions.defaultSidePadding,
+            right: Dimensions.defaultSidePadding,
+            top: Dimensions.sidePadding0_5x,
+          ),
+          child: BlocBuilder(
+            bloc: gameDetailsBloc,
+            builder: (context, GameDetailsState state) {
+              if (state.status == StateStatus.data) {
+                return ListView(
+                  children: [
+                    _gameResultsPointsTable(state.gameDetails.players),
+                    const SizedBox(height: Dimensions.defaultSidePadding),
+                    const Text('Player details:'),
+                    const SizedBox(height: Dimensions.defaultSidePadding),
+                    _playerGameDetailsList(state.gameDetails),
+                    const SizedBox(height: Dimensions.defaultSidePadding),
+                  ],
+                );
+              } else if (state.status == StateStatus.error) {
+                return Center(
+                  child: InfoField(
+                    message: state.errorMessage,
+                    infoFieldType: InfoFieldType.error,
+                  ),
+                );
+              }
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            },
+          )),
     );
   }
 
@@ -214,5 +237,103 @@ class _GameDetailsPageState extends State<GameDetailsPage> {
 
   Widget _roleIndicator(Role role) {
     return Text(role.name);
+  }
+
+  Widget _playerGameDetailsList(GameDetailsModel gameDetails) {
+    return ListView.separated(
+        shrinkWrap: true,
+        separatorBuilder: (context, index) => const Divider(),
+        itemCount: gameDetails.players.length,
+        itemBuilder: (context, index) {
+          return _playerGameDetailsItem(
+              gameDetails.players[index], gameDetails);
+        });
+  }
+
+  Widget _playerGameDetailsItem(
+      PlayerModel player, GameDetailsModel gameDetails) {
+    return Padding(
+      padding: const EdgeInsets.only(
+          right: Dimensions.defaultSidePadding,
+          left: Dimensions.defaultSidePadding),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Column(
+                children: [
+                  Text(player.nickname),
+                  Text(player.role.name),
+                ],
+              ),
+              const SizedBox(width: Dimensions.defaultSidePadding),
+              Text(player.total().toString()),
+            ],
+          ),
+          const Divider(),
+          _dayInfoListByPlayer(player, gameDetails),
+        ],
+      ),
+    );
+  }
+
+  Widget _dayInfoListByPlayer(
+      PlayerModel player, GameDetailsModel gameDetails) {
+    return ListView.separated(
+      shrinkWrap: true,
+      itemBuilder: (context, index) {
+        return _dayInfoRowItem(
+          player,
+          gameDetails.dayInfoList[index],
+          gameDetails,
+        );
+      },
+      separatorBuilder: (context, index) => const Divider(),
+      itemCount: gameDetails.dayInfoList.length,
+    );
+  }
+
+  Widget _dayInfoRowItem(
+    PlayerModel player,
+    DayInfoModel dayInfo,
+    GameDetailsModel gameDetails,
+  ) {
+    final dayGamePhases = gameDetails.gamePhases
+        .where((gamePhase) => gamePhase.currentDay == dayInfo.day)
+        .sorted(
+          (a, b) => a.updatedAt.millisecondsSinceEpoch
+              .compareTo(b.updatedAt.millisecondsSinceEpoch),
+        );
+    final playerActions = GameDetailsViewHelper.filterOnlyPlayerActions(
+      player,
+      dayGamePhases,
+    );
+    return SizedBox(
+        width: MediaQuery.of(context).size.width,
+        height: Dimensions.playerActionCellSize,
+        child: ListView.separated(
+          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (context, index) {
+            return _phaseItemByPlayerAction(
+              player,
+              playerActions[index],
+            );
+          },
+          separatorBuilder: (context, index) => const VerticalDivider(),
+          itemCount: playerActions.length,
+        ));
+  }
+
+  Widget _phaseItemByPlayerAction(
+    PlayerModel player,
+    PlayerActionViewWrapper playerAction,
+  ) {
+    return Container(
+      height: Dimensions.playerActionCellSize,
+      width: Dimensions.playerActionCellSize,
+      color: Colors.white.withOpacity(0.1),
+      child: Text(playerAction.playerAction.name),
+    );
   }
 }

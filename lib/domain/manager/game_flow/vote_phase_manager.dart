@@ -132,7 +132,7 @@ class VotePhaseManager {
         tempId: const Uuid().v1(),
         currentDay: currentDay,
         playerOnVote: playerToVote,
-        whoPutOnVote: currentSpeaker,
+        whoPutOnVote: currentSpeaker, playersToKick: [], votedPlayers: {},
       );
       _currentVoteSubject.add(votePhase);
       await voteGamePhaseRepo.add(gamePhase: votePhase);
@@ -409,7 +409,7 @@ class VotePhaseManager {
           tempId: const Uuid().v1(),
           currentDay: currentDay,
           playerOnVote: player,
-          isGunfight: true,
+          isGunfight: true, playersToKick: [], votedPlayers: {},
         ));
       }
       gameHistoryManager.logGunfight(players: playersToKick);
@@ -421,7 +421,7 @@ class VotePhaseManager {
           currentDay: currentDay,
           isGunfight: true,
           shouldKickAllPlayers: true,
-          playersToKick: playersToKick,
+          playersToKick: playersToKick, votedPlayers: {},
         ),
       );
       gameHistoryManager.logGunfight(

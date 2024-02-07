@@ -14,6 +14,19 @@ class ClubModel {
   double mafWinRate;
   DateTime createdAt;
 
+  ClubModel({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.members,
+    required this.admins,
+    required this.isAdmin,
+    required this.games,
+    required this.civilWinRate,
+    required this.mafWinRate,
+    required this.createdAt,
+  });
+
   ClubModel.empty()
       : id = '',
         title = '',
@@ -37,4 +50,38 @@ class ClubModel {
         isAdmin = entity.isAdmin ?? false,
         members = [],
         admins = [];
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'title': title,
+        'description': description,
+        'members': members.map((member) => member.toMap()).toList(),
+        'admins': admins.map((admin) => admin.toMap()).toList(),
+        'isAdmin': isAdmin,
+        'games': games.map((game) => game.toMap()).toList(),
+        'civilWinRate': civilWinRate,
+        'mafWinRate': mafWinRate,
+        'createdAt': createdAt.millisecondsSinceEpoch,
+      };
+
+  static ClubModel fromMap(Map<String, dynamic> map) {
+    return ClubModel(
+      id: map['id'] ?? '',
+      title: map['title'] ?? '',
+      description: map['description'] ?? '',
+      members: (map['members'] as List)
+          .map((v) => ClubMemberModel.fromMap(v))
+          .toList(),
+      admins: (map['admins'] as List)
+          .map((v) => ClubMemberModel.fromMap(v))
+          .toList(),
+      isAdmin: map['isAdmin'] ?? false,
+      games: (map['games'] as List)
+          .map((v) => GameModel.fromMap(v))
+          .toList(),
+      civilWinRate: map['civilWinRate'] ?? 0.0,
+      mafWinRate: map['mafWinRate'] ?? 0.0,
+      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] ?? 0),
+    );
+  }
 }

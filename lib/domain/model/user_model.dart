@@ -22,4 +22,16 @@ class UserModel {
         email = entity?.email ?? '';
 
   UserEntity toEntity() => UserEntity(id: id, nickname: nickname, email: email);
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'nickname': nickname,
+        'email': email,
+      };
+
+  static UserModel fromMap(Map<String, dynamic> map) => UserModel(
+        id: map['id'] ?? '',
+        nickname: map['nickname'] ?? '',
+        email: map['email'] ?? '',
+      );
 }
