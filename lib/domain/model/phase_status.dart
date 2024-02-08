@@ -1,5 +1,6 @@
 enum PhaseStatus {
   notStarted,
   inProgress,
-  finished
+  finished,
+  none,
 }

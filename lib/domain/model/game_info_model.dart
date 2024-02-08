@@ -63,26 +63,23 @@ class DayInfoModel {
         'currentPhase': currentPhase.name,
       };
 
+  static List<DayInfoModel> fromListMap(dynamic data) {
+    if (data == null || data.isEmpty) {
+      return [];
+    }
+    return (data as List<dynamic>)
+        .map((map) => DayInfoModel.fromMap(map))
+        .toList();
+  }
+
   static DayInfoModel fromMap(Map<String, dynamic> map) => DayInfoModel(
         id: map['id'] ?? '',
         gameId: map['gameId'] ?? '',
         day: map['day'] ?? -1,
         createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] ?? 0),
-        removedPlayers: (map['removedPlayers'] as List<dynamic>?)
-                ?.map((map) =>
-                    PlayerModel.fromMap((map as Map<String, dynamic>? ?? {})))
-                .toList() ??
-            [],
-        mutedPlayers: (map['mutedPlayers'] as List<dynamic>?)
-                ?.map((map) =>
-                    PlayerModel.fromMap((map as Map<String, dynamic>? ?? {})))
-                .toList() ??
-            [],
-        playersWithFoul: (map['playersWithFoul'] as List<dynamic>?)
-                ?.map((map) =>
-                    PlayerModel.fromMap((map as Map<String, dynamic>? ?? {})))
-                .toList() ??
-            [],
+        removedPlayers: PlayerModel.fromListMap(map['removedPlayers']),
+        mutedPlayers: PlayerModel.fromListMap(map['mutedPlayers']),
+        playersWithFoul: PlayerModel.fromListMap(map['playersWithFoul']),
         currentPhase: PhaseType.values.firstWhereOrNull(
                 (phase) => map['currentPhase'] == phase.name) ??
             PhaseType.none,

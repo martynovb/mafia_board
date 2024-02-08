@@ -41,7 +41,7 @@ class ClubMemberModel {
 
   static ClubMemberModel fromMap(Map<String, dynamic> map) => ClubMemberModel(
         id: map['id'],
-        user: UserModel.fromMap((['user'] as Map<String, dynamic>?) ?? {}),
+        user: UserModel.fromMap(map['user']  ?? {}),
         clubId: map['clubId'],
       );
 }

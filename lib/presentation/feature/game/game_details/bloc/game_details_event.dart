@@ -1,7 +1,7 @@
 abstract class GameDetailsEvent {}
 
 class GetGameDetailsEvent extends GameDetailsEvent {
-  final String gameId;
+  final String? gameId;
 
   GetGameDetailsEvent(this.gameId);
 }

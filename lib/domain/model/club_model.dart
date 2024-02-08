@@ -1,6 +1,7 @@
 import 'package:mafia_board/data/entity/club_entity.dart';
 import 'package:mafia_board/domain/model/club_member_model.dart';
 import 'package:mafia_board/domain/model/game_model.dart';
+import 'package:mafia_board/domain/model/player_model.dart';
 
 class ClubModel {
   final String id;
@@ -69,16 +70,16 @@ class ClubModel {
       id: map['id'] ?? '',
       title: map['title'] ?? '',
       description: map['description'] ?? '',
-      members: (map['members'] as List)
-          .map((v) => ClubMemberModel.fromMap(v))
-          .toList(),
-      admins: (map['admins'] as List)
-          .map((v) => ClubMemberModel.fromMap(v))
-          .toList(),
+      members: map['members']
+          ?.map((v) => ClubMemberModel.fromMap(v))
+          ?.toList() ?? <ClubMemberModel>[],
+      admins: map['admins']
+          ?.map((v) => ClubMemberModel.fromMap(v))
+          ?.toList() ?? <ClubMemberModel>[],
       isAdmin: map['isAdmin'] ?? false,
-      games: (map['games'] as List)
-          .map((v) => GameModel.fromMap(v))
-          .toList(),
+      games: map['games']
+          ?.map((v) => GameModel.fromMap(v))
+          ?.toList() ?? <GameModel>[],
       civilWinRate: map['civilWinRate'] ?? 0.0,
       mafWinRate: map['mafWinRate'] ?? 0.0,
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] ?? 0),

@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:mafia_board/data/constants/constants.dart';
 import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/domain/model/game_phase/game_phase_model.dart';
@@ -102,5 +103,25 @@ class NightPhaseModel extends GamePhaseModel {
           'checkedPlayer': checkedPlayer?.toMap(),
         },
       );
+  }
+
+  static NightPhaseModel fromMap({
+    required Map<String, dynamic> map,
+  }) {
+    return NightPhaseModel(
+      id: map['id'] ?? '',
+      tempId: map['tempId'] ?? '',
+      currentDay: map['currentDay'] ?? -1,
+      gameId: map['tempId'] ?? '',
+      status:
+          PhaseStatus.values.firstWhereOrNull((v) => v.name == map['status']) ??
+              PhaseStatus.none,
+      role: Role.values.firstWhereOrNull((v) => v.name == map['role']) ??
+          Role.none,
+      killedPlayer: PlayerModel.fromMap(map['killedPlayer']),
+      checkedPlayer: PlayerModel.fromMap(map['checkedPlayer']),
+      playersForWakeUp: PlayerModel.fromListMap(map['playersForWakeUp']),
+      dayInfoId: map['dayInfoId'] ?? '',
+    )..updatedAt = DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] ?? 0);
   }
 }

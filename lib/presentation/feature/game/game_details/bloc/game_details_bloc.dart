@@ -18,7 +18,9 @@ class GameDetailsBloc extends HydratedBloc<GameDetailsEvent, GameDetailsState> {
     GetGameDetailsEvent event,
     emit,
   ) async {
-    if (event.gameId.isEmpty) {
+    if (event.gameId == null ||
+        event.gameId!.isEmpty ||
+        event.gameId == state.gameId) {
       return;
     }
     emit(state.copyWith(status: StateStatus.inProgress));
@@ -44,14 +46,29 @@ class GameDetailsBloc extends HydratedBloc<GameDetailsEvent, GameDetailsState> {
 
   @override
   GameDetailsState? fromJson(Map<String, dynamic> json) {
-    return GameDetailsState(
-      status: StateStatus.inProgress,
-      gameId: json['gameId'],
-    );
+    try {
+      return GameDetailsState.fromMap(json);
+    } catch (ex) {
+      return GameDetailsState(
+        status: StateStatus.error,
+        errorMessage: ex.toString(),
+      );
+    }
   }
 
   @override
   Map<String, dynamic>? toJson(GameDetailsState state) {
-    return {'gameId': state.gameId};
+    try {
+      return state.toMap();
+    } catch (ex) {
+      return {
+        'status': StateStatus.inProgress,
+      };
+    }
+  }
+
+  @override
+  Future<void> clear() {
+    return super.clear();
   }
 }

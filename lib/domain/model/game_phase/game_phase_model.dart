@@ -1,4 +1,7 @@
 import 'package:mafia_board/data/constants/firestore_keys.dart';
+import 'package:mafia_board/domain/model/game_phase/night_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/vote_phase_model.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:uuid/uuid.dart';
@@ -36,7 +39,24 @@ abstract class GamePhaseModel {
         FirestoreKeys.gamePhaseTypeFieldKey: phaseType.name,
       };
 
+  static List<GamePhaseModel> fromListMap(dynamic data) {
+    if (data == null || data.isEmpty) {
+      return [];
+    }
+    return (data as List<dynamic>).map((v) {
+      if (v['phaseType'] == PhaseType.night.name) {
+        return NightPhaseModel.fromMap(map: v);
+      } else if (v['phaseType'] == PhaseType.speak.name) {
+        return SpeakPhaseModel.fromMap(map: v);
+      } else if (v['phaseType'] == PhaseType.vote.name) {
+        return VotePhaseModel.fromMap(map: v);
+      }
+      throw ArgumentError('Unexpected game phase type: $v');
+    }).toList();
+  }
+
   Map<String, dynamic> toMap() => {
+        'id': id,
         'tempId': tempId,
         'dayInfoId': dayInfoId,
         'gameId': gameId,

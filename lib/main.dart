@@ -9,7 +9,6 @@ void main() async {
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory: HydratedStorage.webStorageDirectory,
   );
-
   await Firebase.initializeApp(
       options: const FirebaseOptions(
     apiKey: 'AIzaSyBxLwoighrVb1r31lfZVJKhif0j8EoRo4k',

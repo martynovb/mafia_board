@@ -1,4 +1,5 @@
 import 'package:class_to_string/class_to_string.dart';
+import 'package:collection/collection.dart';
 import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/domain/model/game_phase/game_phase_model.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
@@ -107,5 +108,26 @@ class VotePhaseModel extends GamePhaseModel {
           'shouldKickAllPlayers': shouldKickAllPlayers,
         },
       );
+  }
+
+  static VotePhaseModel fromMap({
+    required Map<String, dynamic> map,
+  }) {
+    return VotePhaseModel(
+      id: map['id'] ?? '',
+      tempId: map['tempId'] ?? '',
+      currentDay: map['currentDay'] ?? -1,
+      gameId: map['tempId'] ?? '',
+      dayInfoId: map['dayInfoId'] ?? '',
+      status:
+          PhaseStatus.values.firstWhereOrNull((v) => v.name == map['status']) ??
+              PhaseStatus.none,
+      playerOnVote: PlayerModel.fromMap(map['playerOnVote']),
+      whoPutOnVote: PlayerModel.fromMap(map['whoPutOnVote']),
+      isGunfight: map['isGunfight'] ?? false,
+      shouldKickAllPlayers: map['shouldKickAllPlayers'] ?? false,
+      votedPlayers: PlayerModel.fromListMap(map['votedPlayers']).toSet(),
+      playersToKick: PlayerModel.fromListMap(map['playersToKick']),
+    )..updatedAt = DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] ?? 0);
   }
 }

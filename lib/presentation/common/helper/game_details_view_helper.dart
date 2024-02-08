@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:mafia_board/domain/model/game_phase/game_phase_model.dart';
 import 'package:mafia_board/domain/model/game_phase/night_phase_model.dart';
 import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
@@ -69,7 +70,10 @@ class GameDetailsViewHelper {
       }
     }
 
-    return playerActions;
+    return playerActions.sorted(
+      (a, b) => a.updatedAt.millisecondsSinceEpoch
+          .compareTo(b.updatedAt.millisecondsSinceEpoch),
+    );
   }
 
   static bool _isPlayerVoted(PlayerModel player, VotePhaseModel votePhase) {

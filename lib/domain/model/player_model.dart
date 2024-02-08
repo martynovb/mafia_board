@@ -79,29 +79,40 @@ class PlayerModel {
         bonus = entity?.bonus ?? 0.0,
         isFirstKilled = entity?.isFirstKilled ?? false;
 
-  static PlayerModel fromMap(Map<String, dynamic> map) => PlayerModel(
-        id: map['id'],
-        tempId: map['tempId'],
-        gameId: map['gameId'],
-        clubMember: ClubMemberModel.fromMap(
-          (map['clubMember'] as Map<String, dynamic>?) ?? {},
-        ),
-        fouls: map['fouls'] ?? 0,
-        isDisqualified: map['isDisqualified'] ?? false,
-        isKilled: map['isKilled'] ?? false,
-        isMuted: map['isMuted'] ?? false,
-        isKicked: map['isKicked'] ?? false,
-        isPPK: map['isPPK'] ?? false,
-        seatNumber: map['seatNumber'] ?? -1,
-        bestMove: map['bestMove'] ?? 0.0,
-        compensation: map['compensation'] ?? 0.0,
-        gamePoints: map['gamePoints'] ?? 0.0,
-        bonus: map['bonus'] ?? 0.0,
-        isFirstKilled: map['isFirstKilled'] ?? false,
-        role:
-            Role.values.firstWhereOrNull((role) => map['role'] == role.name) ??
-                Role.none,
-      );
+  static List<PlayerModel> fromListMap(dynamic data) {
+    if (data == null || data.isEmpty) {
+      return [];
+    }
+    return (data as List<dynamic>)
+        .map((map) => PlayerModel.fromMap(map))
+        .toList();
+  }
+
+  static PlayerModel fromMap(Map<String, dynamic>? map) => map == null
+      ? PlayerModel.empty(-1)
+      : PlayerModel(
+          id: map['id'] ?? '',
+          tempId: map['tempId'] ?? '',
+          gameId: map['gameId'] ?? '',
+          clubMember: ClubMemberModel.fromMap(
+            map['clubMember'] ?? {},
+          ),
+          fouls: map['fouls'] ?? 0,
+          isDisqualified: map['isDisqualified'] ?? false,
+          isKilled: map['isKilled'] ?? false,
+          isMuted: map['isMuted'] ?? false,
+          isKicked: map['isKicked'] ?? false,
+          isPPK: map['isPPK'] ?? false,
+          seatNumber: map['seatNumber'] ?? -1,
+          bestMove: map['bestMove'] ?? 0.0,
+          compensation: map['compensation'] ?? 0.0,
+          gamePoints: map['gamePoints'] ?? 0.0,
+          bonus: map['bonus'] ?? 0.0,
+          isFirstKilled: map['isFirstKilled'] ?? false,
+          role: Role.values
+                  .firstWhereOrNull((role) => map['role'] == role.name) ??
+              Role.none,
+        );
 
   Map<String, dynamic> toMap() => {
         'id': id,
