@@ -100,7 +100,7 @@ class GameResultsManager {
       );
 
   Future<double> _calculateBestMove(
-    RulesModel rulesModel,
+    RulesModel rules,
     List<PlayerModel> bestMove,
   ) async {
     if (bestMove.isEmpty) {
@@ -118,9 +118,9 @@ class GameResultsManager {
         .length;
 
     if (count == 2) {
-      return rulesModel.twoBestMove;
+      return rules.bestMoveWin0;
     } else if (count >= 3) {
-      return rulesModel.threeBestMove;
+      return rules.threeBestMove;
     }
     return 0;
   }
@@ -180,7 +180,7 @@ class GameResultsManager {
         ?.killedPlayer;
   }
 
-  double _calculateCompensation() {
+  double _calculateCompensation(PlayerModel firstKilledPlayer) {
     return 0;
   }
 }

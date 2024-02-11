@@ -1,4 +1,5 @@
 import 'package:mafia_board/domain/model/club_model.dart';
+import 'package:mafia_board/presentation/feature/game/rules/rule_item_view_model.dart';
 
 abstract class RulesEvent {}
 
@@ -10,31 +11,13 @@ class LoadRulesEvent extends RulesEvent {
 
 class CreateOrUpdateRulesEvent extends RulesEvent {
   final String? id;
-  final ClubModel club;
+  final String? clubId;
 
-  final double civilWin;
-  final double mafWin;
-  final double civilLoss;
-  final double mafLoss;
-  final double kickLoss;
-  final double defaultBonus;
-  final double ppkLoss;
-  final double twoBestMove;
-  final double threeBestMove;
-  final double defaultGameLoss;
+  final List<RuleItemViewModel>? settings;
 
   CreateOrUpdateRulesEvent({
     this.id,
-    required this.club,
-    required this.civilWin,
-    required this.mafWin,
-    required this.civilLoss,
-    required this.mafLoss,
-    required this.kickLoss,
-    required this.defaultBonus,
-    required this.ppkLoss,
-    required this.twoBestMove,
-    required this.threeBestMove,
-    required this.defaultGameLoss,
+    required this.clubId,
+    required this.settings,
   });
 }

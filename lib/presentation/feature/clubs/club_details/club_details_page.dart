@@ -116,18 +116,21 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
         const SizedBox(
           width: Dimensions.defaultSidePadding,
         ),
-        const VerticalDivider(
+        const Divider(
           color: Colors.white,
         ),
         const SizedBox(
           width: Dimensions.defaultSidePadding,
         ),
         Text(formatDuration(game.duration)),
-        const Spacer(),
-        _gameWinnerViewMapper(game.winnerType),
         const SizedBox(
           width: Dimensions.defaultSidePadding,
         ),
+        const Divider(
+          color: Colors.white,
+        ),
+        _gameWinnerViewMapper(game.winnerType, game.mafsLeft),
+        const Spacer(),
         IconButton(
           key: menuKey,
           onPressed: () async => _showMoreMenu(menuKey, game),
@@ -140,16 +143,22 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
     );
   }
 
-  Widget _gameWinnerViewMapper(WinnerType winnerType) {
+  Widget _gameWinnerViewMapper(WinnerType winnerType, int mafsLeft) {
     if (winnerType == WinnerType.civilian) {
       return Container(
         color: Colors.redAccent.withOpacity(0.1),
         child: Text(winnerType.name),
       );
     } else if (winnerType == WinnerType.mafia) {
-      return Container(
-        color: Colors.black,
-        child: Text(winnerType.name),
+      return Row(
+        children: [
+          Container(
+            color: Colors.black,
+            child: Text(winnerType.name),
+          ),
+          const SizedBox(width: Dimensions.defaultSidePadding),
+          Text('($mafsLeft in $mafsLeft)')
+        ],
       );
     } else {
       return Container(

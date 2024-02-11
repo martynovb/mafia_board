@@ -17,6 +17,7 @@ class GameModel {
   final DateTime createdAt;
   final Duration duration;
   final WinnerType winnerType;
+  final int mafsLeft;
 
   GameModel({
     required this.id,
@@ -28,6 +29,7 @@ class GameModel {
     required this.createdAt,
     required this.duration,
     required this.winnerType,
+    required this.mafsLeft,
   });
 
   GameModel.fromEntity(GameEntity? gameEntity, [DayInfoEntity? dayInfoEntity])
@@ -45,7 +47,8 @@ class GameModel {
           milliseconds: (gameEntity?.finishedInMills ?? 0) -
               (gameEntity?.startedInMills ?? 0),
         ),
-        winnerType = mapWinnerType(gameEntity?.winRole);
+        winnerType = mapWinnerType(gameEntity?.winRole),
+  mafsLeft = gameEntity?.mafsLeft ?? 0;
 
   static GameModel fromMap(Map<String, dynamic> map) {
     return GameModel(
@@ -65,6 +68,7 @@ class GameModel {
       finishedAt: DateTime.fromMillisecondsSinceEpoch(map['finishedAt'] ?? 0),
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] ?? 0),
       duration: Duration(seconds: map['duration'] ?? 0),
+      mafsLeft: map['mafsLeft'] ?? 0,
     );
   }
 
@@ -78,6 +82,7 @@ class GameModel {
         'createdAt': createdAt.millisecondsSinceEpoch,
         'duration': duration.inSeconds,
         'winnerType': winnerType.name,
+        'mafsLeft': mafsLeft,
       };
 
   @override

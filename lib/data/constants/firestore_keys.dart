@@ -79,15 +79,22 @@ class FirestoreKeys {
 
   /// RULES
 
-  static const rulesClubCivilWinFieldKey = 'civil_win';
-  static const rulesClubCivilLossFieldKey = 'civil_loss';
-  static const rulesClubMafWinFieldKey = 'maf_win';
-  static const rulesClubMafLossFieldKey = 'maf_loss';
-  static const rulesClubDisqualificationLossFieldKey = 'disqualification_loss';
-  static const rulesClubDefaultBonusFieldKey = 'default_bonus';
-  static const rulesClubPpkLossFieldKey = 'ppk_loss';
-  static const rulesClubDefaultGameLossFieldKey = 'default_game_loss';
-  static const rulesClubTwoBestMoveFieldKey = 'two_best_move';
-  static const rulesClubThreeBestMoveFieldKey = 'three_best_move';
+  static const civilWin = 'civilWin';
+  static const civilLoss = 'civilLoss';
+  static const mafWin = 'mafWin';
+  static const mafLoss = 'mafLoss';
+  static const disqualificationLoss = 'disqualificationLoss';
+  static const defaultBonus = 'defaultBonus';
+  static const ppkLoss = 'clubPpkLoss';
+  static const defGameLoss = 'defGameLoss';
+
+  static const bestMoveWin0 = 'bestMoveWin0';
+  static const bestMoveWin1 = 'bestMoveWin1';
+  static const bestMoveWin2 = 'bestMoveWin2';
+  static const bestMoveWin3 = 'bestMoveWin3';
+  static const bestMoveLoss0 = 'bestMoveLoss0';
+  static const bestMoveLoss1 = 'bestMoveLoss1';
+  static const bestMoveLoss2 = 'bestMoveLoss2';
+  static const bestMoveLoss3 = 'bestMoveLoss3';
 
 }

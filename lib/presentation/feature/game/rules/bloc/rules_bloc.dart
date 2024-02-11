@@ -3,8 +3,10 @@ import 'package:mafia_board/domain/model/rules_model.dart';
 import 'package:mafia_board/domain/usecase/create_rules_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_rules_usecase.dart';
 import 'package:mafia_board/domain/usecase/update_rules_usecase.dart';
+import 'package:mafia_board/presentation/common/base_bloc/base_state.dart';
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_event.dart';
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_state.dart';
+import 'package:mafia_board/presentation/feature/game/rules/rule_item_view_model.dart';
 
 class GameRulesBloc extends Bloc<RulesEvent, RulesState> {
   final GetRulesUseCase getRulesUseCase;
@@ -15,17 +17,30 @@ class GameRulesBloc extends Bloc<RulesEvent, RulesState> {
     required this.getRulesUseCase,
     required this.updateRulesUseCase,
     required this.createRulesUseCase,
-  }) : super(InitialRulesState()) {
+  }) : super(RulesState(status: StateStatus.inProgress)) {
     on<LoadRulesEvent>(_loadRulesEventHandler);
     on<CreateOrUpdateRulesEvent>(_updateRulesEventHandler);
   }
 
   void _loadRulesEventHandler(LoadRulesEvent event, emit) async {
+    emit(state.copyWith(status: StateStatus.inProgress));
     try {
       final rules = await getRulesUseCase.execute(params: event.club.id);
-      emit(LoadedRulesState(rules));
+      emit(
+        state.copyWith(
+          status: StateStatus.data,
+          clubId: event.club.id,
+          rulesId: rules.id,
+          settings: RuleItemViewModel.generateRuleItems(rules.settings),
+        ),
+      );
     } catch (e) {
-      emit(ErrorRulesState('Something went wrong'));
+      emit(
+        state.copyWith(
+          status: StateStatus.error,
+          errorMessage: 'Something went wrong',
+        ),
+      );
     }
   }
 
@@ -36,38 +51,33 @@ class GameRulesBloc extends Bloc<RulesEvent, RulesState> {
         await updateRulesUseCase.execute(
           params: RulesModel(
             clubId: event.club.id,
-            civilWin: event.civilWin,
-            mafWin: event.mafWin,
-            civilLoss: event.civilLoss,
-            mafLoss: event.mafLoss,
-            kickLoss: event.kickLoss,
-            defaultBonus: event.defaultBonus,
-            ppkLoss: event.ppkLoss,
-            twoBestMove: event.twoBestMove,
-            threeBestMove: event.threeBestMove,
-            defaultGameLoss: event.defaultGameLoss,
+            settings: Map.fromEntries(
+              event.settings.map(
+                (v) => v.toMapEntry(),
+              ),
+            ),
           ),
         );
       } else {
         await createRulesUseCase.execute(
           params: RulesModel(
             clubId: event.club.id,
-            civilWin: event.civilWin,
-            mafWin: event.mafWin,
-            civilLoss: event.civilLoss,
-            mafLoss: event.mafLoss,
-            kickLoss: event.kickLoss,
-            defaultBonus: event.defaultBonus,
-            ppkLoss: event.ppkLoss,
-            twoBestMove: event.twoBestMove,
-            threeBestMove: event.threeBestMove,
-            defaultGameLoss: event.defaultGameLoss,
+            settings: Map.fromEntries(
+              event.settings.map(
+                (v) => v.toMapEntry(),
+              ),
+            ),
           ),
         );
       }
-      emit(UpdateRulesSuccessState());
+      emit(state.copyWith(status: StateStatus.success));
     } catch (e) {
-      emit(ErrorRulesState('Something went wrong'));
+      emit(
+        state.copyWith(
+          status: StateStatus.error,
+          errorMessage: 'Something went wrong',
+        ),
+      );
     }
   }
 }

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/rules_model.dart';
+import 'package:mafia_board/presentation/common/base_bloc/base_state.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_event.dart';
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_state.dart';
+import 'package:mafia_board/presentation/feature/game/rules/rule_item_view_model.dart';
 import 'package:mafia_board/presentation/feature/widgets/input_text_field.dart';
 
 class RulesPage extends StatefulWidget {
@@ -31,6 +34,7 @@ class _RulesPageState extends State<RulesPage> {
   final defaultGameLossController = TextEditingController();
   final twoBestMoveController = TextEditingController();
   final threeBestMoveController = TextEditingController();
+  final compensationWhenFirstKilledController = TextEditingController();
   bool changesFlag = false;
 
   @override
@@ -55,20 +59,21 @@ class _RulesPageState extends State<RulesPage> {
         title: const Text('Club rules'),
         centerTitle: true,
         actions: [
-          TextButton(onPressed: () => _save(), child: const Text('Save'))
+          TextButton(
+              onPressed: () => _save(gameRulesBloc.state.settings),
+              child: const Text('Save'))
         ],
       ),
       body: BlocConsumer(
         listener: (context, RulesState state) {
-          if (state is UpdateRulesSuccessState) {
+          if (state.status == StateStatus.success) {
             Navigator.of(context).pop();
           }
         },
         bloc: gameRulesBloc,
         builder: (context, RulesState state) {
-          if (state is LoadedRulesState) {
-            rules = state.rules;
-            return _body(state.rules);
+          if (state.status == StateStatus.data) {
+            return _body(state.settings);
           }
           return const Center(child: CircularProgressIndicator());
         },
@@ -76,13 +81,15 @@ class _RulesPageState extends State<RulesPage> {
     );
   }
 
-  Widget _body(RulesModel? rules) {
-    rulesId = rules?.id;
+  Widget _body(List<RuleItemViewModel> settings) {
     return Padding(
         padding: const EdgeInsets.all(Dimensions.defaultSidePadding),
         child: Column(
           children: [
             //
+            const Text('Bes move:'),
+            Center(child: _bestMoveSettings()),
+            const Divider(),
             Row(
               children: [
                 const SizedBox(
@@ -92,12 +99,13 @@ class _RulesPageState extends State<RulesPage> {
                   width: Dimensions.sidePadding0_5x,
                 ),
                 SizedBox(
-                    width: Dimensions.inputTextRuleWidth,
-                    child: InputTextField(
-                      textInputType: TextInputType.number,
-                      controller: civilWinController,
-                      preText: rules?.civilWin.toString() ?? '',
-                    )),
+                  width: Dimensions.inputTextRuleWidth,
+                  child: InputTextField(
+                    textInputType: TextInputType.number,
+                    controller: settings[FirestoreKeys.civilWin].controller ?? TextEditingController(),
+                    preText: rules?.civilWin.toString() ?? '',
+                  ),
+                ),
               ],
             ),
             //
@@ -267,7 +275,7 @@ class _RulesPageState extends State<RulesPage> {
                   child: InputTextField(
                     textInputType: TextInputType.number,
                     controller: twoBestMoveController,
-                    preText: rules?.twoBestMove.toString() ?? '',
+                    preText: rules?.bestMoveWin0.toString() ?? '',
                   ),
                 ),
               ],
@@ -293,46 +301,171 @@ class _RulesPageState extends State<RulesPage> {
                 ),
               ],
             ),
+
+            const Divider(
+              height: Dimensions.defaultSidePadding,
+            ),
+            Row(
+              children: [
+                const SizedBox(
+                    width: Dimensions.inputTextHeight * 4,
+                    child: Text('Compensation when first killed and lose:')),
+                const SizedBox(
+                  width: Dimensions.sidePadding0_5x,
+                ),
+                SizedBox(
+                  width: Dimensions.inputTextRuleWidth,
+                  child: InputTextField(
+                    textInputType: TextInputType.number,
+                    controller: compensationWhenFirstKilledController,
+                    preText:
+                        rules?.compensationWhenFirstKilled.toString() ?? '',
+                  ),
+                ),
+              ],
+            ),
           ],
         ));
+  }
+
+  Widget _bestMoveSettings() {
+    return Column(
+      children: [
+        const Row(children: [
+          SizedBox(width: Dimensions.inputTextRuleWidth),
+          SizedBox(
+            width: Dimensions.sidePadding0_5x,
+          ),
+          SizedBox(
+            width: Dimensions.inputTextRuleWidth,
+            child: Center(child: Text('WIN')),
+          ),
+          SizedBox(
+            width: Dimensions.sidePadding0_5x,
+          ),
+          SizedBox(
+            width: Dimensions.inputTextRuleWidth,
+            child: Center(child: Text('LOSE')),
+          ),
+        ]),
+        const SizedBox(
+          height: Dimensions.sidePadding0_5x,
+        ),
+        Row(children: [
+          const SizedBox(
+            width: Dimensions.inputTextRuleWidth,
+            child: Center(child: Text('BM (0/3)')),
+          ),
+          const SizedBox(
+            width: Dimensions.sidePadding0_5x,
+          ),
+          SizedBox(
+              width: Dimensions.inputTextRuleWidth,
+              child: InputTextField(
+                textInputType: TextInputType.number,
+                controller: TextEditingController(),
+              )),
+          const SizedBox(
+            width: Dimensions.sidePadding0_5x,
+          ),
+          SizedBox(
+              width: Dimensions.inputTextRuleWidth,
+              child: InputTextField(
+                textInputType: TextInputType.number,
+                controller: TextEditingController(),
+              )),
+        ]),
+        const SizedBox(
+          height: Dimensions.sidePadding0_5x,
+        ),
+        Row(children: [
+          const SizedBox(
+            width: Dimensions.inputTextRuleWidth,
+            child: Center(child: Text('BM (1/3)')),
+          ),
+          const SizedBox(
+            width: Dimensions.sidePadding0_5x,
+          ),
+          SizedBox(
+              width: Dimensions.inputTextRuleWidth,
+              child: InputTextField(
+                textInputType: TextInputType.number,
+                controller: TextEditingController(),
+              )),
+          const SizedBox(
+            width: Dimensions.sidePadding0_5x,
+          ),
+          SizedBox(
+              width: Dimensions.inputTextRuleWidth,
+              child: InputTextField(
+                textInputType: TextInputType.number,
+                controller: TextEditingController(),
+              )),
+        ]),
+        const SizedBox(
+          height: Dimensions.sidePadding0_5x,
+        ),
+        Row(children: [
+          const SizedBox(
+            width: Dimensions.inputTextRuleWidth,
+            child: Center(child: Text('BM (2/3)')),
+          ),
+          const SizedBox(
+            width: Dimensions.sidePadding0_5x,
+          ),
+          SizedBox(
+              width: Dimensions.inputTextRuleWidth,
+              child: InputTextField(
+                textInputType: TextInputType.number,
+                controller: TextEditingController(),
+              )),
+          const SizedBox(
+            width: Dimensions.sidePadding0_5x,
+          ),
+          SizedBox(
+              width: Dimensions.inputTextRuleWidth,
+              child: InputTextField(
+                textInputType: TextInputType.number,
+                controller: TextEditingController(),
+              )),
+        ]),
+        const SizedBox(
+          height: Dimensions.sidePadding0_5x,
+        ),
+        Row(children: [
+          const SizedBox(
+            width: Dimensions.inputTextRuleWidth,
+            child: Center(child: Text('BM (3/3)')),
+          ),
+          const SizedBox(
+            width: Dimensions.sidePadding0_5x,
+          ),
+          SizedBox(
+              width: Dimensions.inputTextRuleWidth,
+              child: InputTextField(
+                textInputType: TextInputType.number,
+                controller: TextEditingController(),
+              )),
+          const SizedBox(
+            width: Dimensions.sidePadding0_5x,
+          ),
+          SizedBox(
+              width: Dimensions.inputTextRuleWidth,
+              child: InputTextField(
+                textInputType: TextInputType.number,
+                controller: TextEditingController(),
+              )),
+        ]),
+      ],
+    );
   }
 
   void _save() {
     gameRulesBloc.add(
       CreateOrUpdateRulesEvent(
-        id: rulesId,
-        club: club,
-        civilWin: double.tryParse(civilWinController.text.trim()) ??
-            rules?.civilWin ??
-            0.0,
-        mafWin: double.tryParse(mafWinController.text.trim()) ??
-            rules?.mafWin ??
-            0.0,
-        civilLoss: double.tryParse(civilLossController.text.trim()) ??
-            rules?.civilLoss ??
-            0.0,
-        mafLoss: double.tryParse(mafLossController.text.trim()) ??
-            rules?.mafLoss ??
-            0.0,
-        kickLoss: double.tryParse(kickLossController.text.trim()) ??
-            rules?.kickLoss ??
-            0.0,
-        defaultBonus: double.tryParse(defaultBonusController.text.trim()) ??
-            rules?.defaultBonus ??
-            0.0,
-        ppkLoss: double.tryParse(ppkLossController.text.trim()) ??
-            rules?.ppkLoss ??
-            0.0,
-        twoBestMove: double.tryParse(twoBestMoveController.text.trim()) ??
-            rules?.twoBestMove ??
-            0.0,
-        threeBestMove: double.tryParse(threeBestMoveController.text.trim()) ??
-            rules?.threeBestMove ??
-            0.0,
-        defaultGameLoss:
-            double.tryParse(defaultGameLossController.text.trim()) ??
-                rules?.defaultGameLoss ??
-                0.0,
+        id: gameRulesBloc.state.rulesId,
+        clubId: gameRulesBloc.state.clubId,
+        settings: gameRulesBloc.state.settings,
       ),
     );
   }
