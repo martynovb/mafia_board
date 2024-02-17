@@ -32,6 +32,15 @@ class GameModel {
     required this.mafsLeft,
   });
 
+  static List<GameModel> fromListMap(dynamic data) {
+    if (data == null || data.isEmpty) {
+      return [];
+    }
+    return (data as List<dynamic>)
+        .map((map) => GameModel.fromMap(map))
+        .toList();
+  }
+
   GameModel.fromEntity(GameEntity? gameEntity, [DayInfoEntity? dayInfoEntity])
       : id = gameEntity?.id ?? '',
         gameStatus = gameStatusMapper(gameEntity?.gameStatus),

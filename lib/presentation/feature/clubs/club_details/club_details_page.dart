@@ -8,6 +8,7 @@ import 'package:mafia_board/presentation/common/base_bloc/base_state.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_bloc.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_event.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_state.dart';
+import 'package:mafia_board/presentation/feature/clubs/rating_table/rating_table_widget.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:intl/intl.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
@@ -25,6 +26,7 @@ class ClubDetailsPage extends StatefulWidget {
 class _ClubDetailsPageState extends State<ClubDetailsPage> {
   late ClubsDetailsBloc clubDetailsBloc;
   static const String _deleteGameOption = 'delete_game';
+  final _ratingTableKey = GlobalKey();
 
   @override
   void initState() {
@@ -36,7 +38,7 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
   void didChangeDependencies() {
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    final club = args?['club'];
+    final club = args?['club'] ?? clubDetailsBloc.state.club;
     clubDetailsBloc.add(GetClubDetailsEvent(club));
     super.didChangeDependencies();
   }
@@ -54,7 +56,20 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
             body: LayoutBuilder(
               builder: (context, _) {
                 if (state.status == StateStatus.data) {
-                  return _gamesList(state.allGames);
+                  return Column(
+                    children: [
+                      _clubDetails(state.club!),
+                      const SizedBox(
+                        height: Dimensions.defaultSidePadding,
+                      ),
+                      RatingTableWidget(
+                        key: _ratingTableKey,
+                        clubId: state.club?.id ?? '',
+                        allGames: state.allGames,
+                      ),
+                      _gamesList(state.allGames),
+                    ],
+                  );
                 } else if (state.status == StateStatus.error) {
                   return Center(
                     child: InfoField(
@@ -72,6 +87,21 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
     );
   }
 
+  Widget _clubDetails(ClubModel club) {
+    return Padding(
+      padding: const EdgeInsets.all(Dimensions.defaultSidePadding),
+      child: Column(
+        children: [
+          Text(club.title),
+          const SizedBox(height: Dimensions.defaultSidePadding),
+          Text(club.title),
+          const SizedBox(height: Dimensions.defaultSidePadding),
+          const Divider(),
+        ],
+      ),
+    );
+  }
+
   Widget _gamesList(List<GameModel> games) {
     if (games.isEmpty) {
       return const Center(
@@ -79,6 +109,7 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
       );
     }
     return ListView.separated(
+      shrinkWrap: true,
       separatorBuilder: (context, index) => const Divider(),
       itemBuilder: (context, index) => Container(
         color: index % 2 == 0 ? Colors.transparent : Colors.transparent,

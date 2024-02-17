@@ -29,8 +29,8 @@ class PlayersRepoImpl extends PlayersRepo {
 
   @override
   void setUser(int seatNumber, ClubMemberModel clubMember) {
-    final userIndexIfAlreadySet =
-        _players.indexWhere((player) => player.clubMember?.user.id == clubMember.user.id);
+    final userIndexIfAlreadySet = _players.indexWhere(
+        (player) => player.clubMember?.user.id == clubMember.user.id);
     if (userIndexIfAlreadySet != -1) {
       _players[userIndexIfAlreadySet] =
           PlayerModel.empty(_players[userIndexIfAlreadySet].seatNumber);
@@ -203,7 +203,30 @@ class PlayersRepoImpl extends PlayersRepo {
         .map(
           (doc) => PlayerEntity.fromFirestoreMap(
             id: doc.id,
-            clubMember: members.firstWhereOrNull((member) => member.id == doc.data()[FirestoreKeys.clubMemberIdFieldKey]),
+            clubMember: members.firstWhereOrNull((member) =>
+                member.id == doc.data()[FirestoreKeys.clubMemberIdFieldKey]),
+            data: doc.data(),
+          ),
+        )
+        .toList();
+
+    return players;
+  }
+
+  @override
+  Future<List<PlayerEntity>> fetchAllPlayersByMemberId({
+    required String memberId,
+  }) async {
+
+    final playerSnapshot = await firestore
+        .collection(FirestoreKeys.playersCollectionKey)
+        .where(FirestoreKeys.clubMemberIdFieldKey, isEqualTo: memberId)
+        .get();
+
+    final players = playerSnapshot.docs
+        .map(
+          (doc) => PlayerEntity.fromFirestoreMap(
+            id: doc.id,
             data: doc.data(),
           ),
         )

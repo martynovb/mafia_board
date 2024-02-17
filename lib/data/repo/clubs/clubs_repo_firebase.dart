@@ -29,7 +29,7 @@ class ClubsRepoFirebase extends ClubsRepo {
 
     final clubIds = clubsQuerySnapshot.docs.map((doc) => doc.id).toList();
 
-    if(clubIds.isEmpty){
+    if (clubIds.isEmpty) {
       return [];
     }
 
@@ -198,8 +198,36 @@ class ClubsRepoFirebase extends ClubsRepo {
 
   @override
   Future<List<ClubMemberEntity>> getExistedClubMembers(
-      {required String clubId}) {
-    // TODO: implement getExistedClubMembers
-    throw UnimplementedError();
+      {required String clubId}) async {
+    var membersDoc = await firestore
+        .collection(FirestoreKeys.clubMembersCollectionKey)
+        .where(FirestoreKeys.clubIdFieldKey, isEqualTo: clubId)
+        .get();
+
+    final userIds = membersDoc.docs
+        .map((doc) => doc.data()[FirestoreKeys.clubMemberUserIdFieldKey])
+        .toList();
+
+    final usersSnapshot = await firestore
+        .collection(FirestoreKeys.usersCollectionKey)
+        .where(FieldPath.documentId, whereIn: userIds)
+        .get();
+
+    final users = usersSnapshot.docs
+        .map((doc) => UserEntity.fromFirestoreMap(id: doc.id, data: doc.data()))
+        .toList();
+
+    return membersDoc.docs
+        .map(
+          (doc) => ClubMemberEntity.fromFirestoreMap(
+            id: doc.id,
+            data: doc.data(),
+            user: users.firstWhereOrNull(
+              (user) =>
+                  user.id == doc.data()[FirestoreKeys.clubMemberUserIdFieldKey],
+            ),
+          ),
+        )
+        .toList();
   }
 }

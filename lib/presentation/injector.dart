@@ -44,6 +44,7 @@ import 'package:mafia_board/domain/usecase/delete_game_usecase.dart';
 import 'package:mafia_board/domain/usecase/fetch_game_details_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_all_games_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_all_users_usecase.dart';
+import 'package:mafia_board/domain/usecase/get_club_rating_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_user_data_usecase.dart';
 import 'package:mafia_board/domain/usecase/save_game_usecase.dart';
 import 'package:mafia_board/domain/validator/player_validator.dart';
@@ -65,6 +66,7 @@ import 'package:mafia_board/presentation/feature/auth/bloc/auth_bloc.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_bloc.dart';
 import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_bloc.dart';
 import 'package:mafia_board/presentation/feature/clubs/create_club/bloc/create_club_bloc.dart';
+import 'package:mafia_board/presentation/feature/clubs/rating_table/bloc/rating_table_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_details/bloc/game_details_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_result/bloc/game_results_bloc.dart';
@@ -217,6 +219,11 @@ class Injector {
       gameRepo: _getIt.get(),
       playersRepo: _getIt.get(),
       gamePhaseRepo: _getIt.get(),
+    ));
+
+    _getIt.registerSingleton(GetClubRatingUseCase(
+      clubsRepo: _getIt.get(),
+      playersRepo: _getIt.get(),
     ));
 
     _getIt.registerSingleton(
@@ -426,5 +433,6 @@ class Injector {
     _getIt.registerSingleton(CreateClubBloc(createClubUseCase: _getIt.get()));
     _getIt.registerSingleton(UserListBloc(getAllUsersUsecase: _getIt.get()));
     _getIt.registerSingleton(GameDetailsBloc(fetchGameDetailsUseCase: _getIt.get()));
+    _getIt.registerSingleton(RatingTableBloc(getClubRatingUseCase: _getIt.get()));
   }
 }

@@ -84,6 +84,7 @@ class ClubsDetailsBloc extends HydratedBloc<ClubsDetailsEvent, ClubState> {
 
   @override
   Map<String, dynamic>? toJson(ClubState state) {
-    return state.toMap();
+    return state.toMap()
+    ;
   }
 }

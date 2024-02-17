@@ -63,7 +63,9 @@ class PlayerModel {
         isFirstKilled = false;
 
   PlayerModel.fromEntity(PlayerEntity? entity)
-      : tempId = entity?.tempId ?? '',
+      : id = entity?.id,
+        gameId = entity?.gameId ?? '',
+        tempId = entity?.tempId ?? '',
         clubMember = ClubMemberModel.fromEntity(entity?.clubMember),
         seatNumber = entity?.seatNumber ?? -1,
         role = roleMapper(entity?.role),

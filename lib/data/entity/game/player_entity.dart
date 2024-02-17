@@ -84,7 +84,7 @@ class PlayerEntity {
 
   PlayerEntity.fromFirestoreMap({
     required this.id,
-    required this.clubMember,
+    this.clubMember,
     required Map<String, dynamic> data,
   })  : tempId = data[FirestoreKeys.tempIdFieldKey],
         gameId = data[FirestoreKeys.gameIdFieldKey],

@@ -45,9 +45,7 @@ class ClubState extends BaseState {
               StateStatus.none,
       errorMessage: map['errorMessage'] ?? '',
       club: ClubModel.fromMap(map['club'] ?? {}),
-      allGames: map['allGames']
-          ?.map((v) => GameModel.fromMap(v))
-          ?.toList() ?? <GameModel>[],
+      allGames: GameModel.fromListMap(map['allGames'])
     );
   }
 }

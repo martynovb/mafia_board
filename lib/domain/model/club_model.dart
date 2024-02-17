@@ -70,16 +70,10 @@ class ClubModel {
       id: map['id'] ?? '',
       title: map['title'] ?? '',
       description: map['description'] ?? '',
-      members: map['members']
-          ?.map((v) => ClubMemberModel.fromMap(v))
-          ?.toList() ?? <ClubMemberModel>[],
-      admins: map['admins']
-          ?.map((v) => ClubMemberModel.fromMap(v))
-          ?.toList() ?? <ClubMemberModel>[],
+      members: ClubMemberModel.fromListMap(map['members']),
+      admins:ClubMemberModel.fromListMap( map['admins']),
       isAdmin: map['isAdmin'] ?? false,
-      games: map['games']
-          ?.map((v) => GameModel.fromMap(v))
-          ?.toList() ?? <GameModel>[],
+      games: GameModel.fromListMap(map['games']),
       civilWinRate: map['civilWinRate'] ?? 0.0,
       mafWinRate: map['mafWinRate'] ?? 0.0,
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] ?? 0),

@@ -23,4 +23,4 @@ class BaseState {
       };
 }
 
-enum StateStatus { inProgress, data, error, success, none }
+enum StateStatus { inProgress, data, error, success, none, initial }

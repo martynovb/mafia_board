@@ -14,6 +14,15 @@ class ClubMemberModel {
     this.winRateByRoleTypeMap,
   });
 
+  static List<ClubMemberModel> fromListMap(dynamic data) {
+    if (data == null || data.isEmpty) {
+      return [];
+    }
+    return (data as List<dynamic>)
+        .map((map) => ClubMemberModel.fromMap(map))
+        .toList();
+  }
+
   ClubMemberModel.fromEntity(ClubMemberEntity? entity)
       : id = entity?.id,
         user = UserModel.fromEntity(entity?.user),

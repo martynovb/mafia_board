@@ -40,4 +40,6 @@ abstract class PlayersRepo {
   Future<void> deleteAllPlayersByGameId({required String gameId});
 
   Future<List<PlayerEntity>> fetchAllPlayersByGameId({required String gameId});
+
+  Future<List<PlayerEntity>> fetchAllPlayersByMemberId({required String memberId});
 }
