@@ -27,9 +27,9 @@ class RulesEntity {
       id: id,
       clubId: json[FirestoreKeys.clubIdFieldKey],
       settings: firestoreMap.map(
-        (key, value) => MapEntry(
+        (key, value) => MapEntry<String, double>(
           key,
-          double.tryParse(value) ?? 0.0,
+          value ?? 0.0,
         ),
       ),
     );

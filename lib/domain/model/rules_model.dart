@@ -14,6 +14,10 @@ class RulesModel {
     required this.settings,
   });
 
+  double getSetting(String key) {
+    return settings[key] ?? 0.0;
+  }
+
   RulesModel.empty()
       : id = null,
         clubId = '',

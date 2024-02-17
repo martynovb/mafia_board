@@ -111,7 +111,7 @@ class _GamePageState extends State<GamePage>
               onPressed: () => Navigator.pushNamed(
                     context,
                     AppRouter.gameRulesPage,
-                    arguments: {'club': gameBloc.state.club},
+                    arguments: {'clubId': gameBloc.state.club?.id},
                   ),
               icon: const Icon(Icons.settings))
         ],

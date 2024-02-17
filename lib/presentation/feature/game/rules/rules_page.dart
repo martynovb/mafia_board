@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -21,21 +22,6 @@ class RulesPage extends StatefulWidget {
 
 class _RulesPageState extends State<RulesPage> {
   late GameRulesBloc gameRulesBloc;
-  late ClubModel club;
-  String? rulesId;
-  RulesModel? rules;
-  final civilWinController = TextEditingController();
-  final mafWinController = TextEditingController();
-  final civilLossController = TextEditingController();
-  final mafLossController = TextEditingController();
-  final kickLossController = TextEditingController();
-  final defaultBonusController = TextEditingController();
-  final ppkLossController = TextEditingController();
-  final defaultGameLossController = TextEditingController();
-  final twoBestMoveController = TextEditingController();
-  final threeBestMoveController = TextEditingController();
-  final compensationWhenFirstKilledController = TextEditingController();
-  bool changesFlag = false;
 
   @override
   void initState() {
@@ -47,8 +33,8 @@ class _RulesPageState extends State<RulesPage> {
   void didChangeDependencies() {
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    club = args?['club'] ?? ClubModel.empty();
-    gameRulesBloc.add(LoadRulesEvent(club));
+    final String? clubId = args?['clubId'] ?? gameRulesBloc.state.clubId;
+    gameRulesBloc.add(LoadRulesEvent(clubId));
     super.didChangeDependencies();
   }
 
@@ -59,9 +45,7 @@ class _RulesPageState extends State<RulesPage> {
         title: const Text('Club rules'),
         centerTitle: true,
         actions: [
-          TextButton(
-              onPressed: () => _save(gameRulesBloc.state.settings),
-              child: const Text('Save'))
+          TextButton(onPressed: () => _save(), child: const Text('Save'))
         ],
       ),
       body: BlocConsumer(
@@ -73,7 +57,7 @@ class _RulesPageState extends State<RulesPage> {
         bloc: gameRulesBloc,
         builder: (context, RulesState state) {
           if (state.status == StateStatus.data) {
-            return _body(state.settings);
+            return _body(state.settings ?? []);
           }
           return const Center(child: CircularProgressIndicator());
         },
@@ -86,249 +70,100 @@ class _RulesPageState extends State<RulesPage> {
         padding: const EdgeInsets.all(Dimensions.defaultSidePadding),
         child: Column(
           children: [
-            //
             const Text('Bes move:'),
-            Center(child: _bestMoveSettings()),
-            const Divider(),
-            Row(
-              children: [
-                const SizedBox(
-                    width: Dimensions.inputTextHeight * 2,
-                    child: Text('Civilian win:')),
-                const SizedBox(
-                  width: Dimensions.sidePadding0_5x,
-                ),
-                SizedBox(
-                  width: Dimensions.inputTextRuleWidth,
-                  child: InputTextField(
-                    textInputType: TextInputType.number,
-                    controller: settings[FirestoreKeys.civilWin].controller ?? TextEditingController(),
-                    preText: rules?.civilWin.toString() ?? '',
-                  ),
-                ),
-              ],
+            Center(child: _bestMoveSettings(settings)),
+            const SizedBox(height: Dimensions.defaultSidePadding),
+            const Divider(height: Dimensions.defaultSidePadding),
+            const Text('Civilian:'),
+            const SizedBox(height: Dimensions.defaultSidePadding),
+            _getInputSettingsFieldWithLabel(
+              settings: settings,
+              key: FirestoreKeys.civilWin,
+              label: 'Civilian win',
             ),
-            //
-            const Divider(
-              height: Dimensions.defaultSidePadding,
+            const SizedBox(height: Dimensions.defaultSidePadding),
+            _getInputSettingsFieldWithLabel(
+              settings: settings,
+              key: FirestoreKeys.civilLoss,
+              label: 'Civilian loss',
             ),
-            Row(
-              children: [
-                const SizedBox(
-                  width: Dimensions.inputTextHeight * 2,
-                  child: Text('Mafia win:'),
-                ),
-                const SizedBox(
-                  width: Dimensions.sidePadding0_5x,
-                ),
-                SizedBox(
-                    width: Dimensions.inputTextRuleWidth,
-                    child: InputTextField(
-                      textInputType: TextInputType.number,
-                      controller: mafWinController,
-                      preText: rules?.mafWin.toString() ?? '',
-                    )),
-              ],
+            const SizedBox(height: Dimensions.defaultSidePadding),
+            const Divider(height: Dimensions.defaultSidePadding),
+            const Text('Mafia:'),
+            const SizedBox(height: Dimensions.defaultSidePadding),
+            _getInputSettingsFieldWithLabel(
+              settings: settings,
+              key: FirestoreKeys.mafWin,
+              label: 'Mafia win',
             ),
-            //
-            const Divider(
-              height: Dimensions.defaultSidePadding,
+            const SizedBox(height: Dimensions.defaultSidePadding),
+            _getInputSettingsFieldWithLabel(
+              settings: settings,
+              key: FirestoreKeys.mafLoss,
+              label: 'Mafia loss',
             ),
-            Row(
-              children: [
-                const SizedBox(
-                    width: Dimensions.inputTextHeight * 2,
-                    child: Text('Civilian loss:')),
-                const SizedBox(
-                  width: Dimensions.sidePadding0_5x,
-                ),
-                SizedBox(
-                  width: Dimensions.inputTextRuleWidth,
-                  child: InputTextField(
-                    textInputType: TextInputType.number,
-                    controller: civilLossController,
-                    preText: rules?.civilLoss.toString() ?? '',
-                  ),
-                ),
-              ],
+            const SizedBox(height: Dimensions.defaultSidePadding),
+            const Divider(height: Dimensions.defaultSidePadding),
+            const Text('Violations:'),
+            const SizedBox(height: Dimensions.defaultSidePadding),
+            _getInputSettingsFieldWithLabel(
+              settings: settings,
+              key: FirestoreKeys.disqualificationLoss,
+              label: 'Kick loss',
             ),
-            //
-            const Divider(
-              height: Dimensions.defaultSidePadding,
+            const SizedBox(height: Dimensions.defaultSidePadding),
+            _getInputSettingsFieldWithLabel(
+              settings: settings,
+              key: FirestoreKeys.ppkLoss,
+              label: 'PPK loss',
             ),
-            Row(
-              children: [
-                const SizedBox(
-                    width: Dimensions.inputTextHeight * 2,
-                    child: Text('Mafia loss:')),
-                const SizedBox(
-                  width: Dimensions.sidePadding0_5x,
-                ),
-                SizedBox(
-                    width: Dimensions.inputTextRuleWidth,
-                    child: InputTextField(
-                      textInputType: TextInputType.number,
-                      controller: mafLossController,
-                      preText: rules?.mafLoss.toString() ?? '',
-                    )),
-              ],
-            ),
-            //
-            const Divider(
-              height: Dimensions.defaultSidePadding,
-            ),
-            Row(
-              children: [
-                const SizedBox(
-                    width: Dimensions.inputTextHeight * 2,
-                    child: Text('Disqualification loss:')),
-                const SizedBox(
-                  width: Dimensions.sidePadding0_5x,
-                ),
-                SizedBox(
-                    width: Dimensions.inputTextRuleWidth,
-                    child: InputTextField(
-                      textInputType: TextInputType.number,
-                      controller: kickLossController,
-                      preText: rules?.kickLoss.toString() ?? '',
-                    )),
-              ],
-            ),
-            //
-            const Divider(
-              height: Dimensions.defaultSidePadding,
-            ),
-            Row(
-              children: [
-                const SizedBox(
-                    width: Dimensions.inputTextHeight * 2,
-                    child: Text('Default bonus:')),
-                const SizedBox(
-                  width: Dimensions.sidePadding0_5x,
-                ),
-                SizedBox(
-                    width: Dimensions.inputTextRuleWidth,
-                    child: InputTextField(
-                      textInputType: TextInputType.number,
-                      controller: defaultBonusController,
-                      preText: rules?.defaultBonus.toString() ?? '',
-                    )),
-              ],
-            ),
-            //
-            const Divider(
-              height: Dimensions.defaultSidePadding,
-            ),
-            Row(
-              children: [
-                const SizedBox(
-                    width: Dimensions.inputTextHeight * 2,
-                    child: Text('PPK loss:')),
-                const SizedBox(
-                  width: Dimensions.sidePadding0_5x,
-                ),
-                SizedBox(
-                  width: Dimensions.inputTextRuleWidth,
-                  child: InputTextField(
-                    textInputType: TextInputType.number,
-                    controller: ppkLossController,
-                    preText: rules?.ppkLoss.toString() ?? '',
-                  ),
-                ),
-              ],
-            ),
-            //
-            const Divider(
-              height: Dimensions.defaultSidePadding,
-            ),
-            Row(
-              children: [
-                const SizedBox(
-                    width: Dimensions.inputTextHeight * 2,
-                    child: Text('Default game loss:')),
-                const SizedBox(
-                  width: Dimensions.sidePadding0_5x,
-                ),
-                SizedBox(
-                  width: Dimensions.inputTextRuleWidth,
-                  child: InputTextField(
-                    textInputType: TextInputType.number,
-                    controller: defaultGameLossController,
-                    preText: rules?.defaultGameLoss.toString() ?? '',
-                  ),
-                ),
-              ],
-            ), //
-            const Divider(
-              height: Dimensions.defaultSidePadding,
-            ),
-            Row(
-              children: [
-                const SizedBox(
-                    width: Dimensions.inputTextHeight * 2,
-                    child: Text('Best move (2):')),
-                const SizedBox(
-                  width: Dimensions.sidePadding0_5x,
-                ),
-                SizedBox(
-                  width: Dimensions.inputTextRuleWidth,
-                  child: InputTextField(
-                    textInputType: TextInputType.number,
-                    controller: twoBestMoveController,
-                    preText: rules?.bestMoveWin0.toString() ?? '',
-                  ),
-                ),
-              ],
-            ), //
-            const Divider(
-              height: Dimensions.defaultSidePadding,
-            ),
-            Row(
-              children: [
-                const SizedBox(
-                    width: Dimensions.inputTextHeight * 2,
-                    child: Text('Best move (3):')),
-                const SizedBox(
-                  width: Dimensions.sidePadding0_5x,
-                ),
-                SizedBox(
-                  width: Dimensions.inputTextRuleWidth,
-                  child: InputTextField(
-                    textInputType: TextInputType.number,
-                    controller: threeBestMoveController,
-                    preText: rules?.threeBestMove.toString() ?? '',
-                  ),
-                ),
-              ],
-            ),
-
-            const Divider(
-              height: Dimensions.defaultSidePadding,
-            ),
-            Row(
-              children: [
-                const SizedBox(
-                    width: Dimensions.inputTextHeight * 4,
-                    child: Text('Compensation when first killed and lose:')),
-                const SizedBox(
-                  width: Dimensions.sidePadding0_5x,
-                ),
-                SizedBox(
-                  width: Dimensions.inputTextRuleWidth,
-                  child: InputTextField(
-                    textInputType: TextInputType.number,
-                    controller: compensationWhenFirstKilledController,
-                    preText:
-                        rules?.compensationWhenFirstKilled.toString() ?? '',
-                  ),
-                ),
-              ],
+            const SizedBox(height: Dimensions.defaultSidePadding),
+            const Divider(height: Dimensions.defaultSidePadding),
+            const Text('Other:'),
+            const SizedBox(height: Dimensions.defaultSidePadding),
+            _getInputSettingsFieldWithLabel(
+              settings: settings,
+              key: FirestoreKeys.defGameLoss,
+              label: 'Default game loss',
             ),
           ],
         ));
   }
 
-  Widget _bestMoveSettings() {
+  Widget _getInputSettingsFieldWithLabel({
+    required List<RuleItemViewModel> settings,
+    required String key,
+    required String label,
+  }) {
+    return Row(
+      children: [
+        SizedBox(
+          width: Dimensions.inputTextHeight * 2,
+          child: Text('$label:'),
+        ),
+        const SizedBox(width: Dimensions.sidePadding0_5x),
+        _getInputSettingsField(settings, key),
+      ],
+    );
+  }
+
+  Widget _getInputSettingsField(List<RuleItemViewModel> settings, String key) {
+    final settingsItem =
+        settings.firstWhereOrNull((settingsItem) => settingsItem.key == key);
+    if (settingsItem == null) {
+      return const SizedBox();
+    }
+    return SizedBox(
+      width: Dimensions.inputTextRuleWidth,
+      child: InputTextField(
+        textInputType: TextInputType.number,
+        controller: settingsItem.controller,
+        preText: settingsItem.value.toString(),
+      ),
+    );
+  }
+
+  Widget _bestMoveSettings(List<RuleItemViewModel> settings) {
     return Column(
       children: [
         const Row(children: [
@@ -359,21 +194,11 @@ class _RulesPageState extends State<RulesPage> {
           const SizedBox(
             width: Dimensions.sidePadding0_5x,
           ),
-          SizedBox(
-              width: Dimensions.inputTextRuleWidth,
-              child: InputTextField(
-                textInputType: TextInputType.number,
-                controller: TextEditingController(),
-              )),
+          _getInputSettingsField(settings, FirestoreKeys.bestMoveWin0),
           const SizedBox(
             width: Dimensions.sidePadding0_5x,
           ),
-          SizedBox(
-              width: Dimensions.inputTextRuleWidth,
-              child: InputTextField(
-                textInputType: TextInputType.number,
-                controller: TextEditingController(),
-              )),
+          _getInputSettingsField(settings, FirestoreKeys.bestMoveLoss0),
         ]),
         const SizedBox(
           height: Dimensions.sidePadding0_5x,
@@ -383,24 +208,10 @@ class _RulesPageState extends State<RulesPage> {
             width: Dimensions.inputTextRuleWidth,
             child: Center(child: Text('BM (1/3)')),
           ),
-          const SizedBox(
-            width: Dimensions.sidePadding0_5x,
-          ),
-          SizedBox(
-              width: Dimensions.inputTextRuleWidth,
-              child: InputTextField(
-                textInputType: TextInputType.number,
-                controller: TextEditingController(),
-              )),
-          const SizedBox(
-            width: Dimensions.sidePadding0_5x,
-          ),
-          SizedBox(
-              width: Dimensions.inputTextRuleWidth,
-              child: InputTextField(
-                textInputType: TextInputType.number,
-                controller: TextEditingController(),
-              )),
+          const SizedBox(width: Dimensions.sidePadding0_5x),
+          _getInputSettingsField(settings, FirestoreKeys.bestMoveWin1),
+          const SizedBox(width: Dimensions.sidePadding0_5x),
+          _getInputSettingsField(settings, FirestoreKeys.bestMoveLoss1),
         ]),
         const SizedBox(
           height: Dimensions.sidePadding0_5x,
@@ -410,24 +221,10 @@ class _RulesPageState extends State<RulesPage> {
             width: Dimensions.inputTextRuleWidth,
             child: Center(child: Text('BM (2/3)')),
           ),
-          const SizedBox(
-            width: Dimensions.sidePadding0_5x,
-          ),
-          SizedBox(
-              width: Dimensions.inputTextRuleWidth,
-              child: InputTextField(
-                textInputType: TextInputType.number,
-                controller: TextEditingController(),
-              )),
-          const SizedBox(
-            width: Dimensions.sidePadding0_5x,
-          ),
-          SizedBox(
-              width: Dimensions.inputTextRuleWidth,
-              child: InputTextField(
-                textInputType: TextInputType.number,
-                controller: TextEditingController(),
-              )),
+          const SizedBox(width: Dimensions.sidePadding0_5x),
+          _getInputSettingsField(settings, FirestoreKeys.bestMoveWin2),
+          const SizedBox(width: Dimensions.sidePadding0_5x),
+          _getInputSettingsField(settings, FirestoreKeys.bestMoveLoss2),
         ]),
         const SizedBox(
           height: Dimensions.sidePadding0_5x,
@@ -437,24 +234,10 @@ class _RulesPageState extends State<RulesPage> {
             width: Dimensions.inputTextRuleWidth,
             child: Center(child: Text('BM (3/3)')),
           ),
-          const SizedBox(
-            width: Dimensions.sidePadding0_5x,
-          ),
-          SizedBox(
-              width: Dimensions.inputTextRuleWidth,
-              child: InputTextField(
-                textInputType: TextInputType.number,
-                controller: TextEditingController(),
-              )),
-          const SizedBox(
-            width: Dimensions.sidePadding0_5x,
-          ),
-          SizedBox(
-              width: Dimensions.inputTextRuleWidth,
-              child: InputTextField(
-                textInputType: TextInputType.number,
-                controller: TextEditingController(),
-              )),
+          const SizedBox(width: Dimensions.sidePadding0_5x),
+          _getInputSettingsField(settings, FirestoreKeys.bestMoveWin3),
+          const SizedBox(width: Dimensions.sidePadding0_5x),
+          _getInputSettingsField(settings, FirestoreKeys.bestMoveLoss3),
         ]),
       ],
     );

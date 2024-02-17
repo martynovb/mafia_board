@@ -38,7 +38,7 @@ class _CreateClubPageState extends State<CreateClubPage> {
               Navigator.pushReplacementNamed(
                 context,
                 AppRouter.gameRulesPage,
-                arguments: {'club': state.club},
+                arguments: {'clubId': state.club.id},
               );
             }
           },

@@ -174,7 +174,7 @@ class _ClubsPageState extends State<ClubsPage> {
       Navigator.pushNamed(
         context,
         AppRouter.gameRulesPage,
-        arguments: {'club': club},
+        arguments: {'clubId': club.id},
       );
     } else if (selectedValue == _managePermissionsOption) {}
   }

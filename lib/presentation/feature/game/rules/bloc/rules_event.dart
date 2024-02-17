@@ -4,9 +4,9 @@ import 'package:mafia_board/presentation/feature/game/rules/rule_item_view_model
 abstract class RulesEvent {}
 
 class LoadRulesEvent extends RulesEvent {
-  final ClubModel club;
+  final String? clubId;
 
-  LoadRulesEvent(this.club);
+  LoadRulesEvent(this.clubId);
 }
 
 class CreateOrUpdateRulesEvent extends RulesEvent {

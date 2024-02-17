@@ -85,9 +85,10 @@ class FirestoreKeys {
   static const mafLoss = 'mafLoss';
   static const disqualificationLoss = 'disqualificationLoss';
   static const defaultBonus = 'defaultBonus';
-  static const ppkLoss = 'clubPpkLoss';
+  static const ppkLoss = 'ppkLoss';
   static const defGameLoss = 'defGameLoss';
 
+  static const bestMoveKey = 'bestMove';
   static const bestMoveWin0 = 'bestMoveWin0';
   static const bestMoveWin1 = 'bestMoveWin1';
   static const bestMoveWin2 = 'bestMoveWin2';
