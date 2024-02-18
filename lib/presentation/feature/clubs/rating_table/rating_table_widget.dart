@@ -28,12 +28,12 @@ class RatingTableWidget extends StatefulWidget {
 class _RatingTableWidgetState extends State<RatingTableWidget> {
   late RatingTableBloc _bloc;
 
-  final int _numberFlex = 0;
+  final int _numberFlex = 1;
   final int _nicknameFlex = 2;
-  final int _totalGamesFlex = 2;
-  final int _totalWinsFlex = 2;
+  final int _totalGamesFlex = 1;
+  final int _totalWinsFlex = 1;
   final int _winRateFlex = 2;
-  final int _totalPointsFlex = 2;
+  final int _totalPointsFlex = 1;
   final int _civilianWinRateFlex = 2;
   final int _mafWinRateFlex = 2;
   final int _sheriffWinRateFlex = 2;
@@ -61,13 +61,16 @@ class _RatingTableWidgetState extends State<RatingTableWidget> {
       bloc: _bloc,
       builder: (context, RatingTableState state) {
         if (state.status == StateStatus.data) {
-          return Column(
-            children: [
-              _tableHeader(),
-              _membersTable(state.membersRating),
-            ],
-          );
-          ;
+          return Padding(
+              padding: const EdgeInsets.only(
+                  left: Dimensions.defaultSidePadding,
+                  right: Dimensions.defaultSidePadding),
+              child: Column(
+                children: [
+                  _tableHeader(),
+                  _membersTable(state.membersRating),
+                ],
+              ));
         } else if (state.status == StateStatus.error) {
           return Center(
             child: InfoField(
@@ -86,17 +89,22 @@ class _RatingTableWidgetState extends State<RatingTableWidget> {
     required String text,
     SortType sortType = SortType.none,
   }) {
-    return GestureDetector(
-        onTap: () {
-          if (sortType == SortType.none) return;
-          _bloc.add(ChangeSortTypeEvent(sortType: sortType));
-        },
-        child: Expanded(
-          flex: flex,
+    return Expanded(
+        flex: flex,
+        child: GestureDetector(
+          onTap: () {
+            if (sortType == SortType.none) return;
+            _bloc.add(ChangeSortTypeEvent(sortType: sortType));
+          },
           child: Center(
             child: Text(
               text,
+              textAlign: TextAlign.center,
+              maxLines: 2,
               style: TextStyle(
+                color: _bloc.state.sortType == sortType
+                    ? Colors.green
+                    : Colors.white,
                 backgroundColor: _bloc.state.sortType == sortType
                     ? Colors.white.withOpacity(0.1)
                     : Colors.transparent,
@@ -109,78 +117,72 @@ class _RatingTableWidgetState extends State<RatingTableWidget> {
   Widget _tableHeader() {
     return Container(
         padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
-        height: Dimensions.playerSheetHeaderHeight,
         child: Row(
           children: [
             Expanded(
               flex: _numberFlex,
-              child: const Padding(
-                padding: EdgeInsets.only(
-                  left: Dimensions.sidePadding0_5x,
-                ),
-                child: Icon(
-                  Icons.numbers,
-                  size: Dimensions.defaultIconSize,
-                ),
+              child: const Icon(
+                Icons.numbers,
+                size: Dimensions.defaultIconSize,
               ),
             ),
-            const VerticalDivider(color: Colors.transparent),
+            const VerticalDivider(),
             _headerItem(flex: _nicknameFlex, text: 'nickname'),
-            const VerticalDivider(color: Colors.transparent),
+            const VerticalDivider(),
             _headerItem(
               flex: _totalPointsFlex,
               text: 'total points',
               sortType: SortType.totalPoints,
             ),
-            const VerticalDivider(color: Colors.transparent),
+            const VerticalDivider(),
             _headerItem(
               flex: _totalWinsFlex,
               text: 'total wins',
               sortType: SortType.totalWins,
             ),
-            const VerticalDivider(color: Colors.transparent),
+            const VerticalDivider(),
             _headerItem(
               flex: _winRateFlex,
               text: 'total win rate',
               sortType: SortType.winRate,
             ),
-            const VerticalDivider(color: Colors.transparent),
+            const VerticalDivider(),
             _headerItem(
               flex: _civilianWinRateFlex,
               text: 'civilian win rate',
               sortType: SortType.civilianWinRate,
             ),
-            const VerticalDivider(color: Colors.transparent),
+            const VerticalDivider(),
             _headerItem(
               flex: _sheriffWinRateFlex,
               text: 'sheriff win rate',
               sortType: SortType.sheriffWinRate,
             ),
-            const VerticalDivider(color: Colors.transparent),
+            const VerticalDivider(),
             _headerItem(
               flex: _civilSherWinRateFlex,
               text: 'civil + sheriff win rate',
               sortType: SortType.civilSherWinRate,
             ),
-            const VerticalDivider(color: Colors.transparent),
+            const VerticalDivider(),
             _headerItem(
               flex: _mafWinRateFlex,
               text: 'mafia win rate',
               sortType: SortType.mafWinRate,
             ),
-            const VerticalDivider(color: Colors.transparent),
+            const VerticalDivider(),
             _headerItem(
               flex: _donWinRateFlex,
               text: 'don win rate',
               sortType: SortType.donWinRate,
             ),
-            const VerticalDivider(color: Colors.transparent),
+            const VerticalDivider(),
             _headerItem(
               flex: _donMafWinRateFlex,
               text: 'don + mafia win rate',
               sortType: SortType.donMafWinRate,
             ),
-            const VerticalDivider(color: Colors.transparent),
+            const VerticalDivider(),
             _headerItem(
               flex: _totalGamesFlex,
               text: 'total games',
@@ -209,119 +211,78 @@ class _RatingTableWidgetState extends State<RatingTableWidget> {
         ),
       );
 
+  Widget _tableCell(int flex, String value) {
+    return Expanded(
+      flex: flex,
+      child: Center(
+        child: Text(value.toString()),
+      ),
+    );
+  }
+
   Widget _memberItem(int index, ClubMemberRatingModel memberRating) {
     return SizedBox(
       height: Dimensions.playerItemHeight,
       child: Row(
         children: [
-          Expanded(
-            flex: _numberFlex,
-            child: SizedBox(
-              child: Center(
-                child: Text(
-                  (index + 1).toString(),
-                ),
-              ),
-            ),
+          _tableCell(
+            _numberFlex,
+            (index + 1).toString(),
           ),
           const VerticalDivider(color: Colors.transparent),
-          Expanded(
-            flex: _nicknameFlex,
-            child: SizedBox(
-              child: Center(
-                child: Text(memberRating.member.user.nickname),
-              ),
-            ),
+          _tableCell(
+            _nicknameFlex,
+            memberRating.member.user.nickname,
           ),
           const VerticalDivider(color: Colors.transparent),
-          Expanded(
-            flex: _totalPointsFlex,
-            child: SizedBox(
-              child: Center(
-                child: Text(memberRating.totalPoints.toString()),
-              ),
-            ),
+          _tableCell(
+            _totalPointsFlex,
+            memberRating.totalPoints.toString(),
           ),
           const VerticalDivider(color: Colors.transparent),
-          Expanded(
-            flex: _totalWinsFlex,
-            child: SizedBox(
-              child: Center(
-                child: Text(memberRating.totalWins.toString()),
-              ),
-            ),
+          _tableCell(
+            _totalWinsFlex,
+            memberRating.totalWins.toString(),
           ),
           const VerticalDivider(color: Colors.transparent),
-          Expanded(
-            flex: _winRateFlex,
-            child: SizedBox(
-              child: Center(
-                child: Text(memberRating.winRate.toStringAsFixed(2)),
-              ),
-            ),
+          _tableCell(
+            _winRateFlex,
+            memberRating.winRate.toStringAsFixed(2),
           ),
           const VerticalDivider(color: Colors.transparent),
-          Expanded(
-            flex: _civilianWinRateFlex,
-            child: SizedBox(
-              child: Center(
-                child: Text(memberRating.civilianWinRate.toStringAsFixed(2)),
-              ),
-            ),
+          _tableCell(
+            _civilianWinRateFlex,
+            memberRating.civilianWinRate.toStringAsFixed(2),
           ),
           const VerticalDivider(color: Colors.transparent),
-          Expanded(
-            flex: _sheriffWinRateFlex,
-            child: SizedBox(
-              child: Center(
-                child: Text(memberRating.sheriffWinRate.toStringAsFixed(2)),
-              ),
-            ),
+          _tableCell(
+            _sheriffWinRateFlex,
+            memberRating.sheriffWinRate.toStringAsFixed(2),
           ),
           const VerticalDivider(color: Colors.transparent),
-          Expanded(
-            flex: _civilSherWinRateFlex,
-            child: SizedBox(
-              child: Center(
-                child: Text(memberRating.civilSherWinRate.toStringAsFixed(2)),
-              ),
-            ),
+          _tableCell(
+            _civilSherWinRateFlex,
+            memberRating.civilSherWinRate.toStringAsFixed(2),
           ),
           const VerticalDivider(color: Colors.transparent),
-          Expanded(
-            flex: _mafWinRateFlex,
-            child: SizedBox(
-              child: Center(
-                child: Text(memberRating.mafWinRate.toStringAsFixed(2)),
-              ),
-            ),
+          _tableCell(
+            _mafWinRateFlex,
+            memberRating.mafWinRate.toStringAsFixed(2),
           ),
           const VerticalDivider(color: Colors.transparent),
-          Expanded(
-            flex: _donWinRateFlex,
-            child: SizedBox(
-              child: Center(
-                child: Text(memberRating.donWinRate.toStringAsFixed(2)),
-              ),
-            ),
+          _tableCell(
+            _donWinRateFlex,
+            memberRating.donWinRate.toStringAsFixed(2),
           ),
           const VerticalDivider(color: Colors.transparent),
-          Expanded(
-            flex: _donMafWinRateFlex,
-            child: SizedBox(
-              child: Center(
-                child: Text(memberRating.donMafWinRate.toStringAsFixed(2)),
-              ),
-            ),
+          _tableCell(
+            _donMafWinRateFlex,
+            memberRating.donMafWinRate.toStringAsFixed(2),
           ),
           const VerticalDivider(color: Colors.transparent),
-          Expanded(
-            flex: _totalGamesFlex,
-            child: SizedBox(
-              child: Center(
-                child: Text(memberRating.totalGames.toString()),
-              ),
-            ),
+          _tableCell(
+            _totalGamesFlex,
+            memberRating.totalGames.toString(),
           ),
         ],
       ),

@@ -22,8 +22,9 @@ class SimulateFastGameCivilWinEvent extends GameEvent {
 class FinishGameEvent extends GameEvent {
   final String? playerId;
   final FinishGameType finishGameType;
+  final ClubModel club;
 
-  FinishGameEvent(this.finishGameType, [this.playerId]);
+  FinishGameEvent(this.finishGameType, this.club, [this.playerId]);
 }
 
 class RemoveGameDataEvent extends GameEvent {}

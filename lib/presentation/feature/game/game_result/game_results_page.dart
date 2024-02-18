@@ -21,9 +21,7 @@ class GameResultsPage extends StatefulWidget {
 }
 
 class _GameResultsPageState extends State<GameResultsPage> {
-  GameResultsModel? gameResultsModel;
   late GameResultsBloc gameResultsBloc;
-  late ClubModel? club;
 
   final int _voteColumnFlex = 0;
   final int _nicknameColumnFlex = 5;
@@ -41,7 +39,7 @@ class _GameResultsPageState extends State<GameResultsPage> {
     super.didChangeDependencies();
     final Map<String, dynamic>? args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    club = args?['club'];
+    final club = args?['club'] ?? gameResultsBloc.state.club;
     gameResultsBloc.add(CalculateResultsEvent(club));
   }
 
@@ -55,12 +53,14 @@ class _GameResultsPageState extends State<GameResultsPage> {
             centerTitle: true,
             actions: [
               IconButton(
-                  onPressed: () {
-                    gameResultsBloc.add(CalculateResultsEvent(club));
-                  },
-                  icon: const Icon(
-                    Icons.refresh,
-                  ))
+                onPressed: () {
+                  gameResultsBloc
+                      .add(CalculateResultsEvent(gameResultsBloc.state.club));
+                },
+                icon: const Icon(
+                  Icons.refresh,
+                ),
+              )
             ],
           ),
           body: Padding(
@@ -70,17 +70,14 @@ class _GameResultsPageState extends State<GameResultsPage> {
               listener: (context, GameResultsState state) {
                 if (state is GameResultsUploaded) {
                   Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      AppRouter.clubDetailsPage,
-                      (route) => route.settings.name == AppRouter.homePage,
-                      arguments: {
-                        'club': club,
-                      });
+                    context,
+                    AppRouter.homePage,
+                    (route) => true,
+                  );
                 }
               },
               builder: (context, GameResultsState state) {
                 if (state is ShowGameResultsState) {
-                  gameResultsModel = state.gameResultsModel;
                   return Column(
                     children: [
                       _tableHeader(),
@@ -248,6 +245,10 @@ class _GameResultsPageState extends State<GameResultsPage> {
   }
 
   Future<bool> _showExitConfirmationDialog() async {
+    final currentState = gameResultsBloc.state;
+    if (currentState is! ShowGameResultsState) {
+      return true;
+    }
     return await showDefaultDialog(
       context: context,
       title: 'Do you want to save the game results?',
@@ -265,8 +266,8 @@ class _GameResultsPageState extends State<GameResultsPage> {
           onPressed: () {
             Navigator.pop(context);
             gameResultsBloc.add(SaveResultsEvent(
-              gameResultsModel: gameResultsModel,
-              clubModel: club,
+              gameResultsModel: currentState.gameResultsModel,
+              clubModel: currentState.club,
             ));
           },
         ),

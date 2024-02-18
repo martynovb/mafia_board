@@ -1,4 +1,5 @@
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:mafia_board/domain/model/club_member_rating_model.dart';
 import 'package:mafia_board/domain/usecase/get_club_rating_usecase.dart';
 import 'package:mafia_board/presentation/common/base_bloc/base_state.dart';
 import 'package:mafia_board/presentation/feature/clubs/rating_table/bloc/rating_table_event.dart';
@@ -16,9 +17,55 @@ class RatingTableBloc extends HydratedBloc<RatingTableEvent, RatingTableState> {
   }
 
   Future<void> _changeSortType(ChangeSortTypeEvent event, emit) async {
-    final rating = state.membersRating;
+    emit(
+      state.copyWith(
+        sortType: event.sortType,
+        membersRating: _sortMembersRating(state.membersRating, event.sortType),
+      ),
+    );
+  }
+
+  Future<void> _getRatingTable(GetRatingTableEvent event, emit) async {
+    if (event.clubId.isEmpty) {
+      return;
+    }
+
+    emit(state.copyWith(status: StateStatus.inProgress));
+    try {
+      final membersRating = await getClubRatingUseCase.execute(
+        params: GetClubRatingParams(
+          clubId: event.clubId,
+          games: event.allGames,
+        ),
+      );
+      emit(
+        state.copyWith(
+          status: StateStatus.data,
+          membersRating: _sortMembersRating(
+            membersRating,
+            SortType.totalPoints,
+          ),
+          allGames: event.allGames,
+          clubId: event.clubId,
+          sortType: SortType.totalPoints,
+        ),
+      );
+    } catch (ex) {
+      emit(
+        state.copyWith(
+          status: StateStatus.error,
+          errorMessage: 'Something went wrong',
+        ),
+      );
+    }
+  }
+
+  List<ClubMemberRatingModel> _sortMembersRating(
+    List<ClubMemberRatingModel> rating,
+    SortType sortType,
+  ) {
     rating.sort((a, b) {
-      switch (event.sortType) {
+      switch (sortType) {
         case SortType.totalPoints:
           return b.totalPoints.compareTo(a.totalPoints);
         case SortType.totalGames:
@@ -45,38 +92,7 @@ class RatingTableBloc extends HydratedBloc<RatingTableEvent, RatingTableState> {
           return 0;
       }
     });
-    emit(state.copyWith(sortType: event.sortType, membersRating: rating));
-  }
-
-  Future<void> _getRatingTable(GetRatingTableEvent event, emit) async {
-    if (event.clubId.isEmpty) {
-      return;
-    }
-
-    emit(state.copyWith(status: StateStatus.inProgress));
-    try {
-      final membersRating = await getClubRatingUseCase.execute(
-        params: GetClubRatingParams(
-          clubId: event.clubId,
-          games: event.allGames,
-        ),
-      );
-      emit(
-        state.copyWith(
-          status: StateStatus.data,
-          membersRating: membersRating,
-          allGames: event.allGames,
-          clubId: event.clubId,
-        ),
-      );
-    } catch (ex) {
-      emit(
-        state.copyWith(
-          status: StateStatus.error,
-          errorMessage: 'Something went wrong',
-        ),
-      );
-    }
+    return rating;
   }
 
   @override

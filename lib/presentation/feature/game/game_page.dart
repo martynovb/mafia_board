@@ -67,7 +67,7 @@ class _GamePageState extends State<GamePage>
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      onPopInvoked: (invoked) async => _showFinishConfirmationDialog(),
+        onPopInvoked: (invoked) async => _showFinishConfirmationDialog(),
         child: BlocListener(
             bloc: gameBloc,
             listener: (context, GameState state) {
@@ -75,7 +75,7 @@ class _GamePageState extends State<GamePage>
                 Navigator.pushNamed(
                   context,
                   AppRouter.gameResultsPage,
-                  arguments: {'club': gameBloc.state.club},
+                  arguments: {'club': state.club},
                 );
               } else if (state is GamePhaseState) {
                 _isGameStarted =
@@ -128,7 +128,12 @@ class _GamePageState extends State<GamePage>
         TextButton(
           child: const Text("Stop the game and close"),
           onPressed: () {
-            gameBloc.add(FinishGameEvent(FinishGameType.reset));
+            if (gameBloc.state.club != null) {
+              gameBloc.add(FinishGameEvent(
+                FinishGameType.reset,
+                gameBloc.state.club!,
+              ));
+            }
             Navigator.of(context).pop();
           },
         ),
@@ -178,7 +183,15 @@ class _GamePageState extends State<GamePage>
         TextButton(
           child: const Text("Finish game"),
           onPressed: () {
-            gameBloc.add(FinishGameEvent(FinishGameType.ppk, player.tempId));
+            if (gameBloc.state.club != null) {
+              gameBloc.add(
+                FinishGameEvent(
+                  FinishGameType.ppk,
+                  gameBloc.state.club!,
+                  player.tempId,
+                ),
+              );
+            }
             Navigator.of(context).pop();
           },
         ),

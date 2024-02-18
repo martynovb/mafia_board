@@ -59,14 +59,14 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
                   return Column(
                     children: [
                       _clubDetails(state.club!),
-                      const SizedBox(
-                        height: Dimensions.defaultSidePadding,
-                      ),
                       RatingTableWidget(
                         key: _ratingTableKey,
                         clubId: state.club?.id ?? '',
                         allGames: state.allGames,
                       ),
+                      const SizedBox(height: Dimensions.defaultSidePadding),
+                      const Divider(height: Dimensions.defaultSidePadding),
+                      const Center(child: Text('All games')),
                       _gamesList(state.allGames),
                     ],
                   );
@@ -92,9 +92,17 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
       padding: const EdgeInsets.all(Dimensions.defaultSidePadding),
       child: Column(
         children: [
-          Text(club.title),
+          Text('Total games: ${club.games.length}'),
           const SizedBox(height: Dimensions.defaultSidePadding),
-          Text(club.title),
+          Text(
+            'Civilian win rate: ${club.civilWinRate.toStringAsFixed(2)}%',
+            style: TextStyle(backgroundColor: Colors.red.withOpacity(0.1)),
+          ),
+          const SizedBox(height: Dimensions.defaultSidePadding),
+          Text(
+            'Mafia win rate: ${club.mafWinRate.toStringAsFixed(2)}%',
+            style: const TextStyle(backgroundColor: Colors.black),
+          ),
           const SizedBox(height: Dimensions.defaultSidePadding),
           const Divider(),
         ],
@@ -121,12 +129,13 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
               arguments: {'gameId': games[index].id},
             );
           },
-          child: Padding(
+          child: Container(
+              child: Padding(
             padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
             child: _gameItem(
               games[index],
             ),
-          ),
+          )),
         ),
       ),
       itemCount: games.length,
@@ -162,11 +171,11 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
         ),
         _gameWinnerViewMapper(game.winnerType, game.mafsLeft),
         const Spacer(),
-        IconButton(
-          key: menuKey,
-          onPressed: () async => _showMoreMenu(menuKey, game),
-          icon: const Icon(Icons.more_vert),
-        ),
+        if (clubDetailsBloc.state.club?.isAdmin == true)
+          IconButton(
+            onPressed: () async => _showMoreMenu(menuKey, game),
+            icon: const Icon(Icons.more_vert),
+          ),
         const SizedBox(
           width: Dimensions.defaultSidePadding,
         ),

@@ -12,6 +12,7 @@ import 'package:mafia_board/domain/model/rules_model.dart';
 import 'package:mafia_board/domain/model/winner_type.dart';
 import 'package:mafia_board/domain/usecase/get_rules_usecase.dart';
 import 'package:mafia_board/domain/usecase/save_game_usecase.dart';
+import 'package:mafia_board/presentation/maf_logger.dart';
 
 class GameResultsManager {
   final PlayersRepo playersRepo;
@@ -72,12 +73,13 @@ class GameResultsManager {
         } else if (speakPhaseWithBestMove != null &&
             player.tempId == speakPhaseWithBestMove.playerTempId &&
             !mafiaRoles().contains(player.role)) {
-          player.bestMove += await _calculateBestMove(
+          final bestMove = await _calculateBestMove(
             player,
             clubRules,
             speakPhaseWithBestMove.bestMove,
             isPlayerTeamWon,
           );
+          player.bestMove += bestMove;
         }
       }
 
@@ -141,13 +143,13 @@ class GameResultsManager {
           0.0;
     } else if (count == 2) {
       return rules.settings[isPlayerTeamWon
-              ? FirestoreKeys.bestMoveWin1
-              : FirestoreKeys.bestMoveLoss1] ??
+              ? FirestoreKeys.bestMoveWin2
+              : FirestoreKeys.bestMoveLoss2] ??
           0.0;
     } else if (count == 3) {
       return rules.settings[isPlayerTeamWon
-              ? FirestoreKeys.bestMoveWin1
-              : FirestoreKeys.bestMoveLoss1] ??
+              ? FirestoreKeys.bestMoveWin3
+              : FirestoreKeys.bestMoveLoss3] ??
           0.0;
     }
     return 0;

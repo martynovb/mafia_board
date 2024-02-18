@@ -43,9 +43,13 @@ class GetClubRatingUseCase
       var totalWins = 0;
       var totalLosses = 0;
       var totalCivilianWins = 0.0;
+      var totalCivilGames = 0.0;
       var totalMafWins = 0.0;
+      var totalMafGames = 0.0;
       var totalDonWins = 0.0;
+      var totalDonGames = 0.0;
       var totalSheriffWins = 0.0;
+      var totalSheriffGames = 0.0;
       var totalPoints = 0.0;
 
       for (final player in allPlayersByMember) {
@@ -57,6 +61,16 @@ class GetClubRatingUseCase
         }
 
         totalPoints += player.total();
+
+        if (player.role == Role.civilian) {
+          totalCivilGames++;
+        } else if (player.role == Role.mafia) {
+          totalMafGames++;
+        } else if (player.role == Role.don) {
+          totalDonGames++;
+        } else if (player.role == Role.sheriff) {
+          totalSheriffGames++;
+        }
 
         if ((gameByPlayer.winnerType == WinnerType.civilian &&
                 (player.role == Role.civilian ||
@@ -95,26 +109,69 @@ class GetClubRatingUseCase
         }
       }
 
+      final winRate = _divideSafely(
+            totalWins,
+            totalGames,
+          ) *
+          100;
+      final civilianWinRate = _divideSafely(
+            totalCivilianWins,
+            totalCivilGames,
+          ) *
+          100;
+      final mafWinRate = _divideSafely(
+            totalMafWins,
+            totalMafGames,
+          ) *
+          100;
+      final sheriffWinRate = _divideSafely(
+            totalSheriffWins,
+            totalSheriffGames,
+          ) *
+          100;
+      final donWinRate = _divideSafely(
+            totalDonWins,
+            totalDonGames,
+          ) *
+          100;
+      final donMafWinRate = _divideSafely(
+            totalMafWins + totalDonWins,
+            totalMafGames + totalDonGames,
+          ) *
+          100;
+      final civilSherWinRate = _divideSafely(
+            totalCivilianWins + totalSheriffWins,
+            totalCivilGames + totalSheriffGames,
+          ) *
+          100;
+
       membersRating.add(
         ClubMemberRatingModel(
           member: member,
           totalGames: totalGames,
           totalWins: totalWins,
           totalLosses: totalLosses,
-          winRate: ((totalWins / totalGames) * 100) ?? 0.0,
-          civilianWinRate: ((totalWins / totalCivilianWins) * 100) ?? 0.0,
-          mafWinRate: ((totalWins / totalMafWins) * 100) ?? 0.0,
-          sheriffWinRate: ((totalWins / totalSheriffWins) * 100) ?? 0.0,
-          donWinRate: ((totalWins / totalDonWins) * 100) ?? 0.0,
-          donMafWinRate: ((totalWins / (totalMafWins + totalDonWins)) * 100) ?? 0.0,
-          civilSherWinRate:
-          ((totalWins / (totalCivilianWins + totalSheriffWins)) * 100) ?? 0.0,
+          winRate: winRate,
+          civilianWinRate: civilianWinRate,
+          mafWinRate: mafWinRate,
+          sheriffWinRate: sheriffWinRate,
+          donWinRate: donWinRate,
+          donMafWinRate: donMafWinRate,
+          civilSherWinRate: civilSherWinRate,
           totalPoints: totalPoints,
         ),
       );
     }
 
     return membersRating;
+  }
+
+  double _divideSafely(num dividend, num divisor) {
+    if (divisor == 0.0) {
+      return 0.0;
+    } else {
+      return dividend / divisor;
+    }
   }
 }
 

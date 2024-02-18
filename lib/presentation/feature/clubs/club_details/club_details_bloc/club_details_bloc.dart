@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
+import 'package:mafia_board/domain/model/winner_type.dart';
 import 'package:mafia_board/domain/usecase/delete_game_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_all_games_usecase.dart';
 import 'package:mafia_board/domain/usecase/get_club_details_usecase.dart';
@@ -60,11 +62,29 @@ class ClubsDetailsBloc extends HydratedBloc<ClubsDetailsEvent, ClubState> {
     }
 
     try {
-      final allGames = await getAllGamesUsecase.execute(
-          params: event.club?.id ?? state.club?.id);
+      final allGames = (await getAllGamesUsecase.execute(
+        params: event.club?.id ?? state.club?.id,
+      ))
+          .sorted(
+        (a, b) => b.startedAt.compareTo(a.startedAt),
+      );
+
+      final totalGames = allGames.length;
+      final civilianWins = allGames
+          .where((game) => game.winnerType == WinnerType.civilian)
+          .length;
+      final mafiaWins =
+          allGames.where((game) => game.winnerType == WinnerType.mafia).length;
+
+      final club = event.club;
+      club?.games = allGames;
+      club?.civilWinRate =
+          totalGames > 0 ? (civilianWins / totalGames) * 100 : 0.0;
+      club?.mafWinRate = totalGames > 0 ? (mafiaWins / totalGames) * 100 : 0.0;
+
       emit(state.copyWith(
         status: StateStatus.data,
-        club: event.club,
+        club: event.club?..games = allGames,
         allGames: allGames,
       ));
     } catch (e) {
@@ -84,7 +104,6 @@ class ClubsDetailsBloc extends HydratedBloc<ClubsDetailsEvent, ClubState> {
 
   @override
   Map<String, dynamic>? toJson(ClubState state) {
-    return state.toMap()
-    ;
+    return state.toMap();
   }
 }

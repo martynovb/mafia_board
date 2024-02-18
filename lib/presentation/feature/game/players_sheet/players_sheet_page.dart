@@ -112,10 +112,6 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
                                   _startGameButton()
                                 else
                                   Container(),
-                                ElevatedButton(
-                                    onPressed: () => _playersSheetBloc
-                                        .add(SetTestDataEvent()),
-                                    child: const Text('Set Test Data')),
                                 _sheetHeader(),
                                 Padding(
                                   padding: const EdgeInsets.only(
@@ -429,7 +425,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
         TextButton(
           child: const Text("Finish game"),
           onPressed: () {
-            _gameBloc.add(FinishGameEvent(FinishGameType.ppk, player.tempId));
+            _gameBloc.add(FinishGameEvent(FinishGameType.ppk, widget.club, player.tempId));
             Navigator.of(context).pop();
           },
         ),
