@@ -26,7 +26,7 @@ class ClubMemberEntity {
   Map<String, dynamic> toFirestoreMap() => {
         FirestoreKeys.clubMemberUserIdFieldKey: user?.id,
         FirestoreKeys.clubIdFieldKey: clubId,
-        FirestoreKeys.clubMembersIsAdminFieldKey: isAdmin ?? false,
+        FirestoreKeys.clubMembersIsAdminFieldKey: isAdmin,
       };
 
   static ClubMemberEntity fromJson(Map<dynamic, dynamic> json) {

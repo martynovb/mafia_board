@@ -1,4 +1,3 @@
-import 'package:class_to_string/class_to_string.dart';
 import 'package:collection/collection.dart';
 import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/domain/model/game_phase/game_phase_model.dart';

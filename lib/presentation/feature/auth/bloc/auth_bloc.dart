@@ -10,7 +10,6 @@ import 'package:mafia_board/presentation/feature/auth/bloc/auth_event.dart';
 import 'package:mafia_board/presentation/feature/auth/bloc/auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  static const String _tag = 'AuthBloc';
   final AuthRepo authRepo;
   final EmailFieldValidator emailFieldValidator;
   final NicknameFieldValidator nicknameFieldValidator;
@@ -50,7 +49,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _authorizeWithGoogleEventHandler(event, emit) async {
     try {
-
       //emit(SuccessAuthState());
     } catch (ex) {
       emit(ErrorAuthState('Something went wrong: $ex'));

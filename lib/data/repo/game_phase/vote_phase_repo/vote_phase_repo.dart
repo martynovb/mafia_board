@@ -1,6 +1,5 @@
 import 'package:mafia_board/domain/model/game_phase/vote_phase_model.dart';
 import 'package:mafia_board/data/repo/game_phase/base_phase_repo.dart';
-import 'package:mafia_board/presentation/maf_logger.dart';
 
 class VotePhaseRepo extends BasePhaseRepo<VotePhaseModel> {
   VotePhaseRepo({required super.firestore});

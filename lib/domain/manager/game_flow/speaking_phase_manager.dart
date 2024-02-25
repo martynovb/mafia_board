@@ -2,10 +2,8 @@ import 'package:mafia_board/data/constants/constants.dart';
 import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
-import 'package:mafia_board/data/repo/game_info/game_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/domain/manager/game_history_manager.dart';
-import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/usecase/get_current_game_usecase.dart';
 import 'package:uuid/uuid.dart';
 

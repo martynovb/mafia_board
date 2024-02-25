@@ -192,7 +192,6 @@ class ClubsRepoFirebase extends ClubsRepo {
       {required String clubId,
       required String currentUserId,
       required String participantUserId}) {
-    // TODO: implement acceptUserToJoinClub
     throw UnimplementedError();
   }
 

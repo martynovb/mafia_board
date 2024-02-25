@@ -1,6 +1,5 @@
 import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/data/entity/game/player_entity.dart';
-import 'package:mafia_board/domain/utils/date_format_util.dart';
 
 class DayInfoEntity {
   String? id;

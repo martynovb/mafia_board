@@ -2,7 +2,6 @@ import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/manager/game_flow/game_phase_manager.dart';
 import 'package:mafia_board/domain/manager/game_flow/speaking_phase_manager.dart';
 import 'package:mafia_board/domain/manager/game_flow/vote_phase_manager.dart';
-import 'package:mafia_board/domain/model/role.dart';
 
 class GameFlowSimulator {
   final GameManager gameManager;

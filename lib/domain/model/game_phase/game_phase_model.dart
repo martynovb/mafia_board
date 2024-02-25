@@ -4,7 +4,6 @@ import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
 import 'package:mafia_board/domain/model/game_phase/vote_phase_model.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
-import 'package:uuid/uuid.dart';
 
 abstract class GamePhaseModel {
   String? id;

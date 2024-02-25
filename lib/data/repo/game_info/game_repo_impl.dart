@@ -4,7 +4,6 @@ import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/data/entity/game/game_entity.dart';
 import 'package:mafia_board/data/entity/game/day_info_entity.dart';
 import 'package:mafia_board/data/entity/game/player_entity.dart';
-import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/exceptions/exception.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
@@ -238,7 +237,10 @@ class GameRepoImpl extends GameRepo {
 
   @override
   Future<GameEntity> fetchGame({required String gameId}) async {
-    final gameData = await firestore.collection(FirestoreKeys.gamesCollectionKey).doc(gameId).get();
+    final gameData = await firestore
+        .collection(FirestoreKeys.gamesCollectionKey)
+        .doc(gameId)
+        .get();
     return GameEntity.fromFirestoreMap(id: gameData.id, data: gameData.data());
   }
 
@@ -256,15 +258,24 @@ class GameRepoImpl extends GameRepo {
       (doc) {
         final docData = doc.data();
         final removedPlayers = players
-            .where((player) => docData[FirestoreKeys.removedPlayersTempIdsFieldKey]?.contains(player.tempId) ?? false)
+            .where((player) =>
+                docData[FirestoreKeys.removedPlayersTempIdsFieldKey]
+                    ?.contains(player.tempId) ??
+                false)
             .toList();
 
         final mutedPlayers = players
-            .where((player) => docData[FirestoreKeys.mutedPlayersTempIdsFieldKey]?.contains(player.tempId) ?? false)
+            .where((player) =>
+                docData[FirestoreKeys.mutedPlayersTempIdsFieldKey]
+                    ?.contains(player.tempId) ??
+                false)
             .toList();
 
         final playersWithFoul = players
-            .where((player) => docData[FirestoreKeys.playersWithFoulTempIdsFieldKey]?.contains(player.tempId) ?? false)
+            .where((player) =>
+                docData[FirestoreKeys.playersWithFoulTempIdsFieldKey]
+                    ?.contains(player.tempId) ??
+                false)
             .toList();
 
         return DayInfoEntity.fromFirestoreMap(

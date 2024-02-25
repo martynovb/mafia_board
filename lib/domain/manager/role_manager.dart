@@ -6,7 +6,7 @@ class RoleManager {
   final PlayersRepo _boardRepository;
   final List<RoleModel> _allRoles;
   List<Role> _selectedRoles = [];
-  Map<Role, bool> _uniqueAvailableRoles = {};
+  final Map<Role, bool> _uniqueAvailableRoles = {};
   final List<Role> _availableRoles;
 
   RoleManager.classic(this._boardRepository)

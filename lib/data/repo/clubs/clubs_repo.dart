@@ -1,10 +1,7 @@
 import 'package:mafia_board/data/entity/club_entity.dart';
 import 'package:mafia_board/data/entity/club_member_entity.dart';
-import 'package:mafia_board/data/entity/user_entity.dart';
-import 'package:mafia_board/domain/model/club_model.dart';
 
 abstract class ClubsRepo {
-
   Future<ClubEntity> createClub({
     required String name,
     required String clubDescription,

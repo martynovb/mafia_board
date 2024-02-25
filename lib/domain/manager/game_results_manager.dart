@@ -12,7 +12,6 @@ import 'package:mafia_board/domain/model/rules_model.dart';
 import 'package:mafia_board/domain/model/winner_type.dart';
 import 'package:mafia_board/domain/usecase/get_rules_usecase.dart';
 import 'package:mafia_board/domain/usecase/save_game_usecase.dart';
-import 'package:mafia_board/presentation/maf_logger.dart';
 
 class GameResultsManager {
   final PlayersRepo playersRepo;

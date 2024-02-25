@@ -56,8 +56,8 @@ class PlayersRepoImpl extends PlayersRepo {
       .toList();
 
   @override
-  Future<PlayerModel?> getPlayerByNumber(int number) async =>
-      _players.firstWhereOrNull((player) => player.seatNumber == number);
+  Future<PlayerModel?> getPlayerByNumber(int index) async =>
+      _players.firstWhereOrNull((player) => player.seatNumber == index);
 
   @override
   Future<void> updatePlayer(
@@ -217,7 +217,6 @@ class PlayersRepoImpl extends PlayersRepo {
   Future<List<PlayerEntity>> fetchAllPlayersByMemberId({
     required String memberId,
   }) async {
-
     final playerSnapshot = await firestore
         .collection(FirestoreKeys.playersCollectionKey)
         .where(FirestoreKeys.clubMemberIdFieldKey, isEqualTo: memberId)

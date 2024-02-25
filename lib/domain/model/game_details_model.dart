@@ -1,10 +1,6 @@
 import 'package:mafia_board/domain/model/game_info_model.dart';
 import 'package:mafia_board/domain/model/game_model.dart';
 import 'package:mafia_board/domain/model/game_phase/game_phase_model.dart';
-import 'package:mafia_board/domain/model/game_phase/night_phase_model.dart';
-import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
-import 'package:mafia_board/domain/model/game_phase/vote_phase_model.dart';
-import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 
 class GameDetailsModel {

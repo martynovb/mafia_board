@@ -1,5 +1,4 @@
 import 'package:mafia_board/data/entity/game/day_info_entity.dart';
-import 'package:mafia_board/data/entity/game/phase/game_phase_entity.dart';
 import 'package:mafia_board/domain/model/game_phase/game_phase_model.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';

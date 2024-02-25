@@ -1,5 +1,4 @@
 import 'package:mafia_board/data/constants/firestore_keys.dart';
-import 'package:mafia_board/data/entity/club_member_entity.dart';
 
 class ClubEntity {
   final String? id;

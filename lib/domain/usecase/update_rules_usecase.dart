@@ -1,5 +1,4 @@
 import 'package:mafia_board/data/repo/rules/rules_repo.dart';
-import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/rules_model.dart';
 import 'package:mafia_board/domain/usecase/base_usecase.dart';
 

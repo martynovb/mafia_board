@@ -1,7 +1,6 @@
 import 'package:mafia_board/data/entity/club_entity.dart';
 import 'package:mafia_board/domain/model/club_member_model.dart';
 import 'package:mafia_board/domain/model/game_model.dart';
-import 'package:mafia_board/domain/model/player_model.dart';
 
 class ClubModel {
   final String id;
@@ -71,7 +70,7 @@ class ClubModel {
       title: map['title'] ?? '',
       description: map['description'] ?? '',
       members: ClubMemberModel.fromListMap(map['members']),
-      admins:ClubMemberModel.fromListMap( map['admins']),
+      admins: ClubMemberModel.fromListMap(map['admins']),
       isAdmin: map['isAdmin'] ?? false,
       games: GameModel.fromListMap(map['games']),
       civilWinRate: map['civilWinRate'] ?? 0.0,

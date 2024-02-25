@@ -1,5 +1,4 @@
 import 'package:mafia_board/data/entity/user_entity.dart';
-import 'package:mafia_board/domain/model/user_model.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 import 'package:uuid/uuid.dart';
 
@@ -42,14 +41,7 @@ class AuthRepoLocal extends AuthRepo {
   }
 
   @override
-  Future<UserEntity> authUserWithGoogle() async {
-    _isAuthorized = true;
-    return currentUser;
-  }
-
-  @override
   Future<UserEntity> changeNickname({required String nickname}) {
-    // TODO: implement changeNickname
     throw UnimplementedError();
   }
 }

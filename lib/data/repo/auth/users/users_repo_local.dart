@@ -77,7 +77,6 @@ class UsersRepoLocal extends UsersRepo {
 
   @override
   Future<List<UserEntity>?> getUsersByIds(List<String> ids) {
-    // TODO: implement getUsersByIds
     throw UnimplementedError();
   }
 }
