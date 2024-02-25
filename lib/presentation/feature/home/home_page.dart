@@ -41,7 +41,7 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Mafia')),
+      appBar: AppBar(title: const Text('Mafia')),
       body: IndexedStack(
         index: _currentIndex,
         children: <Widget>[

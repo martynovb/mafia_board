@@ -1,4 +1,3 @@
-import 'package:bloc/bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:mafia_board/domain/usecase/fetch_game_details_usecase.dart';
 import 'package:mafia_board/presentation/common/base_bloc/base_state.dart';
@@ -67,8 +66,4 @@ class GameDetailsBloc extends HydratedBloc<GameDetailsEvent, GameDetailsState> {
     }
   }
 
-  @override
-  Future<void> clear() {
-    return super.clear();
-  }
 }

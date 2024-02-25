@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/data/constants/firestore_keys.dart';
-import 'package:mafia_board/domain/model/club_model.dart';
-import 'package:mafia_board/domain/model/rules_model.dart';
 import 'package:mafia_board/presentation/common/base_bloc/base_state.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_bloc.dart';

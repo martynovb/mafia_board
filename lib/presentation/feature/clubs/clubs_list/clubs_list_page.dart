@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
@@ -10,7 +9,6 @@ import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_blo
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
 import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ClubsPage extends StatefulWidget {
   const ClubsPage({Key? key}) : super(key: key);
@@ -171,6 +169,7 @@ class _ClubsPageState extends State<ClubsPage> {
     );
 
     if (selectedValue == _updateRulesOption) {
+      // ignore: use_build_context_synchronously
       Navigator.pushNamed(
         context,
         AppRouter.gameRulesPage,

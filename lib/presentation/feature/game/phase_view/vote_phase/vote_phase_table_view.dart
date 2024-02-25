@@ -49,30 +49,32 @@ class _VotePhaseTableViewState extends State<VotePhaseTableView> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TableWidget(
-                  highlightedPlayerList: state.allAvailablePlayersToVote.entries
-                      .map(
-                        (entry) => HighlightedPlayerData(
-                          phaseType: PhaseType.vote,
-                          player: entry.key,
-                          isVoted: entry.value,
-                          onVote: state.playerOnVote?.tempId == entry.key.tempId,
-                        ),
-                      )
-                      .toList(),
-                  center: _center(state),
-                  onPlayerLongPress: (player) {
-                    votePhaseBloc.add(CancelVoteAgainstEvent(
-                      currentPlayer: player,
-                      voteAgainstPlayer: state.playerOnVote!,
-                    ));
-                  },
-                  onPlayerClicked: (player) {
-                    votePhaseBloc.add(VoteAgainstEvent(
-                      currentPlayer: player,
-                      voteAgainstPlayer: state.playerOnVote!,
-                    ));
-                  },
-                  players: state.players),
+                highlightedPlayerList: state.allAvailablePlayersToVote.entries
+                    .map(
+                      (entry) => HighlightedPlayerData(
+                        phaseType: PhaseType.vote,
+                        player: entry.key,
+                        isVoted: entry.value,
+                        onVote: state.playerOnVote?.tempId == entry.key.tempId,
+                      ),
+                    )
+                    .toList(),
+                center: _center(state),
+                onPlayerLongPress: (player) {
+                  votePhaseBloc.add(CancelVoteAgainstEvent(
+                    currentPlayer: player,
+                    voteAgainstPlayer: state.playerOnVote!,
+                  ));
+                },
+                onPlayerClicked: (player) {
+                  votePhaseBloc.add(VoteAgainstEvent(
+                    currentPlayer: player,
+                    voteAgainstPlayer: state.playerOnVote!,
+                  ));
+                },
+                players: state.players,
+                judgeSide: Container(),
+              ),
             ],
           );
         });

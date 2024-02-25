@@ -119,7 +119,7 @@ class _NightPhaseViewState extends State<NightPhaseView> {
               nightPhaseBloc.add(FinishCurrentNightPhaseEvent());
               _isTimerFinished = false;
             },
-            child: Text('Next role')),
+            child: const Text('Next role')),
       ],
     );
   }

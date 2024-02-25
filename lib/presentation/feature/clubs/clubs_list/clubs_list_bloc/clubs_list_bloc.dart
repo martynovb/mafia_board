@@ -5,7 +5,6 @@ import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_blo
 import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_state.dart';
 
 class ClubsListBloc extends Bloc<ClubsListEvent, ClubsListState> {
-  static const String _tag = 'ClubsListBloc';
   final GetAllClubsUseCase getAllClubsUseCase;
 
   ClubsListBloc({

@@ -59,7 +59,7 @@ class SettingsItem extends StatelessWidget {
               ],
             )),
             if (btnText != null && onPressed != null) ...[
-              Spacer(),
+              const Spacer(),
               SizedBox(
                   width: 120,
                   height: 40,

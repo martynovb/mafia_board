@@ -1,4 +1,3 @@
-import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/presentation/feature/game/rules/rule_item_view_model.dart';
 
 abstract class RulesEvent {}

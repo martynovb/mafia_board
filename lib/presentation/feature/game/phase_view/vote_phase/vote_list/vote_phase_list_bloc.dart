@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:collection/collection.dart';
-import 'package:mafia_board/domain/model/game_info_model.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/manager/game_flow/game_phase_manager.dart';
 import 'package:mafia_board/domain/manager/game_flow/vote_phase_manager.dart';
@@ -62,12 +60,6 @@ class VotePhaseListBloc extends Bloc<VotePhaseListEvent, VotePhaseListState> {
 
   Stream<List<VoteItem>> get voteListStream => _voteListSubject.stream;
 
-  Future<void> _unsubscribe() async {
-    await _gamePhaseSubscription?.cancel();
-    _gamePhaseSubscription = null;
-    await _dayInfoSubscription?.cancel();
-    _dayInfoSubscription = null;
-  }
 }
 
 class VotePhaseListEvent {}

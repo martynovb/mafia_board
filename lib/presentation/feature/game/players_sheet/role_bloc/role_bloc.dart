@@ -7,10 +7,12 @@ import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/ro
 class RoleBloc extends Bloc<RoleEvent, ShowRolesState> {
   final RoleManager roleManager;
 
-  RoleBloc({required this.roleManager}) : super(ShowRolesState()) {
-    emit(ShowRolesState(
-      roles: roleManager.uniqueAvailableRoles,
-    ));
+  RoleBloc({required this.roleManager})
+      : super(
+          ShowRolesState(
+            roles: roleManager.uniqueAvailableRoles,
+          ),
+        ) {
     on<RecalculateRolesEvent>(_recalculateAvailableRolesHandler);
   }
 

@@ -1,5 +1,4 @@
 import 'package:mafia_board/domain/model/club_model.dart';
-import 'package:mafia_board/domain/model/user_model.dart';
 import 'package:mafia_board/presentation/common/base_bloc/base_state.dart';
 
 class ClubsListState extends BaseState {

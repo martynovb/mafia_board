@@ -5,7 +5,6 @@ import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/manager/game_flow/speaking_phase_manager.dart';
 
 class SpeakingPhaseBloc extends Bloc<SpeakingPhaseEvent, SpeakingPhaseState> {
-  static const String _tag = 'SpeakingPhaseBloc';
   final SpeakingPhaseManager speakingPhaseManager;
   final PlayersRepo boardRepo;
 

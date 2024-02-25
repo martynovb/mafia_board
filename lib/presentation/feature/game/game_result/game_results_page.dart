@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/game_results_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
@@ -45,6 +44,9 @@ class _GameResultsPageState extends State<GameResultsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: deprecated_member_use
+    // todo: remove popscope
+    // ignore: deprecated_member_use
     return WillPopScope(
         onWillPop: _showExitConfirmationDialog,
         child: Scaffold(

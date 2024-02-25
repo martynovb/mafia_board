@@ -4,7 +4,6 @@ import 'package:mafia_board/presentation/feature/clubs/create_club/bloc/create_c
 import 'package:mafia_board/presentation/feature/clubs/create_club/bloc/create_club_state.dart';
 
 class CreateClubBloc extends Bloc<CreateClubEvent, CreateClubState> {
-  static const String _tag = 'CreateClubBloc';
   final CreateClubUseCase createClubUseCase;
 
   CreateClubBloc({

@@ -50,7 +50,7 @@ class _SpeakingPhaseViewState extends State<SpeakingPhaseView> {
               Text(
                 'Speaking player #${state.speaker?.seatNumber}: ${state.speaker?.nickname}',
               ),
-              if (state.speaker?.isMuted == true) Text('MUTED'),
+              if (state.speaker?.isMuted == true) const Text('MUTED'),
               if (_isTimerFinished)
                 _goNextPlayer()
               else if (state.speakPhaseAction != null &&
@@ -66,13 +66,13 @@ class _SpeakingPhaseViewState extends State<SpeakingPhaseView> {
   Widget _goNextPlayer() {
     return Column(
       children: [
-        Text('Time for current player is finished'),
+        const Text('Time for current player is finished'),
         ElevatedButton(
             onPressed: () {
               speakingPhaseBloc.add(FinishSpeechEvent());
               _isTimerFinished = false;
             },
-            child: Text('Next player')),
+            child: const Text('Next player')),
       ],
     );
   }

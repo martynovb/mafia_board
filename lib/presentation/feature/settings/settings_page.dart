@@ -130,10 +130,10 @@ class _SettingsPageState extends State<SettingsPage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Change Nickname'),
+            title: const Text('Change Nickname'),
             content: TextField(
               controller: _nicknameController,
-              decoration: InputDecoration(hintText: "Enter new nickname"),
+              decoration: const InputDecoration(hintText: "Enter new nickname"),
             ),
             actions: <Widget>[
               SizedBox(

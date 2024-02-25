@@ -129,13 +129,12 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
               arguments: {'gameId': games[index].id},
             );
           },
-          child: Container(
-              child: Padding(
-            padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
-            child: _gameItem(
-              games[index],
-            ),
-          )),
+          child: Padding(
+                      padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
+                      child: _gameItem(
+          games[index],
+                      ),
+                    ),
         ),
       ),
       itemCount: games.length,

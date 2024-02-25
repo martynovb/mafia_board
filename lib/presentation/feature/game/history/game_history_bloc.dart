@@ -4,7 +4,6 @@ import 'package:mafia_board/domain/manager/game_history_manager.dart';
 
 class GameHistoryBloc
     extends Bloc<SubscribeToGameHistoryEvent, GameHistoryState> {
-  static const String _tag = 'GameHistoryBloc';
   final GameHistoryManager gameHistoryManager;
 
   GameHistoryBloc({
@@ -17,6 +16,7 @@ class GameHistoryBloc
       SubscribeToGameHistoryEvent event, emit) {
     gameHistoryManager.gameHistoryStream.listen((records) {
       //todo: handle emit correctly
+      // ignore: invalid_use_of_visible_for_testing_member
       this.emit(GameHistoryState(records: records.reversed.toList()));
     });
   }

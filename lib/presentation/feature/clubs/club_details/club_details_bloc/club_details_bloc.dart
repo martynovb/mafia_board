@@ -9,7 +9,6 @@ import 'package:mafia_board/presentation/feature/clubs/club_details/club_details
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_state.dart';
 
 class ClubsDetailsBloc extends HydratedBloc<ClubsDetailsEvent, ClubState> {
-  static const String _tag = 'ClubsDetailsBloc';
   final GetClubDetailsUseCase getClubDetailsUseCase;
   final GetAllGamesUsecase getAllGamesUsecase;
   final DeleteGameUseCase deleteGameUseCase;
