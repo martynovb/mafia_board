@@ -1,4 +1,5 @@
 import 'package:mafia_board/data/constants/constants.dart';
+import 'package:mafia_board/domain/exceptions/exception.dart';
 import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
@@ -31,7 +32,7 @@ class SpeakingPhaseManager {
     final List<SpeakPhaseModel> speakPhaseList = [];
     final players = playersRepository.getAllPlayers();
 
-    if (players.isEmpty) throw Exception('preparedSpeakPhases: no players');
+    if (players.isEmpty) throw InvalidGameDataError(errorMessage: 'No players');
 
     int startIndex = (currentDay - 1) % players.length;
     final reorderedPlayers = players.sublist(startIndex)

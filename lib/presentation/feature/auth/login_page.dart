@@ -8,6 +8,7 @@ import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
 import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 import 'package:mafia_board/presentation/feature/widgets/input_text_field.dart';
+import 'package:mafia_board/presentation/l10n/l10n.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -26,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     _authBloc = GetIt.instance();
-    _emailEditController.text = "mafiatest@gmail.com";
+    _emailEditController.text = "palantir.nr@gmail.com";
     super.initState();
   }
 
@@ -73,10 +74,12 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: Dimensions.sidePadding2x),
 
                       // Sign in to your account
-                      const Text(
-                        'Sign in to your account',
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
+                      Text(
+                        AppLocalizations.of(context).loginTitle,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: Dimensions.defaultSidePadding),
 
@@ -88,14 +91,14 @@ class _LoginPageState extends State<LoginPage> {
                       ],
 
                       // Email input
-                      const Align(
+                      Align(
                         alignment: Alignment.centerLeft,
                         child: Padding(
-                          padding: EdgeInsets.only(
+                          padding: const EdgeInsets.only(
                               bottom: Dimensions.sidePadding0_5x),
                           child: Text(
-                            'Email',
-                            style: TextStyle(
+                            AppLocalizations.of(context).email,
+                            style: const TextStyle(
                                 fontSize: 14,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),
@@ -111,9 +114,9 @@ class _LoginPageState extends State<LoginPage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          const Text(
-                            'Password',
-                            style: TextStyle(
+                          Text(
+                            AppLocalizations.of(context).password,
+                            style: const TextStyle(
                                 fontSize: 14,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),
@@ -121,12 +124,13 @@ class _LoginPageState extends State<LoginPage> {
                           GestureDetector(
                             onTap: () => Navigator.pushNamed(
                                 context, AppRouter.resetPasswordPage),
-                            child: const Text(
-                              'Forgot password?',
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.redAccent,
-                                  fontWeight: FontWeight.bold),
+                            child: Text(
+                              AppLocalizations.of(context).forgotPassword,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.redAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ],
@@ -151,24 +155,11 @@ class _LoginPageState extends State<LoginPage> {
                               backgroundColor:
                                   MaterialStateProperty.all(Colors.red),
                             ),
-                            child: const Text('Sign in',
-                                style: TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold)),
-                          )),
-                      const SizedBox(height: Dimensions.defaultSidePadding),
-                      // Sign in button
-                      SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: () => _authBloc.add(GoogleLoginAuthEvent()),
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(Colors.red),
+                            child: Text(
+                              AppLocalizations.of(context).login,
+                              style: const TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold),
                             ),
-                            child: const Text('Sign in with Google',
-                                style: TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold)),
                           )),
                       const SizedBox(height: Dimensions.defaultSidePadding),
 
@@ -176,15 +167,16 @@ class _LoginPageState extends State<LoginPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('Don\'t have an account?'),
+                          Text(AppLocalizations.of(context).dontHaveAccount),
                           TextButton(
                             onPressed: () => Navigator.pushNamed(
                                 context, AppRouter.createAccountPage),
-                            child: const Text(
-                              'Create an account',
-                              style: TextStyle(
-                                  color: Colors.redAccent,
-                                  fontWeight: FontWeight.bold),
+                            child: Text(
+                              AppLocalizations.of(context).createAccount,
+                              style: const TextStyle(
+                                color: Colors.redAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ],

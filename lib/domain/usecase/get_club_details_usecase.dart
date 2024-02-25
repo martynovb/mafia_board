@@ -17,7 +17,7 @@ class GetClubDetailsUseCase extends BaseUseCase<ClubModel, ClubModel> {
   @override
   Future<ClubModel> execute({ClubModel? params}) async {
     if(params == null){
-      throw InvalidDataError('Club does not exist');
+      throw InvalidDataError(errorMessage: 'Club does not exist');
     }
     final members = <ClubMemberModel>[];
     return params..members = members;

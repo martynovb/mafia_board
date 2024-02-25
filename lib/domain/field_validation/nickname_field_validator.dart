@@ -21,7 +21,7 @@ class NicknameFieldValidator extends FieldValidator {
     if (fieldText.length > maxSymbols || fieldText.length < minSymbols) {
       throw ValidationError(
         fieldType: fieldType,
-        errorCode: ValidationErrorCode.lenght,
+        errorCode: ValidationErrorCode.invalidLenght,
         errorMessage:
             'Nickname must be between $minSymbols and $maxSymbols characters.',
       );

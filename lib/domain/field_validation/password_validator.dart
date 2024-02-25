@@ -37,7 +37,7 @@ class PasswordFieldValidator extends FieldValidator {
     if (password.length > maxSymbols || password.length < minSymbols) {
       throw ValidationError(
         fieldType: fieldType,
-        errorCode: ValidationErrorCode.lenght,
+        errorCode: ValidationErrorCode.invalidLenght,
         errorMessage:
             'Password must be between $minSymbols and $maxSymbols characters.',
       );

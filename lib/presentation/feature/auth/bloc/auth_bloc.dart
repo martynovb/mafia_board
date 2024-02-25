@@ -8,8 +8,10 @@ import 'package:mafia_board/domain/field_validation/password_validator.dart';
 import 'package:mafia_board/domain/field_validation/repeat_password_validator.dart';
 import 'package:mafia_board/presentation/feature/auth/bloc/auth_event.dart';
 import 'package:mafia_board/presentation/feature/auth/bloc/auth_state.dart';
+import 'package:mafia_board/presentation/l10n/l10n.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  final AppLocalizations appLocalizations;
   final AuthRepo authRepo;
   final EmailFieldValidator emailFieldValidator;
   final NicknameFieldValidator nicknameFieldValidator;
@@ -17,6 +19,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final RepeatPasswordFieldValidator repeatPasswordFieldValidator;
 
   AuthBloc({
+    required this.appLocalizations,
     required this.authRepo,
     required this.nicknameFieldValidator,
     required this.emailFieldValidator,

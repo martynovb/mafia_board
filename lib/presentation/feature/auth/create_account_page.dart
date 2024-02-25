@@ -8,6 +8,7 @@ import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
 import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 import 'package:mafia_board/presentation/feature/widgets/input_text_field.dart';
+import 'package:mafia_board/presentation/l10n/l10n.dart';
 
 class CreateAccountPage extends StatefulWidget {
   const CreateAccountPage({Key? key}) : super(key: key);
@@ -75,10 +76,12 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                     const SizedBox(height: Dimensions.sidePadding2x),
 
                     // Sign in to your account
-                    const Text(
-                      'Create an account',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    Text(
+                      AppLocalizations.of(context).createAccountTitle,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: Dimensions.defaultSidePadding),
 
@@ -90,17 +93,18 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                     ],
 
                     // Nickname input
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding:
-                            EdgeInsets.only(bottom: Dimensions.sidePadding0_5x),
+                        padding: const EdgeInsets.only(
+                            bottom: Dimensions.sidePadding0_5x),
                         child: Text(
-                          'Nickname',
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold),
+                          AppLocalizations.of(context).nickname,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -109,17 +113,18 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                     ),
                     const SizedBox(height: Dimensions.defaultSidePadding),
                     // Email input
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding:
-                            EdgeInsets.only(bottom: Dimensions.sidePadding0_5x),
+                        padding: const EdgeInsets.only(
+                            bottom: Dimensions.sidePadding0_5x),
                         child: Text(
-                          'Email',
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold),
+                          AppLocalizations.of(context).email,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -127,17 +132,18 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       controller: _emailEditController,
                     ),
                     const SizedBox(height: Dimensions.defaultSidePadding),
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding:
-                            EdgeInsets.only(bottom: Dimensions.sidePadding0_5x),
+                        padding: const EdgeInsets.only(
+                            bottom: Dimensions.sidePadding0_5x),
                         child: Text(
-                          'Password',
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold),
+                          AppLocalizations.of(context).password,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -148,17 +154,18 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       controller: _passwordEditController,
                     ),
                     const SizedBox(height: Dimensions.defaultSidePadding),
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding:
-                            EdgeInsets.only(bottom: Dimensions.sidePadding0_5x),
+                        padding: const EdgeInsets.only(
+                            bottom: Dimensions.sidePadding0_5x),
                         child: Text(
-                          'Repeat password',
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold),
+                          AppLocalizations.of(context).repeatPassword,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -185,9 +192,13 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                             backgroundColor:
                                 MaterialStateProperty.all(Colors.red),
                           ),
-                          child: const Text('Sign up',
-                              style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.bold)),
+                          child: Text(
+                            AppLocalizations.of(context).signUp,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         )),
                     const SizedBox(height: Dimensions.defaultSidePadding),
 
@@ -195,14 +206,15 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('Already have an account?'),
+                        Text(AppLocalizations.of(context).alreadyHaveAccount),
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: const Text(
-                            'Sign in',
-                            style: TextStyle(
-                                color: Colors.redAccent,
-                                fontWeight: FontWeight.bold),
+                          child: Text(
+                            AppLocalizations.of(context).backToSignIn,
+                            style: const TextStyle(
+                              color: Colors.redAccent,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],

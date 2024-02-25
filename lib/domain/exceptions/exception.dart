@@ -1,10 +1,15 @@
+import 'package:mafia_board/domain/exceptions/error_type.dart';
 import 'package:mafia_board/domain/field_validation/field_type.dart';
 import 'package:mafia_board/domain/field_validation/validation_error_code.dart';
 
 class BaseException implements Exception {
-  final String errorMessage;
+  final ErrorType errorType;
+  final String? errorMessage;
 
-  BaseException(this.errorMessage);
+  BaseException({
+    this.errorMessage,
+    this.errorType = ErrorType.none,
+  });
 }
 
 class ValidationError extends BaseException {
@@ -14,8 +19,9 @@ class ValidationError extends BaseException {
   ValidationError({
     required this.fieldType,
     required this.errorCode,
-    required String errorMessage,
-  }) : super(errorMessage);
+  }) : super(
+          errorType: ErrorType.validation,
+        );
 }
 
 class ValidationErrorsMap extends BaseException {
@@ -23,16 +29,25 @@ class ValidationErrorsMap extends BaseException {
 
   ValidationErrorsMap({
     required this.errorMap,
-  }) : super('Validation error');
+  }) : super(
+          errorType: ErrorType.validation,
+        );
 }
 
-class InvalidPlayerDataException implements Exception {
-  final String errorMessage;
+class InvalidPlayerDataException extends BaseException {
+  InvalidPlayerDataException({required super.errorType});
+}
 
-  InvalidPlayerDataException(this.errorMessage);
+class InvalidGameDataError extends BaseException {
+  InvalidGameDataError({
+    super.errorMessage,
+    errorType = ErrorType.invalidGameData,
+  });
 }
 
 class InvalidDataError extends BaseException {
-
-  InvalidDataError(super.errorMessage);
+  InvalidDataError({
+    super.errorMessage,
+    errorType = ErrorType.invalidData,
+  });
 }

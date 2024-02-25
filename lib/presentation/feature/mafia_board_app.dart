@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/presentation/feature/app/bloc/app_bloc.dart';
 import 'package:mafia_board/presentation/feature/app/bloc/app_event.dart';
@@ -24,6 +25,7 @@ import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_bloc.dart
 import 'package:mafia_board/presentation/feature/home/home_page.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
 import 'package:mafia_board/presentation/feature/settings/bloc/user_bloc.dart';
+import 'package:mafia_board/presentation/l10n/l10n.dart';
 
 class MafiaBoardApp extends StatefulWidget {
   const MafiaBoardApp({Key? key}) : super(key: key);
@@ -57,9 +59,11 @@ class _MafiaBoardAppState extends State<MafiaBoardApp> {
           BlocProvider(create: (context) => GetIt.instance<GameBloc>()),
           BlocProvider(create: (context) => GetIt.instance<VotePhaseBloc>()),
           BlocProvider(create: (context) => GetIt.instance<GameHistoryBloc>()),
-          BlocProvider(create: (context) => GetIt.instance<SpeakingPhaseBloc>()),
+          BlocProvider(
+              create: (context) => GetIt.instance<SpeakingPhaseBloc>()),
           BlocProvider(create: (context) => GetIt.instance<NightPhaseBloc>()),
-          BlocProvider(create: (context) => GetIt.instance<VotePhaseListBloc>()),
+          BlocProvider(
+              create: (context) => GetIt.instance<VotePhaseListBloc>()),
           BlocProvider(create: (context) => GetIt.instance<AuthBloc>()),
           BlocProvider(create: (context) => GetIt.instance<AppBloc>()),
           BlocProvider(create: (context) => GetIt.instance<ClubsDetailsBloc>()),
@@ -75,6 +79,8 @@ class _MafiaBoardAppState extends State<MafiaBoardApp> {
           builder: (context, AppState state) {
             return MaterialApp(
               debugShowCheckedModeBanner: false,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
               title: 'Mafia board',
               theme: ThemeData(brightness: Brightness.dark, useMaterial3: true),
               home: state is InitialAppState

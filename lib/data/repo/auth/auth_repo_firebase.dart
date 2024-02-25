@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mafia_board/data/api/api_error_type.dart';
 import 'package:mafia_board/data/api/error_handler.dart';
 import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/data/entity/user_entity.dart';
@@ -53,7 +54,7 @@ class AuthRepoFirebase extends AuthRepo {
     required String password,
   }) async {
     if (!(await isNicknameAvailable(nickname))) {
-      throw ValidationException('Nickname is taken');
+      throw ValidationException(ApiErrorType.nicknmaeIsTaken);
     }
 
     final userCredential = await firebaseAuth.createUserWithEmailAndPassword(
@@ -87,13 +88,13 @@ class AuthRepoFirebase extends AuthRepo {
   @override
   Future<UserEntity> changeNickname({required String nickname}) async {
     if (!(await isNicknameAvailable(nickname))) {
-      throw ValidationException('Nickname is taken');
+      throw ValidationException(ApiErrorType.nicknmaeIsTaken);
     }
 
     final id = firebaseAuth.currentUser?.uid;
 
     if (id == null) {
-      throw InvalidCredentialsException('Unauthorized');
+      throw InvalidCredentialsException(ApiErrorType.unauthorized);
     }
 
     await firestore.collection(FirestoreKeys.usersCollectionKey).doc(id).update(
