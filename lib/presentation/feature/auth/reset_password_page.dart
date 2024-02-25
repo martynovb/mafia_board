@@ -12,13 +12,11 @@ class ResetPasswordPage extends StatefulWidget {
 }
 
 class _ResetPasswordPageState extends State<ResetPasswordPage> {
-  late AuthBloc _authBloc;
   late final TextEditingController _emailEditController =
       TextEditingController();
 
   @override
   void initState() {
-    _authBloc = GetIt.instance();
     super.initState();
   }
 

@@ -8,7 +8,6 @@ import 'package:mafia_board/presentation/feature/auth/bloc/auth_bloc.dart';
 import 'package:mafia_board/presentation/feature/auth/login_page.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_bloc.dart';
 import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_bloc.dart';
-import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_page.dart';
 import 'package:mafia_board/presentation/feature/clubs/create_club/bloc/create_club_bloc.dart';
 import 'package:mafia_board/presentation/feature/clubs/rating_table/bloc/rating_table_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
