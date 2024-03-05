@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -8,7 +9,6 @@ import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
 import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 import 'package:mafia_board/presentation/feature/widgets/input_text_field.dart';
-import 'package:mafia_board/presentation/l10n/l10n.dart';
 
 class CreateAccountPage extends StatefulWidget {
   const CreateAccountPage({Key? key}) : super(key: key);
@@ -76,13 +76,13 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                     const SizedBox(height: Dimensions.sidePadding2x),
 
                     // Sign in to your account
-                    Text(
-                      AppLocalizations.of(context).createAccountTitle,
-                      style: const TextStyle(
+                    const Text(
+                      'appName',
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
-                    ),
+                    ).tr(),
                     const SizedBox(height: Dimensions.defaultSidePadding),
 
                     if (state is ErrorAuthState) ...[
@@ -98,14 +98,14 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       child: Padding(
                         padding: const EdgeInsets.only(
                             bottom: Dimensions.sidePadding0_5x),
-                        child: Text(
-                          AppLocalizations.of(context).nickname,
-                          style: const TextStyle(
+                        child: const Text(
+                          'nickname',
+                          style: TextStyle(
                             fontSize: 14,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
-                        ),
+                        ).tr(),
                       ),
                     ),
                     InputTextField(
@@ -118,14 +118,14 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       child: Padding(
                         padding: const EdgeInsets.only(
                             bottom: Dimensions.sidePadding0_5x),
-                        child: Text(
-                          AppLocalizations.of(context).email,
-                          style: const TextStyle(
+                        child: const Text(
+                          'email',
+                          style: TextStyle(
                             fontSize: 14,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
-                        ),
+                        ).tr(),
                       ),
                     ),
                     InputTextField(
@@ -137,14 +137,14 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       child: Padding(
                         padding: const EdgeInsets.only(
                             bottom: Dimensions.sidePadding0_5x),
-                        child: Text(
-                          AppLocalizations.of(context).password,
-                          style: const TextStyle(
+                        child: const Text(
+                          'password',
+                          style: TextStyle(
                             fontSize: 14,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
-                        ),
+                        ).tr(),
                       ),
                     ),
 
@@ -159,14 +159,14 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       child: Padding(
                         padding: const EdgeInsets.only(
                             bottom: Dimensions.sidePadding0_5x),
-                        child: Text(
-                          AppLocalizations.of(context).repeatPassword,
-                          style: const TextStyle(
+                        child: const Text(
+                          'repeatPassword',
+                          style: TextStyle(
                             fontSize: 14,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
-                        ),
+                        ).tr(),
                       ),
                     ),
 
@@ -192,13 +192,13 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                             backgroundColor:
                                 MaterialStateProperty.all(Colors.red),
                           ),
-                          child: Text(
-                            AppLocalizations.of(context).signUp,
-                            style: const TextStyle(
+                          child: const Text(
+                            'signUp',
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                             ),
-                          ),
+                          ).tr(),
                         )),
                     const SizedBox(height: Dimensions.defaultSidePadding),
 
@@ -206,16 +206,16 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(AppLocalizations.of(context).alreadyHaveAccount),
+                        const Text('alreadyHaveAccount').tr(),
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: Text(
-                            AppLocalizations.of(context).backToSignIn,
-                            style: const TextStyle(
+                          child: const Text(
+                            'backToSignIn',
+                            style: TextStyle(
                               color: Colors.redAccent,
                               fontWeight: FontWeight.bold,
                             ),
-                          ),
+                          ).tr(),
                         ),
                       ],
                     ),

@@ -66,8 +66,8 @@ class _GamePageState extends State<GamePage>
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-        onPopInvoked: (invoked) async => _showFinishConfirmationDialog(),
+    return WillPopScope(
+        onWillPop: () => _showFinishConfirmationDialog(),
         child: BlocListener(
             bloc: gameBloc,
             listener: (context, GameState state) {

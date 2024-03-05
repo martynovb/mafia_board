@@ -80,7 +80,6 @@ import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/ro
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/users/bloc/user_list_bloc.dart';
 import 'package:mafia_board/presentation/feature/settings/bloc/user_bloc.dart';
-import 'package:mafia_board/presentation/l10n/l10n.dart';
 
 class Injector {
   static final _getIt = GetIt.instance;
@@ -335,7 +334,6 @@ class Injector {
   }
 
   static void _injectPresentation() {
-   // _getIt.registerLazySingleton(() => AppLocalizations());
 
     _getIt.registerSingleton(
       UserBloc(
@@ -403,7 +401,6 @@ class Injector {
 
     _getIt.registerSingleton(
       AuthBloc(
-        appLocalizations: _getIt.get(),
         nicknameFieldValidator: _getIt.get(),
         emailFieldValidator: _getIt.get(),
         passwordFieldValidator: _getIt.get(),

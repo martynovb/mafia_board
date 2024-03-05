@@ -1,5 +1,4 @@
-
-
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mafia_board/domain/exceptions/exception.dart';
 import 'package:mafia_board/domain/field_validation/field_type.dart';
 import 'package:mafia_board/domain/field_validation/validation_error_code.dart';
@@ -21,7 +20,7 @@ class PasswordFieldValidator extends FieldValidator {
       throw ValidationError(
         fieldType: fieldType,
         errorCode: ValidationErrorCode.invalidData,
-        errorMessage: 'Password should not be empty',
+        errorMessage: 'validationErrorPasswordIsEmpty'.tr(),
       );
     }
 
@@ -29,18 +28,20 @@ class PasswordFieldValidator extends FieldValidator {
       throw ValidationError(
         fieldType: fieldType,
         errorCode: ValidationErrorCode.invalidData,
-        errorMessage:
-            'Password should contain at least one uppercase letter and one digit',
+        errorMessage: 'validationErrorPasswordIsInvalid'.tr(),
       );
     }
 
     if (password.length > maxSymbols || password.length < minSymbols) {
       throw ValidationError(
-        fieldType: fieldType,
-        errorCode: ValidationErrorCode.invalidLenght,
-        errorMessage:
-            'Password must be between $minSymbols and $maxSymbols characters.',
-      );
+          fieldType: fieldType,
+          errorCode: ValidationErrorCode.invalidLenght,
+          errorMessage: 'validationErrorPasswordIsLength'.tr(
+            args: [
+              minSymbols.toString(),
+              maxSymbols.toString(),
+            ],
+          ));
     }
   }
 }

@@ -4,10 +4,10 @@ import 'package:mafia_board/domain/field_validation/validation_error_code.dart';
 
 class BaseException implements Exception {
   final ErrorType errorType;
-  final String? errorMessage;
+  final String errorMessage;
 
   BaseException({
-    this.errorMessage,
+    this.errorMessage = '',
     this.errorType = ErrorType.none,
   });
 }
@@ -18,6 +18,7 @@ class ValidationError extends BaseException {
 
   ValidationError({
     required this.fieldType,
+    required super.errorMessage,
     required this.errorCode,
   }) : super(
           errorType: ErrorType.validation,
@@ -35,7 +36,10 @@ class ValidationErrorsMap extends BaseException {
 }
 
 class InvalidPlayerDataException extends BaseException {
-  InvalidPlayerDataException({required super.errorType});
+  InvalidPlayerDataException({
+    required super.errorMessage,
+    required super.errorType,
+  });
 }
 
 class InvalidGameDataError extends BaseException {

@@ -8,18 +8,21 @@ class PlayerValidator {
     if (player.nickname.isEmpty) {
       throw InvalidPlayerDataException(
         errorType: ErrorType.invalidPlayerDataNicknames,
+        errorMessage: '',
       );
     }
 
     if (player.role == Role.none) {
       throw InvalidPlayerDataException(
         errorType: ErrorType.invalidPlayerDataRoles,
+        errorMessage: '',
       );
     }
 
     if (player.fouls > 0) {
       throw InvalidPlayerDataException(
         errorType: ErrorType.invalidPlayerData,
+        errorMessage: '',
       );
     }
   }

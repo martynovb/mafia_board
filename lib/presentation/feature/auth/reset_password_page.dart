@@ -1,7 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/widgets/input_text_field.dart';
-import 'package:mafia_board/presentation/l10n/l10n.dart';
 
 class ResetPasswordPage extends StatefulWidget {
   const ResetPasswordPage({Key? key}) : super(key: key);
@@ -52,9 +52,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
               const SizedBox(height: Dimensions.sidePadding2x),
 
               // Sign in to your account
-              Text(
-                AppLocalizations.of(context).resetPasswordTitle,
-                style: const TextStyle(
+              const Text(
+                'resetPasswordTitle',
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
@@ -67,14 +67,14 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 child: Padding(
                   padding:
                       const EdgeInsets.only(bottom: Dimensions.sidePadding0_5x),
-                  child: Text(
-                    AppLocalizations.of(context).email,
-                    style: const TextStyle(
+                  child: const Text(
+                    'email',
+                    style: TextStyle(
                       fontSize: 14,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
-                  ),
+                  ).tr(),
                 ),
               ),
               InputTextField(
@@ -89,13 +89,13 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.red),
                     ),
-                    child: Text(
-                      AppLocalizations.of(context).resetPassword,
-                      style: const TextStyle(
+                    child: const Text(
+                      'resetPassword',
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
-                    ),
+                    ).tr(),
                   )),
               const SizedBox(height: Dimensions.defaultSidePadding),
 
@@ -104,13 +104,13 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 alignment: Alignment.center,
                 child: TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    AppLocalizations.of(context).backToSignIn,
-                    style: const TextStyle(
+                  child: const Text(
+                    'backToSignIn',
+                    style: TextStyle(
                       color: Colors.redAccent,
                       fontWeight: FontWeight.bold,
                     ),
-                  ),
+                  ).tr(),
                 ),
               )
             ],

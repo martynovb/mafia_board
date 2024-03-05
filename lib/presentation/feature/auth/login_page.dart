@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -8,7 +9,6 @@ import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
 import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 import 'package:mafia_board/presentation/feature/widgets/input_text_field.dart';
-import 'package:mafia_board/presentation/l10n/l10n.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -74,19 +74,27 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: Dimensions.sidePadding2x),
 
                       // Sign in to your account
-                      Text(
-                        AppLocalizations.of(context).loginTitle,
-                        style: const TextStyle(
+                      const Text(
+                        'loginTitle',
+                        style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
-                      ),
+                      ).tr(),
                       const SizedBox(height: Dimensions.defaultSidePadding),
 
                       if (state is ErrorAuthState) ...[
                         InfoField(
-                            message: state.errorMessage,
-                            infoFieldType: InfoFieldType.error),
+                          message: state.errorMessage,
+                          infoFieldType: InfoFieldType.error,
+                        ),
+                        const SizedBox(height: Dimensions.defaultSidePadding),
+                      ],
+                      if (state is ValidationErrorState) ...[
+                        InfoField(
+                          message: state.validationError,
+                          infoFieldType: InfoFieldType.error,
+                        ),
                         const SizedBox(height: Dimensions.defaultSidePadding),
                       ],
 
@@ -95,14 +103,16 @@ class _LoginPageState extends State<LoginPage> {
                         alignment: Alignment.centerLeft,
                         child: Padding(
                           padding: const EdgeInsets.only(
-                              bottom: Dimensions.sidePadding0_5x),
-                          child: Text(
-                            AppLocalizations.of(context).email,
-                            style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                            bottom: Dimensions.sidePadding0_5x,
                           ),
+                          child: const Text(
+                            'email',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ).tr(),
                         ),
                       ),
                       InputTextField(
@@ -114,24 +124,24 @@ class _LoginPageState extends State<LoginPage> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          Text(
-                            AppLocalizations.of(context).password,
-                            style: const TextStyle(
+                          const Text(
+                            'password',
+                            style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),
-                          ),
+                          ).tr(),
                           GestureDetector(
                             onTap: () => Navigator.pushNamed(
                                 context, AppRouter.resetPasswordPage),
-                            child: Text(
-                              AppLocalizations.of(context).forgotPassword,
-                              style: const TextStyle(
+                            child: const Text(
+                              'forgotPassword',
+                              style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.redAccent,
                                 fontWeight: FontWeight.bold,
                               ),
-                            ),
+                            ).tr(),
                           ),
                         ],
                       ),
@@ -155,11 +165,11 @@ class _LoginPageState extends State<LoginPage> {
                               backgroundColor:
                                   MaterialStateProperty.all(Colors.red),
                             ),
-                            child: Text(
-                              AppLocalizations.of(context).login,
-                              style: const TextStyle(
+                            child: const Text(
+                              'login',
+                              style: TextStyle(
                                   fontSize: 14, fontWeight: FontWeight.bold),
-                            ),
+                            ).tr(),
                           )),
                       const SizedBox(height: Dimensions.defaultSidePadding),
 
@@ -167,17 +177,17 @@ class _LoginPageState extends State<LoginPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(AppLocalizations.of(context).dontHaveAccount),
+                          const Text('dontHaveAccount').tr(),
                           TextButton(
                             onPressed: () => Navigator.pushNamed(
                                 context, AppRouter.createAccountPage),
-                            child: Text(
-                              AppLocalizations.of(context).createAccount,
-                              style: const TextStyle(
+                            child: const Text(
+                              'createAccount',
+                              style: TextStyle(
                                 color: Colors.redAccent,
                                 fontWeight: FontWeight.bold,
                               ),
-                            ),
+                            ).tr(),
                           ),
                         ],
                       ),
