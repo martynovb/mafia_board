@@ -177,7 +177,7 @@ class BasePhaseRepo<GamePhase extends GamePhaseModel>
           NightPhaseModel.fromFirebaseMap(
             id: doc.id,
             map: data,
-            killedPlayer: killedPlayer ?? PlayerModel.empty(-1),
+            killedPlayer: killedPlayer ?? PlayerModel.empty(),
             checkedPlayer: checkedPlayer,
             playersForWakeUp: playersForWakeUp,
           ),
@@ -221,7 +221,7 @@ class BasePhaseRepo<GamePhase extends GamePhaseModel>
             map: data,
             votedPlayers: votedPlayers,
             playersToKick: playersToKick,
-            playerOnVote: playerOnVote ?? PlayerModel.empty(-1),
+            playerOnVote: playerOnVote ?? PlayerModel.empty(),
             whoPutOnVote: whoPutOnVote,
           ),
         );

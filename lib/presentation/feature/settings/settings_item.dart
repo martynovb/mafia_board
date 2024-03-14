@@ -29,8 +29,9 @@ class SettingsItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.only(
-            top: Dimensions.sidePadding0_5x,
-            bottom: Dimensions.sidePadding0_5x),
+          top: Dimensions.sidePadding0_5x,
+          bottom: Dimensions.sidePadding0_5x,
+        ),
         child: Row(
           children: [
             Expanded(
@@ -56,6 +57,7 @@ class SettingsItem extends StatelessWidget {
                         ),
                       )
                     : Container(),
+                descriptionWidget ?? Container(),
               ],
             )),
             if (btnText != null && onPressed != null) ...[

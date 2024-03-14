@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -29,16 +30,16 @@ class _RatingTableWidgetState extends State<RatingTableWidget> {
   late RatingTableBloc _bloc;
 
   final int _numberFlex = 1;
-  final int _nicknameFlex = 2;
-  final int _totalGamesFlex = 1;
-  final int _totalWinsFlex = 1;
-  final int _winRateFlex = 2;
-  final int _totalPointsFlex = 1;
-  final int _civilianWinRateFlex = 2;
-  final int _mafWinRateFlex = 2;
-  final int _sheriffWinRateFlex = 2;
-  final int _donWinRateFlex = 2;
-  final int _donMafWinRateFlex = 2;
+  final int _nicknameFlex = 3;
+  final int _totalGamesFlex = 3;
+  final int _totalWinsFlex = 2;
+  final int _winRateFlex = 3;
+  final int _totalPointsFlex = 3;
+  final int _civilianWinRateFlex = 3;
+  final int _mafWinRateFlex = 3;
+  final int _sheriffWinRateFlex = 3;
+  final int _donWinRateFlex = 3;
+  final int _donMafWinRateFlex = 3;
   final int _civilSherWinRateFlex = 2;
 
   @override
@@ -100,7 +101,7 @@ class _RatingTableWidgetState extends State<RatingTableWidget> {
             child: Text(
               text,
               textAlign: TextAlign.center,
-              maxLines: 2,
+              maxLines: 3,
               style: TextStyle(
                 color: _bloc.state.sortType == sortType
                     ? Colors.green
@@ -127,65 +128,65 @@ class _RatingTableWidgetState extends State<RatingTableWidget> {
               ),
             ),
             const VerticalDivider(),
-            _headerItem(flex: _nicknameFlex, text: 'nickname'),
+            _headerItem(flex: _nicknameFlex, text: 'nickname'.tr()),
             const VerticalDivider(),
             _headerItem(
               flex: _totalPointsFlex,
-              text: 'total points',
+              text: 'totalPointsLable'.tr(),
               sortType: SortType.totalPoints,
             ),
             const VerticalDivider(),
             _headerItem(
               flex: _totalWinsFlex,
-              text: 'total wins',
+              text: 'totalWinsLable'.tr(),
               sortType: SortType.totalWins,
             ),
             const VerticalDivider(),
             _headerItem(
               flex: _winRateFlex,
-              text: 'total win rate',
+              text: 'totalWinRateLable'.tr(),
               sortType: SortType.winRate,
             ),
             const VerticalDivider(),
             _headerItem(
               flex: _civilianWinRateFlex,
-              text: 'civilian win rate',
+              text: 'civilianWinRateLable'.tr(),
               sortType: SortType.civilianWinRate,
             ),
             const VerticalDivider(),
             _headerItem(
               flex: _sheriffWinRateFlex,
-              text: 'sheriff win rate',
+              text: 'sheriffWinRateLable'.tr(),
               sortType: SortType.sheriffWinRate,
             ),
             const VerticalDivider(),
             _headerItem(
               flex: _civilSherWinRateFlex,
-              text: 'civil + sheriff win rate',
+              text: 'civilianSheriffWinRateLable'.tr(),
               sortType: SortType.civilSherWinRate,
             ),
             const VerticalDivider(),
             _headerItem(
               flex: _mafWinRateFlex,
-              text: 'mafia win rate',
+              text: 'mafiaWinRateLable'.tr(),
               sortType: SortType.mafWinRate,
             ),
             const VerticalDivider(),
             _headerItem(
               flex: _donWinRateFlex,
-              text: 'don win rate',
+              text: 'donWinRateLable'.tr(),
               sortType: SortType.donWinRate,
             ),
             const VerticalDivider(),
             _headerItem(
               flex: _donMafWinRateFlex,
-              text: 'don + mafia win rate',
+              text: 'donMafiaWinRateLable'.tr(),
               sortType: SortType.donMafWinRate,
             ),
             const VerticalDivider(),
             _headerItem(
               flex: _totalGamesFlex,
-              text: 'total games',
+              text: 'totalGamesLable'.tr(),
               sortType: SortType.totalGames,
             ),
           ],

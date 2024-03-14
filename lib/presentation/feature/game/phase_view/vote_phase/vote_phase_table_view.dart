@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -84,7 +85,16 @@ class _VotePhaseTableViewState extends State<VotePhaseTableView> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(state.title),
+        const Text('voteAgainst').tr(
+          args: [
+            state.playerOnVote?.seatNumber.toString() ?? '',
+          ],
+        ),
+        Text(
+          state.playerOnVote?.nickname ?? '',
+        
+        ),
+        //todo add players to kick
         if (state.playersToKickText.isNotEmpty) Text(state.playersToKickText),
         ElevatedButton(
           onPressed: () {
@@ -94,7 +104,7 @@ class _VotePhaseTableViewState extends State<VotePhaseTableView> {
               ),
             );
           },
-          child: const Text('Next'),
+          child: const Text('next').tr(),
         ),
       ],
     );

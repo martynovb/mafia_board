@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_bloc.dart';
@@ -58,18 +59,18 @@ class HomePageState extends State<HomePage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'My clubs',
+            icon: const Icon(Icons.list),
+            label: 'myClubs'.tr(),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add),
-            label: 'Create',
+            icon: const Icon(Icons.add),
+            label: 'createClub'.tr(),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+            icon: const Icon(Icons.person),
+            label: 'myProfile'.tr(),
           ),
         ],
         currentIndex: _currentIndex,

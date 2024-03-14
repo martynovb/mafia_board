@@ -41,3 +41,24 @@ Role roleMapper(String? role) {
     return Role.none;
   }
 }
+
+String roleEmojiMapper(Role role) {
+  switch (role) {
+    case Role.mafia:
+      return '👎🏻';
+    case Role.don:
+      return '🎩';
+    case Role.sheriff:
+      return '🚨';
+    case Role.civilian:
+      return '👍🏻';
+    case Role.doctor:
+      return '🏥';
+    case Role.putana:
+      return '👠';
+    case Role.maniac:
+      return '🔪';
+    case Role.none:
+      return '❓';
+  }
+}

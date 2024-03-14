@@ -46,9 +46,10 @@ class PlayerModel {
 
   double total() => bestMove + compensation + gamePoints + bonus;
 
-  PlayerModel.empty(this.seatNumber)
-      : tempId = '',
-        clubMember = ClubMemberModel.empty(),
+  PlayerModel.empty({
+    this.seatNumber = -1,
+    this.tempId = '',
+  })  : clubMember = ClubMemberModel.empty(),
         role = Role.none,
         fouls = 0,
         isDisqualified = false,
@@ -91,7 +92,7 @@ class PlayerModel {
   }
 
   static PlayerModel fromMap(Map<String, dynamic>? map) => map == null
-      ? PlayerModel.empty(-1)
+      ? PlayerModel.empty()
       : PlayerModel(
           id: map['id'] ?? '',
           tempId: map['tempId'] ?? '',

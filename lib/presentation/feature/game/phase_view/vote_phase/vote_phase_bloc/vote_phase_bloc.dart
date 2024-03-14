@@ -35,7 +35,6 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
     emit(VotePhaseState(
       players: boardRepository.getAllPlayers(),
       status: currentVotePhase?.status ?? PhaseStatus.notStarted,
-      title: _mapVotePageTitle(currentVotePhase),
       playersToKickText:
           _parsePlayersToKickToString(currentVotePhase?.playersToKick),
       playerOnVote: currentVotePhase?.playerOnVote,
@@ -54,7 +53,6 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
         emit(VotePhaseState(
           players: boardRepository.getAllPlayers(),
           status: currentVotePhase.status,
-          title: _mapVotePageTitle(currentVotePhase),
           playersToKickText:
               _parsePlayersToKickToString(currentVotePhase.playersToKick),
           playerOnVote: currentVotePhase.playerOnVote,
@@ -82,7 +80,6 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
       emit(VotePhaseState(
         players: boardRepository.getAllPlayers(),
         status: currentVotePhase?.status ?? PhaseStatus.notStarted,
-        title: _mapVotePageTitle(currentVotePhase),
         playersToKickText:
             _parsePlayersToKickToString(currentVotePhase?.playersToKick),
         playerOnVote: currentVotePhase?.playerOnVote,
@@ -107,7 +104,6 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
         emit(VotePhaseState(
           players: boardRepository.getAllPlayers(),
           status: currentVotePhase?.status ?? PhaseStatus.notStarted,
-          title: _mapVotePageTitle(currentVotePhase),
           playersToKickText:
               _parsePlayersToKickToString(currentVotePhase?.playersToKick),
           playerOnVote: currentVotePhase?.playerOnVote,

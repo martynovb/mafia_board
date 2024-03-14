@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -153,17 +154,17 @@ class _ClubsPageState extends State<ClubsPage> {
       context: context,
       position: position,
       items: [
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: _updateRulesOption,
-          child: Text('Update club rules'),
+          child: const Text('updateClubRules').tr(),
         ),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: _managePermissionsOption,
-          child: Text('Manage permissions'),
+          child: const Text('managePermissions').tr(),
         ),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: _managePermissionsOption,
-          child: Text('Delete club'),
+          child: const Text('deleteClub').tr(),
         ),
       ],
     );

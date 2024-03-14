@@ -39,3 +39,11 @@ class GamePhaseState extends GameState {
     required this.currentGamePhaseName,
   });
 }
+
+class GameStartedState extends GamePhaseState {
+  GameStartedState({
+    required super.club,
+    required super.currentGame,
+    required super.currentGamePhaseName,
+  });
+}

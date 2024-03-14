@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_event.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_state.dart';
-import 'package:mafia_board/presentation/feature/game/history/game_history_page.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/players_sheet_page.dart';
 import 'package:mafia_board/presentation/feature/game/table/table_page.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
@@ -22,8 +22,7 @@ class GamePage extends StatefulWidget {
 
 class _GamePageState extends State<GamePage>
     with SingleTickerProviderStateMixin {
-  late TabController _pageController;
-  late List<Widget> _tabList;
+  late List<Widget> _pages;
   late GameBloc gameBloc;
   bool _isGameStarted = false;
 
@@ -40,20 +39,6 @@ class _GamePageState extends State<GamePage>
 
     gameBloc.add(PrepareGameEvent(club: args?['club'] ?? gameBloc.state.club));
 
-    _pageController = TabController(initialIndex: 0, vsync: this, length: 3);
-    _tabList = [
-      PlayersSheetPage(
-          club: args?['club'] ?? gameBloc.state.club,
-          onPPKGameFinished: _showFinishConfirmationPPKDialog,
-          nextPage: () {
-            if (_pageController.index < 2) {
-              _pageController.animateTo(_pageController.index + 1);
-            }
-          }),
-      TablePage(onGameFinished: _showFinishConfirmationDialog),
-      const GameHistoryPage(),
-    ];
-
     gameBloc.gameStream.listen((gameModel) {
       if (gameModel?.gameStatus == GameStatus.finished &&
           gameModel?.finishGameType == FinishGameType.normalFinish) {
@@ -67,51 +52,57 @@ class _GamePageState extends State<GamePage>
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () => _showFinishConfirmationDialog(),
-        child: BlocListener(
-            bloc: gameBloc,
-            listener: (context, GameState state) {
-              if (state is GoToGameResults) {
-                Navigator.pushNamed(
-                  context,
-                  AppRouter.gameResultsPage,
-                  arguments: {'club': state.club},
-                );
-              } else if (state is GamePhaseState) {
-                _isGameStarted =
-                    state.currentGame?.gameStatus == GameStatus.inProgress;
-              } else if (state is CloseGameState) {
-                Navigator.pop(context);
-              }
-            },
-            child: SafeArea(
-              child: Scaffold(
-                appBar: _appBar(context),
-                body: TabBarView(
-                  controller: _pageController,
-                  children: _tabList,
+      onWillPop: () => _showFinishConfirmationDialog(),
+      child: BlocListener(
+        bloc: gameBloc,
+        listener: (context, GameState state) {
+          if (state is GoToGameResults) {
+            Navigator.pushNamed(
+              context,
+              AppRouter.gameResultsPage,
+              arguments: {'club': state.club},
+            );
+          } else if (state is GamePhaseState) {
+            _isGameStarted =
+                state.currentGame?.gameStatus == GameStatus.inProgress;
+          } else if (state is CloseGameState) {
+            Navigator.pop(context);
+          }
+        },
+        child: SafeArea(
+          child: Scaffold(
+            appBar: _appBar(context),
+            body: Row(children: [
+              Expanded(
+                child: PlayersSheetPage(
+                  club: gameBloc.state.club ?? ClubModel.empty(),
+                  onPPKGameFinished: _showFinishConfirmationPPKDialog,
                 ),
               ),
-            )));
+              const VerticalDivider(),
+              Expanded(
+                child: TablePage(
+                  onGameFinished: _showFinishConfirmationDialog,
+                ),
+              ),
+            ]),
+          ),
+        ),
+      ),
+    );
   }
 
   AppBar _appBar(BuildContext context) => AppBar(
-        title: const Text('Mafia board'),
+        title: const Text('Game'),
         centerTitle: true,
-        bottom: TabBar(
-          tabs: const [
-            Tab(icon: Text('Players')),
-            Tab(icon: Text('Table')),
-            Tab(icon: Text('History')),
-          ],
-          controller: _pageController,
-        ),
         actions: [
           IconButton(
               onPressed: () => Navigator.pushNamed(
                     context,
                     AppRouter.gameRulesPage,
-                    arguments: {'clubId': gameBloc.state.club?.id},
+                    arguments: {
+                      'clubId': gameBloc.state.club?.id,
+                    },
                   ),
               icon: const Icon(Icons.settings))
         ],

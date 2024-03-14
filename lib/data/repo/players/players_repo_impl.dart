@@ -18,22 +18,47 @@ class PlayersRepoImpl extends PlayersRepo {
     required this.firestore,
   });
 
+  /// Creates a list of [PlayerModel] objects with the specified [count].
+  ///
+  /// This method clears the existing players list and creates new players
+  /// based on the given count. Each player is assigned a seat number and a
+  /// temporary ID generated using the Uuid library.
+  ///
+  /// Returns the list of created players.
   @override
   List<PlayerModel> createPlayers(int count) {
     _players.clear();
     for (int i = 1; i <= count; i++) {
-      _players.add(PlayerModel.empty(i));
+      _players.add(
+        PlayerModel.empty(
+          seatNumber: i,
+          tempId: const Uuid().v1(),
+        ),
+      );
     }
     return _players;
   }
 
+  /// Sets the user for a specific seat number in the players repository.
+  ///
+  /// If a player with the same user ID is already set in the repository, the existing player
+  /// will be replaced with a new empty player with the specified seat number.
+  ///
+  /// The player with the specified seat number will be updated with the provided [clubMember]
+  /// and assigned a temporary ID, a role of [Role.none], and the specified seat number.
+  ///
+  /// Parameters:
+  /// - [seatNumber]: The seat number of the player.
+  /// - [clubMember]: The club member model representing the user to set.
   @override
   void setUser(int seatNumber, ClubMemberModel clubMember) {
     final userIndexIfAlreadySet = _players.indexWhere(
         (player) => player.clubMember?.user.id == clubMember.user.id);
     if (userIndexIfAlreadySet != -1) {
-      _players[userIndexIfAlreadySet] =
-          PlayerModel.empty(_players[userIndexIfAlreadySet].seatNumber);
+      _players[userIndexIfAlreadySet] = PlayerModel.empty(
+        seatNumber: _players[userIndexIfAlreadySet].seatNumber,
+        tempId: const Uuid().v1(),
+      );
     }
     final playerIndex =
         _players.indexWhere((player) => player.seatNumber == seatNumber);

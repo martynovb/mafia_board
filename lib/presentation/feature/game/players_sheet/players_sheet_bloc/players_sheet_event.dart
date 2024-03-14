@@ -1,5 +1,6 @@
 import 'package:mafia_board/domain/model/club_member_model.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
+import 'package:mafia_board/domain/model/role.dart';
 
 abstract class SheetEvent {}
 
@@ -35,7 +36,7 @@ class AddFoulEvent extends SheetEvent {
 
 class ChangeRoleEvent extends SheetEvent {
   final String playerId;
-  final String? newRole;
+  final Role? newRole;
 
   ChangeRoleEvent({
     required this.playerId,

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -102,38 +103,70 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _accountSettingsList(UserModel user) => ListView(
         children: [
           SettingsItem(
-            title: 'Nickname',
+            title: 'nickname'.tr(),
             description: user.nickname,
             onPressed: () {
               changeNickNameDialog();
             },
-            btnText: 'Change',
+            btnText: 'change'.tr(),
           ),
           const Divider(),
           SettingsItem(
-            title: 'Email',
+            title: 'email'.tr(),
             description: user.email,
           ),
+          const Divider(),
+          SettingsItem(
+            title: 'language'.tr(),
+            descriptionWidget: _changeLanguageDropdown(),
+          ),
+          const Divider(),
           ListTile(
             leading: const Icon(Icons.logout),
             iconColor: Colors.redAccent,
             textColor: Colors.redAccent,
             titleTextStyle: const TextStyle(fontWeight: FontWeight.bold),
-            title: const Text('Logout'),
-            onTap: () => _authBloc.add(LogoutAuthEvent()),
+            title: const Text('logout').tr(),
+            onTap: () => _logoutConfirmationDialog(),
           ),
         ],
       );
+
+  Widget _changeLanguageDropdown() {
+    return DropdownButton<String>(
+      value: context.locale.languageCode,
+      underline: const SizedBox(),
+      icon: const Icon(Icons.language),
+      iconSize: 24,
+      elevation: 16,
+      onChanged: (String? newValue) {
+        context.setLocale(Locale(newValue!));
+      },
+      items: <String>['en', 'uk', 'ru'].map<DropdownMenuItem<String>>(
+        (String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                right: Dimensions.sidePadding0_5x,
+              ),
+              child: Text(value.tr()),
+            ),
+          );
+        },
+      ).toList(),
+    );
+  }
 
   void changeNickNameDialog() {
     showDialog<String>(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Change Nickname'),
+            title: const Text('changeNickname').tr(),
             content: TextField(
               controller: _nicknameController,
-              decoration: const InputDecoration(hintText: "Enter new nickname"),
+              decoration: InputDecoration(hintText: 'enterNewNickname'.tr()),
             ),
             actions: <Widget>[
               SizedBox(
@@ -148,12 +181,12 @@ class _SettingsPageState extends State<SettingsPage> {
                           MaterialStateProperty.all(Colors.white30),
                     ),
                     child: const Text(
-                      'Cancel',
+                      'cancel',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
-                    ),
+                    ).tr(),
                   )),
               SizedBox(
                   width: 120,
@@ -173,12 +206,62 @@ class _SettingsPageState extends State<SettingsPage> {
                           MaterialStateProperty.all(Colors.white30),
                     ),
                     child: const Text(
-                      'Save',
+                      'save',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
+                    ).tr(),
+                  )),
+            ],
+          );
+        });
+  }
+
+  void _logoutConfirmationDialog() {
+    showDialog<String>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('askLogout').tr(),
+            actions: <Widget>[
+              SizedBox(
+                  width: 120,
+                  height: 40,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.white30),
                     ),
+                    child: const Text(
+                      'cancel',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ).tr(),
+                  )),
+              SizedBox(
+                  width: 120,
+                  height: 40,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _authBloc.add(LogoutAuthEvent());
+                    },
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all(Colors.white30),
+                    ),
+                    child: const Text(
+                      'confirm',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ).tr(),
                   )),
             ],
           );

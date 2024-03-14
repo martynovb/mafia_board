@@ -79,7 +79,7 @@ class GameBloc extends HydratedBloc<GameEvent, GameState> {
       await gameManager.startGame(event.clubId);
       final currentGame = await getCurrentGameUseCase.execute();
       emit(
-        GamePhaseState(
+        GameStartedState(
           currentGame: currentGame,
           currentGamePhaseName: currentGame.currentDayInfo.currentPhase.name,
           club: state.club,

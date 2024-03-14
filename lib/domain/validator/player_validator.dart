@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mafia_board/domain/exceptions/error_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
@@ -8,21 +9,21 @@ class PlayerValidator {
     if (player.nickname.isEmpty) {
       throw InvalidPlayerDataException(
         errorType: ErrorType.invalidPlayerDataNicknames,
-        errorMessage: '',
+        errorMessage: 'validationErrorInvalidPlayersNicknames'.tr(),
       );
     }
 
     if (player.role == Role.none) {
       throw InvalidPlayerDataException(
         errorType: ErrorType.invalidPlayerDataRoles,
-        errorMessage: '',
+        errorMessage: 'validationErrorInvalidPlayersRoles'.tr(),
       );
     }
 
     if (player.fouls > 0) {
       throw InvalidPlayerDataException(
         errorType: ErrorType.invalidPlayerData,
-        errorMessage: '',
+        errorMessage: 'validationErrorInvalidPlayersFouls'.tr(),
       );
     }
   }
