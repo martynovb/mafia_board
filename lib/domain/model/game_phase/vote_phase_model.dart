@@ -28,6 +28,22 @@ class VotePhaseModel extends GamePhaseModel {
     required this.votedPlayers,
   });
 
+  VotePhaseModel.inital({
+    PhaseStatus status = PhaseStatus.none,
+  }) : this(
+          id: '',
+          tempId: '',
+          currentDay: -1,
+          gameId: '',
+          status: status,
+          playerOnVote: PlayerModel.empty(),
+          whoPutOnVote: null,
+          isGunfight: false,
+          shouldKickAllPlayers: false,
+          playersToKick: [],
+          votedPlayers: {},
+        );
+
   @override
   PhaseType get phaseType => PhaseType.vote;
 

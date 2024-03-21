@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -5,6 +6,7 @@ import 'package:mafia_board/domain/model/club_model.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
+import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_event.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_state.dart';
@@ -22,7 +24,6 @@ class GamePage extends StatefulWidget {
 
 class _GamePageState extends State<GamePage>
     with SingleTickerProviderStateMixin {
-  late List<Widget> _pages;
   late GameBloc gameBloc;
   bool _isGameStarted = false;
 
@@ -42,7 +43,7 @@ class _GamePageState extends State<GamePage>
     gameBloc.gameStream.listen((gameModel) {
       if (gameModel?.gameStatus == GameStatus.finished &&
           gameModel?.finishGameType == FinishGameType.normalFinish) {
-        _showFinishSuccessDialog();
+       // _showFinishSuccessDialog();
       }
     });
 
@@ -51,17 +52,14 @@ class _GamePageState extends State<GamePage>
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () => _showFinishConfirmationDialog(),
+    return PopScope(
+      canPop: !_isGameStarted,
+      onPopInvoked: (bool didPop) => _showFinishConfirmationDialog(context),
       child: BlocListener(
         bloc: gameBloc,
         listener: (context, GameState state) {
           if (state is GoToGameResults) {
-            Navigator.pushNamed(
-              context,
-              AppRouter.gameResultsPage,
-              arguments: {'club': state.club},
-            );
+           _showFinishSuccessDialog();
           } else if (state is GamePhaseState) {
             _isGameStarted =
                 state.currentGame?.gameStatus == GameStatus.inProgress;
@@ -72,20 +70,23 @@ class _GamePageState extends State<GamePage>
         child: SafeArea(
           child: Scaffold(
             appBar: _appBar(context),
-            body: Row(children: [
-              Expanded(
-                child: PlayersSheetPage(
-                  club: gameBloc.state.club ?? ClubModel.empty(),
-                  onPPKGameFinished: _showFinishConfirmationPPKDialog,
+            body: Row(
+              children: [
+                Expanded(
+                  child: PlayersSheetPage(
+                    club: gameBloc.state.club ?? ClubModel.empty(),
+                    onPPKGameFinished: _showFinishConfirmationPPKDialog,
+                  ),
                 ),
-              ),
-              const VerticalDivider(),
-              Expanded(
-                child: TablePage(
-                  onGameFinished: _showFinishConfirmationDialog,
+                const VerticalDivider(),
+                Expanded(
+                  child: TablePage(
+                    onGameFinished: () =>
+                        _showFinishConfirmationDialog(context),
+                  ),
                 ),
-              ),
-            ]),
+              ],
+            ),
           ),
         ),
       ),
@@ -93,43 +94,46 @@ class _GamePageState extends State<GamePage>
   }
 
   AppBar _appBar(BuildContext context) => AppBar(
-        title: const Text('Game'),
+        title: Text(gameBloc.state.club?.title ?? ''),
         centerTitle: true,
         actions: [
           IconButton(
-              onPressed: () => Navigator.pushNamed(
-                    context,
-                    AppRouter.gameRulesPage,
-                    arguments: {
-                      'clubId': gameBloc.state.club?.id,
-                    },
-                  ),
-              icon: const Icon(Icons.settings))
+            onPressed: () => Navigator.pushNamed(
+              context,
+              AppRouter.gameRulesPage,
+              arguments: {
+                'clubId': gameBloc.state.club?.id,
+              },
+            ),
+            icon: const Icon(Icons.settings),
+          )
         ],
       );
 
-  Future<bool> _showFinishConfirmationDialog() async {
+  Future<bool> _showFinishConfirmationDialog(BuildContext context) async {
     if (!_isGameStarted) {
       return true;
     }
     return await showDefaultDialog(
       context: context,
-      title: 'Do you want to finish the game?',
+      title: 'finishGameDialogTitle'.tr(),
       actions: <Widget>[
         TextButton(
-          child: const Text("Stop the game and close"),
+          child: const Text('finishWithoutSaving').tr(),
           onPressed: () {
             if (gameBloc.state.club != null) {
-              gameBloc.add(FinishGameEvent(
-                FinishGameType.reset,
-                gameBloc.state.club!,
-              ));
+              gameBloc.add(
+                FinishGameEvent(
+                  FinishGameType.reset,
+                  gameBloc.state.club!,
+                ),
+              );
             }
             Navigator.of(context).pop();
           },
         ),
         TextButton(
-          child: const Text('Cancel'),
+          child: const Text('cancel').tr(),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -141,20 +145,22 @@ class _GamePageState extends State<GamePage>
   Future<bool> _showFinishSuccessDialog() async {
     return await showDefaultDialog(
       context: context,
-      title: 'Game has been finished',
+      title: 'gameFinished'.tr(),
       actions: <Widget>[
         TextButton(
-          child: const Text('Go to results'),
+          child: const Text('goToResults').tr(),
           onPressed: () {
             Navigator.of(context).pop();
             Navigator.of(context).pushNamed(
               AppRouter.gameResultsPage,
-              arguments: {'club': gameBloc.state.club},
+              arguments: {
+                'club': gameBloc.state.club,
+              },
             );
           },
         ),
         TextButton(
-          child: const Text('Remove game and exit'),
+          child: const Text('finishWithoutSaving').tr(),
           onPressed: () {
             gameBloc.add(RemoveGameDataEvent());
             Navigator.of(context).popUntil(
@@ -168,11 +174,14 @@ class _GamePageState extends State<GamePage>
   Future<void> _showFinishConfirmationPPKDialog(PlayerModel player) async {
     await showDefaultDialog(
       context: context,
-      title:
-          'Do you want to finish the game with PPK for (#${player.seatNumber}: ${player.nickname})?',
+      title: 'ppkForUser'.tr(args: [
+        (mafiaRoles().contains(player.role) ? 'mafia' : 'civilian').tr(),
+        player.seatNumber.toString(),
+        player.nickname,
+      ]),
       actions: <Widget>[
         TextButton(
-          child: const Text("Finish game"),
+          child: const Text("finishGame").tr(),
           onPressed: () {
             if (gameBloc.state.club != null) {
               gameBloc.add(
@@ -187,7 +196,7 @@ class _GamePageState extends State<GamePage>
           },
         ),
         TextButton(
-          child: const Text('Cancel'),
+          child: const Text('cancel').tr(),
           onPressed: () {
             Navigator.of(context).pop();
           },

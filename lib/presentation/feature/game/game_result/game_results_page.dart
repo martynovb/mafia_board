@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -44,14 +45,12 @@ class _GameResultsPageState extends State<GameResultsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // ignore: deprecated_member_use
-    // todo: remove popscope
-    // ignore: deprecated_member_use
-    return WillPopScope(
-        onWillPop: _showExitConfirmationDialog,
+    return PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) => _showExitConfirmationDialog(context),
         child: Scaffold(
           appBar: AppBar(
-            title: const Text('Game Results'),
+            title: const Text('gameResults').tr(),
             centerTitle: true,
             actions: [
               IconButton(
@@ -128,35 +127,45 @@ class _GameResultsPageState extends State<GameResultsPage> {
             ),
             Expanded(
               flex: _nicknameColumnFlex,
-              child: const Center(child: Text('nickname')),
+              child: Center(
+                child: const Text('nickname').tr(),
+              ),
             ),
             const VerticalDivider(
               color: Colors.transparent,
             ),
             Expanded(
               flex: _roleColumnFlex,
-              child: const Center(child: Text('role')),
+              child: Center(
+                child: const Text('role').tr(),
+              ),
             ),
             const VerticalDivider(
               color: Colors.transparent,
             ),
             Expanded(
               flex: _scoreColumnFlex,
-              child: const Center(child: Text('BM')),
+              child: Center(
+                child: const Text('bestMove').tr(),
+              ),
             ),
             const VerticalDivider(
               color: Colors.transparent,
             ),
             Expanded(
               flex: _scoreColumnFlex,
-              child: const Center(child: Text('points')),
+              child: Center(
+                child: const Text('points').tr(),
+              ),
             ),
             const VerticalDivider(
               color: Colors.transparent,
             ),
             Expanded(
               flex: _scoreColumnFlex,
-              child: const Center(child: Text('total')),
+              child: Center(
+                child: const Text('total').tr(),
+              ),
             ),
           ],
         ));
@@ -243,20 +252,20 @@ class _GameResultsPageState extends State<GameResultsPage> {
   }
 
   Widget _roleIndicator(Role role) {
-    return Text(role.name);
+    return Text('${roleEmojiMapper(role)} ${role.name.tr()}');
   }
 
-  Future<bool> _showExitConfirmationDialog() async {
+  Future<bool> _showExitConfirmationDialog(BuildContext context) async {
     final currentState = gameResultsBloc.state;
     if (currentState is! ShowGameResultsState) {
       return true;
     }
     return await showDefaultDialog(
       context: context,
-      title: 'Do you want to save the game results?',
+      title: 'saveResultsDialogTitle'.tr(),
       actions: <Widget>[
         TextButton(
-          child: const Text('No'),
+          child: const Text('no').tr(),
           onPressed: () {
             Navigator.of(context).popUntil(
               (route) => route.settings.name == AppRouter.clubDetailsPage,
@@ -264,13 +273,15 @@ class _GameResultsPageState extends State<GameResultsPage> {
           },
         ),
         TextButton(
-          child: const Text('Yes'),
+          child: const Text('yes').tr(),
           onPressed: () {
             Navigator.pop(context);
-            gameResultsBloc.add(SaveResultsEvent(
-              gameResultsModel: currentState.gameResultsModel,
-              clubModel: currentState.club,
-            ));
+            gameResultsBloc.add(
+              SaveResultsEvent(
+                gameResultsModel: currentState.gameResultsModel,
+                clubModel: currentState.club,
+              ),
+            );
           },
         ),
       ],

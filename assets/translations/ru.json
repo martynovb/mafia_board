@@ -112,5 +112,14 @@
     "next": "Далее",
     "playerIsMuted": "Лишен речи на этот круг",
     "timeForPlayerIsOver": "Время игрока #{} закончилось",
-    "nextPlayer": "Следующий игрок"
+    "nextPlayer": "Следующий игрок",
+    "finishGameDialogTitle": "Завершить игру?",
+    "finishWithoutSaving": "Завершить без сохранения",
+    "gameFinished": "Игра завершена",
+    "goToResults": "Перейти к результатам",
+    "voteForKick": "Голосование за удаление игроков {}",
+    "gameResults": "Результаты игры",
+    "saveResultsDialogTitle": "Сохранить результаты?",
+    "yes": "Да",
+    "no": "Нет"
 }

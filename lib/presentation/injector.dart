@@ -430,7 +430,7 @@ class Injector {
       ),
     );
 
-    _getIt.registerSingleton(GameResultsBloc(gameResultsManager: _getIt.get()));
+    _getIt.registerSingleton(GameResultsBloc(gameResultsManager: _getIt.get(), gameManager: _getIt.get()));
     _getIt.registerSingleton(CreateClubBloc(createClubUseCase: _getIt.get()));
     _getIt.registerSingleton(UserListBloc(getAllUsersUsecase: _getIt.get()));
     _getIt.registerSingleton(GameDetailsBloc(fetchGameDetailsUseCase: _getIt.get()));

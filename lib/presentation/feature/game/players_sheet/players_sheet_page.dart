@@ -49,7 +49,7 @@ class _PlayersSheetPageState extends State<PlayersSheetPage>
   final int _nicknameColumnFlex = 5;
   final int _foulsColumnFlex = 4;
   final int _roleColumnFlex = 5;
-  final int _moreColumnFlex = 1;
+  final int _moreColumnFlex = 2;
   bool isGameStarted = false;
 
   late PlayersSheetBloc _playersSheetBloc;

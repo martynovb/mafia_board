@@ -108,9 +108,18 @@
     "gameNotStarted": "Game is not started",
     "playerIsSpeaking": "Player #{} is speaking",
     "voteAgainst": "Vote against player #{}",
-    "roleIsWakeUp": "Прокидається {}",
+    "roleIsWakeUp": "{} wake up",
     "next": "Next",
     "playerIsMuted": "Muted",
     "timeForPlayerIsOver": "Time for the current player is finished",
-    "nextPlayer": "Next player"
-}   
+    "nextPlayer": "Next player",
+    "finishGameDialogTitle": "Do you want to finish the game?",
+    "finishWithoutSaving": "Finish without saving",
+    "gameFinished": "Game has been finished",
+    "goToResults": "Go to results",
+    "voteForKick": "Vote for kick {}",
+    "gameResults": "Game results",
+    "saveResultsDialogTitle": "Do you want to save the game results?",
+    "yes": "Yes",
+    "no": "No"
+}

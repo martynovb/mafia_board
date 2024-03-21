@@ -112,5 +112,14 @@
     "next": "Далі",
     "playerIsMuted": "Позбавлений слова на це коло",
     "timeForPlayerIsOver": "Час гравця #{} вийшов",
-    "nextPlayer": "Наступний гравець"
+    "nextPlayer": "Наступний гравець",
+    "finishGameDialogTitle": "Завершити гру?",
+    "finishWithoutSaving": "Завершити без збереження",
+    "gameFinished": "Гра завершена",
+    "goToResults": "Перейти до результатів",
+    "voteForKick": "Виключити усіх гравців #{}?",
+    "gameResults": "Результати гри",
+    "saveResultsDialogTitle": "Зберегти результати?",
+    "yes": "Так",
+    "no": "Ні"
 }
