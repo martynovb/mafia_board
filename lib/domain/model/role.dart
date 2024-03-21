@@ -1,43 +1,64 @@
 enum Role {
-  MAFIA,
-  DON,
-  SHERIFF,
-  CIVILIAN,
-  DOCTOR,
-  PUTANA,
-  MANIAC,
-  NONE,
+  mafia,
+  don,
+  sheriff,
+  civilian,
+  doctor,
+  putana,
+  maniac,
+  none,
 }
 
 Set<Role> civilianRoles() => {
-      Role.SHERIFF,
-      Role.CIVILIAN,
-      Role.DOCTOR,
-      Role.PUTANA,
-      Role.MANIAC,
+      Role.sheriff,
+      Role.civilian,
+      Role.doctor,
+      Role.putana,
+      Role.maniac,
     };
 
 Set<Role> mafiaRoles() => {
-      Role.DON,
-      Role.MAFIA,
+      Role.don,
+      Role.mafia,
     };
 
 Role roleMapper(String? role) {
-  if (role == Role.DON.name) {
-    return Role.DON;
-  } else if (role == Role.MAFIA.name) {
-    return Role.MAFIA;
-  } else if (role == Role.SHERIFF.name) {
-    return Role.SHERIFF;
-  } else if (role == Role.CIVILIAN.name) {
-    return Role.CIVILIAN;
-  } else if (role == Role.DOCTOR.name) {
-    return Role.DOCTOR;
-  } else if (role == Role.PUTANA.name) {
-    return Role.PUTANA;
-  } else if (role == Role.MANIAC.name) {
-    return Role.MANIAC;
+  if (role == Role.don.name) {
+    return Role.don;
+  } else if (role == Role.mafia.name) {
+    return Role.mafia;
+  } else if (role == Role.sheriff.name) {
+    return Role.sheriff;
+  } else if (role == Role.civilian.name) {
+    return Role.civilian;
+  } else if (role == Role.doctor.name) {
+    return Role.doctor;
+  } else if (role == Role.putana.name) {
+    return Role.putana;
+  } else if (role == Role.maniac.name) {
+    return Role.maniac;
   } else {
-    return Role.NONE;
+    return Role.none;
+  }
+}
+
+String roleEmojiMapper(Role role) {
+  switch (role) {
+    case Role.mafia:
+      return '👎🏻';
+    case Role.don:
+      return '🎩';
+    case Role.sheriff:
+      return '🚨';
+    case Role.civilian:
+      return '👍🏻';
+    case Role.doctor:
+      return '🏥';
+    case Role.putana:
+      return '👠';
+    case Role.maniac:
+      return '🔪';
+    case Role.none:
+      return '❓';
   }
 }

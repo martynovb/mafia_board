@@ -1,26 +1,27 @@
 import 'package:collection/collection.dart';
-import 'package:mafia_board/data/constants.dart';
+import 'package:mafia_board/data/constants/constants.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
-import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
-import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
+import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/vote_phase_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/domain/manager/game_history_manager.dart';
 import 'package:mafia_board/domain/usecase/get_current_game_usecase.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:uuid/uuid.dart';
 
 class VotePhaseManager {
   static const _tag = 'VotePhaseManager';
-  final GamePhaseRepo<VotePhaseAction> voteGamePhaseRepo;
-  final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
+  final GamePhaseRepo<VotePhaseModel> voteGamePhaseRepo;
+  final GamePhaseRepo<SpeakPhaseModel> speakGamePhaseRepo;
   final GameHistoryManager gameHistoryManager;
   final PlayersRepo boardRepository;
   final GetCurrentGameUseCase getCurrentGameUseCase;
 
-  final BehaviorSubject<VotePhaseAction?> _currentVoteSubject =
+  final BehaviorSubject<VotePhaseModel?> _currentVoteSubject =
       BehaviorSubject();
 
   VotePhaseManager({
@@ -31,13 +32,17 @@ class VotePhaseManager {
     required this.getCurrentGameUseCase,
   });
 
-  Stream<VotePhaseAction?> get currentVotePhaseStream =>
+  Stream<VotePhaseModel?> get currentVotePhaseStream =>
       _currentVoteSubject.stream;
 
-  List<VotePhaseAction> getAllPhases(int day) =>
-      voteGamePhaseRepo.getAllPhasesByDay(day: day);
+  Future<List<VotePhaseModel>> getAllTodaysPhases() async {
+    final game = await getCurrentGameUseCase.execute();
+    final dayInfo = game.currentDayInfo;
+    final currentDay = dayInfo.day;
+    return voteGamePhaseRepo.getAllPhasesByDay(day: currentDay);
+  }
 
-  Future<VotePhaseAction?> getCurrentPhase([int? currentDay]) async {
+  Future<VotePhaseModel?> getCurrentPhase([int? currentDay]) async {
     final game = await getCurrentGameUseCase.execute();
     return voteGamePhaseRepo.getCurrentPhase(
       day: currentDay ?? game.currentDayInfo.day,
@@ -99,9 +104,10 @@ class VotePhaseManager {
             true) {
       return false;
     }
-    final playerToVote = await boardRepository.getPlayerById(playerToVoteId);
+    final playerToVote =
+        await boardRepository.getPlayerByTempId(playerToVoteId);
     final currentSpeakerId =
-        speakGamePhaseRepo.getCurrentPhase(day: currentDay)?.playerId;
+        speakGamePhaseRepo.getCurrentPhase(day: currentDay)?.playerTempId;
     if (currentSpeakerId == null ||
         playerToVote == null ||
         !playerToVote.isInGame()) {
@@ -109,7 +115,7 @@ class VotePhaseManager {
     }
 
     final currentSpeaker =
-        await boardRepository.getPlayerById(currentSpeakerId);
+        await boardRepository.getPlayerByTempId(currentSpeakerId);
     final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay(day: currentDay);
 
     if (currentSpeaker != null &&
@@ -122,11 +128,11 @@ class VotePhaseManager {
                   playerToVote,
                   allVotePhases,
                 ))) {
-
-      final votePhase = VotePhaseAction(
+      final votePhase = VotePhaseModel(
+        tempId: const Uuid().v1(),
         currentDay: currentDay,
         playerOnVote: playerToVote,
-        whoPutOnVote: currentSpeaker,
+        whoPutOnVote: currentSpeaker, playersToKick: [], votedPlayers: {},
       );
       _currentVoteSubject.add(votePhase);
       await voteGamePhaseRepo.add(gamePhase: votePhase);
@@ -134,6 +140,24 @@ class VotePhaseManager {
       return true;
     }
     return false;
+  }
+
+  Future<bool> revokePutOnVote(PlayerModel player) async {
+    final game = await getCurrentGameUseCase.execute();
+    final dayInfo = game.currentDayInfo;
+    final currentDay = dayInfo.day;
+    final votePhaseWithThisPlayer =
+        voteGamePhaseRepo.getAllPhasesByDay(day: currentDay).firstWhereOrNull(
+              (votePhase) => votePhase.playerOnVote.tempId == player.tempId,
+            );
+    if (votePhaseWithThisPlayer == null) {
+      return false;
+    }
+    voteGamePhaseRepo.remove(gamePhase: votePhaseWithThisPlayer);
+    gameHistoryManager.removePutOnVoteLog(
+        votePhaseAction: votePhaseWithThisPlayer);
+    _currentVoteSubject.add(voteGamePhaseRepo.getLastPhase());
+    return true;
   }
 
   Future<bool> voteAgainst({
@@ -148,7 +172,7 @@ class VotePhaseManager {
     final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay(day: currentDay);
     return allVotePhases
             .lastWhereOrNull(
-              (phase) => phase.playerOnVote.id == voteAgainstPlayer.id,
+              (phase) => phase.playerOnVote.tempId == voteAgainstPlayer.tempId,
             )
             ?.vote(currentPlayer) ??
         false;
@@ -163,7 +187,7 @@ class VotePhaseManager {
     final allVotePhases = voteGamePhaseRepo.getAllPhasesByDay(day: currentDay);
     return allVotePhases
             .lastWhereOrNull(
-              (phase) => phase.playerOnVote.id == voteAgainstPlayer.id,
+              (phase) => phase.playerOnVote.tempId == voteAgainstPlayer.tempId,
             )
             ?.removeVote(currentPlayer) ??
         false;
@@ -173,7 +197,7 @@ class VotePhaseManager {
     final game = await getCurrentGameUseCase.execute();
     final currentDay = game.currentDayInfo.day;
 
-    List<VotePhaseAction> allTodayVotePhases =
+    List<VotePhaseModel> allTodayVotePhases =
         voteGamePhaseRepo.getAllPhasesByDay(day: currentDay);
 
     final List<PlayerModel> unvotedPlayers =
@@ -231,10 +255,10 @@ class VotePhaseManager {
 
   bool _isPlayerAlreadyPutOnVote(
     PlayerModel playerModel,
-    List<VotePhaseAction> allUniqueTodayVotePhases,
+    List<VotePhaseModel> allUniqueTodayVotePhases,
   ) {
     for (var phase in allUniqueTodayVotePhases) {
-      if (phase.whoPutOnVote?.id == playerModel.id) {
+      if (phase.whoPutOnVote?.tempId == playerModel.tempId) {
         return true;
       }
     }
@@ -243,10 +267,10 @@ class VotePhaseManager {
 
   bool _isPlayerAlreadyOnVote(
     PlayerModel playerModel,
-    List<VotePhaseAction> allUniqueTodayVotePhases,
+    List<VotePhaseModel> allUniqueTodayVotePhases,
   ) {
     for (var phase in allUniqueTodayVotePhases) {
-      if (phase.playerOnVote.id == playerModel.id) {
+      if (phase.playerOnVote.tempId == playerModel.tempId) {
         return true;
       }
     }
@@ -256,7 +280,7 @@ class VotePhaseManager {
   //add votePhases list as param
   Future<void> _handlePlayersToKick(
     int unvotedPlayersCount,
-    List<VotePhaseAction> votePhases,
+    List<VotePhaseModel> votePhases,
   ) async {
     final votesWithMaxVotes = _findVotePhasesWithMaxVotes(votePhases);
     final playersToKick =
@@ -286,11 +310,11 @@ class VotePhaseManager {
     );
   }
 
-  List<VotePhaseAction> _findVotePhasesWithMaxVotes(
-    List<VotePhaseAction> allVotePhases,
+  List<VotePhaseModel> _findVotePhasesWithMaxVotes(
+    List<VotePhaseModel> allVotePhases,
   ) {
     // A Map to keep track of the vote count per player.
-    Map<VotePhaseAction, int> voteCounts = {};
+    Map<VotePhaseModel, int> voteCounts = {};
 
     // Populate the map with vote counts for each player.
     for (var votePhase in allVotePhases) {
@@ -310,7 +334,7 @@ class VotePhaseManager {
     });
 
     // Find all players who have the maximum vote count.
-    List<VotePhaseAction> votesWithPlayersToKick = [];
+    List<VotePhaseModel> votesWithPlayersToKick = [];
     voteCounts.forEach((player, votes) {
       if (votes == maxVotes) {
         votesWithPlayersToKick.add(player);
@@ -321,7 +345,7 @@ class VotePhaseManager {
   }
 
   Future<Map<PlayerModel, bool>> calculatePlayerVotingStatusMap([
-    List<VotePhaseAction>? allTodayVotePhases,
+    List<VotePhaseModel>? allTodayVotePhases,
   ]) async {
     final game = await getCurrentGameUseCase.execute();
     final votePhases = allTodayVotePhases ??
@@ -346,12 +370,13 @@ class VotePhaseManager {
   }) async {
     MafLogger.d(_tag, 'Kick players: ${playersOnVote.toString()}');
     for (var playerModel in playersOnVote) {
-      final speakPhase = SpeakPhaseAction(
+      final speakPhase = SpeakPhaseModel(
+        tempId: const Uuid().v1(),
         currentDay: currentDay,
-        playerId: playerModel.id,
+        playerTempId: playerModel.tempId,
         isLastWord: true,
       );
-      await boardRepository.updatePlayer(playerModel.id, isKicked: true);
+      await boardRepository.updatePlayer(playerModel.tempId, isKicked: true);
       await speakGamePhaseRepo.add(gamePhase: speakPhase);
     }
     await _finishAllTodaysUnvotePhases();
@@ -359,7 +384,7 @@ class VotePhaseManager {
   }
 
   Future<void> _handleGunfightFlow({
-    required List<VotePhaseAction> votePhases,
+    required List<VotePhaseModel> votePhases,
     required List<PlayerModel> playersToKick,
     required int unvotedPlayersCount,
   }) async {
@@ -372,28 +397,31 @@ class VotePhaseManager {
     if (!areVotePhasesAlreadyGunfighted) {
       for (var player in playersToKick) {
         await speakGamePhaseRepo.add(
-            gamePhase: SpeakPhaseAction(
+            gamePhase: SpeakPhaseModel(
+          tempId: const Uuid().v1(),
           currentDay: currentDay,
-          playerId: player.id,
+          playerTempId: player.tempId,
           timeForSpeakInSec: Constants.gunfightTimeForSpeak,
           isGunfight: true,
         ));
         await voteGamePhaseRepo.add(
-            gamePhase: VotePhaseAction(
+            gamePhase: VotePhaseModel(
+          tempId: const Uuid().v1(),
           currentDay: currentDay,
           playerOnVote: player,
-          isGunfight: true,
+          isGunfight: true, playersToKick: [], votedPlayers: {},
         ));
       }
       gameHistoryManager.logGunfight(players: playersToKick);
     } else if (areVotePhasesAlreadyGunfighted && !shouldKickAll) {
       await voteGamePhaseRepo.add(
-        gamePhase: VotePhaseAction(
+        gamePhase: VotePhaseModel(
+          tempId: const Uuid().v1(),
           playerOnVote: playersToKick.first,
           currentDay: currentDay,
           isGunfight: true,
           shouldKickAllPlayers: true,
-          playersToKick: playersToKick,
+          playersToKick: playersToKick, votedPlayers: {},
         ),
       );
       gameHistoryManager.logGunfight(
@@ -411,11 +439,11 @@ class VotePhaseManager {
     // otherwise players are left in the game
   }
 
-  bool checkVotePhasesAlreadyGunfighted(List<VotePhaseAction> votePhases) {
+  bool checkVotePhasesAlreadyGunfighted(List<VotePhaseModel> votePhases) {
     return votePhases.any((votePhases) => votePhases.isGunfight);
   }
 
-  bool checkVotePhasesShouldKickAll(List<VotePhaseAction> votePhases) {
+  bool checkVotePhasesShouldKickAll(List<VotePhaseModel> votePhases) {
     return votePhases.any((votePhases) => votePhases.shouldKickAllPlayers);
   }
 

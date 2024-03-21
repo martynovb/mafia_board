@@ -1,8 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mafia_board/data/constants.dart';
+import 'package:mafia_board/data/constants/constants.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
@@ -11,7 +12,6 @@ import 'package:mafia_board/presentation/feature/game/game_bloc/game_event.dart'
 import 'package:mafia_board/presentation/feature/game/table/table_widget.dart';
 import 'package:mafia_board/presentation/feature/game_timer_view.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/speaking_phase/speaking_phase_bloc.dart';
-import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote_list/vote_phase_list_view.dart';
 import 'package:mafia_board/presentation/feature/widgets/input_text_field.dart';
 
 class SpeakingPhaseTableView extends StatefulWidget {
@@ -54,7 +54,8 @@ class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
         builder: (context, SpeakingPhaseState state) {
           return Column(
             children: [
-              if (state.speaker?.isMuted == true) const Text('MUTED'),
+              if (state.speaker?.isMuted == true)
+                const Text('playerIsMuted').tr(),
               TableWidget(
                 players: state.players,
                 center: state.speaker == null
@@ -63,9 +64,17 @@ class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            'Player #${state.speaker?.seatNumber} is speaking',
-                          ),
+                          if (state.speakPhaseAction?.status ==
+                                  PhaseStatus.inProgress ||
+                              state.speakPhaseAction?.status ==
+                                  PhaseStatus.notStarted)
+                            const Text(
+                              'playerIsSpeaking',
+                            ).tr(
+                              args: [
+                                state.speaker?.seatNumber.toString() ?? '',
+                              ],
+                            ),
                           const SizedBox(
                             height: Dimensions.sidePadding0_5x,
                           ),
@@ -94,7 +103,6 @@ class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
                 },
               ),
               if (state.speakPhaseAction?.isBestMove == true) _bestMoveForm(),
-              const VotePhaseListView(),
             ],
           );
         });
@@ -102,7 +110,7 @@ class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
 
   Widget _center(SpeakingPhaseState state) {
     if (_isTimerFinished) {
-      return _goNextPlayer();
+      return _goNextPlayer(state.speaker?.seatNumber ?? 0);
     } else if (state.speakPhaseAction != null &&
         state.speakPhaseAction?.status == PhaseStatus.inProgress) {
       return _finishSpeechBtn(
@@ -114,16 +122,17 @@ class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
     }
   }
 
-  Widget _goNextPlayer() {
+  Widget _goNextPlayer(int seatNumber) {
     return Column(
       children: [
-        const Text('Time for current player is finished'),
+        const Text('timeForPlayerIsOver').tr(args: [seatNumber.toString()]),
         ElevatedButton(
-            onPressed: () {
-              speakingPhaseBloc.add(FinishSpeechEvent());
-              _isTimerFinished = false;
-            },
-            child: const Text('Next player')),
+          onPressed: () {
+            speakingPhaseBloc.add(FinishSpeechEvent());
+            _isTimerFinished = false;
+          },
+          child: const Text('nextPlayer').tr(),
+        ),
       ],
     );
   }
@@ -189,7 +198,7 @@ class _SpeakingPhaseTableViewState extends State<SpeakingPhaseTableView> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text('Best move'),
+        const Text('bestMove').tr(),
         const SizedBox(
           height: Dimensions.defaultSidePadding,
         ),

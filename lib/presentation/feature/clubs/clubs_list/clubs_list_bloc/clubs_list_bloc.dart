@@ -1,28 +1,32 @@
 import 'package:bloc/bloc.dart';
 import 'package:mafia_board/domain/usecase/get_all_clubs_usecase.dart';
+import 'package:mafia_board/presentation/common/base_bloc/base_state.dart';
 import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_event.dart';
 import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_state.dart';
 
 class ClubsListBloc extends Bloc<ClubsListEvent, ClubsListState> {
-  static const String _tag = 'ClubsListBloc';
   final GetAllClubsUseCase getAllClubsUseCase;
 
   ClubsListBloc({
     required this.getAllClubsUseCase,
-  }) : super(InitialClubState()) {
+  }) : super(ClubsListState(status: StateStatus.inProgress)) {
     on<GetAllClubsEvent>(_getAllClubsEventHandler);
-    on<GetAllClubMembersEvent>(_getClubMembersEventHandler);
-    on<ApproveJoinRequestEvent>(_approveJoinRequestEventHandler);
   }
 
   Future<void> _getAllClubsEventHandler(event, emit) async {
-    emit(AllClubsState(await getAllClubsUseCase.execute()));
+    emit(state.copyWith(status: StateStatus.inProgress));
+    try {
+      emit(
+        state.copyWith(
+          status: StateStatus.data,
+          clubs: await getAllClubsUseCase.execute(),
+        ),
+      );
+    } catch (ex) {
+      emit(
+        state.copyWith(
+            status: StateStatus.error, errorMessage: "Can't load clubs"),
+      );
+    }
   }
-
-  Future<void> _getClubMembersEventHandler(event, emit) async {}
-
-  Future<void> _approveJoinRequestEventHandler(
-    ApproveJoinRequestEvent event,
-    emit,
-  ) async {}
 }

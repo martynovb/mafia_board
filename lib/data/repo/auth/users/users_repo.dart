@@ -4,4 +4,6 @@ abstract class UsersRepo {
   Future<List<UserEntity>> getAllUsers();
 
   Future<UserEntity?> getUserById(String id);
+
+  Future<List<UserEntity>?> getUsersByIds(List<String> ids);
 }

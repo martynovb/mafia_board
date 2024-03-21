@@ -1,64 +1,75 @@
 import 'dart:convert';
 
-import 'package:mafia_board/data/api/token_provider.dart';
+import 'package:collection/collection.dart';
+import 'package:mafia_board/data/api/api_error_type.dart';
 
 class ErrorHandler {
-  final TokenProvider tokenProvider;
-
-  ErrorHandler({required this.tokenProvider});
-
   Exception handleError(int statusCode, String responseBody) {
     switch (statusCode) {
       case 400:
-        return BadRequestException('Bad request');
+        return BadRequestException(ApiErrorType.badRequest);
       case 401:
-        tokenProvider.deleteToken();
-        return InvalidCredentialsException('Unauthorized');
+        return InvalidCredentialsException(ApiErrorType.unauthorized);
       case 403:
-        return ForbiddenException('Forbidden');
+        return ForbiddenException(ApiErrorType.forbidden);
       case 404:
-        return NotFoundException('Resource not found');
+        return NotFoundException(ApiErrorType.notFound);
       case 500:
-        return ServerException('Server error');
+        return ServerException(ApiErrorType.serverError);
       default:
         final responseJson = jsonDecode(responseBody);
         if (responseJson['error'] != null) {
-          return ApiException(responseJson['error']);
+          return ApiException(
+            apiErrorType: ApiErrorType.values.firstWhereOrNull(
+                  (value) => value == responseJson['error'],
+                ) ??
+                ApiErrorType.apiError,
+            statusCode: statusCode,
+          );
         }
-        return ApiException('Request failed with status: $statusCode');
+        return ApiException(
+          apiErrorType: ApiErrorType.apiError,
+          statusCode: statusCode,
+        );
     }
   }
 }
 
 class ApiException implements Exception {
-  final String message;
+  final ApiErrorType apiErrorType;
+  final int statusCode;
 
-  ApiException(this.message);
+  ApiException({required this.apiErrorType, this.statusCode = 0});
 
   @override
-  String toString() => message;
+  String toString() => apiErrorType.toString();
 }
 
 class BadRequestException extends ApiException {
-  BadRequestException(String message) : super(message);
+  BadRequestException(ApiErrorType errorType) : super(apiErrorType: errorType);
+}
+
+class ValidationException extends ApiException {
+  ValidationException(ApiErrorType errorType) : super(apiErrorType: errorType);
 }
 
 class InvalidCredentialsException extends ApiException {
-  InvalidCredentialsException(String message) : super(message);
+  InvalidCredentialsException(ApiErrorType errorType)
+      : super(apiErrorType: errorType);
 }
 
 class ForbiddenException extends ApiException {
-  ForbiddenException(String message) : super(message);
+  ForbiddenException(ApiErrorType errorType) : super(apiErrorType: errorType);
 }
 
 class NotFoundException extends ApiException {
-  NotFoundException(String message) : super(message);
+  NotFoundException(ApiErrorType errorType) : super(apiErrorType: errorType);
 }
 
 class ServerException extends ApiException {
-  ServerException(String message) : super(message);
+  ServerException(ApiErrorType errorType) : super(apiErrorType: errorType);
 }
 
 class ParseException extends ApiException {
-  ParseException(String message) : super(message);
+  ParseException(ApiErrorType errorType) : super(apiErrorType: errorType);
 }

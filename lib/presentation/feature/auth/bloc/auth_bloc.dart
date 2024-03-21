@@ -10,7 +10,6 @@ import 'package:mafia_board/presentation/feature/auth/bloc/auth_event.dart';
 import 'package:mafia_board/presentation/feature/auth/bloc/auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  static const String _tag = 'AuthBloc';
   final AuthRepo authRepo;
   final EmailFieldValidator emailFieldValidator;
   final NicknameFieldValidator nicknameFieldValidator;
@@ -29,6 +28,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RegistrationAuthEvent>(_registrationEventHandler);
     on<MeAuthEvent>(_meEventHandler);
     on<ClearAuthEvent>(_clearEventHandler);
+    on<GoogleLoginAuthEvent>(_authorizeWithGoogleEventHandler);
   }
 
   Future<void> _loginEventHandler(LoginAuthEvent event, emit) async {
@@ -39,11 +39,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await authRepo.loginUser(email: event.email, password: event.password);
       emit(SuccessAuthState());
     } on ValidationError catch (ex) {
-      emit(ErrorAuthState(ex.errorMessage));
+      emit(ValidationErrorState(ex.errorMessage));
+      // ignore: unused_catch_clause
     } on ApiException catch (ex) {
       emit(ErrorAuthState('Network error'));
     } catch (ex) {
       emit(ErrorAuthState('Something went wrong'));
+    }
+  }
+
+  Future<void> _authorizeWithGoogleEventHandler(event, emit) async {
+    try {
+      //emit(SuccessAuthState());
+    } catch (ex) {
+      emit(ErrorAuthState('Something went wrong: $ex'));
     }
   }
 
@@ -53,6 +62,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(LogoutSuccessAuthState());
     } on ValidationError catch (ex) {
       emit(ErrorAuthState(ex.errorMessage));
+      // ignore: unused_catch_clause
     } on ApiException catch (ex) {
       emit(ErrorAuthState('Network error'));
     } catch (ex) {
@@ -77,6 +87,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(SuccessAuthState());
     } on ValidationError catch (ex) {
       emit(ErrorAuthState(ex.errorMessage));
+      // ignore: unused_catch_clause
     } on ApiException catch (ex) {
       emit(ErrorAuthState('Network error'));
     } catch (ex) {

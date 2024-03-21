@@ -1,5 +1,9 @@
-class VoteItem {
-  final int? playerNumber;
+import 'package:mafia_board/domain/model/player_model.dart';
 
-  VoteItem({this.playerNumber = 0});
+class VoteItem {
+  final PlayerModel playerOnVote;
+
+  VoteItem({
+    required this.playerOnVote,
+  });
 }

@@ -1,12 +1,14 @@
+import 'package:mafia_board/data/entity/game/player_entity.dart';
+import 'package:mafia_board/domain/model/club_member_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
-import 'package:mafia_board/domain/model/user_model.dart';
 
 abstract class PlayersRepo {
+  Future<List<PlayerEntity>> savePlayers({required String gameId});
 
   List<PlayerModel> createPlayers(int count);
 
-  void setUser(int seatNumber, UserModel user);
+  void setUser(int seatNumber, ClubMemberModel clubMember);
 
   List<PlayerModel> getAllPlayers();
 
@@ -14,7 +16,7 @@ abstract class PlayersRepo {
 
   List<PlayerModel> getAllAvailablePlayers();
 
-  Future<PlayerModel?> getPlayerById(String id);
+  Future<PlayerModel?> getPlayerByTempId(String tempId);
 
   Future<PlayerModel?> getPlayerByNumber(int index);
 
@@ -22,7 +24,6 @@ abstract class PlayersRepo {
     String id, {
     int? fouls,
     Role? role,
-    double? score,
     bool? isRemoved,
     bool? isKilled,
     bool? isKicked,
@@ -30,5 +31,13 @@ abstract class PlayersRepo {
     bool? isPPK,
   });
 
+  Future<void> updateAllPlayerData(PlayerModel playerToUpdate);
+
   void resetAll();
+
+  Future<void> deleteAllPlayersByGameId({required String gameId});
+
+  Future<List<PlayerEntity>> fetchAllPlayersByGameId({required String gameId});
+
+  Future<List<PlayerEntity>> fetchAllPlayersByMemberId({required String memberId});
 }

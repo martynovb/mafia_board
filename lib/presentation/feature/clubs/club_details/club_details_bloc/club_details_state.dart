@@ -1,18 +1,51 @@
+import 'package:collection/collection.dart';
 import 'package:mafia_board/domain/model/club_model.dart';
+import 'package:mafia_board/domain/model/game_model.dart';
+import 'package:mafia_board/presentation/common/base_bloc/base_state.dart';
 
-abstract class ClubDetailsState {}
+class ClubState extends BaseState {
+  final ClubModel? club;
+  final List<GameModel> allGames;
 
-class InitialState extends ClubDetailsState {}
+  ClubState({
+    this.allGames = const [],
+    this.club,
+    super.errorMessage,
+    required super.status,
+  });
 
-class DetailsState extends ClubDetailsState {
-  final ClubModel club;
+  @override
+  ClubState copyWith({
+    ClubModel? club,
+    List<GameModel>? allGames,
+    String? errorMessage,
+    StateStatus? status,
+  }) {
+    return ClubState(
+      club: club ?? this.club,
+      allGames: allGames ?? this.allGames,
+      errorMessage: errorMessage ?? this.errorMessage,
+      status: status ?? this.status,
+    );
+  }
 
-  DetailsState(this.club);
-}
+  @override
+  Map<String, dynamic> toMap() {
+    return super.toMap()
+      ..addAll({
+        'club': club?.toMap(),
+        'allGames': allGames.map((game) => game.toMap()).toList(),
+      });
+  }
 
-class ErrorClubState extends ClubDetailsState {
-  final String error;
-
-  ErrorClubState(this.error);
-
+  static ClubState fromMap(Map<String, dynamic> map) {
+    return ClubState(
+      status:
+          StateStatus.values.firstWhereOrNull((v) => v.name == map['status']) ??
+              StateStatus.none,
+      errorMessage: map['errorMessage'] ?? '',
+      club: ClubModel.fromMap(map['club'] ?? {}),
+      allGames: GameModel.fromListMap(map['allGames'])
+    );
+  }
 }

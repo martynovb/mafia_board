@@ -8,20 +8,20 @@ import 'package:mafia_board/presentation/feature/dimensions.dart';
 
 class TableWidget extends StatefulWidget {
   final Widget center;
-  Widget? judgeSide = Container();
+  final Widget judgeSide;
   final List<PlayerModel> players;
   final Function(PlayerModel player) onPlayerClicked;
-  Function(PlayerModel player)? onPlayerLongPress = (_) {};
+  final Function(PlayerModel player)? onPlayerLongPress;
   final List<HighlightedPlayerData> highlightedPlayerList;
 
-  TableWidget({
+  const TableWidget({
     super.key,
     required this.players,
     required this.onPlayerClicked,
     this.onPlayerLongPress,
     this.highlightedPlayerList = const [],
     required this.center,
-    this.judgeSide,
+    required this.judgeSide,
   });
 
   @override
@@ -62,8 +62,8 @@ class _TableWidgetState extends State<TableWidget> {
             badgeWidget: widget.judgeSide));
       } else {
         final player = widget.players[i - 1];
-        final highlightedPlayer = widget.highlightedPlayerList
-            .firstWhereOrNull((hgData) => hgData.player.id == player.id);
+        final highlightedPlayer = widget.highlightedPlayerList.firstWhereOrNull(
+            (hgData) => hgData.player.tempId == player.tempId);
         sections.add(PieChartSectionData(
           badgeWidget: _playerSectorBadgeMapper(player, highlightedPlayer),
           badgePositionPercentageOffset: 0.8,
@@ -94,7 +94,8 @@ class _TableWidgetState extends State<TableWidget> {
               setState(() {
                 touchedIndex = -1;
               });
-            } else if (event is FlPanDownEvent && touchedSection.touchedSectionIndex > 0) {
+            } else if (event is FlPanDownEvent &&
+                touchedSection.touchedSectionIndex > 0) {
               widget.onPlayerClicked(
                 widget.players[touchedSection.touchedSectionIndex - 1],
               );
@@ -147,7 +148,7 @@ class _TableWidgetState extends State<TableWidget> {
       return Colors.black;
     } else if (highlightedPlayerData != null &&
         (highlightedPlayerData.showRole)) {
-      return _mapBackgroundColorByRole(highlightedPlayerData.player.role!);
+      return _mapBackgroundColorByRole(highlightedPlayerData.player.role);
     } else if (highlightedPlayerData != null &&
         (highlightedPlayerData.isVoted)) {
       return Colors.grey;
@@ -183,11 +184,11 @@ class _TableWidgetState extends State<TableWidget> {
   }
 
   IconData _mapIconByRole(Role? role) {
-    if (role == Role.DON || role == Role.MAFIA) {
+    if (role == Role.don || role == Role.mafia) {
       return Icons.thumb_down;
-    } else if (role == Role.CIVILIAN) {
+    } else if (role == Role.civilian) {
       return Icons.thumb_up;
-    } else if (role == Role.SHERIFF) {
+    } else if (role == Role.sheriff) {
       return Icons.local_police_outlined;
     }
 
@@ -195,11 +196,11 @@ class _TableWidgetState extends State<TableWidget> {
   }
 
   Color _mapBackgroundColorByRole(Role role) {
-    if (role == Role.DON || role == Role.MAFIA) {
+    if (role == Role.don || role == Role.mafia) {
       return Colors.black;
-    } else if (role == Role.CIVILIAN) {
+    } else if (role == Role.civilian) {
       return Colors.red.shade300;
-    } else if (role == Role.SHERIFF) {
+    } else if (role == Role.sheriff) {
       return Colors.green.withOpacity(0.3);
     }
 

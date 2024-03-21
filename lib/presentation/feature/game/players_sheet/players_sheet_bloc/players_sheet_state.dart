@@ -1,4 +1,3 @@
-import 'package:mafia_board/domain/model/game_info_model.dart';
 import 'package:mafia_board/domain/model/game_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 

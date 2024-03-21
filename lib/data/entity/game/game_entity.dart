@@ -1,27 +1,42 @@
-import 'package:mafia_board/data/entity/game/player_entity.dart';
+import 'package:mafia_board/data/constants/firestore_keys.dart';
+import 'package:mafia_board/domain/model/game_status.dart';
 
 class GameEntity {
-  final String? id;
+  String? id;
   final String? clubId;
-  final List<PlayerEntity> players;
   String? gameStatus;
   String? finishGameType;
+  String? winRole;
+  int? mafsLeft;
+  final int startedInMills;
+  int? finishedInMills;
+  int? createdAt;
 
   GameEntity({
-    required this.id,
+    this.id,
     required this.clubId,
-    required this.players,
     required this.gameStatus,
     required this.finishGameType,
+    required this.startedInMills,
   });
 
-  static GameEntity fromJson(Map<dynamic, dynamic> json) {
-    return GameEntity(
-      id: json['id'] as String?,
-      clubId: json['clubId'] as String?,
-      players: PlayerEntity.parsePlayerEntities(json['players']),
-      gameStatus: json['game_status'] as String?,
-      finishGameType: json['finish_game_type'] as String?,
-    );
-  }
+  GameEntity.fromFirestoreMap(
+      {required this.id, required Map<String, dynamic>? data})
+      : clubId = data?[FirestoreKeys.clubIdFieldKey],
+        finishGameType = data?[FirestoreKeys.gameFinishTypeFieldKey],
+        finishedInMills = data?[FirestoreKeys.finishedInMillsFieldKey],
+        startedInMills = data?[FirestoreKeys.startedInMillsFieldKey],
+        mafsLeft = data?[FirestoreKeys.gameMafsLeftFieldKey],
+        winRole = data?[FirestoreKeys.gameWinRoleFieldKey],
+        createdAt = data?[FirestoreKeys.createdAtFieldKey],
+        gameStatus = GameStatus.finished.name;
+
+  Map<String, dynamic> toFirestoreMap() => {
+        FirestoreKeys.clubIdFieldKey: clubId,
+        FirestoreKeys.gameFinishTypeFieldKey: finishGameType,
+        FirestoreKeys.gameWinRoleFieldKey: winRole,
+        FirestoreKeys.gameMafsLeftFieldKey: mafsLeft,
+        FirestoreKeys.startedInMillsFieldKey: startedInMills,
+        FirestoreKeys.finishedInMillsFieldKey: finishedInMills,
+      };
 }

@@ -2,8 +2,9 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:bloc/bloc.dart';
+import 'package:mafia_board/domain/model/club_member_model.dart';
 import 'package:mafia_board/domain/model/user_model.dart';
-import 'package:mafia_board/data/constants.dart';
+import 'package:mafia_board/data/constants/constants.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/manager/game_history_manager.dart';
@@ -17,7 +18,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
 
 class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
-  final PlayersRepo boardRepository;
+  final PlayersRepo playersRepository;
   final GameHistoryManager gameHistoryManager;
   final GameManager gamePhaseManager;
   final PlayerManager playerManager;
@@ -28,7 +29,7 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
   final BehaviorSubject<SheetDataState> _playersSubject = BehaviorSubject();
 
   PlayersSheetBloc({
-    required this.boardRepository,
+    required this.playersRepository,
     required this.gameHistoryManager,
     required this.gamePhaseManager,
     required this.playerManager,
@@ -40,20 +41,21 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
     on<ChangeRoleEvent>(_changeRoleHandler);
     on<KillPlayerHandler>(_killPlayerHandler);
     on<SetTestDataEvent>(_setTestDataHandler);
+    on<SetClubMemberEvent>(_setUserHandler);
     _playersSubject
-        .add(SheetDataState(players: boardRepository.getAllPlayers()));
+        .add(SheetDataState(players: playersRepository.getAllPlayers()));
     _listenToGamePhase();
   }
 
   void _listenToGamePhase() {
     _gamePhaseSubscription =
         gamePhaseManager.gameStream.listen((gameModel) async {
-          if(gameModel != null) {
-            _playersSubject.add(SheetDataState(
-              players: boardRepository.getAllPlayers(),
-              currentGame: await getCurrentGameUseCase.execute(),
-            ));
-          }
+      if (gameModel != null) {
+        _playersSubject.add(SheetDataState(
+          players: playersRepository.getAllPlayers(),
+          currentGame: await getCurrentGameUseCase.execute(),
+        ));
+      }
     });
   }
 
@@ -62,12 +64,25 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
   void _findUserHandler(FindUserEvent event, emit) async {
     final nick = String.fromCharCodes(
         List.generate(6, (index) => Random().nextInt(33) + 89));
-    final newUser = UserModel(
-        id: const Uuid().v1(), nickname: nick, email: '$nick@mail.com');
-    boardRepository.setUser(event.seatNumber, newUser);
+    final newUser = ClubMemberModel(
+      id: const Uuid().v1(),
+      user: UserModel(
+          id: const Uuid().v1(), nickname: nick, email: '$nick@mail.com'),
+      clubId: event.club.id,
+    );
+    playersRepository.setUser(event.seatNumber, newUser);
 
     _playersSubject.add(SheetDataState(
-      players: boardRepository.getAllPlayers(),
+      players: playersRepository.getAllPlayers(),
+      currentGame: await getCurrentGameUseCase.execute(),
+    ));
+  }
+
+  void _setUserHandler(SetClubMemberEvent event, emit) async {
+    playersRepository.setUser(event.seatNumber, event.clubMember);
+
+    _playersSubject.add(SheetDataState(
+      players: playersRepository.getAllPlayers(),
       currentGame: await getCurrentGameUseCase.execute(),
     ));
   }
@@ -80,33 +95,33 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
       await playerManager.clearFouls(event.playerId);
     }
     _playersSubject.add(SheetDataState(
-      players: boardRepository.getAllPlayers(),
+      players: playersRepository.getAllPlayers(),
       currentGame: await getCurrentGameUseCase.execute(),
     ));
-    final player = await boardRepository.getPlayerById(event.playerId);
+    final player = await playersRepository.getPlayerByTempId(event.playerId);
     if (player != null) {
       gameHistoryManager.logAddFoul(player: player);
     }
   }
 
   void _changeRoleHandler(ChangeRoleEvent event, emit) async {
-    boardRepository.updatePlayer(
+    await playersRepository.updatePlayer(
       event.playerId,
-      role: roleMapper(event.newRole),
+      role: event.newRole,
     );
     _playersSubject.add(SheetDataState(
-      players: boardRepository.getAllPlayers(),
+      players: playersRepository.getAllPlayers(),
       currentGame: await getCurrentGameUseCase.execute(),
     ));
   }
 
   void _killPlayerHandler(KillPlayerHandler event, emit) async {
-    boardRepository.updatePlayer(
+    playersRepository.updatePlayer(
       event.playerId,
       isKilled: true,
     );
     _playersSubject.add(SheetDataState(
-      players: boardRepository.getAllPlayers(),
+      players: playersRepository.getAllPlayers(),
       currentGame: await getCurrentGameUseCase.execute(),
     ));
   }
@@ -118,16 +133,20 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
       final nick = String.fromCharCodes(
           List.generate(6, (index) => Random().nextInt(33) + 89));
 
-      final newUser = UserModel(
-          id: const Uuid().v1(), nickname: nick, email: '$nick@mail.com');
+      final newUser = ClubMemberModel(
+        id: const Uuid().v1(),
+        user: UserModel(
+            id: const Uuid().v1(), nickname: nick, email: '$nick@mail.com'),
+        clubId: event.club.tempId,
+      );
 
-      boardRepository.setUser(i, newUser);
-      await boardRepository.updatePlayer(newUser.id, role: role);
+      playersRepository.setUser(i, newUser);
+      await playersRepository.updatePlayer(newUser.user.id, role: role);
       roleManager.recalculateAvailableRoles(i, role);
     }
 
     _playersSubject.add(SheetDataState(
-      players: boardRepository.getAllPlayers(),
+      players: playersRepository.getAllPlayers(),
       currentGame: await getCurrentGameUseCase.execute(),
     ));
   }

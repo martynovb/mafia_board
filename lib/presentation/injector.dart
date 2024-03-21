@@ -1,33 +1,31 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mafia_board/data/api/auth_api.dart';
-import 'package:mafia_board/data/api/base_url_provider.dart';
 import 'package:mafia_board/data/api/error_handler.dart';
-import 'package:mafia_board/data/api/http_client.dart';
-import 'package:mafia_board/data/api/network_manager.dart';
-import 'package:mafia_board/data/api/token_provider.dart';
-import 'package:mafia_board/data/repo/rules/rules_local_repo.dart';
+import 'package:mafia_board/data/repo/auth/auth_repo_firebase.dart';
+import 'package:mafia_board/data/repo/auth/users/users_repo_firebase.dart';
+import 'package:mafia_board/data/repo/clubs/clubs_repo_firebase.dart';
 import 'package:mafia_board/data/repo/rules/rules_repo.dart';
+import 'package:mafia_board/data/repo/rules/rules_repo_firebase.dart';
+import 'package:mafia_board/domain/manager/game_flow_simulator.dart';
 import 'package:mafia_board/domain/manager/game_results_manager.dart';
-import 'package:mafia_board/domain/model/game_phase/night_phase_action.dart';
-import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
-import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
+import 'package:mafia_board/domain/model/game_phase/night_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/vote_phase_model.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo_local.dart';
-import 'package:mafia_board/data/repo/auth/auth_repo_remote.dart';
 import 'package:mafia_board/data/repo/auth/users/users_repo.dart';
-import 'package:mafia_board/data/repo/auth/users/users_repo_local.dart';
 import 'package:mafia_board/data/repo/clubs/clubs_repo.dart';
-import 'package:mafia_board/data/repo/clubs/clubs_repo_local.dart';
-import 'package:mafia_board/data/repo/game_phase/base_phase_repo_local.dart';
+import 'package:mafia_board/data/repo/game_phase/base_phase_repo.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
-import 'package:mafia_board/data/repo/game_phase/speak_phase_repo/speak_phase_repo_local.dart';
-import 'package:mafia_board/data/repo/game_phase/vote_phase_repo/vote_phase_repo_local.dart';
+import 'package:mafia_board/data/repo/game_phase/speak_phase_repo/speak_phase_repo.dart';
+import 'package:mafia_board/data/repo/game_phase/vote_phase_repo/vote_phase_repo.dart';
 import 'package:mafia_board/data/repo/history/history_repository.dart';
 import 'package:mafia_board/data/repo/history/history_repository_local.dart';
 import 'package:mafia_board/data/repo/game_info/game_repo.dart';
-import 'package:mafia_board/data/repo/game_info/game_repo_local.dart';
+import 'package:mafia_board/data/repo/game_info/game_repo_impl.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
-import 'package:mafia_board/data/repo/players/players_repo_local.dart';
+import 'package:mafia_board/data/repo/players/players_repo_impl.dart';
 import 'package:mafia_board/domain/field_validation/email_validator.dart';
 import 'package:mafia_board/domain/field_validation/nickname_field_validator.dart';
 import 'package:mafia_board/domain/field_validation/password_validator.dart';
@@ -38,9 +36,17 @@ import 'package:mafia_board/domain/manager/game_flow/night_phase_manager.dart';
 import 'package:mafia_board/domain/manager/game_flow/speaking_phase_manager.dart';
 import 'package:mafia_board/domain/manager/game_flow/vote_phase_manager.dart';
 import 'package:mafia_board/domain/manager/player_manager.dart';
+import 'package:mafia_board/domain/usecase/change_nickname_usecase.dart';
+import 'package:mafia_board/domain/usecase/create_club_members_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_club_usecase.dart';
 import 'package:mafia_board/domain/usecase/create_rules_usecase.dart';
-import 'package:mafia_board/domain/usecase/save_game_results_usecase.dart';
+import 'package:mafia_board/domain/usecase/delete_game_usecase.dart';
+import 'package:mafia_board/domain/usecase/fetch_game_details_usecase.dart';
+import 'package:mafia_board/domain/usecase/get_all_games_usecase.dart';
+import 'package:mafia_board/domain/usecase/get_all_users_usecase.dart';
+import 'package:mafia_board/domain/usecase/get_club_rating_usecase.dart';
+import 'package:mafia_board/domain/usecase/get_user_data_usecase.dart';
+import 'package:mafia_board/domain/usecase/save_game_usecase.dart';
 import 'package:mafia_board/domain/validator/player_validator.dart';
 import 'package:mafia_board/domain/manager/role_manager.dart';
 import 'package:mafia_board/domain/usecase/create_day_info_usecase.dart';
@@ -60,7 +66,9 @@ import 'package:mafia_board/presentation/feature/auth/bloc/auth_bloc.dart';
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_bloc.dart';
 import 'package:mafia_board/presentation/feature/clubs/clubs_list/clubs_list_bloc/clubs_list_bloc.dart';
 import 'package:mafia_board/presentation/feature/clubs/create_club/bloc/create_club_bloc.dart';
+import 'package:mafia_board/presentation/feature/clubs/rating_table/bloc/rating_table_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
+import 'package:mafia_board/presentation/feature/game/game_details/bloc/game_details_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_result/bloc/game_results_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/history/game_history_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/night_phase/night_phase_bloc.dart';
@@ -70,6 +78,8 @@ import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote
 import 'package:mafia_board/presentation/feature/game/players_sheet/players_sheet_bloc/players_sheet_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/players_sheet/role_bloc/role_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_bloc.dart';
+import 'package:mafia_board/presentation/feature/game/users/bloc/user_list_bloc.dart';
+import 'package:mafia_board/presentation/feature/settings/bloc/user_bloc.dart';
 
 class Injector {
   static final _getIt = GetIt.instance;
@@ -78,83 +88,95 @@ class Injector {
   static const speakPhaseRepoLocalTag = 'speak-phase-repo-local';
   static const nightPhaseRepoLocalTag = 'night-phase-repo-local';
 
-  static void inject(bool isLocalDataBase) {
-    _injectDataLayer(isLocalDataBase);
+  static Future<void> inject({bool mockDb = false}) async {
+    await _injectDataLayer(mockDb);
     _injectDomainLayer();
-    _injectBloC();
+    _injectPresentation();
   }
 
-  static void _injectDataLayer(bool isLocalDataBase) {
+  static Future<void> _injectDataLayer(bool isLocalDataBase) async {
     //network
-    _getIt.registerSingleton<BaseUrlProvider>(LocalBaseUrlProvider());
-    _getIt.registerSingleton<TokenProvider>(TokenProvider());
-    _getIt.registerSingleton<ErrorHandler>(ErrorHandler(
-      tokenProvider: _getIt.get(),
-    ));
-    _getIt.registerSingleton<HttpClient>(HttpClient(
-      tokenProvider: _getIt.get(),
-      baseUrlProvider: _getIt.get(),
-    ));
+    _getIt.registerSingleton<ErrorHandler>(ErrorHandler());
 
-    _getIt.registerSingleton<NetworkManager>(NetworkManager(
-      httpClient: _getIt.get(),
-      errorHandler: _getIt.get(),
-    ));
-
-    _getIt.registerSingleton<AuthApi>(AuthApi(_getIt.get()));
-
-    //repo
     _getIt.registerSingleton<AuthRepo>(
       isLocalDataBase
           ? AuthRepoLocal()
-          : AuthRepoRemote(
-              api: _getIt.get(),
-              tokenProvider: _getIt.get(),
+          : AuthRepoFirebase(
+              firebaseAuth: FirebaseAuth.instance,
+              firestore: FirebaseFirestore.instance,
             ),
     );
 
-    _getIt.registerSingleton<GamePhaseRepo<VotePhaseAction>>(
-      VotePhaseRepoLocal(),
+    _getIt.registerSingleton<GamePhaseRepo>(
+        BasePhaseRepo(firestore: FirebaseFirestore.instance));
+
+    _getIt.registerSingleton<GamePhaseRepo<VotePhaseModel>>(
+      VotePhaseRepo(firestore: FirebaseFirestore.instance),
       instanceName: votePhaseRepoLocalTag,
     );
 
-    _getIt.registerSingleton<GamePhaseRepo<SpeakPhaseAction>>(
-      SpeakPhaseRepoLocal(),
+    _getIt.registerSingleton<GamePhaseRepo<SpeakPhaseModel>>(
+      SpeakPhaseRepo(firestore: FirebaseFirestore.instance),
       instanceName: speakPhaseRepoLocalTag,
     );
 
-    _getIt.registerSingleton<GamePhaseRepo<NightPhaseAction>>(
-      BasePhaseRepoLocal(),
+    _getIt.registerSingleton<GamePhaseRepo<NightPhaseModel>>(
+      BasePhaseRepo(firestore: FirebaseFirestore.instance),
       instanceName: nightPhaseRepoLocalTag,
     );
 
     _getIt.registerSingleton<HistoryRepo>(HistoryRepoLocal());
-    _getIt.registerSingleton<PlayersRepo>(PlayersRepoLocal());
+    _getIt.registerSingleton<PlayersRepo>(PlayersRepoImpl(
+      firestore: FirebaseFirestore.instance,
+    ));
     _getIt.registerSingleton(RoleManager.classic(_getIt.get()));
     _getIt.registerSingleton(PlayerValidator());
-    _getIt
-        .registerSingleton<GameRepo>(GameRepoLocal(playersRepo: _getIt.get()));
-    _getIt.registerSingleton<UsersRepo>(UsersRepoLocal(authRepo: _getIt.get()));
-    _getIt.registerSingleton<ClubsRepo>(ClubsRepoLocal(
-      authRepo: _getIt.get(),
-      usersRepo: _getIt.get(),
+    _getIt.registerSingleton<GameRepo>(GameRepoImpl(
+      firestore: FirebaseFirestore.instance,
     ));
+    _getIt.registerSingleton<UsersRepo>(UsersRepoFirebase(
+      firestore: FirebaseFirestore.instance,
+    ));
+    _getIt.registerSingleton<ClubsRepo>(
+      ClubsRepoFirebase(
+        firebaseAuth: FirebaseAuth.instance,
+        firestore: FirebaseFirestore.instance,
+        usersRepo: _getIt.get(),
+      ),
+    );
 
-    _getIt.registerSingleton<RulesRepo>(RulesLocalRepo(
-      _getIt.get(),
+    _getIt.registerSingleton<RulesRepo>(RulesRepoFirebase(
+      firestore: FirebaseFirestore.instance,
     ));
   }
 
   static void _injectDomainLayer() {
     //usecase
+    _getIt.registerSingleton(CreateClubMembersUseCase(
+      playersRepo: _getIt.get(),
+      clubsRepo: _getIt.get(),
+    ));
+    _getIt.registerSingleton<GetAllClubMembersUsecase>(
+      GetAllClubMembersUsecase(clubsRepo: _getIt.get()),
+    );
+    _getIt.registerSingleton<ChangeNicknameUseCase>(
+      ChangeNicknameUseCase(authRepo: _getIt.get()),
+    );
     _getIt.registerSingleton<CreateRulesUseCase>(
       CreateRulesUseCase(rulesRepo: _getIt.get()),
     );
     _getIt.registerSingleton<CreateClubUseCase>(
-      CreateClubUseCase(authRepo: _getIt.get(), clubsRepo: _getIt.get()),
+      CreateClubUseCase(clubsRepo: _getIt.get()),
     );
-    _getIt.registerSingleton<SaveGameResultsUseCase>(
-      SaveGameResultsUseCase(gameRepo: _getIt.get()),
+    _getIt.registerSingleton<SaveGameUseCase>(
+      SaveGameUseCase(
+        gameRepo: _getIt.get(),
+        createClubMembersUseCase: _getIt.get(),
+        playersRepo: _getIt.get(),
+        voteGamePhaseRepo: _getIt.get(instanceName: votePhaseRepoLocalTag),
+        speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
+        nightGamePhaseRepo: _getIt.get(instanceName: nightPhaseRepoLocalTag),
+      ),
     );
     _getIt.registerSingleton<GetCurrentGameUseCase>(
       GetCurrentGameUseCase(gameRepo: _getIt.get()),
@@ -177,18 +199,32 @@ class Injector {
     _getIt.registerSingleton<CreateDayInfoUseCase>(
       CreateDayInfoUseCase(_getIt.get()),
     );
-    _getIt.registerSingleton<GetAllClubsUseCase>(
-      GetAllClubsUseCase(clubsRepo: _getIt.get()),
-    );
-    _getIt.registerSingleton<GetClubDetailsUseCase>(
-      GetClubDetailsUseCase(authRepo: _getIt.get(), clubsRepo: _getIt.get()),
-    );
-    _getIt.registerSingleton<GetRulesUseCase>(
-      GetRulesUseCase(rulesRepo: _getIt.get()),
-    );
+    _getIt.registerSingleton(GetAllClubsUseCase(clubsRepo: _getIt.get()));
+    _getIt.registerSingleton(
+        GetClubDetailsUseCase(authRepo: _getIt.get(), clubsRepo: _getIt.get()));
+    _getIt.registerSingleton(GetRulesUseCase(rulesRepo: _getIt.get()));
+    _getIt.registerSingleton(GetUserDataUseCase(authRepo: _getIt.get()));
     _getIt.registerSingleton<UpdateRulesUseCase>(
-      UpdateRulesUseCase(rulesRepo: _getIt.get()),
-    );
+        UpdateRulesUseCase(rulesRepo: _getIt.get()));
+    _getIt.registerSingleton(GetAllGamesUsecase(gameRepo: _getIt.get()));
+    _getIt.registerSingleton(DeleteGameUseCase(
+      gameRepo: _getIt.get(),
+      playersRepo: _getIt.get(),
+      voteGamePhaseRepo: _getIt.get(instanceName: votePhaseRepoLocalTag),
+      speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
+      nightGamePhaseRepo: _getIt.get(instanceName: nightPhaseRepoLocalTag),
+    ));
+
+    _getIt.registerSingleton(FetchGameDetailsUseCase(
+      gameRepo: _getIt.get(),
+      playersRepo: _getIt.get(),
+      gamePhaseRepo: _getIt.get(),
+    ));
+
+    _getIt.registerSingleton(GetClubRatingUseCase(
+      clubsRepo: _getIt.get(),
+      playersRepo: _getIt.get(),
+    ));
 
     _getIt.registerSingleton(
       GameHistoryManager(
@@ -202,7 +238,7 @@ class Injector {
         nightGamePhaseRepo: _getIt.get(instanceName: nightPhaseRepoLocalTag),
         speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
         gameHistoryManager: _getIt.get(),
-        boardRepository: _getIt.get(),
+        playersRepository: _getIt.get(),
         roleManager: _getIt.get(),
       ),
     );
@@ -221,7 +257,7 @@ class Injector {
       SpeakingPhaseManager(
         getCurrentGameUseCase: _getIt.get(),
         speakGamePhaseRepo: _getIt.get(instanceName: speakPhaseRepoLocalTag),
-        boardRepository: _getIt.get(),
+        playersRepository: _getIt.get(),
         gameHistoryManager: _getIt.get(),
       ),
     );
@@ -286,9 +322,25 @@ class Injector {
         RepeatPasswordFieldValidator());
     _getIt.registerSingleton<PasswordFieldValidator>(PasswordFieldValidator());
     _getIt.registerSingleton<EmailFieldValidator>(EmailFieldValidator());
+
+    _getIt.registerSingleton(
+      GameFlowSimulator(
+        gameManager: _getIt.get(),
+        playersRepo: _getIt.get(),
+        speakingPhaseManager: _getIt.get(),
+        votePhaseManager: _getIt.get(),
+      ),
+    );
   }
 
-  static void _injectBloC() {
+  static void _injectPresentation() {
+
+    _getIt.registerSingleton(
+      UserBloc(
+          getUserDataUseCase: _getIt.get(),
+          changeNicknameUseCase: _getIt.get()),
+    );
+
     _getIt.registerSingleton(
       GameBloc(
         votePhaseManager: _getIt.get(),
@@ -296,13 +348,14 @@ class Injector {
         playersRepository: _getIt.get(),
         playerValidator: _getIt.get(),
         getCurrentGameUseCase: _getIt.get(),
+        gameFlowSimulator: _getIt.get(),
       ),
     );
 
     _getIt.registerSingleton(
       PlayersSheetBloc(
         gamePhaseManager: _getIt.get(),
-        boardRepository: _getIt.get(),
+        playersRepository: _getIt.get(),
         gameHistoryManager: _getIt.get(),
         playerManager: _getIt.get(),
         roleManager: _getIt.get(),
@@ -356,11 +409,19 @@ class Injector {
       ),
     );
 
-    _getIt.registerSingleton(AppBloc(authRepo: _getIt.get()));
+    _getIt.registerSingleton(AppBloc(
+      authRepo: _getIt.get(),
+    ));
+
     _getIt.registerSingleton(ClubsListBloc(getAllClubsUseCase: _getIt.get()));
     _getIt.registerSingleton(
-      ClubsDetailsBloc(getClubDetailsUseCase: _getIt.get()),
+      ClubsDetailsBloc(
+        getClubDetailsUseCase: _getIt.get(),
+        getAllGamesUsecase: _getIt.get(),
+        deleteGameUseCase: _getIt.get(),
+      ),
     );
+
     _getIt.registerSingleton(
       GameRulesBloc(
         updateRulesUseCase: _getIt.get(),
@@ -369,7 +430,10 @@ class Injector {
       ),
     );
 
-    _getIt.registerSingleton(GameResultsBloc(gameResultsManager: _getIt.get()));
+    _getIt.registerSingleton(GameResultsBloc(gameResultsManager: _getIt.get(), gameManager: _getIt.get()));
     _getIt.registerSingleton(CreateClubBloc(createClubUseCase: _getIt.get()));
+    _getIt.registerSingleton(UserListBloc(getAllUsersUsecase: _getIt.get()));
+    _getIt.registerSingleton(GameDetailsBloc(fetchGameDetailsUseCase: _getIt.get()));
+    _getIt.registerSingleton(RatingTableBloc(getClubRatingUseCase: _getIt.get()));
   }
 }

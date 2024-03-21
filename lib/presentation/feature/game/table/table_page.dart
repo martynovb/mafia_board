@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -8,6 +9,7 @@ import 'package:mafia_board/presentation/feature/game/game_bloc/game_bloc.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_event.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_state.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/speaking_phase/speaking_phase_bloc.dart';
+import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote_list/vote_phase_list_view.dart';
 import 'package:mafia_board/presentation/feature/game_timer_view.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/night_phase/night_phase_table_view.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote_phase_table_view.dart';
@@ -52,15 +54,24 @@ class _TableState extends State<TablePage> with AutomaticKeepAliveClientMixin {
           if (state is InitialGameState ||
               (state is GamePhaseState &&
                   state.currentGame?.gameStatus != GameStatus.inProgress)) {
-            return const Center(
-              child: Text('Game is not started'),
+            return Center(
+              child: const Text('gameNotStarted').tr(),
             );
           }
           return Column(
             children: [
               _header(state),
+              ElevatedButton(
+                onPressed: () => gameBloc.add(SimulateFastGameCivilWinEvent()),
+                child: const Text('Civil win'),
+              ),
               const Divider(),
+              const Spacer(),
               _centerTableContent(),
+              const Divider(),
+              const VotePhaseListView(),
+              const Divider(),
+              const Spacer(),
             ],
           );
         },
@@ -70,27 +81,32 @@ class _TableState extends State<TablePage> with AutomaticKeepAliveClientMixin {
 
   Widget _centerTableContent() {
     return BlocBuilder(
-        bloc: gameBloc,
-        builder: (BuildContext context, GameState state) {
-          if (state is GamePhaseState) {
-            if (state.currentGame?.currentDayInfo.currentPhase == PhaseType.speak) {
-              speakingPhaseBloc.add(GetCurrentSpeakPhaseEvent());
-              return SpeakingPhaseTableView(
-                  onSpeechFinished: () => gameBloc.add(NextPhaseEvent()));
-            } else if (state.currentGame?.currentDayInfo.currentPhase == PhaseType.vote) {
-              return VotePhaseTableView(
-                  onVoteFinished: () => gameBloc.add(NextPhaseEvent()));
-            } else if (state.currentGame?.currentDayInfo.currentPhase == PhaseType.night) {
-              return NightPhaseTableView(
-                  onNightPhaseFinished: () => gameBloc.add(NextPhaseEvent()));
-            }
+      bloc: gameBloc,
+      builder: (BuildContext context, GameState state) {
+        if (state is GamePhaseState) {
+          if (state.currentGame?.currentDayInfo.currentPhase ==
+              PhaseType.speak) {
+            speakingPhaseBloc.add(GetCurrentSpeakPhaseEvent());
+            return SpeakingPhaseTableView(
+                onSpeechFinished: () => gameBloc.add(NextPhaseEvent()));
+          } else if (state.currentGame?.currentDayInfo.currentPhase ==
+              PhaseType.vote) {
+            return VotePhaseTableView(
+                onVoteFinished: () => gameBloc.add(NextPhaseEvent()));
+          } else if (state.currentGame?.currentDayInfo.currentPhase ==
+              PhaseType.night) {
+            return NightPhaseTableView(
+                onNightPhaseFinished: () => gameBloc.add(NextPhaseEvent()));
           }
-          return Container();
-        });
+        }
+        return Container();
+      },
+    );
   }
 
   Widget _header(GameState state) {
-    if (state is GamePhaseState && state.currentGame?.gameStatus == GameStatus.inProgress) {
+    if (state is GamePhaseState &&
+        state.currentGame?.gameStatus == GameStatus.inProgress) {
       return SizedBox(
           height: Dimensions.headerHeight,
           child: Row(
@@ -105,11 +121,12 @@ class _TableState extends State<TablePage> with AutomaticKeepAliveClientMixin {
   }
 
   Widget _finishGameButton() => GestureDetector(
-      onTap: () {
-        widget.onGameFinished();
-      },
-      child: const Text(
-        'Finish Game',
-        style: TextStyle(fontSize: 22),
-      ));
+        onTap: () {
+          widget.onGameFinished();
+        },
+        child: const Text(
+          'finishGame',
+          style: TextStyle(fontSize: 22),
+        ).tr(),
+      );
 }

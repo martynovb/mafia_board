@@ -1,6 +1,5 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:mafia_board/presentation/feature/auth/bloc/auth_bloc.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
 import 'package:mafia_board/presentation/feature/widgets/input_text_field.dart';
 
@@ -12,13 +11,11 @@ class ResetPasswordPage extends StatefulWidget {
 }
 
 class _ResetPasswordPageState extends State<ResetPasswordPage> {
-  late AuthBloc _authBloc;
   late final TextEditingController _emailEditController =
       TextEditingController();
 
   @override
   void initState() {
-    _authBloc = GetIt.instance();
     super.initState();
   }
 
@@ -56,23 +53,28 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
               // Sign in to your account
               const Text(
-                'Reset your password',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                'resetPasswordTitle',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: Dimensions.defaultSidePadding),
 
               // Email input
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: Dimensions.sidePadding0_5x),
-                  child: Text(
-                    'Email',
+                  padding:
+                      const EdgeInsets.only(bottom: Dimensions.sidePadding0_5x),
+                  child: const Text(
+                    'email',
                     style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold),
-                  ),
+                      fontSize: 14,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ).tr(),
                 ),
               ),
               InputTextField(
@@ -87,9 +89,13 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(Colors.red),
                     ),
-                    child: const Text('Reset password',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold)),
+                    child: const Text(
+                      'resetPassword',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ).tr(),
                   )),
               const SizedBox(height: Dimensions.defaultSidePadding),
 
@@ -99,10 +105,12 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                 child: TextButton(
                   onPressed: () => Navigator.pop(context),
                   child: const Text(
-                    'Back to Sign in',
+                    'backToSignIn',
                     style: TextStyle(
-                        color: Colors.redAccent, fontWeight: FontWeight.bold),
-                  ),
+                      color: Colors.redAccent,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ).tr(),
                 ),
               )
             ],

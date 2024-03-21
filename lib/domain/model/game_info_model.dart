@@ -1,4 +1,5 @@
 import 'package:class_to_string/class_to_string.dart';
+import 'package:collection/collection.dart';
 import 'package:mafia_board/data/entity/game/day_info_entity.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
@@ -13,8 +14,19 @@ class DayInfoModel {
   final List<PlayerModel> playersWithFoul;
   PhaseType currentPhase;
 
+  DayInfoModel({
+    required this.id,
+    required this.gameId,
+    required this.day,
+    required this.createdAt,
+    required this.removedPlayers,
+    required this.mutedPlayers,
+    required this.playersWithFoul,
+    required this.currentPhase,
+  });
+
   DayInfoModel.fromEntity(DayInfoEntity? entity)
-      : id = entity?.id ?? '',
+      : id = entity?.tempId ?? '',
         gameId = entity?.gameId ?? '',
         day = entity?.day ?? -1,
         createdAt = entity?.createdAt ?? DateTime.now(),
@@ -38,8 +50,43 @@ class DayInfoModel {
             [],
         currentPhase = phaseTypeMapper(entity?.currentPhase);
 
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'gameId': gameId,
+        'day': day,
+        'createdAt': createdAt.millisecondsSinceEpoch,
+        'removedPlayers':
+            removedPlayers.map((player) => player.toMap()).toList(),
+        'mutedPlayers': mutedPlayers.map((player) => player.toMap()).toList(),
+        'playersWithFoul':
+            playersWithFoul.map((player) => player.toMap()).toList(),
+        'currentPhase': currentPhase.name,
+      };
+
+  static List<DayInfoModel> fromListMap(dynamic data) {
+    if (data == null || data.isEmpty) {
+      return [];
+    }
+    return (data as List<dynamic>)
+        .map((map) => DayInfoModel.fromMap(map))
+        .toList();
+  }
+
+  static DayInfoModel fromMap(Map<String, dynamic> map) => DayInfoModel(
+        id: map['id'] ?? '',
+        gameId: map['gameId'] ?? '',
+        day: map['day'] ?? -1,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] ?? 0),
+        removedPlayers: PlayerModel.fromListMap(map['removedPlayers']),
+        mutedPlayers: PlayerModel.fromListMap(map['mutedPlayers']),
+        playersWithFoul: PlayerModel.fromListMap(map['playersWithFoul']),
+        currentPhase: PhaseType.values.firstWhereOrNull(
+                (phase) => map['currentPhase'] == phase.name) ??
+            PhaseType.none,
+      );
+
   DayInfoEntity toEntity() => DayInfoEntity(
-        id: id,
+        tempId: id,
         gameId: gameId,
         day: day,
         createdAt: createdAt,
@@ -65,10 +112,10 @@ class DayInfoModel {
   List<PlayerModel> get getMutedPlayers => mutedPlayers;
 
   void removedMutedPlayer(String id) =>
-      mutedPlayers.removeWhere((player) => player.id == id);
+      mutedPlayers.removeWhere((player) => player.tempId == id);
 
   void removedRemovedPlayer(String id) =>
-      removedPlayers.removeWhere((player) => player.id == id);
+      removedPlayers.removeWhere((player) => player.tempId == id);
 
   @override
   String toString() {

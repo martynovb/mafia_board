@@ -1,5 +1,4 @@
 import 'package:mafia_board/data/entity/user_entity.dart';
-import 'package:mafia_board/domain/model/user_model.dart';
 
 abstract class AuthRepo {
   Future<UserEntity> registerUser({
@@ -18,4 +17,8 @@ abstract class AuthRepo {
   Future<void> logout();
 
   Future<UserEntity> me();
+
+  Future<UserEntity> changeNickname({
+    required String nickname,
+  });
 }

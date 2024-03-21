@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -38,7 +39,7 @@ class _CreateClubPageState extends State<CreateClubPage> {
               Navigator.pushReplacementNamed(
                 context,
                 AppRouter.gameRulesPage,
-                arguments: {'clubId': state.clubId},
+                arguments: {'clubId': state.club.id},
               );
             }
           },
@@ -51,18 +52,19 @@ class _CreateClubPageState extends State<CreateClubPage> {
             child: Column(
               children: [
                 // club name input
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding:
-                        EdgeInsets.only(bottom: Dimensions.sidePadding0_5x),
-                    child: Text(
-                      'Club name',
+                    padding: const EdgeInsets.only(
+                        bottom: Dimensions.sidePadding0_5x),
+                    child: const Text(
+                      'clubName',
                       style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold),
-                    ),
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ).tr(),
                   ),
                 ),
                 InputTextField(
@@ -71,18 +73,20 @@ class _CreateClubPageState extends State<CreateClubPage> {
                 const SizedBox(height: Dimensions.defaultSidePadding),
 
                 // club description input
-                const Align(
+                Align(
                   alignment: Alignment.centerLeft,
                   child: Padding(
-                    padding:
-                        EdgeInsets.only(bottom: Dimensions.sidePadding0_5x),
-                    child: Text(
-                      'Description',
-                      style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold),
+                    padding: const EdgeInsets.only(
+                      bottom: Dimensions.sidePadding0_5x,
                     ),
+                    child: const Text(
+                      'clubDescription',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ).tr(),
                   ),
                 ),
                 InputTextField(
@@ -93,22 +97,23 @@ class _CreateClubPageState extends State<CreateClubPage> {
 
                 // Sign in button
                 SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: () => _createClubBloc.add(CreateClubEvent(
-                        name: _clubNameController.text.trim(),
-                        description: _clubDescriptionController.text.trim(),
-                      )),
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.red),
-                      ),
-                      child: const Text(
-                        'Create club',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.bold),
-                      ),
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () => _createClubBloc.add(CreateClubEvent(
+                      name: _clubNameController.text.trim(),
+                      clubDescription: _clubDescriptionController.text.trim(),
                     )),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.red),
+                    ),
+                    child: const Text(
+                      'createClub',
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ).tr(),
+                  ),
+                ),
               ],
             ),
           )),

@@ -1,13 +1,13 @@
 import 'package:collection/collection.dart';
-import 'package:mafia_board/data/constants.dart';
+import 'package:mafia_board/data/constants/constants.dart';
 import 'package:mafia_board/domain/model/game_info_model.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/data/repo/history/history_repository.dart';
 import 'package:mafia_board/domain/model/game_history_model.dart';
 import 'package:mafia_board/domain/model/game_history_type.dart';
-import 'package:mafia_board/domain/model/game_phase/night_phase_action.dart';
-import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
-import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
+import 'package:mafia_board/domain/model/game_phase/night_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/vote_phase_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/domain/model/role.dart';
@@ -58,24 +58,32 @@ class GameHistoryManager {
   }
 
   void logPutOnVote({
-    required VotePhaseAction votePhaseAction,
+    required VotePhaseModel votePhaseAction,
   }) {
     _addRecord(GameHistoryModel(
       text:
           'Player ${votePhaseAction.whoPutOnVote?.nickname} has put player ${votePhaseAction.playerOnVote.nickname} on the vote',
       type: GameHistoryType.putOnVote,
       gamePhaseAction: votePhaseAction,
-      createdAt: votePhaseAction.createdAt,
+      createdAt: votePhaseAction.updatedAt,
     ));
   }
 
+  void removePutOnVoteLog({
+    required VotePhaseModel votePhaseAction,
+  }) {
+    repository
+        .deleteWhere((model) => model.gamePhaseAction == votePhaseAction);
+    _notifyListeners();
+  }
+
   Future<void> logPlayerSpeech(
-      {required SpeakPhaseAction speakPhaseAction}) async {
-    final speakerId = speakPhaseAction.playerId;
+      {required SpeakPhaseModel speakPhaseAction}) async {
+    final speakerId = speakPhaseAction.playerTempId;
     if (speakerId == null) {
       return;
     }
-    final speaker = await boardRepo.getPlayerById(speakerId);
+    final speaker = await boardRepo.getPlayerByTempId(speakerId);
     String text;
     String subText = '';
     if (speakPhaseAction.isLastWord &&
@@ -88,7 +96,7 @@ class GameHistoryManager {
           'LAST SPEECH FINISHED of player #${speaker?.seatNumber}: ${speaker?.nickname}';
       subText = speakPhaseAction.bestMove.isEmpty
           ? ''
-          : 'Best move: ${speakPhaseAction.bestMove.join(', ')}';
+          : 'Best move: ${speakPhaseAction.bestMove.map((player) => player.seatNumber).join(', ')}';
     } else if (speakPhaseAction.status == PhaseStatus.inProgress) {
       text =
           'SPEECH STARTED of player #${speaker?.seatNumber}: ${speaker?.nickname}';
@@ -106,19 +114,19 @@ class GameHistoryManager {
           ? GameHistoryType.lastWord
           : GameHistoryType.playerSpeech,
       gamePhaseAction: speakPhaseAction,
-      createdAt: speakPhaseAction.createdAt,
+      createdAt: speakPhaseAction.updatedAt,
     ));
   }
 
   void logVoteFinish({
-    required VotePhaseAction votePhaseAction,
+    required VotePhaseModel votePhaseAction,
   }) {
     String votedPlayers;
     String playersToKick = '';
     if (votePhaseAction.votedPlayers.isNotEmpty) {
       votedPlayers = votePhaseAction.votedPlayers
           .toList()
-          .sorted((a, b) => a.id.compareTo(b.id))
+          .sorted((a, b) => a.tempId.compareTo(b.tempId))
           .map((player) => player.nickname)
           .join(', ');
     } else {
@@ -138,7 +146,7 @@ class GameHistoryManager {
       subText: 'Voted ($votedPlayers)',
       type: GameHistoryType.voteFinish,
       gamePhaseAction: votePhaseAction,
-      createdAt: votePhaseAction.createdAt,
+      createdAt: votePhaseAction.updatedAt,
     ));
   }
 
@@ -182,14 +190,14 @@ class GameHistoryManager {
     ));
   }
 
-  void logCheckPlayer({required NightPhaseAction nightPhaseAction}) {
+  void logCheckPlayer({required NightPhaseModel nightPhaseAction}) {
     final title = nightPhaseAction.checkedPlayer == null
         ? 'No one has been checked'
         : '${nightPhaseAction.role.name} (${nightPhaseAction.playersForWakeUp.firstOrNull?.nickname}) CHECKED ${nightPhaseAction.checkedPlayer?.nickname} - ${nightPhaseAction.checkedPlayer?.role.name}';
     var type = GameHistoryType.none;
-    if (nightPhaseAction.role == Role.DON) {
+    if (nightPhaseAction.role == Role.don) {
       type = GameHistoryType.donCheck;
-    } else if (nightPhaseAction.role == Role.SHERIFF) {
+    } else if (nightPhaseAction.role == Role.sheriff) {
       type = GameHistoryType.sheriffCheck;
     }
 
@@ -201,14 +209,14 @@ class GameHistoryManager {
     ));
   }
 
-  void removeLogCheckPlayer({required NightPhaseAction nightPhaseAction}) {
+  void removeLogCheckPlayer({required NightPhaseModel nightPhaseAction}) {
     repository
         .deleteWhere((model) => model.gamePhaseAction == nightPhaseAction);
     _notifyListeners();
   }
 
   void logKillPlayer(
-      {PlayerModel? player, NightPhaseAction? nightPhaseAction}) {
+      {PlayerModel? player, NightPhaseModel? nightPhaseAction}) {
     _addRecord(GameHistoryModel(
       text: player == null ? 'MISS' : 'KILL ${player.nickname}',
       subText: player?.role.name ?? '',
@@ -218,7 +226,7 @@ class GameHistoryManager {
     ));
   }
 
-  void removeLogKillPlayer({required NightPhaseAction? nightPhaseAction}) {
+  void removeLogKillPlayer({required NightPhaseModel? nightPhaseAction}) {
     repository
         .deleteWhere((model) => model.gamePhaseAction == nightPhaseAction);
     _notifyListeners();

@@ -1,0 +1,19 @@
+{
+    "version": "1.0.0",
+    "configurations": [
+        {
+            "name": "dev",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/targets/dev/main.dart",
+            "args": ["--dart-define-from-file", "lib/targets/dev/configs.json"]
+        },
+        {
+            "name": "prod",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/targets/prod/main.dart",
+            "args": ["--dart-define-from-file", "lib/targets/prod/configs.json"]
+        }
+    ]
+}

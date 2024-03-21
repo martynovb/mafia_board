@@ -1,23 +1,24 @@
 import 'package:collection/collection.dart';
+import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/data/repo/game_phase/game_phase_repo.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
-import 'package:mafia_board/domain/model/game_phase/night_phase_action.dart';
-import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
+import 'package:mafia_board/domain/model/game_phase/night_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
 import 'package:mafia_board/domain/model/game_results_model.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
-import 'package:mafia_board/domain/model/player_score_model.dart';
 import 'package:mafia_board/domain/model/role.dart';
 import 'package:mafia_board/domain/model/rules_model.dart';
 import 'package:mafia_board/domain/model/winner_type.dart';
 import 'package:mafia_board/domain/usecase/get_rules_usecase.dart';
-import 'package:mafia_board/domain/usecase/save_game_results_usecase.dart';
+import 'package:mafia_board/domain/usecase/save_game_usecase.dart';
 
 class GameResultsManager {
   final PlayersRepo playersRepo;
   final GetRulesUseCase getRulesUseCase;
-  final SaveGameResultsUseCase saveGameResultsUseCase;
-  final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
-  final GamePhaseRepo<NightPhaseAction> nightGamePhaseRepo;
+  final SaveGameUseCase saveGameResultsUseCase;
+  final GamePhaseRepo<SpeakPhaseModel> speakGamePhaseRepo;
+  final GamePhaseRepo<NightPhaseModel> nightGamePhaseRepo;
 
   GameResultsManager({
     required this.playersRepo,
@@ -27,91 +28,129 @@ class GameResultsManager {
     required this.nightGamePhaseRepo,
   });
 
-  Future<GameResultsModel> getPlayersResults({required String clubId}) async {
+  Future<GameResultsModel> getPlayersResults({required ClubModel club}) async {
     WinnerType winnerIfPPK = _getWinnerIfPPK();
     WinnerType winner =
         winnerIfPPK == WinnerType.none ? _getWinner() : winnerIfPPK;
 
-    RulesModel clubRules = (await getRulesUseCase.execute(params: clubId)) ?? RulesModel.empty();
-    final allPlayers = playersRepo.getAllPlayers();
-    SpeakPhaseAction? speakPhaseWithBestMove = speakGamePhaseRepo
+    RulesModel clubRules = await getRulesUseCase.execute(params: club.id);
+    var allPlayers = playersRepo.getAllPlayers();
+    SpeakPhaseModel? speakPhaseWithBestMove = speakGamePhaseRepo
         .getAllPhases()
         .firstWhereOrNull((speakPhase) => speakPhase.bestMove.isNotEmpty);
     final firstKilledPlayer = _findFirstKilledPlayer();
 
-    final List<PlayerScoreModel> scoreList = [];
-
     for (PlayerModel player in allPlayers) {
-      final playerScore = PlayerScoreModel(player: player);
+      player.gamePoints = 0;
+      final isPlayerTeamWon = (winner == WinnerType.mafia &&
+              (player.role == Role.mafia || player.role == Role.don)) ||
+          (winner == WinnerType.civilian &&
+              (player.role == Role.civilian || player.role == Role.sheriff));
+
       if (player.isPPK) {
-        playerScore.isPPK = true;
-        playerScore.gamePoints -= clubRules.ppkLoss;
+        player.isPPK = true;
+        player.gamePoints += clubRules.getSetting(FirestoreKeys.ppkLoss);
       } else if (winner == WinnerType.mafia &&
-          (player.role == Role.MAFIA || player.role == Role.DON)) {
-        playerScore.gamePoints += clubRules.mafWin;
+          (player.role == Role.mafia || player.role == Role.don)) {
+        player.gamePoints += clubRules.getSetting(FirestoreKeys.mafWin);
       } else if (winner == WinnerType.mafia &&
-          (player.role == Role.CIVILIAN || player.role == Role.SHERIFF)) {
-        playerScore.gamePoints -= clubRules.civilLoss;
-        playerScore.gamePoints += clubRules.defaultBonus;
+          (player.role == Role.civilian || player.role == Role.sheriff)) {
+        player.gamePoints += clubRules.getSetting(FirestoreKeys.civilLoss);
+        player.gamePoints += clubRules.getSetting(FirestoreKeys.defaultBonus);
       } else if (winner == WinnerType.civilian &&
-          (player.role == Role.CIVILIAN || player.role == Role.SHERIFF)) {
-        playerScore.gamePoints += clubRules.civilWin;
+          (player.role == Role.civilian || player.role == Role.sheriff)) {
+        player.gamePoints += clubRules.getSetting(FirestoreKeys.civilWin);
       } else if (winner == WinnerType.civilian &&
-          (player.role == Role.MAFIA || player.role == Role.DON)) {
-        playerScore.gamePoints -= clubRules.mafLoss;
-        playerScore.gamePoints += clubRules.defaultBonus;
+          (player.role == Role.mafia || player.role == Role.don)) {
+        player.gamePoints += clubRules.getSetting(FirestoreKeys.mafLoss);
+        player.gamePoints += clubRules.getSetting(FirestoreKeys.defaultBonus);
       }
 
       if (!player.isPPK) {
         if (player.isDisqualified) {
-          playerScore.gamePoints -= clubRules.kickLoss;
+          player.gamePoints +=
+              clubRules.getSetting(FirestoreKeys.disqualificationLoss);
         } else if (speakPhaseWithBestMove != null &&
-            player.id == speakPhaseWithBestMove.playerId &&
+            player.tempId == speakPhaseWithBestMove.playerTempId &&
             !mafiaRoles().contains(player.role)) {
-          playerScore.bestMove += await _calculateBestMove(
+          final bestMove = await _calculateBestMove(
+            player,
             clubRules,
             speakPhaseWithBestMove.bestMove,
+            isPlayerTeamWon,
           );
+          player.bestMove += bestMove;
         }
       }
 
-      if (player.id == firstKilledPlayer?.id) {
-        playerScore.isFirstKilled = true;
+      if (player.tempId == firstKilledPlayer?.tempId) {
+        player.isFirstKilled = true;
       }
 
-      scoreList.add(playerScore);
+      await playersRepo.updateAllPlayerData(player);
     }
 
+    allPlayers = playersRepo.getAllPlayers();
     return GameResultsModel(
-      clubId: clubId,
+      club: club,
       winnerType: winner,
-      scoreList: scoreList.sorted((a, b) => b.total().compareTo(a.total())),
+      allPlayers: allPlayers.sorted((a, b) => b.total().compareTo(a.total())),
     );
   }
 
   Future<void> saveResults({
+    required ClubModel clubModel,
     required GameResultsModel gameResultsModel,
   }) async =>
-      saveGameResultsUseCase.execute(params: gameResultsModel);
+      saveGameResultsUseCase.execute(
+        params: SaveGameResultsParams(
+          gameResults: gameResultsModel,
+          clubModel: clubModel,
+        ),
+      );
 
   Future<double> _calculateBestMove(
-    RulesModel rulesModel,
-    List<int> bestMove,
+    PlayerModel player,
+    RulesModel rules,
+    List<PlayerModel> bestMove,
+    bool isPlayerTeamWon,
   ) async {
-    if (bestMove.isEmpty) {
+    if (player.role == Role.mafia ||
+        player.role == Role.don ||
+        bestMove.isEmpty) {
       return 0;
     }
-    final mafiaPlayersSeats =
-        (await playersRepo.getAllPlayersByRole([Role.MAFIA, Role.DON]))
-            .map((player) => player.seatNumber);
+    final mafiaPlayersTempIds =
+        (await playersRepo.getAllPlayersByRole([Role.mafia, Role.don])).map(
+      (player) => player.tempId,
+    );
     int count = bestMove
-        .where((seatNumber) => mafiaPlayersSeats.contains(seatNumber))
+        .where(
+          (player) =>
+              mafiaPlayersTempIds.any((tempId) => tempId == player.tempId),
+        )
         .length;
 
-    if (count == 2) {
-      return rulesModel.twoBestMove;
-    } else if (count >= 3) {
-      return rulesModel.threeBestMove;
+    if (count == 0) {
+      return rules.settings[isPlayerTeamWon
+              ? FirestoreKeys.bestMoveWin0
+              : FirestoreKeys.bestMoveLoss0] ??
+          0.0;
+    } else if (count == 1) {
+      return rules.settings[isPlayerTeamWon
+              ? FirestoreKeys.bestMoveWin1
+              : FirestoreKeys.bestMoveLoss1] ??
+          0.0;
+    } else if (count == 2) {
+      return rules.settings[isPlayerTeamWon
+              ? FirestoreKeys.bestMoveWin2
+              : FirestoreKeys.bestMoveLoss2] ??
+          0.0;
+    } else if (count == 3) {
+      return rules.settings[isPlayerTeamWon
+              ? FirestoreKeys.bestMoveWin3
+              : FirestoreKeys.bestMoveLoss3] ??
+          0.0;
     }
     return 0;
   }
@@ -120,8 +159,8 @@ class GameResultsManager {
     final allPlayers = playersRepo.getAllPlayers();
     Role ppkRole =
         allPlayers.firstWhereOrNull((player) => player.isPPK)?.role ??
-            Role.NONE;
-    if (ppkRole == Role.NONE) {
+            Role.none;
+    if (ppkRole == Role.none) {
       return WinnerType.none;
     }
 
@@ -139,17 +178,17 @@ class GameResultsManager {
 
     final allAvailablePlayers = playersRepo.getAllAvailablePlayers();
     int mafsCount = allAvailablePlayers
-        .where((player) => player.role == Role.MAFIA || player.role == Role.DON)
+        .where((player) => player.role == Role.mafia || player.role == Role.don)
         .length;
 
     int civilianCount = allAvailablePlayers
         .where(
           (player) =>
-              player.role == Role.CIVILIAN ||
-              player.role == Role.SHERIFF ||
-              player.role == Role.DOCTOR ||
-              player.role == Role.PUTANA ||
-              player.role == Role.MANIAC,
+              player.role == Role.civilian ||
+              player.role == Role.sheriff ||
+              player.role == Role.doctor ||
+              player.role == Role.putana ||
+              player.role == Role.maniac,
         )
         .length;
 
@@ -166,12 +205,8 @@ class GameResultsManager {
     return nightGamePhaseRepo
         .getAllPhases()
         .sorted((a, b) =>
-            a.createdAt.millisecond.compareTo(b.createdAt.millisecond))
+            a.updatedAt.millisecond.compareTo(b.updatedAt.millisecond))
         .firstWhereOrNull((nightPhase) => nightPhase.killedPlayer != null)
         ?.killedPlayer;
-  }
-
-  double _calculateCompensation() {
-    return 0;
   }
 }

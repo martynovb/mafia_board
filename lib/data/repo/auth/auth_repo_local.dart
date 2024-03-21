@@ -1,5 +1,4 @@
 import 'package:mafia_board/data/entity/user_entity.dart';
-import 'package:mafia_board/domain/model/user_model.dart';
 import 'package:mafia_board/data/repo/auth/auth_repo.dart';
 import 'package:uuid/uuid.dart';
 
@@ -7,7 +6,7 @@ class AuthRepoLocal extends AuthRepo {
   bool _isAuthorized = true;
 
   final UserEntity currentUser = UserEntity(
-      id: const Uuid().v1(), username: 'Magic', email: 'magic@gmail.com');
+      id: const Uuid().v1(), nickname: 'Magic', email: 'magic@gmail.com');
 
   AuthRepoLocal();
 
@@ -39,5 +38,10 @@ class AuthRepoLocal extends AuthRepo {
   }) async {
     _isAuthorized = true;
     return currentUser;
+  }
+
+  @override
+  Future<UserEntity> changeNickname({required String nickname}) {
+    throw UnimplementedError();
   }
 }

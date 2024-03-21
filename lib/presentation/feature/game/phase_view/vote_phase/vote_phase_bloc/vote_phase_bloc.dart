@@ -1,11 +1,10 @@
 import 'package:bloc/bloc.dart';
-import 'package:mafia_board/domain/model/phase_status.dart';
-import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
-import 'package:mafia_board/domain/model/player_model.dart';
+import 'package:mafia_board/domain/model/game_phase/vote_phase_model.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
 import 'package:mafia_board/domain/manager/game_flow/game_phase_manager.dart';
 import 'package:mafia_board/domain/manager/game_flow/speaking_phase_manager.dart';
 import 'package:mafia_board/domain/manager/game_flow/vote_phase_manager.dart';
+import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote_phase_bloc/vote_phase_event.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote_phase_bloc/vote_phase_state.dart';
 import 'package:mafia_board/presentation/maf_logger.dart';
@@ -22,7 +21,13 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
     required this.votePhaseManager,
     required this.speakingPhaseManager,
     required this.boardRepository,
-  }) : super(VotePhaseState(players: boardRepository.getAllPlayers())) {
+  }) : super(
+          VotePhaseState(
+            phaseStatus: PhaseStatus.notStarted,
+            players: boardRepository.getAllPlayers(),
+            votePhase: VotePhaseModel.inital(),
+          ),
+        ) {
     on<VoteAgainstEvent>(_voteAgainstEventHandler);
     on<GetVotingDataEvent>(_initializeDataEventHandler);
     on<FinishVoteAgainstEvent>(_finishVotingEventHandler);
@@ -30,90 +35,99 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
   }
 
   Future<void> _initializeDataEventHandler(
-      GetVotingDataEvent event, emit) async {
+    GetVotingDataEvent event,
+    emit,
+  ) async {
     final currentVotePhase = await votePhaseManager.getCurrentPhase();
-    emit(VotePhaseState(
-      players: boardRepository.getAllPlayers(),
-      status: currentVotePhase?.status ?? PhaseStatus.notStarted,
-      title: _mapVotePageTitle(currentVotePhase),
-      playersToKickText:
-          _parsePlayersToKickToString(currentVotePhase?.playersToKick),
-      playerOnVote: currentVotePhase?.playerOnVote,
-      allAvailablePlayersToVote:
-          await votePhaseManager.calculatePlayerVotingStatusMap(),
-    ));
+    emit(
+      VotePhaseState(
+        phaseStatus: currentVotePhase?.status ?? PhaseStatus.notStarted,
+        votePhase: currentVotePhase,
+        players: boardRepository.getAllPlayers(),
+        allAvailablePlayersToVote:
+            await votePhaseManager.calculatePlayerVotingStatusMap(),
+      ),
+    );
   }
 
   Future<void> _finishVotingEventHandler(
-      FinishVoteAgainstEvent event, emit) async {
+    FinishVoteAgainstEvent event,
+    emit,
+  ) async {
     try {
       await votePhaseManager.finishCurrentVotePhase();
       final currentVotePhase = await votePhaseManager.getCurrentPhase();
       final currentSpeakPhase = await speakingPhaseManager.getCurrentPhase();
       if (currentSpeakPhase == null && currentVotePhase != null) {
-        emit(VotePhaseState(
-          players: boardRepository.getAllPlayers(),
-          status: currentVotePhase.status,
-          title: _mapVotePageTitle(currentVotePhase),
-          playersToKickText:
-              _parsePlayersToKickToString(currentVotePhase.playersToKick),
-          playerOnVote: currentVotePhase.playerOnVote,
-          allAvailablePlayersToVote:
-              await votePhaseManager.calculatePlayerVotingStatusMap(),
-        ));
+        emit(
+          VotePhaseState(
+            votePhase: currentVotePhase,
+            phaseStatus: currentVotePhase.status,
+            players: boardRepository.getAllPlayers(),
+            allAvailablePlayersToVote:
+                await votePhaseManager.calculatePlayerVotingStatusMap(),
+          ),
+        );
       } else {
-        emit(VotePhaseState(
-          status: PhaseStatus.finished,
-          players: boardRepository.getAllPlayers(),
-        ));
+        emit(
+          VotePhaseState(
+            phaseStatus: PhaseStatus.finished,
+            votePhase: currentVotePhase,
+            players: boardRepository.getAllPlayers(),
+          ),
+        );
       }
     } on Exception catch (ex) {
       MafLogger.e(_tag, '_finishVotingEventHandler $ex');
     }
   }
 
-  Future<void> _voteAgainstEventHandler(VoteAgainstEvent event, emit) async {
+  Future<void> _voteAgainstEventHandler(
+    VoteAgainstEvent event,
+    emit,
+  ) async {
     try {
-      votePhaseManager.voteAgainst(
+      await votePhaseManager.voteAgainst(
         currentPlayer: event.currentPlayer,
         voteAgainstPlayer: event.voteAgainstPlayer,
       );
       final currentVotePhase = await votePhaseManager.getCurrentPhase();
-      emit(VotePhaseState(
-        players: boardRepository.getAllPlayers(),
-        status: currentVotePhase?.status ?? PhaseStatus.notStarted,
-        title: _mapVotePageTitle(currentVotePhase),
-        playersToKickText:
-            _parsePlayersToKickToString(currentVotePhase?.playersToKick),
-        playerOnVote: currentVotePhase?.playerOnVote,
-        allAvailablePlayersToVote:
-            await votePhaseManager.calculatePlayerVotingStatusMap(),
-      ));
+      emit(
+        VotePhaseState(
+          votePhase: currentVotePhase,
+          phaseStatus: currentVotePhase?.status ?? PhaseStatus.notStarted,
+          players: boardRepository.getAllPlayers(),
+          allAvailablePlayersToVote:
+              await votePhaseManager.calculatePlayerVotingStatusMap(),
+        ),
+      );
     } on Exception catch (ex) {
       MafLogger.e(_tag, 'error: _voteAgainstEventHandler $ex');
     }
   }
 
   Future<void> _cancelVoteAgainstEventHandler(
-      CancelVoteAgainstEvent event, emit) async {
+    CancelVoteAgainstEvent event,
+    emit,
+  ) async {
     try {
       var currentVotePhase = await votePhaseManager.getCurrentPhase();
-      if (currentVotePhase?.playerOnVote.id == event.voteAgainstPlayer.id) {
+      if (currentVotePhase?.playerOnVote.tempId ==
+          event.voteAgainstPlayer.tempId) {
         votePhaseManager.cancelVoteAgainst(
           currentPlayer: event.currentPlayer,
           voteAgainstPlayer: event.voteAgainstPlayer,
         );
         currentVotePhase = await votePhaseManager.getCurrentPhase();
-        emit(VotePhaseState(
-          players: boardRepository.getAllPlayers(),
-          status: currentVotePhase?.status ?? PhaseStatus.notStarted,
-          title: _mapVotePageTitle(currentVotePhase),
-          playersToKickText:
-              _parsePlayersToKickToString(currentVotePhase?.playersToKick),
-          playerOnVote: currentVotePhase?.playerOnVote,
-          allAvailablePlayersToVote:
-              await votePhaseManager.calculatePlayerVotingStatusMap(),
-        ));
+        emit(
+          VotePhaseState(
+            votePhase: currentVotePhase,
+            phaseStatus: currentVotePhase?.status ?? PhaseStatus.notStarted,
+            players: boardRepository.getAllPlayers(),
+            allAvailablePlayersToVote:
+                await votePhaseManager.calculatePlayerVotingStatusMap(),
+          ),
+        );
       } else {
         MafLogger.d(_tag,
             "You can't cancel your vote for a user whose voting has already finished.");
@@ -121,22 +135,5 @@ class VotePhaseBloc extends Bloc<VotePhaseEvent, VotePhaseState> {
     } on Exception catch (ex) {
       MafLogger.e(_tag, 'error: _voteAgainstEventHandler $ex');
     }
-  }
-
-  String _mapVotePageTitle(VotePhaseAction? votePhaseAction) {
-    if (votePhaseAction == null) {
-      return '';
-    } else if (votePhaseAction.shouldKickAllPlayers) {
-      return 'Kick all players?';
-    }
-    return 'Vote against #${votePhaseAction.playerOnVote.seatNumber}: ${votePhaseAction.playerOnVote.nickname}';
-  }
-
-  String _parsePlayersToKickToString(List<PlayerModel>? players) {
-    if (players == null || players.isEmpty) {
-      return '';
-    }
-
-    return players.map((player) => player.nickname).join(', ');
   }
 }

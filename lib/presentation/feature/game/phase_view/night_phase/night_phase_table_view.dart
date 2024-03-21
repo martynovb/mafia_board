@@ -1,7 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mafia_board/data/constants.dart';
+import 'package:mafia_board/data/constants/constants.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/model/role.dart';
@@ -52,33 +53,37 @@ class _NightPhaseTableViewState extends State<NightPhaseTableView> {
         builder: (context, NightPhaseState state) {
           return TableWidget(
             players: state.allPlayers,
-            center: Text('${state.nightPhaseAction?.role.name} is waking up'),
+            center: const Text('roleIsWakeUp').tr(
+              args: [
+                state.nightPhaseAction?.role.name.tr() ?? '',
+              ],
+            ),
             judgeSide: _nightJudgeViewMapper(state),
             highlightedPlayerList: _highlightedPlayerDataMapper(state),
             onPlayerClicked: (player) {
-              if (state.nightPhaseAction?.role == Role.SHERIFF ||
-                  state.nightPhaseAction?.role == Role.DON) {
+              if (state.nightPhaseAction?.role == Role.sheriff ||
+                  state.nightPhaseAction?.role == Role.don) {
                 nightPhaseBloc.add(CheckEvent(
-                  role: state.nightPhaseAction?.role ?? Role.NONE,
+                  role: state.nightPhaseAction?.role ?? Role.none,
                   playerToCheck: player,
                 ));
-              } else if (state.nightPhaseAction?.role == Role.MAFIA) {
+              } else if (state.nightPhaseAction?.role == Role.mafia) {
                 nightPhaseBloc.add(KillEvent(
-                  role: Role.MAFIA,
+                  role: Role.mafia,
                   killedPlayer: player,
                 ));
               }
             },
             onPlayerLongPress: (player) {
-              if (state.nightPhaseAction?.role == Role.SHERIFF ||
-                  state.nightPhaseAction?.role == Role.DON) {
+              if (state.nightPhaseAction?.role == Role.sheriff ||
+                  state.nightPhaseAction?.role == Role.don) {
                 nightPhaseBloc.add(CancelCheckEvent(
-                  role: state.nightPhaseAction?.role ?? Role.NONE,
+                  role: state.nightPhaseAction?.role ?? Role.none,
                   playerToCheck: player,
                 ));
-              } else if (state.nightPhaseAction?.role == Role.MAFIA) {
+              } else if (state.nightPhaseAction?.role == Role.mafia) {
                 nightPhaseBloc.add(CancelKillEvent(
-                  role: Role.MAFIA,
+                  role: Role.mafia,
                   killedPlayer: player,
                 ));
               }
@@ -90,14 +95,14 @@ class _NightPhaseTableViewState extends State<NightPhaseTableView> {
   List<HighlightedPlayerData> _highlightedPlayerDataMapper(
     NightPhaseState state,
   ) {
-    if (state.nightPhaseAction?.role == Role.MAFIA) {
+    if (state.nightPhaseAction?.role == Role.mafia) {
       return state.allPlayers
           .where((player) => player.isKilled)
           .map((player) => HighlightedPlayerData(
               phaseType: PhaseType.night, player: player, selectedToKill: true))
           .toList();
-    } else if (state.nightPhaseAction?.role == Role.DON ||
-        state.nightPhaseAction?.role == Role.SHERIFF &&
+    } else if (state.nightPhaseAction?.role == Role.don ||
+        state.nightPhaseAction?.role == Role.sheriff &&
             state.nightPhaseAction?.checkedPlayer != null) {
       final checkedPlayer = state.nightPhaseAction?.checkedPlayer;
       if (checkedPlayer != null) {
@@ -115,11 +120,11 @@ class _NightPhaseTableViewState extends State<NightPhaseTableView> {
   }
 
   Widget _nightJudgeViewMapper(NightPhaseState state) {
-    if (state.nightPhaseAction?.role == Role.MAFIA) {
+    if (state.nightPhaseAction?.role == Role.mafia) {
       return _mafiaView(state);
-    } else if (state.nightPhaseAction?.role == Role.DON) {
+    } else if (state.nightPhaseAction?.role == Role.don) {
       return _donView(state);
-    } else if (state.nightPhaseAction?.role == Role.SHERIFF) {
+    } else if (state.nightPhaseAction?.role == Role.sheriff) {
       return _sheriffView(state);
     } else {
       return Container();
@@ -168,7 +173,7 @@ class _NightPhaseTableViewState extends State<NightPhaseTableView> {
       },
       style:
           ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.black)),
-      child: const Text('Next'),
+      child: const Text('next').tr(),
     );
   }
 

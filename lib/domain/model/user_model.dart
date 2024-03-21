@@ -18,8 +18,20 @@ class UserModel {
 
   UserModel.fromEntity(UserEntity? entity)
       : id = entity?.id ?? '',
-        nickname = entity?.username ?? '',
+        nickname = entity?.nickname ?? '',
         email = entity?.email ?? '';
 
-  UserEntity toEntity() => UserEntity(id: id, username: nickname, email: email);
+  UserEntity toEntity() => UserEntity(id: id, nickname: nickname, email: email);
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'nickname': nickname,
+        'email': email,
+      };
+
+  static UserModel fromMap(Map<String, dynamic> map) => UserModel(
+        id: map['id'] ?? '',
+        nickname: map['nickname'] ?? '',
+        email: map['email'] ?? '',
+      );
 }

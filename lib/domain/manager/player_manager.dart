@@ -1,7 +1,7 @@
-import 'package:mafia_board/data/constants.dart';
+import 'package:mafia_board/data/constants/constants.dart';
 import 'package:mafia_board/domain/model/game_info_model.dart';
-import 'package:mafia_board/domain/model/game_phase/speak_phase_action.dart';
-import 'package:mafia_board/domain/model/game_phase/vote_phase_action.dart';
+import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
+import 'package:mafia_board/domain/model/game_phase/vote_phase_model.dart';
 import 'package:mafia_board/domain/model/phase_status.dart';
 import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/data/repo/players/players_repo.dart';
@@ -15,8 +15,8 @@ class PlayerManager {
   final GetCurrentGameUseCase getCurrentGameUseCase;
   final UpdateDayInfoUseCase updateDayInfoUseCase;
   final CreateDayInfoUseCase createDayInfoUseCase;
-  final GamePhaseRepo<VotePhaseAction> voteGamePhaseRepo;
-  final GamePhaseRepo<SpeakPhaseAction> speakGamePhaseRepo;
+  final GamePhaseRepo<VotePhaseModel> voteGamePhaseRepo;
+  final GamePhaseRepo<SpeakPhaseModel> speakGamePhaseRepo;
 
   PlayerManager({
     required this.boardRepo,
@@ -29,12 +29,12 @@ class PlayerManager {
 
   Future<void> refreshMuteIfNeeded(DayInfoModel dayInfo) async {
     final allActivePlayers = boardRepo.getAllAvailablePlayers();
-    final mutedPlayerIds = dayInfo.getMutedPlayers.map((p) => p.id).toSet();
+    final mutedPlayerIds = dayInfo.getMutedPlayers.map((p) => p.tempId).toSet();
 
     for (PlayerModel player in allActivePlayers) {
-      bool muted = mutedPlayerIds.contains(player.id);
+      bool muted = mutedPlayerIds.contains(player.tempId);
       boardRepo.updatePlayer(
-        player.id,
+        player.tempId,
         isMuted: muted,
       );
     }
@@ -54,7 +54,7 @@ class PlayerManager {
   }
 
   Future<void> clearFouls(String id) async {
-    final player = await boardRepo.getPlayerById(id);
+    final player = await boardRepo.getPlayerByTempId(id);
     if (player == null) {
       return;
     }
@@ -76,9 +76,9 @@ class PlayerManager {
       dayInfo.removedRemovedPlayer(id);
 
       final speakPhases = speakGamePhaseRepo.getAllPhases();
-      List<SpeakPhaseAction> todayAndFutureSpeakPhases = speakPhases
+      List<SpeakPhaseModel> todayAndFutureSpeakPhases = speakPhases
           .where((phase) =>
-              phase.currentDay >= dayInfo.day && phase.playerId == player.id)
+              phase.currentDay >= dayInfo.day && phase.playerTempId == player.tempId)
           .toList();
       for (var speakPhase in todayAndFutureSpeakPhases) {
         speakPhase.status = PhaseStatus.notStarted;
@@ -86,10 +86,10 @@ class PlayerManager {
       }
 
       final votePhases = voteGamePhaseRepo.getAllPhases();
-      List<VotePhaseAction> todayAndFutureVotePhases = votePhases
+      List<VotePhaseModel> todayAndFutureVotePhases = votePhases
           .where((phase) =>
               phase.currentDay >= dayInfo.day &&
-              phase.playerOnVote.id == player.id)
+              phase.playerOnVote.tempId == player.tempId)
           .toList();
       for (var votePhase in todayAndFutureVotePhases) {
         votePhase.status = PhaseStatus.notStarted;
@@ -99,7 +99,7 @@ class PlayerManager {
   }
 
   Future<void> _mutePlayer(String id) async {
-    final player = await boardRepo.getPlayerById(id);
+    final player = await boardRepo.getPlayerByTempId(id);
     if (player == null) {
       return;
     }
@@ -128,7 +128,7 @@ class PlayerManager {
   }
 
   Future<void> _removePlayer(String id) async {
-    final player = await boardRepo.getPlayerById(id);
+    final player = await boardRepo.getPlayerByTempId(id);
     if (player == null) {
       return;
     }
@@ -144,9 +144,9 @@ class PlayerManager {
 
     //finish future speak phases
     final speakPhases = speakGamePhaseRepo.getAllPhases();
-    List<SpeakPhaseAction> todayAndFutureSpeakPhases = speakPhases
+    List<SpeakPhaseModel> todayAndFutureSpeakPhases = speakPhases
         .where((phase) =>
-            phase.currentDay >= dayInfo.day && phase.playerId == player.id)
+            phase.currentDay >= dayInfo.day && phase.playerTempId == player.tempId)
         .toList();
     for (var speakPhase in todayAndFutureSpeakPhases) {
       if (speakPhase.status != PhaseStatus.finished) {
@@ -157,10 +157,10 @@ class PlayerManager {
 
     //finish future vote phases
     final votePhases = voteGamePhaseRepo.getAllPhases();
-    List<VotePhaseAction> todayAndFutureVotePhases = votePhases
+    List<VotePhaseModel> todayAndFutureVotePhases = votePhases
         .where((phase) =>
             phase.currentDay >= dayInfo.day &&
-            phase.playerOnVote.id == player.id)
+            phase.playerOnVote.tempId == player.tempId)
         .toList();
     for (var votePhase in todayAndFutureVotePhases) {
       if (votePhase.status != PhaseStatus.finished) {
@@ -175,10 +175,10 @@ class PlayerManager {
   }
 
   bool isPlayerHasAlreadySpokenToday(
-      List<SpeakPhaseAction> speakPhases, String playerId) {
+      List<SpeakPhaseModel> speakPhases, String playerId) {
     return !speakPhases.any(
       (phase) =>
-          phase.status != PhaseStatus.finished && phase.playerId == playerId,
+          phase.status != PhaseStatus.finished && phase.playerTempId == playerId,
     );
   }
 }

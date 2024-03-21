@@ -8,8 +8,8 @@ class SettingsItem extends StatelessWidget {
   final Widget? titleWidget;
   final Widget? subTitleWidget;
   final Widget? descriptionWidget;
-  final VoidCallback onPressed;
-  final String btnText;
+  final VoidCallback? onPressed;
+  final String? btnText;
   final Color btnColor;
 
   const SettingsItem({
@@ -20,8 +20,8 @@ class SettingsItem extends StatelessWidget {
     this.description,
     this.titleWidget,
     this.descriptionWidget,
-    required this.onPressed,
-    required this.btnText,
+    this.onPressed,
+    this.btnText,
     this.btnColor = Colors.white30,
   }) : super(key: key);
 
@@ -29,8 +29,9 @@ class SettingsItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.only(
-            top: Dimensions.sidePadding0_5x,
-            bottom: Dimensions.sidePadding0_5x),
+          top: Dimensions.sidePadding0_5x,
+          bottom: Dimensions.sidePadding0_5x,
+        ),
         child: Row(
           children: [
             Expanded(
@@ -56,23 +57,26 @@ class SettingsItem extends StatelessWidget {
                         ),
                       )
                     : Container(),
+                descriptionWidget ?? Container(),
               ],
             )),
-            Spacer(),
-            SizedBox(
-                width: 120,
-                height: 40,
-                child: ElevatedButton(
-                  onPressed: onPressed,
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(btnColor),
-                  ),
-                  child: Text(
-                    btnText,
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                )),
+            if (btnText != null && onPressed != null) ...[
+              const Spacer(),
+              SizedBox(
+                  width: 120,
+                  height: 40,
+                  child: ElevatedButton(
+                    onPressed: onPressed,
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(btnColor),
+                    ),
+                    child: Text(
+                      btnText!,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                  )),
+            ]
           ],
         ));
   }

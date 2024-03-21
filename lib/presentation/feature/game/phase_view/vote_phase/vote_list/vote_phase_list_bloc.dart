@@ -1,11 +1,10 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:collection/collection.dart';
-import 'package:mafia_board/domain/model/game_info_model.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
 import 'package:mafia_board/domain/manager/game_flow/game_phase_manager.dart';
 import 'package:mafia_board/domain/manager/game_flow/vote_phase_manager.dart';
+import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/presentation/feature/game/phase_view/vote_phase/vote_list/vote_item.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -23,6 +22,11 @@ class VotePhaseListBloc extends Bloc<VotePhaseListEvent, VotePhaseListState> {
   }) : super(VotePhaseListState()) {
     _listenToPlayersOnVote();
     _listenToNewDayInfo();
+    on<UnVotePhaseEvent>(_unvoteEventHandler);
+  }
+
+  Future<void> _unvoteEventHandler(UnVotePhaseEvent event, emit) async {
+    await votePhaseManager.revokePutOnVote(event.playerOnVote);
   }
 
   Future<void> _listenToNewDayInfo() async {
@@ -40,26 +44,31 @@ class VotePhaseListBloc extends Bloc<VotePhaseListEvent, VotePhaseListState> {
     await _gamePhaseSubscription?.cancel();
     _gamePhaseSubscription = null;
     _gamePhaseSubscription =
-        votePhaseManager.currentVotePhaseStream.listen((newVotePhase) {
-      if (newVotePhase != null) {
-        voteList
-            .add(VoteItem(playerNumber: newVotePhase.playerOnVote.seatNumber));
-        _voteListSubject.add(voteList);
+        votePhaseManager.currentVotePhaseStream.listen((newVotePhase) async {
+      voteList.clear();
+      final allTodaysPhases = await votePhaseManager.getAllTodaysPhases();
+      if (allTodaysPhases.isNotEmpty) {
+        voteList.addAll(
+          allTodaysPhases.map(
+            (votePhase) => VoteItem(playerOnVote: votePhase.playerOnVote),
+          ),
+        );
       }
+      _voteListSubject.add(voteList);
     });
   }
 
   Stream<List<VoteItem>> get voteListStream => _voteListSubject.stream;
 
-  Future<void> _unsubscribe() async {
-    await _gamePhaseSubscription?.cancel();
-    _gamePhaseSubscription = null;
-    await _dayInfoSubscription?.cancel();
-    _dayInfoSubscription = null;
-  }
 }
 
 class VotePhaseListEvent {}
+
+class UnVotePhaseEvent extends VotePhaseListEvent {
+  final PlayerModel playerOnVote;
+
+  UnVotePhaseEvent(this.playerOnVote);
+}
 
 class VotePhaseListState {
   final List<VoteItem> voteList;

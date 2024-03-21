@@ -1,18 +1,26 @@
+import 'package:mafia_board/data/constants/firestore_keys.dart';
+
 class UserEntity {
   final String? id;
-  final String? username;
+  final String? nickname;
   final String? email;
 
   UserEntity({
     this.id,
-    this.username,
+    this.nickname,
     this.email,
   });
+
+  UserEntity.fromFirestoreMap({
+    required this.id,
+    required Map<String, dynamic>? data,
+  })  : nickname = data?[FirestoreKeys.nicknameFieldKey],
+        email = data?[FirestoreKeys.emailFieldKey];
 
   static UserEntity fromJson(Map<dynamic, dynamic> json) {
     return UserEntity(
       id: json['id'] as String?,
-      username: json['username'] as String?,
+      nickname: json['nickname'] as String?,
       email: json['email'] as String?,
     );
   }

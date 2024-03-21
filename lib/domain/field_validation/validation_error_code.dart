@@ -1,5 +1,13 @@
 enum ValidationErrorCode {
   wrongFieldType,
   invalidData,
-  lenght,
+  invalidLenght,
+  emptyField,
+  invalidFormat,
+
+  /// email
+  invalidEmailMustContainAtSymbol,
+  invalidEmailMustContainDotSymbol,
+  invalidEmailInvalidPositionForAtSymbol,
+  invalidEmailInvalidPositionForDotSymbol,
 }

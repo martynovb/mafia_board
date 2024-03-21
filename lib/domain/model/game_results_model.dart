@@ -1,16 +1,15 @@
-import 'package:mafia_board/domain/model/player_score_model.dart';
+import 'package:mafia_board/domain/model/club_model.dart';
+import 'package:mafia_board/domain/model/player_model.dart';
 import 'package:mafia_board/domain/model/winner_type.dart';
-import 'package:uuid/uuid.dart';
 
 class GameResultsModel {
-  final String id = const Uuid().v1();
-  final String clubId;
+  final ClubModel club;
   final WinnerType winnerType;
-  final List<PlayerScoreModel> scoreList;
+  final List<PlayerModel> allPlayers;
 
   GameResultsModel({
-    required this.clubId,
+    required this.club,
     required this.winnerType,
-    required this.scoreList,
+    required this.allPlayers,
   });
 }

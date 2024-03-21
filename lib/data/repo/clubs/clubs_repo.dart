@@ -1,10 +1,10 @@
 import 'package:mafia_board/data/entity/club_entity.dart';
-import 'package:mafia_board/domain/model/club_model.dart';
+import 'package:mafia_board/data/entity/club_member_entity.dart';
 
 abstract class ClubsRepo {
   Future<ClubEntity> createClub({
     required String name,
-    required String description,
+    required String clubDescription,
   });
 
   Future<ClubEntity> updateClub({
@@ -17,7 +17,7 @@ abstract class ClubsRepo {
     required ClubEntity clubEntity,
   });
 
-  Future<List<ClubEntity>> getClubs({String? id, int limit = 10});
+  Future<List<ClubEntity>> getAllClubs();
 
   Future<ClubEntity?> getClubDetails({required String id});
 
@@ -42,5 +42,18 @@ abstract class ClubsRepo {
     required String clubId,
     required String currentUserId,
     required String participantUserId,
+  });
+
+  Future<List<ClubMemberEntity>> addNewMembers({
+    required String clubId,
+    required List<ClubMemberEntity> newMembers,
+  });
+
+  Future<List<ClubMemberEntity>> getExistedAndNotExistedClubMembers({
+    required String clubId,
+  });
+
+  Future<List<ClubMemberEntity>> getExistedClubMembers({
+    required String clubId,
   });
 }

@@ -6,7 +6,6 @@ import 'package:mafia_board/presentation/feature/game/phase_view/night_phase/nig
 import 'package:mafia_board/presentation/feature/game/phase_view/night_phase/night_phase_state.dart';
 
 class NightPhaseBloc extends Bloc<NightPhaseEvent, NightPhaseState> {
-  static const String _tag = 'SpeakingPhaseBloc';
   final GameManager gamePhaseManager;
   final NightPhaseManager nightPhaseManager;
   final PlayersRepo boardRepository;

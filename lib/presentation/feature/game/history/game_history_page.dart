@@ -33,6 +33,7 @@ class _GameHistoryPageState extends State<GameHistoryPage> with AutomaticKeepAli
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Padding(
         padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
         child: BlocBuilder(

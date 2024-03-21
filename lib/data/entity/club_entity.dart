@@ -1,33 +1,39 @@
-import 'package:mafia_board/data/entity/user_entity.dart';
+import 'package:mafia_board/data/constants/firestore_keys.dart';
 
 class ClubEntity {
   final String? id;
   String? title;
   String? description;
-  final List<UserEntity>? members;
-  final List<UserEntity>? admins;
-  final List<UserEntity>? waitList;
-  String? rulesId;
+  final bool? isAdmin;
+  double? civilWinRate;
+  double? mafWinRate;
+  int? createdAt;
 
   ClubEntity({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.members,
-    required this.admins,
-    required this.waitList,
-    this.rulesId,
+    this.id,
+    this.title,
+    this.description,
+    this.isAdmin,
+    this.civilWinRate,
+    this.mafWinRate,
+    this.createdAt,
   });
+
+  ClubEntity.fromFirestoreMap({
+    required this.id,
+    required this.isAdmin,
+    required Map<String, dynamic>? data,
+  })  : title = data?[FirestoreKeys.clubTitleFieldKey],
+        description = data?[FirestoreKeys.clubDescriptionFieldKey];
 
   static ClubEntity fromJson(Map<dynamic, dynamic> json) {
     return ClubEntity(
       id: json['id'] as String?,
       title: json['title'] as String?,
       description: json['description'] as String?,
-      rulesId: json['rulesId'] as String?,
-      members: UserEntity.parseUserEntities(json['members']),
-      admins: UserEntity.parseUserEntities(json['admins']),
-      waitList: UserEntity.parseUserEntities(json['waitList']),
+      civilWinRate: json['civilWinRate'] as double?,
+      mafWinRate: json['mafWinRate'] as double?,
+      createdAt: json['createdAt'] as int?,
     );
   }
 }

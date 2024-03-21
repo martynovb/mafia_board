@@ -4,6 +4,8 @@ class MeAuthEvent extends AuthEvent {}
 class ClearAuthEvent extends AuthEvent {}
 class LogoutAuthEvent extends AuthEvent {}
 
+class GoogleLoginAuthEvent extends AuthEvent {}
+
 class LoginAuthEvent extends AuthEvent {
   final String email;
   final String password;
