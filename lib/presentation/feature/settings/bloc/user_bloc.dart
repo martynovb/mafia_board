@@ -44,7 +44,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       if (user != null) {
         emit(UserDataState(
           userModel: user,
-          errorMessage: ex.message,
+          errorMessage: ex.apiErrorType.name,
         ));
       }
     } catch (e) {

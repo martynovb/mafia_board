@@ -91,7 +91,7 @@ class Injector {
   static Future<void> inject({bool mockDb = false}) async {
     await _injectDataLayer(mockDb);
     _injectDomainLayer();
-    _injectBloC();
+    _injectPresentation();
   }
 
   static Future<void> _injectDataLayer(bool isLocalDataBase) async {
@@ -333,7 +333,8 @@ class Injector {
     );
   }
 
-  static void _injectBloC() {
+  static void _injectPresentation() {
+
     _getIt.registerSingleton(
       UserBloc(
           getUserDataUseCase: _getIt.get(),
@@ -429,7 +430,7 @@ class Injector {
       ),
     );
 
-    _getIt.registerSingleton(GameResultsBloc(gameResultsManager: _getIt.get()));
+    _getIt.registerSingleton(GameResultsBloc(gameResultsManager: _getIt.get(), gameManager: _getIt.get()));
     _getIt.registerSingleton(CreateClubBloc(createClubUseCase: _getIt.get()));
     _getIt.registerSingleton(UserListBloc(getAllUsersUsecase: _getIt.get()));
     _getIt.registerSingleton(GameDetailsBloc(fetchGameDetailsUseCase: _getIt.get()));

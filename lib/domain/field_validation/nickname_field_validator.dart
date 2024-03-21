@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mafia_board/domain/exceptions/exception.dart';
 import 'package:mafia_board/domain/field_validation/field_type.dart';
 import 'package:mafia_board/domain/field_validation/validation_error_code.dart';
@@ -15,15 +16,19 @@ class NicknameFieldValidator extends FieldValidator {
       throw ValidationError(
         fieldType: fieldType,
         errorCode: ValidationErrorCode.invalidData,
-        errorMessage: 'Nickname should not be empty',
+        errorMessage: 'validationErrorNicknameIsEmpty'.tr(),
       );
     }
     if (fieldText.length > maxSymbols || fieldText.length < minSymbols) {
       throw ValidationError(
         fieldType: fieldType,
-        errorCode: ValidationErrorCode.lenght,
-        errorMessage:
-            'Nickname must be between $minSymbols and $maxSymbols characters.',
+        errorCode: ValidationErrorCode.invalidLenght,
+        errorMessage: 'validationErrorNicknameIsLength'.tr(
+          args: [
+            minSymbols.toString(),
+            maxSymbols.toString(),
+          ],
+        ),
       );
     }
   }

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -76,10 +77,12 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
 
                     // Sign in to your account
                     const Text(
-                      'Create an account',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
+                      'appName',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ).tr(),
                     const SizedBox(height: Dimensions.defaultSidePadding),
 
                     if (state is ErrorAuthState) ...[
@@ -90,18 +93,19 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                     ],
 
                     // Nickname input
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding:
-                            EdgeInsets.only(bottom: Dimensions.sidePadding0_5x),
-                        child: Text(
-                          'Nickname',
+                        padding: const EdgeInsets.only(
+                            bottom: Dimensions.sidePadding0_5x),
+                        child: const Text(
+                          'nickname',
                           style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold),
-                        ),
+                            fontSize: 14,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ).tr(),
                       ),
                     ),
                     InputTextField(
@@ -109,36 +113,38 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                     ),
                     const SizedBox(height: Dimensions.defaultSidePadding),
                     // Email input
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding:
-                            EdgeInsets.only(bottom: Dimensions.sidePadding0_5x),
-                        child: Text(
-                          'Email',
+                        padding: const EdgeInsets.only(
+                            bottom: Dimensions.sidePadding0_5x),
+                        child: const Text(
+                          'email',
                           style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold),
-                        ),
+                            fontSize: 14,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ).tr(),
                       ),
                     ),
                     InputTextField(
                       controller: _emailEditController,
                     ),
                     const SizedBox(height: Dimensions.defaultSidePadding),
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding:
-                            EdgeInsets.only(bottom: Dimensions.sidePadding0_5x),
-                        child: Text(
-                          'Password',
+                        padding: const EdgeInsets.only(
+                            bottom: Dimensions.sidePadding0_5x),
+                        child: const Text(
+                          'password',
                           style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold),
-                        ),
+                            fontSize: 14,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ).tr(),
                       ),
                     ),
 
@@ -148,18 +154,19 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                       controller: _passwordEditController,
                     ),
                     const SizedBox(height: Dimensions.defaultSidePadding),
-                    const Align(
+                    Align(
                       alignment: Alignment.centerLeft,
                       child: Padding(
-                        padding:
-                            EdgeInsets.only(bottom: Dimensions.sidePadding0_5x),
-                        child: Text(
-                          'Repeat password',
+                        padding: const EdgeInsets.only(
+                            bottom: Dimensions.sidePadding0_5x),
+                        child: const Text(
+                          'repeatPassword',
                           style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold),
-                        ),
+                            fontSize: 14,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ).tr(),
                       ),
                     ),
 
@@ -185,9 +192,13 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                             backgroundColor:
                                 MaterialStateProperty.all(Colors.red),
                           ),
-                          child: const Text('Sign up',
-                              style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.bold)),
+                          child: const Text(
+                            'signUp',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ).tr(),
                         )),
                     const SizedBox(height: Dimensions.defaultSidePadding),
 
@@ -195,15 +206,16 @@ class _CreateAccountPageState extends State<CreateAccountPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('Already have an account?'),
+                        const Text('alreadyHaveAccount').tr(),
                         TextButton(
                           onPressed: () => Navigator.pop(context),
                           child: const Text(
-                            'Sign in',
+                            'backToSignIn',
                             style: TextStyle(
-                                color: Colors.redAccent,
-                                fontWeight: FontWeight.bold),
-                          ),
+                              color: Colors.redAccent,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ).tr(),
                         ),
                       ],
                     ),

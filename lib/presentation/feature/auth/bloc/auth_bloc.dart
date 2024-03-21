@@ -39,8 +39,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await authRepo.loginUser(email: event.email, password: event.password);
       emit(SuccessAuthState());
     } on ValidationError catch (ex) {
-      emit(ErrorAuthState(ex.errorMessage));
-    // ignore: unused_catch_clause
+      emit(ValidationErrorState(ex.errorMessage));
+      // ignore: unused_catch_clause
     } on ApiException catch (ex) {
       emit(ErrorAuthState('Network error'));
     } catch (ex) {
@@ -62,7 +62,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(LogoutSuccessAuthState());
     } on ValidationError catch (ex) {
       emit(ErrorAuthState(ex.errorMessage));
-    // ignore: unused_catch_clause
+      // ignore: unused_catch_clause
     } on ApiException catch (ex) {
       emit(ErrorAuthState('Network error'));
     } catch (ex) {
@@ -87,7 +87,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(SuccessAuthState());
     } on ValidationError catch (ex) {
       emit(ErrorAuthState(ex.errorMessage));
-    // ignore: unused_catch_clause
+      // ignore: unused_catch_clause
     } on ApiException catch (ex) {
       emit(ErrorAuthState('Network error'));
     } catch (ex) {

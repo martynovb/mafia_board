@@ -9,6 +9,7 @@ import 'package:mafia_board/domain/exceptions/exception.dart';
 import 'package:mafia_board/domain/model/game_model.dart';
 import 'package:mafia_board/domain/manager/game_flow/game_phase_manager.dart';
 import 'package:mafia_board/domain/manager/game_flow/vote_phase_manager.dart';
+import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/validator/player_validator.dart';
 import 'package:mafia_board/domain/usecase/get_current_game_usecase.dart';
 import 'package:mafia_board/presentation/feature/game/game_bloc/game_event.dart';
@@ -79,7 +80,7 @@ class GameBloc extends HydratedBloc<GameEvent, GameState> {
       await gameManager.startGame(event.clubId);
       final currentGame = await getCurrentGameUseCase.execute();
       emit(
-        GamePhaseState(
+        GameStartedState(
           currentGame: currentGame,
           currentGamePhaseName: currentGame.currentDayInfo.currentPhase.name,
           club: state.club,
@@ -123,12 +124,17 @@ class GameBloc extends HydratedBloc<GameEvent, GameState> {
     try {
       await gameManager.nextGamePhase();
       final currentGame = await getCurrentGameUseCase.execute();
-
-      emit(GamePhaseState(
-        currentGame: currentGame,
-        currentGamePhaseName: currentGame.currentDayInfo.currentPhase.name,
-        club: state.club,
-      ));
+      if (currentGame.gameStatus == GameStatus.finished) {
+        emit(GoToGameResults(club: state.club));
+      } else {
+        emit(
+          GamePhaseState(
+            currentGame: currentGame,
+            currentGamePhaseName: currentGame.currentDayInfo.currentPhase.name,
+            club: state.club,
+          ),
+        );
+      }
     } on InvalidPlayerDataException catch (ex) {
       emit(ErrorBoardState(
         errorMessage: ex.errorMessage,
@@ -162,7 +168,10 @@ class GameBloc extends HydratedBloc<GameEvent, GameState> {
     }
   }
 
-  void dispose() {}
+  void dispose() {
+    gameManager.resetGameData();
+    playersRepository.resetAll();
+  }
 
   @override
   GameState? fromJson(Map<String, dynamic> json) {

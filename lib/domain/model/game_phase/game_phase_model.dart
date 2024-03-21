@@ -1,4 +1,5 @@
 import 'package:mafia_board/data/constants/firestore_keys.dart';
+import 'package:mafia_board/domain/exceptions/exception.dart';
 import 'package:mafia_board/domain/model/game_phase/night_phase_model.dart';
 import 'package:mafia_board/domain/model/game_phase/speak_phase_model.dart';
 import 'package:mafia_board/domain/model/game_phase/vote_phase_model.dart';
@@ -50,7 +51,8 @@ abstract class GamePhaseModel {
       } else if (v['phaseType'] == PhaseType.vote.name) {
         return VotePhaseModel.fromMap(map: v);
       }
-      throw ArgumentError('Unexpected game phase type: $v');
+      throw InvalidGameDataError(
+          errorMessage: 'Unexpected game phase type: $v,');
     }).toList();
   }
 

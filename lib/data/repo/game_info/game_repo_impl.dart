@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
+import 'package:mafia_board/data/api/api_error_type.dart';
+import 'package:mafia_board/data/api/error_handler.dart';
 import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/data/entity/game/game_entity.dart';
 import 'package:mafia_board/data/entity/game/day_info_entity.dart';
 import 'package:mafia_board/data/entity/game/player_entity.dart';
-import 'package:mafia_board/domain/exceptions/exception.dart';
 import 'package:mafia_board/domain/model/finish_game_type.dart';
 import 'package:mafia_board/domain/model/game_status.dart';
 import 'package:mafia_board/domain/model/phase_type.dart';
@@ -163,7 +164,7 @@ class GameRepoImpl extends GameRepo {
           .add(_currentGame?.toFirestoreMap() ?? {});
       _currentGame?.id = doc.id;
     } else {
-      throw InvalidDataError('Game is not saved');
+      throw NotFoundException(ApiErrorType.notFound);
     }
 
     return _currentGame!;
@@ -180,7 +181,7 @@ class GameRepoImpl extends GameRepo {
   @override
   Future<List<DayInfoEntity>> saveDayInfoList() async {
     if (_currentGame == null || _currentGame?.id == null) {
-      throw InvalidDataError('Game is not saved');
+      throw NotFoundException(ApiErrorType.notFound);
     }
 
     CollectionReference dayInfoRef = firestore.collection(

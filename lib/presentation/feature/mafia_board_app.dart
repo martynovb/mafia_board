@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -24,7 +25,6 @@ import 'package:mafia_board/presentation/feature/game/rules/bloc/rules_bloc.dart
 import 'package:mafia_board/presentation/feature/home/home_page.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
 import 'package:mafia_board/presentation/feature/settings/bloc/user_bloc.dart';
-
 class MafiaBoardApp extends StatefulWidget {
   const MafiaBoardApp({Key? key}) : super(key: key);
 
@@ -49,7 +49,16 @@ class _MafiaBoardAppState extends State<MafiaBoardApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
+    return EasyLocalization(
+      supportedLocales: const [
+        Locale('en'),
+        Locale('ru'),
+        Locale('uk'),
+      ],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('en'),
+      useOnlyLangCode: true,
+      child: MultiBlocProvider(
         providers: [
           BlocProvider(create: (context) => GetIt.instance<UserBloc>()),
           BlocProvider(create: (context) => GetIt.instance<PlayersSheetBloc>()),
@@ -57,9 +66,11 @@ class _MafiaBoardAppState extends State<MafiaBoardApp> {
           BlocProvider(create: (context) => GetIt.instance<GameBloc>()),
           BlocProvider(create: (context) => GetIt.instance<VotePhaseBloc>()),
           BlocProvider(create: (context) => GetIt.instance<GameHistoryBloc>()),
-          BlocProvider(create: (context) => GetIt.instance<SpeakingPhaseBloc>()),
+          BlocProvider(
+              create: (context) => GetIt.instance<SpeakingPhaseBloc>()),
           BlocProvider(create: (context) => GetIt.instance<NightPhaseBloc>()),
-          BlocProvider(create: (context) => GetIt.instance<VotePhaseListBloc>()),
+          BlocProvider(
+              create: (context) => GetIt.instance<VotePhaseListBloc>()),
           BlocProvider(create: (context) => GetIt.instance<AuthBloc>()),
           BlocProvider(create: (context) => GetIt.instance<AppBloc>()),
           BlocProvider(create: (context) => GetIt.instance<ClubsDetailsBloc>()),
@@ -75,6 +86,9 @@ class _MafiaBoardAppState extends State<MafiaBoardApp> {
           builder: (context, AppState state) {
             return MaterialApp(
               debugShowCheckedModeBanner: false,
+              localizationsDelegates: context.localizationDelegates,
+              supportedLocales: context.supportedLocales,
+              locale: context.locale,
               title: 'Mafia board',
               theme: ThemeData(brightness: Brightness.dark, useMaterial3: true),
               home: state is InitialAppState
@@ -85,6 +99,8 @@ class _MafiaBoardAppState extends State<MafiaBoardApp> {
               routes: AppRouter.routes,
             );
           },
-        ));
+        ),
+      ),
+    );
   }
 }

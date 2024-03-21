@@ -1,4 +1,5 @@
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mafia_board/domain/exceptions/exception.dart';
 import 'package:mafia_board/domain/field_validation/field_type.dart';
 import 'package:mafia_board/domain/field_validation/validation_error_code.dart';
@@ -19,7 +20,7 @@ class RepeatPasswordFieldValidator extends FieldValidator {
       throw ValidationError(
         fieldType: fieldType,
         errorCode: ValidationErrorCode.invalidData,
-        errorMessage: 'Repeat password should not be empty',
+        errorMessage: 'validationErrorRepeatPasswordIsEmpty'.tr(),
       );
     }
   }
@@ -29,7 +30,7 @@ class RepeatPasswordFieldValidator extends FieldValidator {
       throw ValidationError(
         fieldType: fieldType,
         errorCode: ValidationErrorCode.invalidData,
-        errorMessage: 'Passwords do not match.',
+        errorMessage: 'validationErrorRepeatPasswordIsNotEqual'.tr(),
       );
     }
   }

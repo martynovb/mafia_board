@@ -105,9 +105,9 @@ class PlayersSheetBloc extends Bloc<SheetEvent, SheetState> {
   }
 
   void _changeRoleHandler(ChangeRoleEvent event, emit) async {
-    playersRepository.updatePlayer(
+    await playersRepository.updatePlayer(
       event.playerId,
-      role: roleMapper(event.newRole),
+      role: event.newRole,
     );
     _playersSubject.add(SheetDataState(
       players: playersRepository.getAllPlayers(),

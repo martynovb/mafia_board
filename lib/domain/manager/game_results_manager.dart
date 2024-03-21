@@ -41,6 +41,7 @@ class GameResultsManager {
     final firstKilledPlayer = _findFirstKilledPlayer();
 
     for (PlayerModel player in allPlayers) {
+      player.gamePoints = 0;
       final isPlayerTeamWon = (winner == WinnerType.mafia &&
               (player.role == Role.mafia || player.role == Role.don)) ||
           (winner == WinnerType.civilian &&

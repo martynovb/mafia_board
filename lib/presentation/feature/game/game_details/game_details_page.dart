@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -48,7 +49,7 @@ class _GameDetailsPageState extends State<GameDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Game details'),
+        title: const Text('gameDetails').tr(),
         centerTitle: true,
       ),
       body: Padding(
@@ -64,11 +65,11 @@ class _GameDetailsPageState extends State<GameDetailsPage> {
                 return ListView(
                   children: [
                     _gameResultsPointsTable(state.gameDetails.players),
-                    const SizedBox(height: Dimensions.defaultSidePadding),
+                    /*  const SizedBox(height: Dimensions.defaultSidePadding),
                     const Text('Player details:'),
                     const SizedBox(height: Dimensions.defaultSidePadding),
                     _playerGameDetailsList(state.gameDetails),
-                    const SizedBox(height: Dimensions.defaultSidePadding),
+                    const SizedBox(height: Dimensions.defaultSidePadding), */
                   ],
                 );
               } else if (state.status == StateStatus.error) {
@@ -118,35 +119,35 @@ class _GameDetailsPageState extends State<GameDetailsPage> {
             ),
             Expanded(
               flex: _nicknameColumnFlex,
-              child: const Center(child: Text('nickname')),
+              child: Center(child: const Text('nickname').tr()),
             ),
             const VerticalDivider(
               color: Colors.transparent,
             ),
             Expanded(
               flex: _roleColumnFlex,
-              child: const Center(child: Text('role')),
+              child: Center(child: const Text('role').tr()),
             ),
             const VerticalDivider(
               color: Colors.transparent,
             ),
             Expanded(
               flex: _scoreColumnFlex,
-              child: const Center(child: Text('BM')),
+              child: Center(child: const Text('bestMove').tr()),
             ),
             const VerticalDivider(
               color: Colors.transparent,
             ),
             Expanded(
               flex: _scoreColumnFlex,
-              child: const Center(child: Text('points')),
+              child: Center(child: const Text('points').tr()),
             ),
             const VerticalDivider(
               color: Colors.transparent,
             ),
             Expanded(
               flex: _scoreColumnFlex,
-              child: const Center(child: Text('total')),
+              child: Center(child: const Text('total').tr()),
             ),
           ],
         ));
@@ -233,7 +234,15 @@ class _GameDetailsPageState extends State<GameDetailsPage> {
   }
 
   Widget _roleIndicator(Role role) {
-    return Text(role.name);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(roleEmojiMapper(role)),
+        const SizedBox(width: Dimensions.sidePadding0_5x),
+        Text(role.name).tr(),
+      ],
+    );
   }
 
   Widget _playerGameDetailsList(GameDetailsModel gameDetails) {

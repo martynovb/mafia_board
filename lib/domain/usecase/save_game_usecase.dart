@@ -68,7 +68,7 @@ class SaveGameUseCase extends BaseUseCase<void, SaveGameResultsParams> {
     );
     MafLogger.d(tag, '[FINISHED] Save current game (id: ${game.id})');
     if (game.id == null) {
-      throw InvalidDataError('Game saving error');
+      throw InvalidGameDataError(errorMessage: 'Game saving error');
     }
     final gameId = game.id!;
     MafLogger.d(tag, '4. [START] Save players');

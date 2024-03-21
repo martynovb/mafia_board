@@ -84,4 +84,8 @@ class RoleManager {
   }
 
   List<RoleModel> get allRoles => _allRoles;
+
+  void resetAvailableRoles() {
+    _calculateAvailableRoles();
+  }
 }

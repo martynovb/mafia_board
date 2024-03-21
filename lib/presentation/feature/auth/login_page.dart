@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -26,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     _authBloc = GetIt.instance();
-    _emailEditController.text = "mafiatest@gmail.com";
+    _emailEditController.text = "palantir.nr@gmail.com";
     super.initState();
   }
 
@@ -74,32 +75,44 @@ class _LoginPageState extends State<LoginPage> {
 
                       // Sign in to your account
                       const Text(
-                        'Sign in to your account',
+                        'loginTitle',
                         style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ).tr(),
                       const SizedBox(height: Dimensions.defaultSidePadding),
 
                       if (state is ErrorAuthState) ...[
                         InfoField(
-                            message: state.errorMessage,
-                            infoFieldType: InfoFieldType.error),
+                          message: state.errorMessage,
+                          infoFieldType: InfoFieldType.error,
+                        ),
+                        const SizedBox(height: Dimensions.defaultSidePadding),
+                      ],
+                      if (state is ValidationErrorState) ...[
+                        InfoField(
+                          message: state.validationError,
+                          infoFieldType: InfoFieldType.error,
+                        ),
                         const SizedBox(height: Dimensions.defaultSidePadding),
                       ],
 
                       // Email input
-                      const Align(
+                      Align(
                         alignment: Alignment.centerLeft,
                         child: Padding(
-                          padding: EdgeInsets.only(
-                              bottom: Dimensions.sidePadding0_5x),
-                          child: Text(
-                            'Email',
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                          padding: const EdgeInsets.only(
+                            bottom: Dimensions.sidePadding0_5x,
                           ),
+                          child: const Text(
+                            'email',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ).tr(),
                         ),
                       ),
                       InputTextField(
@@ -112,22 +125,23 @@ class _LoginPageState extends State<LoginPage> {
                         mainAxisSize: MainAxisSize.max,
                         children: [
                           const Text(
-                            'Password',
+                            'password',
                             style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold),
-                          ),
+                          ).tr(),
                           GestureDetector(
                             onTap: () => Navigator.pushNamed(
                                 context, AppRouter.resetPasswordPage),
                             child: const Text(
-                              'Forgot password?',
+                              'forgotPassword',
                               style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.redAccent,
-                                  fontWeight: FontWeight.bold),
-                            ),
+                                fontSize: 14,
+                                color: Colors.redAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ).tr(),
                           ),
                         ],
                       ),
@@ -151,24 +165,11 @@ class _LoginPageState extends State<LoginPage> {
                               backgroundColor:
                                   MaterialStateProperty.all(Colors.red),
                             ),
-                            child: const Text('Sign in',
-                                style: TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold)),
-                          )),
-                      const SizedBox(height: Dimensions.defaultSidePadding),
-                      // Sign in button
-                      SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: () => _authBloc.add(GoogleLoginAuthEvent()),
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(Colors.red),
-                            ),
-                            child: const Text('Sign in with Google',
-                                style: TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold)),
+                            child: const Text(
+                              'login',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold),
+                            ).tr(),
                           )),
                       const SizedBox(height: Dimensions.defaultSidePadding),
 
@@ -176,16 +177,17 @@ class _LoginPageState extends State<LoginPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('Don\'t have an account?'),
+                          const Text('dontHaveAccount').tr(),
                           TextButton(
                             onPressed: () => Navigator.pushNamed(
                                 context, AppRouter.createAccountPage),
                             child: const Text(
-                              'Create an account',
+                              'createAccount',
                               style: TextStyle(
-                                  color: Colors.redAccent,
-                                  fontWeight: FontWeight.bold),
-                            ),
+                                color: Colors.redAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ).tr(),
                           ),
                         ],
                       ),

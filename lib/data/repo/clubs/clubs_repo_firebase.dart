@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:collection/collection.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mafia_board/data/api/api_error_type.dart';
 import 'package:mafia_board/data/api/error_handler.dart';
 import 'package:mafia_board/data/constants/firestore_keys.dart';
 import 'package:mafia_board/data/entity/club_entity.dart';
@@ -66,7 +67,7 @@ class ClubsRepoFirebase extends ClubsRepo {
   }) async {
     final userId = firebaseAuth.currentUser?.uid;
     if (userId == null) {
-      throw InvalidCredentialsException('User is not authorized');
+      throw InvalidCredentialsException(ApiErrorType.unauthorized);
     }
 
     final doc =

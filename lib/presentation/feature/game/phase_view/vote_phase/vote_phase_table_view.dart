@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -39,7 +40,7 @@ class _VotePhaseTableViewState extends State<VotePhaseTableView> {
   Widget build(BuildContext context) {
     return BlocConsumer(
         listener: (BuildContext context, VotePhaseState state) {
-          if (state.status == PhaseStatus.finished) {
+          if (state.phaseStatus == PhaseStatus.finished) {
             widget.onVoteFinished();
           }
         },
@@ -55,22 +56,33 @@ class _VotePhaseTableViewState extends State<VotePhaseTableView> {
                         phaseType: PhaseType.vote,
                         player: entry.key,
                         isVoted: entry.value,
-                        onVote: state.playerOnVote?.tempId == entry.key.tempId,
+                        onVote: state.votePhase?.playerOnVote.tempId ==
+                            entry.key.tempId,
                       ),
                     )
                     .toList(),
                 center: _center(state),
                 onPlayerLongPress: (player) {
-                  votePhaseBloc.add(CancelVoteAgainstEvent(
-                    currentPlayer: player,
-                    voteAgainstPlayer: state.playerOnVote!,
-                  ));
+                  final playerOnVote = state.votePhase?.playerOnVote;
+                  if (playerOnVote != null) {
+                    votePhaseBloc.add(
+                      CancelVoteAgainstEvent(
+                        currentPlayer: player,
+                        voteAgainstPlayer: playerOnVote,
+                      ),
+                    );
+                  }
                 },
                 onPlayerClicked: (player) {
-                  votePhaseBloc.add(VoteAgainstEvent(
-                    currentPlayer: player,
-                    voteAgainstPlayer: state.playerOnVote!,
-                  ));
+                  final playerOnVote = state.votePhase?.playerOnVote;
+                  if (playerOnVote != null) {
+                    votePhaseBloc.add(
+                      VoteAgainstEvent(
+                        currentPlayer: player,
+                        voteAgainstPlayer: playerOnVote,
+                      ),
+                    );
+                  }
                 },
                 players: state.players,
                 judgeSide: Container(),
@@ -84,17 +96,29 @@ class _VotePhaseTableViewState extends State<VotePhaseTableView> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(state.title),
-        if (state.playersToKickText.isNotEmpty) Text(state.playersToKickText),
+        state.votePhase?.shouldKickAllPlayers == true
+            ? const Text('voteForKick').tr(
+                args: [
+                  state.votePhase?.playersToKick
+                          .map((e) => e.nickname)
+                          .join(', ') ??
+                      '',
+                ],
+              )
+            : const Text('voteAgainst').tr(
+                args: [
+                  state.votePhase?.playerOnVote.seatNumber.toString() ?? '',
+                ],
+              ),
         ElevatedButton(
           onPressed: () {
             votePhaseBloc.add(
               FinishVoteAgainstEvent(
-                playerOnVoting: state.playerOnVote,
+                playerOnVoting: state.votePhase?.playerOnVote,
               ),
             );
           },
-          child: const Text('Next'),
+          child: const Text('next').tr(),
         ),
       ],
     );

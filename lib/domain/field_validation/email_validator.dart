@@ -1,5 +1,4 @@
-
-
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mafia_board/domain/exceptions/exception.dart';
 import 'package:mafia_board/domain/field_validation/field_type.dart';
 import 'package:mafia_board/domain/field_validation/validation_error_code.dart';
@@ -20,54 +19,57 @@ class EmailFieldValidator extends FieldValidator {
     if (email == null || email.isEmpty) {
       throw ValidationError(
         fieldType: fieldType,
-        errorCode: ValidationErrorCode.invalidData,
-        errorMessage: 'Email field cannot be empty.',
+        errorCode: ValidationErrorCode.emptyField,
+        errorMessage: 'validationErrorEmailIsEmpty'.tr(),
       );
     }
     if (!email.contains('@')) {
       throw ValidationError(
         fieldType: fieldType,
-        errorCode: ValidationErrorCode.invalidData,
-        errorMessage: 'Email must contain an "@" symbol.',
+        errorCode: ValidationErrorCode.invalidEmailMustContainAtSymbol,
+        errorMessage: 'validationErrorEmailMustContainAtSymbol'.tr(),
       );
     }
     if (!email.contains('.')) {
       throw ValidationError(
         fieldType: fieldType,
-        errorCode: ValidationErrorCode.invalidData,
-        errorMessage: 'Email must contain a "." symbol.',
+        errorCode: ValidationErrorCode.invalidEmailMustContainDotSymbol,
+        errorMessage: 'validationErrorEmailMustContainDotSymbol'.tr(),
       );
     }
     if (email.startsWith('@') || email.endsWith('@')) {
       throw ValidationError(
         fieldType: fieldType,
-        errorCode: ValidationErrorCode.invalidData,
-        errorMessage: 'Invalid position for "@" symbol.',
+        errorCode: ValidationErrorCode.invalidEmailInvalidPositionForAtSymbol,
+        errorMessage: 'validationErrorEmailInvalidPositionForDot'.tr(),
       );
     }
     if (email.startsWith('.') || email.endsWith('.')) {
       throw ValidationError(
         fieldType: fieldType,
-        errorCode: ValidationErrorCode.invalidData,
-        errorMessage: 'Invalid position for "." symbol.',
+        errorCode: ValidationErrorCode.invalidEmailInvalidPositionForDotSymbol,
+        errorMessage: 'validationErrorEmailInvalidPositionForAt'.tr(),
       );
     }
 
     if (!_emailPattern.hasMatch(email)) {
       throw ValidationError(
         fieldType: fieldType,
-        errorCode: ValidationErrorCode.invalidData,
-        errorMessage:
-            'Invalid email format. Ensure correct arrangement of "@" and "." symbols.',
+        errorCode: ValidationErrorCode.invalidFormat,
+        errorMessage: 'validationErrorEmailIsInvalid'.tr(),
       );
     }
 
     if (email.length > maxSymbols || email.length < minSymbols) {
       throw ValidationError(
         fieldType: fieldType,
-        errorCode: ValidationErrorCode.lenght,
-        errorMessage:
-            'Length error: $email, maxSymbols =  $maxSymbols && minSymbols = $minSymbols',
+        errorCode: ValidationErrorCode.invalidLenght,
+        errorMessage: 'validationErrorEmailIsLength'.tr(
+          args: [
+            minSymbols.toString(),
+            maxSymbols.toString(),
+          ],
+        )
       );
     }
   }

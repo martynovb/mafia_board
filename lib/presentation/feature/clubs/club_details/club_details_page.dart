@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -10,7 +11,6 @@ import 'package:mafia_board/presentation/feature/clubs/club_details/club_details
 import 'package:mafia_board/presentation/feature/clubs/club_details/club_details_bloc/club_details_state.dart';
 import 'package:mafia_board/presentation/feature/clubs/rating_table/rating_table_widget.dart';
 import 'package:mafia_board/presentation/feature/dimensions.dart';
-import 'package:intl/intl.dart';
 import 'package:mafia_board/presentation/feature/router.dart';
 import 'package:mafia_board/presentation/feature/widgets/info_field.dart';
 
@@ -50,7 +50,9 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
       builder: (context, ClubState state) {
         return Scaffold(
             appBar: AppBar(
-              title: Text(state.club?.title ?? 'Club details'),
+              title: Text(
+                state.club?.title ?? 'clubDetails'.tr(),
+              ),
               centerTitle: true,
             ),
             body: LayoutBuilder(
@@ -66,7 +68,9 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
                       ),
                       const SizedBox(height: Dimensions.defaultSidePadding),
                       const Divider(height: Dimensions.defaultSidePadding),
-                      const Center(child: Text('All games')),
+                      Center(
+                        child: const Text('allGames').tr(),
+                      ),
                       _gamesList(state.allGames),
                     ],
                   );
@@ -92,15 +96,21 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
       padding: const EdgeInsets.all(Dimensions.defaultSidePadding),
       child: Column(
         children: [
-          Text('Total games: ${club.games.length}'),
+          const Text('totalGames').tr(
+            args: [club.games.length.toString()],
+          ),
           const SizedBox(height: Dimensions.defaultSidePadding),
           Text(
-            'Civilian win rate: ${club.civilWinRate.toStringAsFixed(2)}%',
+            'civilianWinRate'.tr(
+              args: [club.civilWinRate.toStringAsFixed(2)],
+            ),
             style: TextStyle(backgroundColor: Colors.red.withOpacity(0.1)),
           ),
           const SizedBox(height: Dimensions.defaultSidePadding),
           Text(
-            'Mafia win rate: ${club.mafWinRate.toStringAsFixed(2)}%',
+            'mafiaWinRate'.tr(
+              args: [club.mafWinRate.toStringAsFixed(2)],
+            ),
             style: const TextStyle(backgroundColor: Colors.black),
           ),
           const SizedBox(height: Dimensions.defaultSidePadding),
@@ -112,8 +122,8 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
 
   Widget _gamesList(List<GameModel> games) {
     if (games.isEmpty) {
-      return const Center(
-        child: Text('No games'),
+      return Center(
+        child: const Text('noGamesPlayed').tr(),
       );
     }
     return ListView.separated(
@@ -130,11 +140,11 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
             );
           },
           child: Padding(
-                      padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
-                      child: _gameItem(
-          games[index],
-                      ),
-                    ),
+            padding: const EdgeInsets.all(Dimensions.sidePadding0_5x),
+            child: _gameItem(
+              games[index],
+            ),
+          ),
         ),
       ),
       itemCount: games.length,
@@ -172,6 +182,7 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
         const Spacer(),
         if (clubDetailsBloc.state.club?.isAdmin == true)
           IconButton(
+            key: menuKey,
             onPressed: () async => _showMoreMenu(menuKey, game),
             icon: const Icon(Icons.more_vert),
           ),
@@ -196,13 +207,14 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
             child: Text(winnerType.name),
           ),
           const SizedBox(width: Dimensions.defaultSidePadding),
-          Text('($mafsLeft in $mafsLeft)')
+          const Text('mafWinRation')
+              .tr(args: [mafsLeft.toString(), mafsLeft.toString()])
         ],
       );
     } else {
       return Container(
         color: Colors.white.withOpacity(0.1),
-        child: const Text('draw'),
+        child: const Text('draw').tr(),
       );
     }
   }
@@ -234,9 +246,9 @@ class _ClubDetailsPageState extends State<ClubDetailsPage> {
       context: context,
       position: position,
       items: [
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: _deleteGameOption,
-          child: Text('Delete'),
+          child: const Text('deleteGame').tr(),
         ),
       ],
     );

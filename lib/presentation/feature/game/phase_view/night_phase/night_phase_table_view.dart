@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -52,7 +53,11 @@ class _NightPhaseTableViewState extends State<NightPhaseTableView> {
         builder: (context, NightPhaseState state) {
           return TableWidget(
             players: state.allPlayers,
-            center: Text('${state.nightPhaseAction?.role.name} is waking up'),
+            center: const Text('roleIsWakeUp').tr(
+              args: [
+                state.nightPhaseAction?.role.name.tr() ?? '',
+              ],
+            ),
             judgeSide: _nightJudgeViewMapper(state),
             highlightedPlayerList: _highlightedPlayerDataMapper(state),
             onPlayerClicked: (player) {
@@ -168,7 +173,7 @@ class _NightPhaseTableViewState extends State<NightPhaseTableView> {
       },
       style:
           ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.black)),
-      child: const Text('Next'),
+      child: const Text('next').tr(),
     );
   }
 

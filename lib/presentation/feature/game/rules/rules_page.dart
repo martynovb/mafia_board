@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -40,10 +41,10 @@ class _RulesPageState extends State<RulesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Club rules'),
+        title: const Text('clubRules').tr(),
         centerTitle: true,
         actions: [
-          TextButton(onPressed: () => _save(), child: const Text('Save'))
+          TextButton(onPressed: () => _save(), child: const Text('save').tr())
         ],
       ),
       body: BlocConsumer(
@@ -68,61 +69,61 @@ class _RulesPageState extends State<RulesPage> {
         padding: const EdgeInsets.all(Dimensions.defaultSidePadding),
         child: Column(
           children: [
-            const Text('Bes move:'),
+            const Text('bestMove').tr(),
             Center(child: _bestMoveSettings(settings)),
             const SizedBox(height: Dimensions.defaultSidePadding),
             const Divider(height: Dimensions.defaultSidePadding),
-            const Text('Civilian:'),
+            const Text('civilian').tr(),
             const SizedBox(height: Dimensions.defaultSidePadding),
             _getInputSettingsFieldWithLabel(
               settings: settings,
               key: FirestoreKeys.civilWin,
-              label: 'Civilian win',
+              label: 'civilianWin'.tr(),
             ),
             const SizedBox(height: Dimensions.defaultSidePadding),
             _getInputSettingsFieldWithLabel(
               settings: settings,
               key: FirestoreKeys.civilLoss,
-              label: 'Civilian loss',
+              label: 'civilianLose'.tr(),
             ),
             const SizedBox(height: Dimensions.defaultSidePadding),
             const Divider(height: Dimensions.defaultSidePadding),
-            const Text('Mafia:'),
+            const Text('mafia').tr(),
             const SizedBox(height: Dimensions.defaultSidePadding),
             _getInputSettingsFieldWithLabel(
               settings: settings,
               key: FirestoreKeys.mafWin,
-              label: 'Mafia win',
+              label: 'mafiaWin'.tr(),
             ),
             const SizedBox(height: Dimensions.defaultSidePadding),
             _getInputSettingsFieldWithLabel(
               settings: settings,
               key: FirestoreKeys.mafLoss,
-              label: 'Mafia loss',
+              label: 'mafiaLose'.tr(),
             ),
             const SizedBox(height: Dimensions.defaultSidePadding),
             const Divider(height: Dimensions.defaultSidePadding),
-            const Text('Violations:'),
+            const Text('violations').tr(),
             const SizedBox(height: Dimensions.defaultSidePadding),
             _getInputSettingsFieldWithLabel(
               settings: settings,
               key: FirestoreKeys.disqualificationLoss,
-              label: 'Kick loss',
+              label: 'kickLoss'.tr(),
             ),
             const SizedBox(height: Dimensions.defaultSidePadding),
             _getInputSettingsFieldWithLabel(
               settings: settings,
               key: FirestoreKeys.ppkLoss,
-              label: 'PPK loss',
+              label: 'ppkLoss'.tr(),
             ),
             const SizedBox(height: Dimensions.defaultSidePadding),
             const Divider(height: Dimensions.defaultSidePadding),
-            const Text('Other:'),
+            const Text('other').tr(),
             const SizedBox(height: Dimensions.defaultSidePadding),
             _getInputSettingsFieldWithLabel(
               settings: settings,
               key: FirestoreKeys.defGameLoss,
-              label: 'Default game loss',
+              label: 'defaultGameLose'.tr(),
             ),
           ],
         ));
@@ -164,21 +165,21 @@ class _RulesPageState extends State<RulesPage> {
   Widget _bestMoveSettings(List<RuleItemViewModel> settings) {
     return Column(
       children: [
-        const Row(children: [
-          SizedBox(width: Dimensions.inputTextRuleWidth),
-          SizedBox(
+        Row(children: [
+          const SizedBox(width: Dimensions.inputTextRuleWidth),
+          const SizedBox(
             width: Dimensions.sidePadding0_5x,
           ),
           SizedBox(
             width: Dimensions.inputTextRuleWidth,
-            child: Center(child: Text('WIN')),
+            child: Center(child: const Text('win').tr()),
           ),
-          SizedBox(
+          const SizedBox(
             width: Dimensions.sidePadding0_5x,
           ),
           SizedBox(
             width: Dimensions.inputTextRuleWidth,
-            child: Center(child: Text('LOSE')),
+            child: Center(child: const Text('lose').tr()),
           ),
         ]),
         const SizedBox(
@@ -187,7 +188,7 @@ class _RulesPageState extends State<RulesPage> {
         Row(children: [
           const SizedBox(
             width: Dimensions.inputTextRuleWidth,
-            child: Center(child: Text('BM (0/3)')),
+            child: Center(child: Text('0/3')),
           ),
           const SizedBox(
             width: Dimensions.sidePadding0_5x,
@@ -204,7 +205,7 @@ class _RulesPageState extends State<RulesPage> {
         Row(children: [
           const SizedBox(
             width: Dimensions.inputTextRuleWidth,
-            child: Center(child: Text('BM (1/3)')),
+            child: Center(child: Text('1/3')),
           ),
           const SizedBox(width: Dimensions.sidePadding0_5x),
           _getInputSettingsField(settings, FirestoreKeys.bestMoveWin1),
@@ -217,7 +218,7 @@ class _RulesPageState extends State<RulesPage> {
         Row(children: [
           const SizedBox(
             width: Dimensions.inputTextRuleWidth,
-            child: Center(child: Text('BM (2/3)')),
+            child: Center(child: Text('2/3')),
           ),
           const SizedBox(width: Dimensions.sidePadding0_5x),
           _getInputSettingsField(settings, FirestoreKeys.bestMoveWin2),
@@ -230,7 +231,7 @@ class _RulesPageState extends State<RulesPage> {
         Row(children: [
           const SizedBox(
             width: Dimensions.inputTextRuleWidth,
-            child: Center(child: Text('BM (3/3)')),
+            child: Center(child: Text('3/3')),
           ),
           const SizedBox(width: Dimensions.sidePadding0_5x),
           _getInputSettingsField(settings, FirestoreKeys.bestMoveWin3),
