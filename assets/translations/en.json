@@ -121,5 +121,6 @@
     "gameResults": "Game results",
     "saveResultsDialogTitle": "Do you want to save the game results?",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "noClubs": "No clubs"
 }

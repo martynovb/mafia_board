@@ -60,15 +60,14 @@ class _ClubsPageState extends State<ClubsPage> {
             child: CircularProgressIndicator(),
           );
         },
-
       ),
     );
   }
 
   Widget _clubsList(List<ClubModel> clubs) {
     if (clubs.isEmpty) {
-      return const Center(
-        child: Text('No clubs'),
+      return Center(
+        child: const Text('noClubs').tr(),
       );
     }
     return ListView.separated(
